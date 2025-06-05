@@ -3,15 +3,15 @@
 <plist version="1.0">
 <dict>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app needs access to location when open to show your current location for shipping details.</string>
+    <string>This app needs access to location to mark orchard boundaries.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>This app needs access to location when in the background to track shipping locations.</string>
+    <string>This app needs access to location to mark orchard boundaries.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>This app needs access to location when open and in the background to track shipping locations.</string>
+    <string>This app needs access to location to mark orchard boundaries.</string>
     <key>NSCameraUsageDescription</key>
-    <string>This app needs access to camera to scan QR codes and take photos of consignments.</string>
+    <string>This app needs access to camera to take orchard boundary images.</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>This app needs access to photo library to upload images of consignments.</string>
+    <string>This app needs access to photos to select orchard boundary images.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>This app needs access to microphone for voice notes on consignments.</string>
     <key>NSDocumentsFolderUsageDescription</key>
@@ -55,6 +55,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

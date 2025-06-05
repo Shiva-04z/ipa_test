@@ -13,6 +13,7 @@ import '../../models/orchard_model.dart';
 import '../../models/packing_house_status_model.dart';
 import '../../models/consignment_model.dart';
 import 'consignment_form_page.dart';
+import 'orchard_form_page.dart';
 
 class GrowerView extends GetView<GrowerController> {
   @override
@@ -98,36 +99,34 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildOrchardCard(Orchard orchard) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
-      onTap:
-          () => GrowerDialogs.showItemDetailsDialog(
-            context: Get.context!,
-            item: orchard,
-            title: 'Orchard Details',
-            details: [
-              _buildDetailRow('Name', orchard.name),
-              _buildDetailRow('Location', orchard.location),
-              _buildDetailRow(
-                'Trees',
-                orchard.numberOfFruitingTrees.toString(),
-              ),
-              _buildDetailRow(
-                'Expected Boxes',
-                orchard.estimatedBoxes?.toString() ?? 'N/A',
-              ),
-              _buildDetailRow(
-                'Harvest Date',
-                DateFormat('MMM dd, yyyy').format(orchard.expectedHarvestDate),
-              ),
-              _buildDetailRow(
-                'Status',
-                _getHarvestStatusText(orchard.harvestStatus),
-              ),
-            ],
-            onEdit:
-                () =>
-                    GrowerDialogs.showEditOrchardDialog(Get.context!, orchard),
-            onDelete: () => controller.removeOrchard(orchard.id),
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: orchard,
+        title: 'Orchard Details',
+        details: [
+          _buildDetailRow('Name', orchard.name),
+          _buildDetailRow('Location', orchard.location),
+          _buildDetailRow(
+            'Trees',
+            orchard.numberOfFruitingTrees.toString(),
           ),
+          _buildDetailRow(
+            'Expected Boxes',
+            orchard.estimatedBoxes?.toString() ?? 'N/A',
+          ),
+          _buildDetailRow(
+            'Harvest Date',
+            DateFormat('MMM dd, yyyy').format(orchard.expectedHarvestDate),
+          ),
+          _buildDetailRow(
+            'Status',
+            _getHarvestStatusText(orchard.harvestStatus),
+          ),
+        ],
+        onEdit: () =>
+            GrowerDialogs.showEditOrchardDialog(Get.context!, orchard),
+        onDelete: () => controller.removeOrchard(orchard.id),
+      ),
       child: Card(
         elevation: 0,
         color: Colors.white,
@@ -230,7 +229,7 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildAddNewOrchardCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return InkWell(
-      onTap: () => GrowerDialogs.showAddOrchardDialog(context),
+      onTap: () => Get.to(() => OrchardFormPage()),
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -307,22 +306,21 @@ class GrowerView extends GetView<GrowerController> {
     return Container(
       color: Colors.white,
       child: Column(
-        children:
-            controller.orchards.map((orchard) {
-              return Row(
-                children: [
-                  _buildDataCell(orchard.name),
-                  _buildDataCell(
-                    DateFormat(
-                      'MMM dd, yyyy',
-                    ).format(orchard.expectedHarvestDate),
-                  ),
-                  _buildDataCell(orchard.numberOfFruitingTrees.toString()),
-                  _buildDataCell(orchard.estimatedBoxes?.toString() ?? 'N/A'),
-                  _buildDataCell(_getHarvestStatusText(orchard.harvestStatus)),
-                ],
-              );
-            }).toList(),
+        children: controller.orchards.map((orchard) {
+          return Row(
+            children: [
+              _buildDataCell(orchard.name),
+              _buildDataCell(
+                DateFormat(
+                  'MMM dd, yyyy',
+                ).format(orchard.expectedHarvestDate),
+              ),
+              _buildDataCell(orchard.numberOfFruitingTrees.toString()),
+              _buildDataCell(orchard.estimatedBoxes?.toString() ?? 'N/A'),
+              _buildDataCell(_getHarvestStatusText(orchard.harvestStatus)),
+            ],
+          );
+        }).toList(),
       ),
     );
   }
@@ -380,8 +378,7 @@ class GrowerView extends GetView<GrowerController> {
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
                   ),
-                  itemCount:
-                      controller.consignments.length +
+                  itemCount: controller.consignments.length +
                       1, // +1 for the Add New card
                   itemBuilder: (context, index) {
                     if (index == 0) return _buildAddNewConsignmentCard(context);
@@ -420,8 +417,8 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildAddNewConsignmentCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return InkWell(
-      onTap:
-          () => Get.to(() => ConsignmentFormPage()), // Navigate to the new page
+      onTap: () =>
+          Get.to(() => ConsignmentFormPage()), // Navigate to the new page
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -453,11 +450,10 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildConsignmentCard(Consignment consignment) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
-      onTap:
-          () => GrowerDialogs.showConsignmentDetailsDialog(
-            Get.context!,
-            consignment,
-          ),
+      onTap: () => GrowerDialogs.showConsignmentDetailsDialog(
+        Get.context!,
+        consignment,
+      ),
       child: Card(
         elevation: 0,
         color: Colors.white,
@@ -568,21 +564,19 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildAgentCard(CommissionAgent agent) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
-      onTap:
-          () => GrowerDialogs.showItemDetailsDialog(
-            context: Get.context!,
-            item: agent,
-            title: 'Commission Agent Details',
-            details: [
-              _buildDetailRow('Name', agent.name),
-              _buildDetailRow('Phone', agent.phoneNumber),
-              _buildDetailRow('APMC Mandi', agent.apmcMandi),
-              _buildDetailRow('Address', agent.address),
-            ],
-            onEdit:
-                () {}, // Empty callback since we don't want edit functionality
-            onDelete: () => controller.removeCommissionAgent(agent.id),
-          ),
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: agent,
+        title: 'Commission Agent Details',
+        details: [
+          _buildDetailRow('Name', agent.name),
+          _buildDetailRow('Phone', agent.phoneNumber),
+          _buildDetailRow('APMC Mandi', agent.apmcMandi),
+          _buildDetailRow('Address', agent.address),
+        ],
+        onEdit: () {}, // Empty callback since we don't want edit functionality
+        onDelete: () => controller.removeCommissionAgent(agent.id),
+      ),
       child: Card(
         elevation: 0,
         color: Colors.white,
@@ -712,21 +706,19 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildCompanyCard(CorporateCompany company) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
-      onTap:
-          () => GrowerDialogs.showItemDetailsDialog(
-            context: Get.context!,
-            item: company,
-            title: 'Corporate Company Details',
-            details: [
-              _buildDetailRow('Name', company.name),
-              _buildDetailRow('Phone', company.phoneNumber),
-              _buildDetailRow('Type', company.companyType),
-              _buildDetailRow('Address', company.address),
-            ],
-            onEdit:
-                () {}, // Empty callback since we don't want edit functionality
-            onDelete: () => controller.removeCorporateCompany(company.id),
-          ),
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: company,
+        title: 'Corporate Company Details',
+        details: [
+          _buildDetailRow('Name', company.name),
+          _buildDetailRow('Phone', company.phoneNumber),
+          _buildDetailRow('Type', company.companyType),
+          _buildDetailRow('Address', company.address),
+        ],
+        onEdit: () {}, // Empty callback since we don't want edit functionality
+        onDelete: () => controller.removeCorporateCompany(company.id),
+      ),
       child: Card(
         elevation: 0,
         color: Colors.white,
@@ -857,21 +849,19 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildPackingHouseCard(PackingHouse house) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
-      onTap:
-          () => GrowerDialogs.showItemDetailsDialog(
-            context: Get.context!,
-            item: house,
-            title: 'Packing House Details',
-            details: [
-              _buildDetailRow('Name', house.packingHouseName ?? 'N/A'),
-              _buildDetailRow('Type', house.type.toString().split('.').last),
-              _buildDetailRow('Phone', house.packingHousePhone ?? 'N/A'),
-              _buildDetailRow('Address', house.packingHouseAddress ?? 'N/A'),
-            ],
-            onEdit:
-                () {}, // Empty callback since we don't want edit functionality
-            onDelete: () => controller.removePackingHouse(house.id),
-          ),
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: house,
+        title: 'Packing House Details',
+        details: [
+          _buildDetailRow('Name', house.packingHouseName ?? 'N/A'),
+          _buildDetailRow('Type', house.type.toString().split('.').last),
+          _buildDetailRow('Phone', house.packingHousePhone ?? 'N/A'),
+          _buildDetailRow('Address', house.packingHouseAddress ?? 'N/A'),
+        ],
+        onEdit: () {}, // Empty callback since we don't want edit functionality
+        onDelete: () => controller.removePackingHouse(house.id),
+      ),
       child: Card(
         elevation: 0,
         color: Colors.white,

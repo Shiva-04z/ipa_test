@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class CommissionAgent  {
+class CommissionAgent {
   final String id;
   final String name;
   final String phoneNumber;
@@ -65,12 +65,12 @@ class CommissionAgent  {
 
   @override
   List<Object?> get props => [
-    id,
-    name,
-    phoneNumber,
-    apmcMandi,
-    address,
-    createdAt,
-    updatedAt,
-  ];
+        id,
+        name,
+        phoneNumber,
+        apmcMandi,
+        address,
+        createdAt,
+        updatedAt,
+      ];
 }

@@ -65,12 +65,12 @@ class CorporateCompany extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    name,
-    phoneNumber,
-    address,
-    companyType,
-    createdAt,
-    updatedAt,
-  ];
+        id,
+        name,
+        phoneNumber,
+        address,
+        companyType,
+        createdAt,
+        updatedAt,
+      ];
 }
