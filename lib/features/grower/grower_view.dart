@@ -452,52 +452,11 @@ class GrowerView extends GetView<GrowerController> {
 
   Widget _buildConsignmentCard(Consignment consignment) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
-    // TODO: Implement actual Consignment Card UI based on model fields
     return InkWell(
       onTap:
-          () => GrowerDialogs.showItemDetailsDialog(
-            context: Get.context!,
-            item: consignment,
-            title: 'Consignment Details',
-            details: [
-              _buildDetailRow('Quality', consignment.quality),
-              _buildDetailRow('Category', consignment.category),
-              _buildDetailRow('Boxes', consignment.numberOfBoxes.toString()),
-              _buildDetailRow(
-                'Pieces/Box',
-                consignment.numberOfPiecesInBox.toString(),
-              ),
-              _buildDetailRow('Pickup', consignment.pickupOption),
-              if (consignment.shippingFrom != null)
-                _buildDetailRow('From', consignment.shippingFrom!),
-              if (consignment.shippingTo != null)
-                _buildDetailRow('To', consignment.shippingTo!),
-              _buildDetailRow('Adhani', consignment.adhaniOption),
-              _buildDetailRow('Ladhani', consignment.ladhaniOption),
-              if (consignment.hasOwnCrates != null)
-                _buildDetailRow(
-                  'Own Crates',
-                  consignment.hasOwnCrates.toString(),
-                ),
-              _buildDetailRow('Status', consignment.status),
-              if (consignment.driverName != null)
-                _buildDetailRow(
-                  'Driver',
-                  '${consignment.driverName} (${consignment.driverContact})',
-                ),
-              if (consignment.adhaniName != null)
-                _buildDetailRow(
-                  'Adhani',
-                  '${consignment.adhaniName} (${consignment.adhaniContact})',
-                ),
-              if (consignment.ladhaniName != null)
-                _buildDetailRow(
-                  'Ladhani',
-                  '${consignment.ladhaniName} (${consignment.ladhaniContact})',
-                ),
-            ],
-            onEdit: () {}, // No edit functionality for consignments currently
-            onDelete: () => controller.removeConsignment(consignment.id),
+          () => GrowerDialogs.showConsignmentDetailsDialog(
+            Get.context!,
+            consignment,
           ),
       child: Card(
         elevation: 0,
@@ -506,7 +465,6 @@ class GrowerView extends GetView<GrowerController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Placeholder Icon
               Icon(
                 Icons.assignment,
                 size: isSmallScreen ? 32 : 40,
@@ -514,7 +472,7 @@ class GrowerView extends GetView<GrowerController> {
               ),
               SizedBox(height: 8),
               Text(
-                'Consignment ${consignment.id.substring(0, 4)}...', // Displaying a truncated ID as a placeholder name
+                'Consignment ${consignment.id.substring(0, 4)}...',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,

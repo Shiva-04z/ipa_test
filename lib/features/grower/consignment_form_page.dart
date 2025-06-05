@@ -3,9 +3,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'dart:math';
 
 import '../../core/globals.dart' as globals;
 import '../../models/consignment_model.dart';
+import '../../models/commission_agent_model.dart';
+import '../../models/corporate_company_model.dart';
+import '../../models/packing_house_status_model.dart';
 import 'grower_controller.dart';
 
 class ConsignmentFormPage extends StatefulWidget {
@@ -59,8 +63,14 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
       TextEditingController();
   RxBool _requestAdhaniSupportPending = false.obs;
   RxBool _requestLadhaniSupportPending = false.obs;
-  Map<String, String>? _resolvedAdhaniDetails;
-  Map<String, String>? _resolvedLadhaniDetails;
+  Map<String, dynamic>? _resolvedAdhaniDetails;
+  Map<String, dynamic>? _resolvedLadhaniDetails;
+
+  // Add these variables at the top with other state variables
+  String? _selectedPartnerType; // 'Adhani' or 'Ladhani'
+  CommissionAgent? _selectedAdhani;
+  CorporateCompany? _selectedLadhani;
+  PackingHouse? _selectedPackhouse;
 
   @override
   void dispose() {
@@ -230,8 +240,15 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
     );
   }
 
+  // Add this method to get a random partner
+  T _getRandomPartner<T>(List<T> partners) {
+    if (partners.isEmpty) return null as T;
+    final random = Random();
+    return partners[random.nextInt(partners.length)];
+  }
+
   void _submitForm() {
-    if (_formKey.currentState?.validate() ?? false) {
+    if (_formKey.currentState!.validate()) {
       final newConsignment = Consignment(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         quality: _selectedQuality!,
@@ -247,6 +264,13 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
             _selectedPickupOption == 'Request Driver Support'
                 ? _shippingToController.text
                 : null,
+        packingHouse: _selectedPackhouse!,
+        commissionAgent:
+            _selectedPartnerType == 'Adhani' ? _selectedAdhani : null,
+        corporateCompany:
+            _selectedPartnerType == 'Ladhani' ? _selectedLadhani : null,
+        hasOwnCrates: _hasOwnCrates,
+        status: _selectedStatus ?? 'Keep',
         driverName:
             _selectedPickupOption == 'Own'
                 ? _driverNameController.text
@@ -255,59 +279,17 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
             _selectedPickupOption == 'Own'
                 ? _driverContactController.text
                 : _resolvedDriverDetails?['contact'],
-        packhouseName: _packhouseNameController.text,
-        packhouseContact: _packhouseContactController.text,
-        hasOwnCrates: _hasOwnCrates,
-        status: _selectedStatus!,
-        adhaniOption: _selectedAdhaniOption!,
-        ladhaniOption: _selectedAdhaniOption!,
-        adhaniName:
-            _selectedStatus == 'Release for Bid'
-                ? (_selectedAdhaniOption == 'Own'
-                    ? _adhaniNameController.text
-                    : _resolvedAdhaniDetails?['name'])
-                : null,
-        adhaniContact:
-            _selectedStatus == 'Release for Bid'
-                ? (_selectedAdhaniOption == 'Own'
-                    ? _adhaniContactController.text
-                    : _resolvedAdhaniDetails?['contact'])
-                : null,
-        adhaniApmc:
-            _selectedStatus == 'Release for Bid'
-                ? (_selectedAdhaniOption == 'Own'
-                    ? _adhaniApmcController.text
-                    : _resolvedAdhaniDetails?['apmc'])
-                : null,
-        ladhaniName:
-            _selectedStatus == 'Release for Bid'
-                ? (_selectedLadhaniOption == 'Own'
-                    ? _ladhaniNameController.text
-                    : _resolvedLadhaniDetails?['name'])
-                : null,
-        ladhaniContact:
-            _selectedStatus == 'Release for Bid'
-                ? (_selectedLadhaniOption == 'Own'
-                    ? _ladhaniContactController.text
-                    : _resolvedLadhaniDetails?['contact'])
-                : null,
-        ladhaniCompany:
-            _selectedStatus == 'Release for Bid'
-                ? (_selectedLadhaniOption == 'Own'
-                    ? _ladhaniCompanyController.text
-                    : _resolvedLadhaniDetails?['company'])
-                : null,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
-      controller.addConsignment(newConsignment);
+      globals.globalGrower.value.consignments.add(newConsignment);
+      globals.globalGrower.refresh();
       Get.back();
       Get.snackbar(
         'Success',
         'Consignment added successfully',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
       );
     }
   }
@@ -575,29 +557,33 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
           ),
         ),
         SizedBox(height: 24),
-        TextFormField(
-          controller: _packhouseNameController,
+        DropdownButtonFormField<PackingHouse>(
           decoration: _getInputDecoration(
-            'Packhouse Name',
+            'Packhouse',
             prefixIcon: Icons.business,
           ),
+          value: _selectedPackhouse,
+          items:
+              globals.globalGrower.value.packingHouses.map((
+                PackingHouse house,
+              ) {
+                return DropdownMenuItem<PackingHouse>(
+                  value: house,
+                  child: Text(house.packingHouseName ?? 'Unnamed'),
+                );
+              }).toList(),
+          onChanged: (PackingHouse? newValue) {
+            if (newValue != null) {
+              setState(() {
+                _selectedPackhouse = newValue;
+                _packhouseNameController.text = newValue.id;
+                _packhouseContactController.text =
+                    newValue.packingHousePhone ?? '';
+              });
+            }
+          },
           validator:
-              (value) =>
-                  value?.isEmpty ?? true ? 'Please enter packhouse name' : null,
-        ),
-        SizedBox(height: 16),
-        TextFormField(
-          controller: _packhouseContactController,
-          decoration: _getInputDecoration(
-            'Packhouse Contact',
-            prefixIcon: Icons.phone,
-          ),
-          keyboardType: TextInputType.phone,
-          validator:
-              (value) =>
-                  value?.isEmpty ?? true
-                      ? 'Please enter packhouse contact'
-                      : null,
+              (value) => value == null ? 'Please select a packhouse' : null,
         ),
         SizedBox(height: 16),
         Card(
@@ -699,111 +685,143 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Adhani Details',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Adhani Option:',
+                  'Select Partner Type:',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                ListTile(
-                  title: const Text('Own'),
-                  leading: Radio<String>(
-                    value: 'Own',
-                    groupValue: _selectedAdhaniOption,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedAdhaniOption = value;
-                        _resolvedAdhaniDetails = null;
-                      });
-                    },
-                    activeColor: Color(0xff548235),
-                  ),
-                ),
-                ListTile(
-                  title: const Text('Request Adhani Support'),
-                  leading: Radio<String>(
-                    value: 'Request Adhani Support',
-                    groupValue: _selectedAdhaniOption,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedAdhaniOption = value;
-                      });
-                    },
-                    activeColor: Color(0xff548235),
-                  ),
+                SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: Text('Adhani'),
+                        value: 'Adhani',
+                        groupValue: _selectedPartnerType,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedPartnerType = value;
+                            _selectedLadhaniOption = null;
+                            _selectedLadhani = null;
+                            _ladhaniNameController.clear();
+                            _ladhaniContactController.clear();
+                            _ladhaniCompanyController.clear();
+                            _resolvedLadhaniDetails = null;
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: Text('Ladhani'),
+                        value: 'Ladhani',
+                        groupValue: _selectedPartnerType,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedPartnerType = value;
+                            _selectedAdhaniOption = null;
+                            _selectedAdhani = null;
+                            _adhaniNameController.clear();
+                            _adhaniContactController.clear();
+                            _adhaniApmcController.clear();
+                            _resolvedAdhaniDetails = null;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
-        if (_selectedAdhaniOption == 'Own') ...[
-          SizedBox(height: 16),
-          TextFormField(
-            controller: _adhaniNameController,
-            decoration: _getInputDecoration(
-              'Adhani Name',
-              prefixIcon: Icons.person,
+        SizedBox(height: 24),
+        if (_selectedPartnerType == 'Adhani') ...[
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true ? 'Please enter adhani name' : null,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: _adhaniContactController,
-            decoration: _getInputDecoration(
-              'Adhani Contact',
-              prefixIcon: Icons.phone,
-            ),
-            keyboardType: TextInputType.phone,
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true
-                        ? 'Please enter adhani contact'
-                        : null,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: _adhaniApmcController,
-            decoration: _getInputDecoration(
-              'Adhani APMC',
-              prefixIcon: Icons.location_city,
-            ),
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true ? 'Please enter adhani APMC' : null,
-          ),
-        ],
-        if (_selectedAdhaniOption == 'Request Adhani Support') ...[
-          SizedBox(height: 16),
-          Obx(
-            () =>
-                _requestAdhaniSupportPending.value
-                    ? Center(child: CircularProgressIndicator())
-                    : (_resolvedAdhaniDetails == null)
-                    ? ElevatedButton.icon(
-                      onPressed: _requestAdhaniSupport,
-                      icon: Icon(Icons.person_add),
-                      label: Text('Request Adhani'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xff548235),
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 24,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Adhani Details:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  ListTile(
+                    title: const Text('Own'),
+                    leading: Radio<String>(
+                      value: 'Own',
+                      groupValue: _selectedAdhaniOption,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedAdhaniOption = value;
+                          _selectedAdhani = null;
+                          _resolvedAdhaniDetails = null;
+                        });
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text('Request Support'),
+                    leading: Radio<String>(
+                      value: 'Request Support',
+                      groupValue: _selectedAdhaniOption,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedAdhaniOption = value;
+                          _selectedAdhani = _getRandomPartner(
+                            globals.globalGrower.value.commissionAgents,
+                          );
+                          if (_selectedAdhani != null) {
+                            _adhaniNameController.text = _selectedAdhani!.id;
+                            _adhaniContactController.text =
+                                _selectedAdhani!.phoneNumber;
+                            _adhaniApmcController.text =
+                                _selectedAdhani!.apmcMandi;
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  if (_selectedAdhaniOption == 'Own') ...[
+                    SizedBox(height: 16),
+                    DropdownButtonFormField<CommissionAgent>(
+                      decoration: _getInputDecoration(
+                        'Select Adhani',
+                        prefixIcon: Icons.person,
                       ),
-                    )
-                    : Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      value: _selectedAdhani,
+                      items:
+                          globals.globalGrower.value.commissionAgents.map((
+                            CommissionAgent agent,
+                          ) {
+                            return DropdownMenuItem<CommissionAgent>(
+                              value: agent,
+                              child: Text(agent.name),
+                            );
+                          }).toList(),
+                      onChanged: (CommissionAgent? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedAdhani = newValue;
+                            _adhaniNameController.text = newValue.id;
+                            _adhaniContactController.text =
+                                newValue.phoneNumber;
+                            _adhaniApmcController.text = newValue.apmcMandi;
+                          });
+                        }
+                      },
+                      validator:
+                          (value) =>
+                              value == null ? 'Please select an Adhani' : null,
+                    ),
+                  ] else if (_selectedAdhaniOption == 'Request Support' &&
+                      _selectedAdhani != null) ...[
+                    SizedBox(height: 16),
+                    Card(
+                      color: Colors.orange.shade50,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
@@ -811,140 +829,110 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                           children: [
                             Text(
                               'Assigned Adhani:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 8),
-                            Text('Name: ${_resolvedAdhaniDetails!['name']}'),
-                            Text(
-                              'Contact: ${_resolvedAdhaniDetails!['contact']}',
-                            ),
-                            Text('APMC: ${_resolvedAdhaniDetails!['apmc']}'),
+                            Text('Name: ${_selectedAdhani!.name}'),
+                            Text('Phone: ${_selectedAdhani!.phoneNumber}'),
+                            Text('APMC: ${_selectedAdhani!.apmcMandi}'),
                           ],
                         ),
                       ),
                     ),
+                  ],
+                ],
+              ),
+            ),
           ),
-        ],
-        SizedBox(height: 24),
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Ladhani Details',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Ladhani Option:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                ListTile(
-                  title: const Text('Own'),
-                  leading: Radio<String>(
-                    value: 'Own',
-                    groupValue: _selectedLadhaniOption,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedLadhaniOption = value;
-                        _resolvedLadhaniDetails = null;
-                      });
-                    },
-                    activeColor: Color(0xff548235),
+        ] else if (_selectedPartnerType == 'Ladhani') ...[
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ladhani Details:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ),
-                ListTile(
-                  title: const Text('Request Ladhani Support'),
-                  leading: Radio<String>(
-                    value: 'Request Ladhani Support',
-                    groupValue: _selectedLadhaniOption,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedLadhaniOption = value;
-                      });
-                    },
-                    activeColor: Color(0xff548235),
+                  ListTile(
+                    title: const Text('Own'),
+                    leading: Radio<String>(
+                      value: 'Own',
+                      groupValue: _selectedLadhaniOption,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedLadhaniOption = value;
+                          _selectedLadhani = null;
+                          _resolvedLadhaniDetails = null;
+                        });
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (_selectedLadhaniOption == 'Own') ...[
-          SizedBox(height: 16),
-          TextFormField(
-            controller: _ladhaniNameController,
-            decoration: _getInputDecoration(
-              'Ladhani Name',
-              prefixIcon: Icons.person,
-            ),
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true ? 'Please enter ladhani name' : null,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: _ladhaniContactController,
-            decoration: _getInputDecoration(
-              'Ladhani Contact',
-              prefixIcon: Icons.phone,
-            ),
-            keyboardType: TextInputType.phone,
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true
-                        ? 'Please enter ladhani contact'
-                        : null,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: _ladhaniCompanyController,
-            decoration: _getInputDecoration(
-              'Ladhani Company',
-              prefixIcon: Icons.business,
-            ),
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true
-                        ? 'Please enter ladhani company'
-                        : null,
-          ),
-        ],
-        if (_selectedLadhaniOption == 'Request Ladhani Support') ...[
-          SizedBox(height: 16),
-          Obx(
-            () =>
-                _requestLadhaniSupportPending.value
-                    ? Center(child: CircularProgressIndicator())
-                    : (_resolvedLadhaniDetails == null)
-                    ? ElevatedButton.icon(
-                      onPressed: _requestLadhaniSupport,
-                      icon: Icon(Icons.person_add),
-                      label: Text('Request Ladhani'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xff548235),
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 24,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                  ListTile(
+                    title: const Text('Request Support'),
+                    leading: Radio<String>(
+                      value: 'Request Support',
+                      groupValue: _selectedLadhaniOption,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedLadhaniOption = value;
+                          _selectedLadhani = _getRandomPartner(
+                            globals.globalGrower.value.corporateCompanies,
+                          );
+                          if (_selectedLadhani != null) {
+                            _ladhaniNameController.text = _selectedLadhani!.id;
+                            _ladhaniContactController.text =
+                                _selectedLadhani!.phoneNumber;
+                            _ladhaniCompanyController.text =
+                                _selectedLadhani!.companyType;
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  if (_selectedLadhaniOption == 'Own') ...[
+                    SizedBox(height: 16),
+                    DropdownButtonFormField<CorporateCompany>(
+                      decoration: _getInputDecoration(
+                        'Select Ladhani',
+                        prefixIcon: Icons.business,
                       ),
-                    )
-                    : Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      value: _selectedLadhani,
+                      items:
+                          globals.globalGrower.value.corporateCompanies.map((
+                            CorporateCompany company,
+                          ) {
+                            return DropdownMenuItem<CorporateCompany>(
+                              value: company,
+                              child: Text(company.name),
+                            );
+                          }).toList(),
+                      onChanged: (CorporateCompany? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedLadhani = newValue;
+                            _ladhaniNameController.text = newValue.id;
+                            _ladhaniContactController.text =
+                                newValue.phoneNumber;
+                            _ladhaniCompanyController.text =
+                                newValue.companyType;
+                          });
+                        }
+                      },
+                      validator:
+                          (value) =>
+                              value == null ? 'Please select a Ladhani' : null,
+                    ),
+                  ] else if (_selectedLadhaniOption == 'Request Support' &&
+                      _selectedLadhani != null) ...[
+                    SizedBox(height: 16),
+                    Card(
+                      color: Colors.orange.shade50,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
@@ -952,23 +940,20 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                           children: [
                             Text(
                               'Assigned Ladhani:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 8),
-                            Text('Name: ${_resolvedLadhaniDetails!['name']}'),
-                            Text(
-                              'Contact: ${_resolvedLadhaniDetails!['contact']}',
-                            ),
-                            Text(
-                              'Company: ${_resolvedLadhaniDetails!['company']}',
-                            ),
+                            Text('Name: ${_selectedLadhani!.name}'),
+                            Text('Phone: ${_selectedLadhani!.phoneNumber}'),
+                            Text('Type: ${_selectedLadhani!.companyType}'),
                           ],
                         ),
                       ),
                     ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ],
       ],
@@ -1002,26 +987,42 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
         if (_selectedStatus != 'Release for Bid') return true;
 
         // Validate Adhani details
-        if (_selectedAdhaniOption == null) return false;
+        if (_selectedPartnerType == null) return false;
         bool adhaniValid =
-            _selectedAdhaniOption == 'Own'
-                ? (_adhaniNameController.text.isNotEmpty &&
+            _selectedPartnerType == 'Adhani'
+                ? (_selectedAdhaniOption == 'Own' &&
+                    _adhaniNameController.text.isNotEmpty &&
                     _adhaniContactController.text.isNotEmpty &&
                     _adhaniApmcController.text.isNotEmpty)
                 : (!_requestAdhaniSupportPending.value &&
                     _resolvedAdhaniDetails != null);
 
         // Validate Ladhani details
-        if (_selectedLadhaniOption == null) return false;
+        if (_selectedPartnerType == null) return false;
         bool ladhaniValid =
-            _selectedLadhaniOption == 'Own'
-                ? (_ladhaniNameController.text.isNotEmpty &&
+            _selectedPartnerType == 'Ladhani'
+                ? (_selectedLadhaniOption == 'Own' &&
+                    _ladhaniNameController.text.isNotEmpty &&
                     _ladhaniContactController.text.isNotEmpty &&
                     _ladhaniCompanyController.text.isNotEmpty)
                 : (!_requestLadhaniSupportPending.value &&
                     _resolvedLadhaniDetails != null);
 
         return adhaniValid && ladhaniValid;
+      case 5:
+        if (_selectedPartnerType == null) return false;
+        if (_selectedPartnerType == 'Adhani') {
+          if (_selectedAdhaniOption == null) return false;
+          if (_selectedAdhaniOption == 'Own' &&
+              _adhaniNameController.text.isEmpty)
+            return false;
+        } else if (_selectedPartnerType == 'Ladhani') {
+          if (_selectedLadhaniOption == null) return false;
+          if (_selectedLadhaniOption == 'Own' &&
+              _ladhaniNameController.text.isEmpty)
+            return false;
+        }
+        return true;
       default:
         return true;
     }

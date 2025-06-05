@@ -1,3 +1,6 @@
+import 'package:apple_grower/models/commission_agent_model.dart';
+import 'package:apple_grower/models/corporate_company_model.dart';
+import 'package:apple_grower/models/packing_house_status_model.dart';
 import 'package:get/get.dart';
 
 class Consignment {
@@ -9,23 +12,15 @@ class Consignment {
   final String pickupOption; // 'Own', 'Request Driver Support'
   final String? shippingFrom;
   final String? shippingTo;
-  final String adhaniOption; // 'Own', 'Request Adhani Support'
-  final String ladhaniOption; // 'Own', 'Request Ladhani Support'
+ final PackingHouse? packingHouse;
+ final CommissionAgent? commissionAgent;
+ final CorporateCompany? corporateCompany;
   final bool? hasOwnCrates; // Whether the grower has their own crates
   final String status; // 'Keep', 'Release for Bid'
 
   // Support details (filled if support is requested/resolved)
   final String? driverName;
   final String? driverContact;
-  final String? adhaniName;
-  final String? adhaniContact;
-  final String? adhaniApmc;
-  final String? ladhaniName;
-  final String? ladhaniContact;
-  final String? ladhaniCompany;
-  final String?  packhouseName;
-  final String? packhouseContact;
-
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -38,20 +33,13 @@ class Consignment {
     required this.pickupOption,
     this.shippingFrom,
     this.shippingTo,
-    required this.adhaniOption,
-    required this.ladhaniOption,
+   required this.commissionAgent,
     this.hasOwnCrates,
     required this.status,
     this.driverName,
     this.driverContact,
-    this.adhaniName,
-    this.adhaniContact,
-    this.adhaniApmc,
-    this.ladhaniName,
-    this.ladhaniContact,
-    this.ladhaniCompany,
-    this.packhouseName,
-    this.packhouseContact,
+    required this.corporateCompany,
+    required this.packingHouse,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -67,20 +55,13 @@ class Consignment {
       pickupOption: json['pickupOption'],
       shippingFrom: json['shippingFrom'],
       shippingTo: json['shippingTo'],
-      adhaniOption: json['adhaniOption'],
-      ladhaniOption: json['ladhaniOption'],
+      packingHouse: PackingHouse.fromJson(json['packingHouse']),
+      commissionAgent: CommissionAgent.fromJson(json['commissionAgent']),
+      corporateCompany: CorporateCompany.fromJson(json['corporateCompany']),
       hasOwnCrates: json['hasOwnCrates'],
       status: json['status'],
       driverName: json['driverName'],
       driverContact: json['driverContact'],
-      adhaniName: json['adhaniName'],
-      adhaniContact: json['adhaniContact'],
-      adhaniApmc: json['adhaniApmc'],
-      ladhaniName: json['ladhaniName'],
-      ladhaniContact: json['ladhaniContact'],
-      ladhaniCompany: json['ladhaniCompany'],
-      packhouseContact: json['packhouseContact'],
-      packhouseName: json['packhouseName'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );
@@ -97,20 +78,14 @@ class Consignment {
       'pickupOption': pickupOption,
       'shippingFrom': shippingFrom,
       'shippingTo': shippingTo,
-      'adhaniOption': adhaniOption,
-      'ladhaniOption': ladhaniOption,
+      'packingHouse': packingHouse?.toJson(),
+      'corporateCompany':corporateCompany?.toJson(),
+      'commissionAgent': commissionAgent?.toJson(),
       'hasOwnCrates': hasOwnCrates,
       'status': status,
       'driverName': driverName,
       'driverContact': driverContact,
-      'adhaniName': adhaniName,
-      'adhaniContact': adhaniContact,
-      'adhaniApmc': adhaniApmc,
-      'ladhaniName': ladhaniName,
-      'ladhaniContact': ladhaniContact,
-      'ladhaniCompany': ladhaniCompany,
-      'packhouseName': packhouseName,
-      'packhouseContact' : packhouseContact,
+
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -126,20 +101,13 @@ class Consignment {
     String? pickupOption,
     String? shippingFrom,
     String? shippingTo,
-    String? adhaniOption,
-    String? ladhaniOption,
     bool? hasOwnCrates,
     String? status,
     String? driverName,
     String? driverContact,
-    String? adhaniName,
-    String? adhaniContact,
-    String? adhaniApmc,
-    String? ladhaniName,
-    String? ladhaniContact,
-    String? ladhaniCompany,
-    String? packhouseName,
-    String? packhouseContact,
+   CorporateCompany? corporateCompany,
+    CommissionAgent?  commissionAgent,
+    PackingHouse? packingHouse,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -152,20 +120,13 @@ class Consignment {
       pickupOption: pickupOption ?? this.pickupOption,
       shippingFrom: shippingFrom ?? this.shippingFrom,
       shippingTo: shippingTo ?? this.shippingTo,
-      adhaniOption: adhaniOption ?? this.adhaniOption,
-      ladhaniOption: ladhaniOption ?? this.ladhaniOption,
       hasOwnCrates: hasOwnCrates ?? this.hasOwnCrates,
       status: status ?? this.status,
       driverName: driverName ?? this.driverName,
       driverContact: driverContact ?? this.driverContact,
-      adhaniName: adhaniName ?? this.adhaniName,
-      adhaniContact: adhaniContact ?? this.adhaniContact,
-      adhaniApmc: adhaniApmc ?? this.adhaniApmc,
-      ladhaniName: ladhaniName ?? this.ladhaniName,
-      ladhaniContact: ladhaniContact ?? this.ladhaniContact,
-      ladhaniCompany: ladhaniCompany ?? this.ladhaniCompany,
-      packhouseName: packhouseName?? this.packhouseName,
-      packhouseContact: packhouseContact?? this.packhouseContact,
+      packingHouse:  packingHouse ??this.packingHouse,
+      commissionAgent:  commissionAgent ??this.commissionAgent,
+      corporateCompany: corporateCompany ??this.corporateCompany,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
