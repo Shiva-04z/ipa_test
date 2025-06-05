@@ -16,8 +16,9 @@ import '../../models/packing_house_status_model.dart';
 class GrowerDialogs {
   static final _dialogTheme = ThemeData(
     primaryColor: Color(0xff548235),
-    colorScheme: ColorScheme.light(
-      primary: Color(0xff548235),
+    colorScheme: colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.green,
+      primary: Colors.green,
       secondary: Colors.orange,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -46,9 +47,10 @@ class GrowerDialogs {
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.white
     ),
   );
 
