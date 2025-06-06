@@ -1,44 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../core/globals.dart' as globals;
-import '../../models/corporate_company_model.dart';
+import '../../core/globals.dart' as glb;
+import '../../core/global_role_loader.dart' as gld;
+import '../../models/ladani_model.dart';
 
 class CorporateCompanyFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
-  final companyTypeController = TextEditingController();
   final addressController = TextEditingController();
+  final tradingFirmController = TextEditingController();
+  final tradingYearsController = TextEditingController();
+  final firmTypeController = TextEditingController();
+  final licenseNoController = TextEditingController();
+  final purchaseLocationController = TextEditingController();
+  final apmcController = TextEditingController();
+  final googleLocationController = TextEditingController();
+  final boxes2023Controller = TextEditingController();
+  final boxes2024Controller = TextEditingController();
+  final target2025Controller = TextEditingController();
+  final perBoxExpensesController = TextEditingController();
   final searchController = TextEditingController();
   final isLoading = false.obs;
   final isSearching = true.obs;
-  final searchResults = <CorporateCompany>[].obs;
+  final searchResults = <Ladani>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = globals.availiableLadhanis;
+    searchResults.value = glb.availableLadanis;
   }
 
   @override
   void onClose() {
     nameController.dispose();
     phoneController.dispose();
-    companyTypeController.dispose();
     addressController.dispose();
+    tradingFirmController.dispose();
+    tradingYearsController.dispose();
+    firmTypeController.dispose();
+    licenseNoController.dispose();
+    purchaseLocationController.dispose();
+    apmcController.dispose();
+    googleLocationController.dispose();
+    boxes2023Controller.dispose();
+    boxes2024Controller.dispose();
+    target2025Controller.dispose();
+    perBoxExpensesController.dispose();
     searchController.dispose();
     super.onClose();
   }
 
   void onSearchChanged(String query) {
     if (query.isEmpty) {
-      searchResults.value = globals.availiableLadhanis;
+      searchResults.value = glb.availableLadanis;
     } else {
-      searchResults.value = globals.availiableLadhanis.where((company) {
-        final name = company.name.toLowerCase();
-        final type = company.companyType.toLowerCase();
-        final address = company.address.toLowerCase();
+      searchResults.value = glb.availableLadanis.where((company) {
+        final name = company.name!.toLowerCase();
+        final type = company.firmType!.toLowerCase();
+        final address = company.address!.toLowerCase();
         final searchLower = query.toLowerCase();
 
         return name.contains(searchLower) ||
@@ -48,9 +69,9 @@ class CorporateCompanyFormController extends GetxController {
     }
   }
 
-  void selectCompany(CorporateCompany company) {
+  void selectCompany(Ladani company) {
     // Check if company already exists
-    final exists = globals.globalGrower.value.corporateCompanies.any(
+    final exists = gld.globalGrower.value.corporateCompanies.any(
       (existingCompany) => existingCompany.id == company.id,
     );
 
@@ -66,10 +87,10 @@ class CorporateCompanyFormController extends GetxController {
     }
 
     final updatedCompanies = [
-      ...globals.globalGrower.value.corporateCompanies,
+      ...gld.globalGrower.value.corporateCompanies,
       company
     ];
-    globals.globalGrower.value = globals.globalGrower.value.copyWith(
+    gld.globalGrower.value = gld.globalGrower.value.copyWith(
       corporateCompanies: updatedCompanies,
       updatedAt: DateTime.now(),
     );
@@ -90,21 +111,30 @@ class CorporateCompanyFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      final newCompany = CorporateCompany(
+      final newCompany = Ladani(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: nameController.text,
-        phoneNumber: phoneController.text,
-        companyType: companyTypeController.text,
+        contact: phoneController.text,
         address: addressController.text,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        nameOfTradingFirm: tradingFirmController.text,
+        tradingSinceYears: int.tryParse(tradingYearsController.text),
+        firmType: firmTypeController.text,
+        licenseNo: licenseNoController.text,
+        purchaseLocationAddress: purchaseLocationController.text,
+        licensesIssuingAPMC: apmcController.text,
+        locationOnGoogle: googleLocationController.text,
+        appleBoxesPurchased2023: int.tryParse(boxes2023Controller.text),
+        appleBoxesPurchased2024: int.tryParse(boxes2024Controller.text),
+        estimatedTarget2025: double.tryParse(target2025Controller.text),
+        perBoxExpensesAfterBidding:
+            double.tryParse(perBoxExpensesController.text),
       );
 
       final updatedCompanies = [
-        ...globals.globalGrower.value.corporateCompanies,
+        ...gld.globalGrower.value.corporateCompanies,
         newCompany
       ];
-      globals.globalGrower.value = globals.globalGrower.value.copyWith(
+      gld.globalGrower.value = gld.globalGrower.value.copyWith(
         corporateCompanies: updatedCompanies,
         updatedAt: DateTime.now(),
       );
@@ -179,7 +209,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSearchSection(),
+                _buildSearchSection(context),
                 const SizedBox(height: 24),
                 Obx(() => controller.isSearching.value
                     ? _buildSearchResults()
@@ -192,7 +222,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchSection() {
+  Widget _buildSearchSection(BuildContext context) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -204,10 +234,10 @@ class CorporateCompanyFormPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Select or Create Company',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
                     fontWeight: FontWeight.bold,
                     color: Color(0xff548235),
                   ),
@@ -265,7 +295,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
               final company = controller.searchResults[index];
-              final exists = globals.globalGrower.value.corporateCompanies.any(
+              final exists = gld.globalGrower.value.corporateCompanies.any(
                 (existingCompany) => existingCompany.id == company.id,
               );
 
@@ -298,12 +328,25 @@ class CorporateCompanyFormPage extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                    child: Text(
-                                      company.name,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          company.name ?? 'N/A',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Trading Firm: ${company.nameOfTradingFirm ?? 'N/A'}',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -311,17 +354,22 @@ class CorporateCompanyFormPage extends StatelessWidget {
                               const SizedBox(height: 12),
                               _buildInfoRow(
                                 Icons.category,
-                                'Type: ${company.companyType}',
+                                'Type: ${company.firmType ?? 'N/A'}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
                                 Icons.phone,
-                                'Phone: ${company.phoneNumber}',
+                                'Phone: ${company.contact ?? 'N/A'}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
                                 Icons.location_on,
-                                'Address: ${company.address}',
+                                'Address: ${company.address ?? 'N/A'}',
+                              ),
+                              const SizedBox(height: 8),
+                              _buildInfoRow(
+                                Icons.store,
+                                'APMC: ${company.licensesIssuingAPMC ?? 'N/A'}',
                               ),
                             ],
                           ),
@@ -387,6 +435,10 @@ class CorporateCompanyFormPage extends StatelessWidget {
         children: [
           _buildBasicDetails(),
           const SizedBox(height: 24),
+          _buildTradingDetails(),
+          const SizedBox(height: 24),
+          _buildBusinessDetails(),
+          const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
       ),
@@ -433,23 +485,183 @@ class CorporateCompanyFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.companyTypeController,
-              decoration: _getInputDecoration(
-                'Company Type',
-                prefixIcon: Icons.category,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter company type' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
               controller: controller.addressController,
               decoration: _getInputDecoration(
                 'Address',
                 prefixIcon: Icons.location_on,
               ),
+              maxLines: 2,
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Please enter address' : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTradingDetails() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Trading Details',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff548235),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.tradingFirmController,
+              decoration: _getInputDecoration(
+                'Trading Firm Name',
+                prefixIcon: Icons.business,
+              ),
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter trading firm name'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.tradingYearsController,
+              decoration: _getInputDecoration(
+                'Years in Trading',
+                prefixIcon: Icons.calendar_today,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter years in trading'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.firmTypeController,
+              decoration: _getInputDecoration(
+                'Firm Type (Prop./Partnership/HUF/PL/LLP/OPC)',
+                prefixIcon: Icons.business_center,
+              ),
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter firm type' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.licenseNoController,
+              decoration: _getInputDecoration(
+                'License Number',
+                prefixIcon: Icons.assignment,
+              ),
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter license number' : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBusinessDetails() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Business Details',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff548235),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.purchaseLocationController,
+              decoration: _getInputDecoration(
+                'Purchase Location Address',
+                prefixIcon: Icons.location_city,
+              ),
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter purchase location'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.apmcController,
+              decoration: _getInputDecoration(
+                'APMC License Issuing Authority',
+                prefixIcon: Icons.store,
+              ),
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter APMC authority' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.googleLocationController,
+              decoration: _getInputDecoration(
+                'Google Location',
+                prefixIcon: Icons.map,
+              ),
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter Google location'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.boxes2023Controller,
+              decoration: _getInputDecoration(
+                'Apple Boxes Purchased in 2023',
+                prefixIcon: Icons.inventory,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter boxes purchased in 2023'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.boxes2024Controller,
+              decoration: _getInputDecoration(
+                'Apple Boxes Purchased in 2024',
+                prefixIcon: Icons.inventory,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter boxes purchased in 2024'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.target2025Controller,
+              decoration: _getInputDecoration(
+                'Estimated Target for 2025',
+                prefixIcon: Icons.trending_up,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter estimated target for 2025'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.perBoxExpensesController,
+              decoration: _getInputDecoration(
+                'Per Box Expenses After Bidding',
+                prefixIcon: Icons.attach_money,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter per box expenses'
+                  : null,
             ),
           ],
         ),

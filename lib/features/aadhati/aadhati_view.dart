@@ -9,26 +9,27 @@ class AadhatiView extends GetView<AadhatiController> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Image(image: AssetImage("assets/images/logo.png"),height: 50,
+          title: Image(
+            image: AssetImage("assets/images/logo.png"),
+            height: 50,
           ),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xffb2dec5), Color(0xffc0bcbb)],
-                  stops: [0.25, 0.75],
-                  begin: Alignment.centerRight,
-                  end: Alignment.centerLeft,
-                )
-
-            ),
+              colors: [Color(0xffb2dec5), Color(0xffc0bcbb)],
+              stops: [0.25, 0.75],
+              begin: Alignment.centerRight,
+              end: Alignment.centerLeft,
+            )),
           ),
         ),
         body: SingleChildScrollView(
           child: Column(
-            children: [glbw.buildInfo(),],
+            children: [
+              glbw.buildInfo(),
+            ],
           ),
-        )
-    );
+        ));
   }
 }

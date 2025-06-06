@@ -1,7 +1,8 @@
-import 'package:apple_grower/models/commission_agent_model.dart';
-import 'package:apple_grower/models/corporate_company_model.dart';
-import 'package:apple_grower/models/packing_house_status_model.dart';
-import 'package:get/get.dart';
+import 'package:apple_grower/models/driving_profile_model.dart';
+import 'package:apple_grower/models/ladani_model.dart';
+import 'package:apple_grower/models/pack_house_model.dart';
+
+import 'aadhati.dart';
 
 class Consignment {
   final String id;
@@ -12,15 +13,12 @@ class Consignment {
   final String pickupOption; // 'Own', 'Request Driver Support'
   final String? shippingFrom;
   final String? shippingTo;
- final PackingHouse? packingHouse;
- final CommissionAgent? commissionAgent;
- final CorporateCompany? corporateCompany;
+  final PackHouse? packingHouse;
+  final Aadhati? commissionAgent;
+  final Ladani? corporateCompany;
   final bool? hasOwnCrates; // Whether the grower has their own crates
   final String status; // 'Keep', 'Release for Bid'
-
-  // Support details (filled if support is requested/resolved)
-  final String? driverName;
-  final String? driverContact;
+  final DrivingProfile? driver;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -33,11 +31,10 @@ class Consignment {
     required this.pickupOption,
     this.shippingFrom,
     this.shippingTo,
-   required this.commissionAgent,
+    required this.commissionAgent,
     this.hasOwnCrates,
     required this.status,
-    this.driverName,
-    this.driverContact,
+    required this.driver,
     required this.corporateCompany,
     required this.packingHouse,
     required this.createdAt,
@@ -55,15 +52,14 @@ class Consignment {
       pickupOption: json['pickupOption'],
       shippingFrom: json['shippingFrom'],
       shippingTo: json['shippingTo'],
-      packingHouse: PackingHouse.fromJson(json['packingHouse']),
-      commissionAgent: CommissionAgent.fromJson(json['commissionAgent']),
-      corporateCompany: CorporateCompany.fromJson(json['corporateCompany']),
+      packingHouse: PackHouse.fromJson(json['packingHouse']),
+      commissionAgent: Aadhati.fromJson(json['commissionAgent']),
+      corporateCompany: Ladani.fromJson(json['corporateCompany']),
       hasOwnCrates: json['hasOwnCrates'],
       status: json['status'],
-      driverName: json['driverName'],
-      driverContact: json['driverContact'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      driver: DrivingProfile.fromJson(json['driver']),
     );
   }
 
@@ -79,19 +75,16 @@ class Consignment {
       'shippingFrom': shippingFrom,
       'shippingTo': shippingTo,
       'packingHouse': packingHouse?.toJson(),
-      'corporateCompany':corporateCompany?.toJson(),
+      'corporateCompany': corporateCompany?.toJson(),
       'commissionAgent': commissionAgent?.toJson(),
       'hasOwnCrates': hasOwnCrates,
       'status': status,
-      'driverName': driverName,
-      'driverContact': driverContact,
-
+      'driver': driver?.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
   }
 
-  // Method for creating a copy with modified fields
   Consignment copyWith({
     String? id,
     String? quality,
@@ -101,13 +94,12 @@ class Consignment {
     String? pickupOption,
     String? shippingFrom,
     String? shippingTo,
+    PackHouse? packingHouse,
+    Aadhati? commissionAgent,
+    Ladani? corporateCompany,
     bool? hasOwnCrates,
     String? status,
-    String? driverName,
-    String? driverContact,
-   CorporateCompany? corporateCompany,
-    CommissionAgent?  commissionAgent,
-    PackingHouse? packingHouse,
+    DrivingProfile? driver,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -120,13 +112,12 @@ class Consignment {
       pickupOption: pickupOption ?? this.pickupOption,
       shippingFrom: shippingFrom ?? this.shippingFrom,
       shippingTo: shippingTo ?? this.shippingTo,
+      packingHouse: packingHouse ?? this.packingHouse,
+      commissionAgent: commissionAgent ?? this.commissionAgent,
+      corporateCompany: corporateCompany ?? this.corporateCompany,
       hasOwnCrates: hasOwnCrates ?? this.hasOwnCrates,
       status: status ?? this.status,
-      driverName: driverName ?? this.driverName,
-      driverContact: driverContact ?? this.driverContact,
-      packingHouse:  packingHouse ??this.packingHouse,
-      commissionAgent:  commissionAgent ??this.commissionAgent,
-      corporateCompany: corporateCompany ??this.corporateCompany,
+      driver: driver ?? this.driver,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

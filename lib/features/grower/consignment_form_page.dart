@@ -1,16 +1,17 @@
+import 'package:apple_grower/models/aadhati.dart';
+import 'package:apple_grower/models/driving_profile_model.dart';
+import 'package:apple_grower/models/ladani_model.dart';
+import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'dart:math';
-
-import '../../core/globals.dart' as globals;
+import '../../core/globals.dart' as glb;
 import '../../models/consignment_model.dart';
-import '../../models/commission_agent_model.dart';
-import '../../models/corporate_company_model.dart';
-import '../../models/packing_house_status_model.dart';
 import 'grower_controller.dart';
+import '../../core/global_role_loader.dart' as gld;
 
 class ConsignmentFormPage extends StatefulWidget {
   @override
@@ -37,7 +38,7 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
   final TextEditingController _driverContactController =
       TextEditingController();
   RxBool _requestDriverSupportPending = false.obs;
-  Map<String, String>? _resolvedDriverDetails;
+ DrivingProfile? _resolvedDriverDetails;
 
   // Step 3 Controllers
   final TextEditingController _packhouseNameController =
@@ -68,9 +69,9 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
 
   // Add these variables at the top with other state variables
   String? _selectedPartnerType; // 'Adhani' or 'Ladhani'
-  CommissionAgent? _selectedAdhani;
-  CorporateCompany? _selectedLadhani;
-  PackingHouse? _selectedPackhouse;
+  Aadhati? _selectedAdhani;
+ Ladani? _selectedLadhani;
+  PackHouse? _selectedPackhouse;
 
   @override
   void dispose() {
@@ -91,14 +92,14 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
   }
 
   List<String> get _availableQualities =>
-      globals.consignmentTableData
+      glb.consignmentTableData
           .map((e) => e['quality'] as String)
           .toSet()
           .toList();
 
   List<String> get _availableCategories {
     if (_selectedQuality == null) return [];
-    return globals.consignmentTableData
+    return glb.consignmentTableData
         .where((e) => e['quality'] == _selectedQuality)
         .map((e) => e['category'] as String)
         .toList();
@@ -106,7 +107,7 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
 
   void _updatePiecesInBox() {
     if (_selectedQuality != null && _selectedCategory != null) {
-      final data = globals.consignmentTableData.firstWhereOrNull(
+      final data = glb.consignmentTableData.firstWhereOrNull(
         (e) =>
             e['quality'] == _selectedQuality &&
             e['category'] == _selectedCategory,
@@ -120,7 +121,7 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
   Future<void> _requestDriverSupport() async {
     _requestDriverSupportPending.value = true;
     await Future.delayed(Duration(seconds: 2));
-    final randomDriver = (globals.dummyDrivers.toList()..shuffle()).first;
+    final randomDriver = (glb.availableDrivingProfiles.toList()..shuffle()).first;
     _resolvedDriverDetails = randomDriver;
     _requestDriverSupportPending.value = false;
     Get.snackbar(
@@ -130,35 +131,6 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
       colorText: Colors.white,
     );
   }
-
-  Future<void> _requestAdhaniSupport() async {
-    _requestAdhaniSupportPending.value = true;
-    await Future.delayed(Duration(seconds: 2));
-    final randomAdhani = (globals.dummyAdhanis.toList()..shuffle()).first;
-    _resolvedAdhaniDetails = randomAdhani;
-    _requestAdhaniSupportPending.value = false;
-    Get.snackbar(
-      'Success',
-      'Adhani details fetched.',
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
-  }
-
-  Future<void> _requestLadhaniSupport() async {
-    _requestLadhaniSupportPending.value = true;
-    await Future.delayed(Duration(seconds: 2));
-    final randomLadhani = (globals.dummyLadhanis.toList()..shuffle()).first;
-    _resolvedLadhaniDetails = randomLadhani;
-    _requestLadhaniSupportPending.value = false;
-    Get.snackbar(
-      'Success',
-      'Ladhani details fetched.',
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
-  }
-
   Future<void> _showMapLocationPicker(
     BuildContext context,
     TextEditingController locationController,
@@ -271,20 +243,14 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
             _selectedPartnerType == 'Ladhani' ? _selectedLadhani : null,
         hasOwnCrates: _hasOwnCrates,
         status: _selectedStatus ?? 'Keep',
-        driverName:
-            _selectedPickupOption == 'Own'
-                ? _driverNameController.text
-                : _resolvedDriverDetails?['name'],
-        driverContact:
-            _selectedPickupOption == 'Own'
-                ? _driverContactController.text
-                : _resolvedDriverDetails?['contact'],
+        driver: _resolvedDriverDetails ,
+
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
-      globals.globalGrower.value.consignments.add(newConsignment);
-      globals.globalGrower.refresh();
+      gld.globalGrower.value.consignments.add(newConsignment);
+      gld.globalGrower.refresh();
       Get.back();
       Get.snackbar(
         'Success',
@@ -530,9 +496,9 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                               ),
                             ),
                             SizedBox(height: 8),
-                            Text('Name: ${_resolvedDriverDetails!['name']}'),
+                            Text('Name: ${_resolvedDriverDetails!.name}'),
                             Text(
-                              'Contact: ${_resolvedDriverDetails!['contact']}',
+                              'Contact: ${_resolvedDriverDetails!.contact}',
                             ),
                           ],
                         ),
@@ -557,28 +523,33 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
           ),
         ),
         SizedBox(height: 24),
-        DropdownButtonFormField<PackingHouse>(
+        DropdownButtonFormField<PackHouse>(
           decoration: _getInputDecoration(
             'Packhouse',
             prefixIcon: Icons.business,
           ),
           value: _selectedPackhouse,
           items:
-              globals.globalGrower.value.packingHouses.map((
-                PackingHouse house,
+              gld.globalGrower.value.packingHouses.map((
+                PackHouse house,
               ) {
-                return DropdownMenuItem<PackingHouse>(
+                return DropdownMenuItem<PackHouse>(
                   value: house,
-                  child: Text(house.packingHouseName ?? 'Unnamed'),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.house),
+                      Text(house.name),
+                    ],
+                  ),
                 );
               }).toList(),
-          onChanged: (PackingHouse? newValue) {
+          onChanged: (PackHouse? newValue) {
             if (newValue != null) {
               setState(() {
                 _selectedPackhouse = newValue;
                 _packhouseNameController.text = newValue.id;
                 _packhouseContactController.text =
-                    newValue.packingHousePhone ?? '';
+                    newValue.phoneNumber ?? '';
               });
             }
           },
@@ -772,14 +743,14 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                         setState(() {
                           _selectedAdhaniOption = value;
                           _selectedAdhani = _getRandomPartner(
-                            globals.globalGrower.value.commissionAgents,
+                            gld.globalGrower.value.commissionAgents,
                           );
                           if (_selectedAdhani != null) {
-                            _adhaniNameController.text = _selectedAdhani!.id;
+                            _adhaniNameController.text = _selectedAdhani!.id!;
                             _adhaniContactController.text =
-                                _selectedAdhani!.phoneNumber;
+                                _selectedAdhani!.contact!;
                             _adhaniApmcController.text =
-                                _selectedAdhani!.apmcMandi;
+                                _selectedAdhani!.apmc!;
                           }
                         });
                       },
@@ -787,29 +758,29 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                   ),
                   if (_selectedAdhaniOption == 'Own') ...[
                     SizedBox(height: 16),
-                    DropdownButtonFormField<CommissionAgent>(
+                    DropdownButtonFormField<Aadhati>(
                       decoration: _getInputDecoration(
                         'Select Adhani',
                         prefixIcon: Icons.person,
                       ),
                       value: _selectedAdhani,
                       items:
-                          globals.globalGrower.value.commissionAgents.map((
-                            CommissionAgent agent,
+                          gld.globalGrower.value.commissionAgents.map((
+                            Aadhati agent,
                           ) {
-                            return DropdownMenuItem<CommissionAgent>(
+                            return DropdownMenuItem<Aadhati>(
                               value: agent,
-                              child: Text(agent.name),
+                              child: Text('${agent.name}'),
                             );
                           }).toList(),
-                      onChanged: (CommissionAgent? newValue) {
+                      onChanged: (Aadhati? newValue) {
                         if (newValue != null) {
                           setState(() {
                             _selectedAdhani = newValue;
-                            _adhaniNameController.text = newValue.id;
+                            _adhaniNameController.text = newValue.id!;
                             _adhaniContactController.text =
-                                newValue.phoneNumber;
-                            _adhaniApmcController.text = newValue.apmcMandi;
+                                newValue.contact!;
+                            _adhaniApmcController.text = newValue.apmc!;
                           });
                         }
                       },
@@ -833,8 +804,8 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                             ),
                             SizedBox(height: 8),
                             Text('Name: ${_selectedAdhani!.name}'),
-                            Text('Phone: ${_selectedAdhani!.phoneNumber}'),
-                            Text('APMC: ${_selectedAdhani!.apmcMandi}'),
+                            Text('Phone: ${_selectedAdhani!.contact!}'),
+                            Text('APMC: ${_selectedAdhani!.apmc!}'),
                           ],
                         ),
                       ),
@@ -882,14 +853,14 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                         setState(() {
                           _selectedLadhaniOption = value;
                           _selectedLadhani = _getRandomPartner(
-                            globals.globalGrower.value.corporateCompanies,
+                            gld.globalGrower.value.corporateCompanies,
                           );
                           if (_selectedLadhani != null) {
-                            _ladhaniNameController.text = _selectedLadhani!.id;
+                            _ladhaniNameController.text = _selectedLadhani!.id!;
                             _ladhaniContactController.text =
-                                _selectedLadhani!.phoneNumber;
+                                _selectedLadhani!.contact!;
                             _ladhaniCompanyController.text =
-                                _selectedLadhani!.companyType;
+                                _selectedLadhani!.firmType!;
                           }
                         });
                       },
@@ -897,30 +868,30 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                   ),
                   if (_selectedLadhaniOption == 'Own') ...[
                     SizedBox(height: 16),
-                    DropdownButtonFormField<CorporateCompany>(
+                    DropdownButtonFormField<Ladani>(
                       decoration: _getInputDecoration(
                         'Select Ladhani',
                         prefixIcon: Icons.business,
                       ),
                       value: _selectedLadhani,
                       items:
-                          globals.globalGrower.value.corporateCompanies.map((
-                            CorporateCompany company,
+                          gld.globalGrower.value.corporateCompanies.map((
+                           Ladani company,
                           ) {
-                            return DropdownMenuItem<CorporateCompany>(
+                            return DropdownMenuItem<Ladani>(
                               value: company,
-                              child: Text(company.name),
+                              child: Text("${company.name}"),
                             );
                           }).toList(),
-                      onChanged: (CorporateCompany? newValue) {
+                      onChanged: (Ladani? newValue) {
                         if (newValue != null) {
                           setState(() {
                             _selectedLadhani = newValue;
-                            _ladhaniNameController.text = newValue.id;
+                            _ladhaniNameController.text = newValue.id!;
                             _ladhaniContactController.text =
-                                newValue.phoneNumber;
+                                newValue.contact!;
                             _ladhaniCompanyController.text =
-                                newValue.companyType;
+                                newValue.firmType!;
                           });
                         }
                       },
@@ -944,8 +915,8 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                             ),
                             SizedBox(height: 8),
                             Text('Name: ${_selectedLadhani!.name}'),
-                            Text('Phone: ${_selectedLadhani!.phoneNumber}'),
-                            Text('Type: ${_selectedLadhani!.companyType}'),
+                            Text('Phone: ${_selectedLadhani!.contact!}'),
+                            Text('Type: ${_selectedLadhani!.firmType!}'),
                           ],
                         ),
                       ),

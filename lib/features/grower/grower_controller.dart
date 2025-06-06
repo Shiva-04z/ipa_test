@@ -1,14 +1,16 @@
+import '../../core/global_role_loader.dart';
+import 'package:apple_grower/models/ladani_model.dart';
+import 'package:apple_grower/models/pack_house_model.dart';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 import '../../core/globals.dart';
-import '../../models/commission_agent_model.dart';
-import '../../models/corporate_company_model.dart';
+import '../../models/aadhati.dart';
 import '../../models/grower_model.dart';
 import '../../models/orchard_model.dart';
-import '../../models/packing_house_status_model.dart';
 import '../../models/consignment_model.dart';
 
 class GrowerController extends GetxController {
@@ -31,10 +33,10 @@ class GrowerController extends GetxController {
 
   // Observable lists
   RxList<Orchard> get orchards => grower.orchards.obs;
-  RxList<CommissionAgent> get commissionAgents => grower.commissionAgents.obs;
-  RxList<CorporateCompany> get corporateCompanies =>
+  RxList<Aadhati> get commissionAgents => grower.commissionAgents.obs;
+  RxList<Ladani> get corporateCompanies =>
       grower.corporateCompanies.obs;
-  RxList<PackingHouse> get packingHouses => grower.packingHouses.obs;
+  RxList<PackHouse> get packingHouses => grower.packingHouses.obs;
   RxList<Consignment> get consignments => grower.consignments.obs;
 
   // Methods for managing orchards
@@ -70,7 +72,7 @@ class GrowerController extends GetxController {
   }
 
   // Methods for managing commission agents
-  void addCommissionAgent(CommissionAgent agent) {
+  void addCommissionAgent(Aadhati agent) {
     final updatedGrower = grower.copyWith(
       commissionAgents: [...grower.commissionAgents, agent],
       updatedAt: DateTime.now(),
@@ -78,10 +80,10 @@ class GrowerController extends GetxController {
     globalGrower.value = updatedGrower;
   }
 
-  void updateCommissionAgent(CommissionAgent agent) {
+  void updateCommissionAgent(Aadhati agent) {
     final index = grower.commissionAgents.indexWhere((a) => a.id == agent.id);
     if (index != -1) {
-      final updatedAgents = List<CommissionAgent>.from(grower.commissionAgents);
+      final updatedAgents = List<Aadhati>.from(grower.commissionAgents);
       updatedAgents[index] = agent;
       final updatedGrower = grower.copyWith(
         commissionAgents: updatedAgents,
@@ -102,7 +104,7 @@ class GrowerController extends GetxController {
   }
 
   // Methods for managing corporate companies
-  void addCorporateCompany(CorporateCompany company) {
+  void addCorporateCompany(Ladani company) {
     final updatedGrower = grower.copyWith(
       corporateCompanies: [...grower.corporateCompanies, company],
       updatedAt: DateTime.now(),
@@ -110,12 +112,12 @@ class GrowerController extends GetxController {
     globalGrower.value = updatedGrower;
   }
 
-  void updateCorporateCompany(CorporateCompany company) {
+  void updateCorporateCompany(Ladani company) {
     final index = grower.corporateCompanies.indexWhere(
       (c) => c.id == company.id,
     );
     if (index != -1) {
-      final updatedCompanies = List<CorporateCompany>.from(
+      final updatedCompanies = List<Ladani>.from(
         grower.corporateCompanies,
       );
       updatedCompanies[index] = company;
@@ -138,7 +140,7 @@ class GrowerController extends GetxController {
   }
 
   // Methods for managing packing houses
-  void addPackingHouse(PackingHouse house) {
+  void addPackingHouse(PackHouse house) {
     final updatedGrower = grower.copyWith(
       packingHouses: [...grower.packingHouses, house],
       updatedAt: DateTime.now(),
@@ -146,10 +148,10 @@ class GrowerController extends GetxController {
     globalGrower.value = updatedGrower;
   }
 
-  void updatePackingHouse(PackingHouse house) {
+  void updatePackingHouse(PackHouse house) {
     final index = grower.packingHouses.indexWhere((h) => h.id == house.id);
     if (index != -1) {
-      final updatedHouses = List<PackingHouse>.from(grower.packingHouses);
+      final updatedHouses = List<PackHouse>.from(grower.packingHouses);
       updatedHouses[index] = house;
       final updatedGrower = grower.copyWith(
         packingHouses: updatedHouses,

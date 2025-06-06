@@ -1,17 +1,14 @@
 import 'package:apple_grower/features/grower/corporate_company_form_page.dart';
 import 'package:apple_grower/features/grower/grower_controller.dart';
-
-import 'package:apple_grower/navigation/routes_constant.dart';
+import 'package:apple_grower/models/ladani_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:apple_grower/core/globalsWidgets.dart' as glbw;
 import 'package:intl/intl.dart';
+import '../../models/aadhati.dart';
+import '../../models/pack_house_model.dart';
 import 'grower_dialogs.dart';
-
-import '../../models/commission_agent_model.dart';
-import '../../models/corporate_company_model.dart';
 import '../../models/orchard_model.dart';
-import '../../models/packing_house_status_model.dart';
 import '../../models/consignment_model.dart';
 import 'consignment_form_page.dart';
 import 'orchard_form_page.dart';
@@ -70,7 +67,7 @@ class GrowerView extends GetView<GrowerController> {
                   itemCount: controller.orchards.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) return _buildAddNewOrchardCard(context);
-                    return _buildOrchardCard(controller.orchards[index - 1]);
+                    return _buildOrchardCard(context,controller.orchards[index - 1]);
                   },
                 ),
               ),
@@ -99,37 +96,10 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  Widget _buildOrchardCard(Orchard orchard) {
+  Widget _buildOrchardCard(BuildContext context,Orchard orchard) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
-      onTap: () => GrowerDialogs.showItemDetailsDialog(
-        context: Get.context!,
-        item: orchard,
-        title: 'Orchard Details',
-        details: [
-          _buildDetailRow('Name', orchard.name),
-          _buildDetailRow('Location', orchard.location),
-          _buildDetailRow(
-            'Trees',
-            orchard.numberOfFruitingTrees.toString(),
-          ),
-          _buildDetailRow(
-            'Expected Boxes',
-            orchard.estimatedBoxes?.toString() ?? 'N/A',
-          ),
-          _buildDetailRow(
-            'Harvest Date',
-            DateFormat('MMM dd, yyyy').format(orchard.expectedHarvestDate),
-          ),
-          _buildDetailRow(
-            'Status',
-            _getHarvestStatusText(orchard.harvestStatus),
-          ),
-        ],
-        onEdit: () =>
-            GrowerDialogs.showEditOrchardDialog(Get.context!, orchard),
-        onDelete: () => controller.removeOrchard(orchard.id),
-      ),
+      onTap: () => GrowerDialogs.showOrchardDetailsDialog(context, orchard),
       child: Card(
         elevation: 0,
         color: Colors.white,
@@ -564,7 +534,7 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  Widget _buildAgentCard(CommissionAgent agent) {
+  Widget _buildAgentCard(Aadhati agent) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
@@ -572,13 +542,13 @@ class GrowerView extends GetView<GrowerController> {
         item: agent,
         title: 'Commission Agent Details',
         details: [
-          _buildDetailRow('Name', agent.name),
-          _buildDetailRow('Phone', agent.phoneNumber),
-          _buildDetailRow('APMC Mandi', agent.apmcMandi),
-          _buildDetailRow('Address', agent.address),
+          _buildDetailRow('Name ','${agent.name}'),
+          _buildDetailRow('Phone', '${agent.contact}'),
+          _buildDetailRow('APMC Mandi', '${agent.apmc}'),
+          _buildDetailRow('Address', '${agent.address}'),
         ],
         onEdit: () {}, // Empty callback since we don't want edit functionality
-        onDelete: () => controller.removeCommissionAgent(agent.id),
+        onDelete: () => controller.removeCommissionAgent('${agent.id}'),
       ),
       child: Card(
         elevation: 0,
@@ -592,7 +562,7 @@ class GrowerView extends GetView<GrowerController> {
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
-                agent.name,
+               '${agent.name}',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -603,10 +573,10 @@ class GrowerView extends GetView<GrowerController> {
               ),
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
-                Text(agent.apmcMandi, style: TextStyle(fontSize: 12)),
+                Text('${agent.apmc}', style: TextStyle(fontSize: 12)),
                 SizedBox(height: 4),
                 Text(
-                  agent.phoneNumber,
+                  '${agent.contact}',
                   style: TextStyle(fontSize: 12, color: Colors.blue),
                 ),
               ],
@@ -706,7 +676,7 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  Widget _buildCompanyCard(CorporateCompany company) {
+  Widget _buildCompanyCard(Ladani company) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
@@ -714,13 +684,13 @@ class GrowerView extends GetView<GrowerController> {
         item: company,
         title: 'Corporate Company Details',
         details: [
-          _buildDetailRow('Name', company.name),
-          _buildDetailRow('Phone', company.phoneNumber),
-          _buildDetailRow('Type', company.companyType),
-          _buildDetailRow('Address', company.address),
+          _buildDetailRow('Name', '${company.nameOfTradingFirm}'),
+          _buildDetailRow('Phone', '${company.contact}'),
+          _buildDetailRow('Type', '${company.firmType}'),
+          _buildDetailRow('Address', '${company.address}'),
         ],
         onEdit: () {}, // Empty callback since we don't want edit functionality
-        onDelete: () => controller.removeCorporateCompany(company.id),
+        onDelete: () => controller.removeCorporateCompany('${company.id}'),
       ),
       child: Card(
         elevation: 0,
@@ -734,7 +704,7 @@ class GrowerView extends GetView<GrowerController> {
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
-                company.name,
+                '${company.name}',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -745,10 +715,10 @@ class GrowerView extends GetView<GrowerController> {
               ),
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
-                Text(company.companyType, style: TextStyle(fontSize: 12)),
+                Text('${company.firmType}', style: TextStyle(fontSize: 12)),
                 SizedBox(height: 4),
                 Text(
-                  company.phoneNumber,
+                  '${company.contact}',
                   style: TextStyle(fontSize: 12, color: Colors.purple),
                 ),
               ],
@@ -851,7 +821,7 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  Widget _buildPackingHouseCard(PackingHouse house) {
+  Widget _buildPackingHouseCard(PackHouse house) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
@@ -859,10 +829,10 @@ class GrowerView extends GetView<GrowerController> {
         item: house,
         title: 'Packing House Details',
         details: [
-          _buildDetailRow('Name', house.packingHouseName ?? 'N/A'),
-          _buildDetailRow('Type', house.type.toString().split('.').last),
-          _buildDetailRow('Phone', house.packingHousePhone ?? 'N/A'),
-          _buildDetailRow('Address', house.packingHouseAddress ?? 'N/A'),
+          _buildDetailRow('Name', house.name ),
+          _buildDetailRow('Type', '${house.trayType}'),
+          _buildDetailRow('Phone', house.phoneNumber),
+          _buildDetailRow('Address', house.address),
         ],
         onEdit: () {}, // Empty callback since we don't want edit functionality
         onDelete: () => controller.removePackingHouse(house.id),
@@ -879,7 +849,7 @@ class GrowerView extends GetView<GrowerController> {
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
-                house.packingHouseName ?? "Packhouse",
+                house.name ?? "Packhouse",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -891,12 +861,12 @@ class GrowerView extends GetView<GrowerController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  "Type: ${house.type.toString().split('.').last}",
+                  "Type: ${house.trayType}",
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  house.packingHouseAddress ?? "",
+                  house.address,
                   style: TextStyle(fontSize: 12, color: Colors.orange),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'grower_controller.dart';
-import '../../models/commission_agent_model.dart';
-import '../../models/corporate_company_model.dart';
 import '../../models/orchard_model.dart';
-import '../../models/packing_house_status_model.dart';
 import '../../models/consignment_model.dart';
+import '../../models/aadhati.dart';
+import '../../models/ladani_model.dart';
+import '../../models/pack_house_model.dart';
 
 class GrowerDialogs {
   static final _dialogTheme = ThemeData(
@@ -64,39 +60,120 @@ class GrowerDialogs {
   }) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ...details,
-              if (onDelete != null) ...[
-                SizedBox(height: 16),
-                Divider(),
-                SizedBox(height: 8),
-                TextButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    onDelete();
-                  },
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  label: Text(
-                    'Delete',
-                    style: TextStyle(color: Colors.red),
-                  ),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xffb2dec5), Color(0xffc0bcbb)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-              ],
-            ],
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                    offset: Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(24),
+                        topRight: Radius.circular(24),
+                      ),
+                    ),
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: details,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        if (onDelete != null)
+                          Expanded(
+                            child: TextButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                onDelete();
+                              },
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              label: Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              style: TextButton.styleFrom(
+                                backgroundColor: Colors.white.withOpacity(0.1),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                              ),
+                            ),
+                          ),
+                        if (onDelete != null) SizedBox(width: 16),
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: Text(
+                              'Close',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                ],
+              ),
+            ),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Close'),
-          ),
-        ],
       ),
     );
   }
@@ -111,463 +188,318 @@ class GrowerDialogs {
 
     return showDialog(
       context: context,
-      builder: (context) => Theme(
-        data: _dialogTheme,
-        child: AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            'Add Commission Agent',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xffb2dec5), Color(0xffc0bcbb)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                    offset: Offset(0, 10),
+                  ),
+                ],
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextFormField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Name',
-                      prefixIcon: Icon(Icons.person),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(24),
+                        topRight: Radius.circular(24),
+                      ),
                     ),
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? 'Required' : null,
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    controller: phoneController,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      prefixIcon: Icon(Icons.phone),
+                    child: Text(
+                      'Add Commission Agent',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        letterSpacing: 0.5,
+                      ),
                     ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? 'Required' : null,
                   ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    controller: apmcController,
-                    decoration: InputDecoration(
-                      labelText: 'APMC Mandi',
-                      prefixIcon: Icon(Icons.store),
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: EdgeInsets.all(16),
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: nameController,
+                              decoration: _getInputDecoration(
+                                'Name',
+                                prefixIcon: Icons.person,
+                              ),
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? 'Required' : null,
+                            ),
+                            SizedBox(height: 16),
+                            TextFormField(
+                              controller: phoneController,
+                              decoration: _getInputDecoration(
+                                'Phone Number',
+                                prefixIcon: Icons.phone,
+                              ),
+                              keyboardType: TextInputType.phone,
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? 'Required' : null,
+                            ),
+                            SizedBox(height: 16),
+                            TextFormField(
+                              controller: apmcController,
+                              decoration: _getInputDecoration(
+                                'APMC Mandi',
+                                prefixIcon: Icons.store,
+                              ),
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? 'Required' : null,
+                            ),
+                            SizedBox(height: 16),
+                            TextFormField(
+                              controller: addressController,
+                              decoration: _getInputDecoration(
+                                'Address',
+                                prefixIcon: Icons.location_on,
+                              ),
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? 'Required' : null,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? 'Required' : null,
                   ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    controller: addressController,
-                    decoration: InputDecoration(
-                      labelText: 'Address',
-                      prefixIcon: Icon(Icons.location_on),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (formKey.currentState?.validate() ?? false) {
+                                final agent = Aadhati(
+                                  id: DateTime.now()
+                                      .millisecondsSinceEpoch
+                                      .toString(),
+                                  name: nameController.text,
+                                  contact: phoneController.text,
+                                  apmc: apmcController.text,
+                                  address: addressController.text,
+                                );
+                                controller.addCommissionAgent(agent);
+                                Navigator.pop(context);
+                                Get.snackbar(
+                                  'Success',
+                                  'Commission agent added successfully',
+                                  backgroundColor: Colors.green,
+                                  colorText: Colors.white,
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 4,
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              shadowColor: Colors.white.withOpacity(0.3),
+                            ),
+                            child: Text(
+                              'Save',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? 'Required' : null,
                   ),
+                  SizedBox(height: 8),
                 ],
               ),
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(fontSize: 16)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (formKey.currentState?.validate() ?? false) {
-                  final agent = CommissionAgent(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    name: nameController.text,
-                    phoneNumber: phoneController.text,
-                    apmcMandi: apmcController.text,
-                    address: addressController.text,
-                    createdAt: DateTime.now(),
-                    updatedAt: DateTime.now(),
-                  );
-                  controller.addCommissionAgent(agent);
-                  Navigator.pop(context);
-                  Get.snackbar(
-                    'Success',
-                    'Commission agent added successfully',
-                    backgroundColor: Colors.green,
-                    colorText: Colors.white,
-                  );
-                }
-              },
-              child: Text('Save', style: TextStyle(fontSize: 16)),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  static Future<void> showAddCorporateCompanyDialog(BuildContext context) {
-    final TextEditingController searchController = TextEditingController();
-    final RxBool isSearching = true.obs;
-    final RxList<CorporateCompany> searchResults = <CorporateCompany>[].obs;
-
-    return Get.dialog(
-      AlertDialog(
-        title: Text('Add Corporate Company'),
-        content: Container(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Obx(
-                () => isSearching.value
-                    ? Column(
-                        children: [
-                          TextField(
-                            controller: searchController,
-                            decoration: InputDecoration(
-                              hintText: 'Search company...',
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            onChanged: (value) {
-                              // TODO: Implement company search logic
-                              // This should search your database or API
-                              searchResults.value =
-                                  []; // Replace with actual search results
-                            },
-                          ),
-                          SizedBox(height: 16),
-                          if (searchResults.isNotEmpty)
-                            Container(
-                              height: 200,
-                              child: ListView.builder(
-                                itemCount: searchResults.length,
-                                itemBuilder: (context, index) {
-                                  final company = searchResults[index];
-                                  return ListTile(
-                                    title: Text(company.name),
-                                    subtitle: Text(company.companyType),
-                                    onTap: () {
-                                      // TODO: Implement company selection logic
-                                      Get.back();
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () => isSearching.value = false,
-                            icon: Icon(Icons.add),
-                            label: Text('Create New Company'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xff548235),
-                              foregroundColor: Colors.white,
-                              minimumSize: Size(double.infinity, 45),
-                            ),
-                          ),
-                        ],
-                      )
-                    : _buildCompanyForm(
-                        context,
-                        () => isSearching.value = true,
-                      ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: Text('Cancel')),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildCompanyForm(BuildContext context, VoidCallback onBack) {
-    final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController();
-    final phoneController = TextEditingController();
-    final addressController = TextEditingController();
-    final companyTypeController = TextEditingController();
-
-    return Form(
-      key: formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextButton.icon(
-            onPressed: onBack,
-            icon: Icon(Icons.arrow_back),
-            label: Text('Back to Search'),
-            style: TextButton.styleFrom(foregroundColor: Color(0xff548235)),
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: nameController,
-            decoration: InputDecoration(
-              labelText: 'Company Name',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            validator: (value) =>
-                value?.isEmpty ?? true ? 'Please enter company name' : null,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: phoneController,
-            decoration: InputDecoration(
-              labelText: 'Phone Number',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            keyboardType: TextInputType.phone,
-            validator: (value) =>
-                value?.isEmpty ?? true ? 'Please enter phone number' : null,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: companyTypeController,
-            decoration: InputDecoration(
-              labelText: 'Company Type',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            validator: (value) =>
-                value?.isEmpty ?? true ? 'Please enter company type' : null,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: addressController,
-            decoration: InputDecoration(
-              labelText: 'Address',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            maxLines: 2,
-            validator: (value) =>
-                value?.isEmpty ?? true ? 'Please enter address' : null,
-          ),
-          SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                // TODO: Implement company creation logic
-                Get.back();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xff548235),
-              foregroundColor: Colors.white,
-              minimumSize: Size(double.infinity, 45),
-            ),
-            child: Text('Add Company'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Future<void> showPackingHouseDialog(BuildContext context) {
-    final TextEditingController searchController = TextEditingController();
-    final RxBool isSearching = true.obs;
-    final RxList<PackingHouse> searchResults = <PackingHouse>[].obs;
-
-    return Get.dialog(
-      AlertDialog(
-        title: Text('Add Packing House'),
-        content: Container(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Obx(
-                () => isSearching.value
-                    ? Column(
-                        children: [
-                          TextField(
-                            controller: searchController,
-                            decoration: InputDecoration(
-                              hintText: 'Search packing house...',
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            onChanged: (value) {
-                              // TODO: Implement packing house search logic
-                              // This should search your database or API
-                              searchResults.value =
-                                  []; // Replace with actual search results
-                            },
-                          ),
-                          SizedBox(height: 16),
-                          if (searchResults.isNotEmpty)
-                            Container(
-                              height: 200,
-                              child: ListView.builder(
-                                itemCount: searchResults.length,
-                                itemBuilder: (context, index) {
-                                  final house = searchResults[index];
-                                  return ListTile(
-                                    title: Text(
-                                      house.packingHouseName ?? 'Unnamed',
-                                    ),
-                                    subtitle: Text(
-                                      house.type.toString().split('.').last,
-                                    ),
-                                    onTap: () {
-                                      // TODO: Implement packing house selection logic
-                                      Get.back();
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () => isSearching.value = false,
-                            icon: Icon(Icons.add),
-                            label: Text('Create New Packing House'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xff548235),
-                              foregroundColor: Colors.white,
-                              minimumSize: Size(double.infinity, 45),
-                            ),
-                          ),
-                        ],
-                      )
-                    : _buildPackingHouseForm(
-                        context,
-                        () => isSearching.value = true,
-                      ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: Text('Cancel')),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildPackingHouseForm(
+  static Future<void> showOrchardDetailsDialog(
     BuildContext context,
-    VoidCallback onBack,
+    Orchard orchard,
   ) {
-    final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController();
-    final phoneController = TextEditingController();
-    final addressController = TextEditingController();
-    final Rx<PackingHouseType> selectedType = PackingHouseType.own.obs;
-
-    return Form(
-      key: formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextButton.icon(
-            onPressed: onBack,
-            icon: Icon(Icons.arrow_back),
-            label: Text('Back to Search'),
-            style: TextButton.styleFrom(foregroundColor: Color(0xff548235)),
-          ),
-          SizedBox(height: 16),
-          Obx(
-            () => SegmentedButton<PackingHouseType>(
-              segments: [
-                ButtonSegment(
-                  value: PackingHouseType.own,
-                  label: Text('Own'),
-                  icon: Icon(Icons.business),
+    return showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xffb2dec5), Color(0xffc0bcbb)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-                ButtonSegment(
-                  value: PackingHouseType.thirdParty,
-                  label: Text('Third Party'),
-                  icon: Icon(Icons.business_outlined),
-                ),
-              ],
-              selected: {selectedType.value},
-              onSelectionChanged: (Set<PackingHouseType> newSelection) {
-                selectedType.value = newSelection.first;
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color>((
-                  Set<MaterialState> states,
-                ) {
-                  if (states.contains(MaterialState.selected)) {
-                    return Color(0xff548235);
-                  }
-                  return Colors.grey.shade200;
-                }),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                    offset: Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(24),
+                        topRight: Radius.circular(24),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            orchard.name,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Color(0xff548235)),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            showEditOrchardDialog(context, orchard);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildDetailRow('Location', orchard.location),
+                          _buildDetailRow(
+                            'Number of Trees',
+                            orchard.numberOfFruitingTrees.toString(),
+                          ),
+                          _buildDetailRow(
+                            'Expected Boxes',
+                            orchard.estimatedBoxes?.toString() ?? 'Not set',
+                          ),
+                          _buildDetailRow(
+                            'Harvest Date',
+                            DateFormat('MMM dd, yyyy')
+                                .format(orchard.expectedHarvestDate),
+                          ),
+                          _buildDetailRow(
+                            'Status',
+                            orchard.harvestStatus.toString().split('.').last,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: Text(
+                              'Close',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                ],
               ),
             ),
           ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: nameController,
-            decoration: InputDecoration(
-              labelText: 'Packing House Name',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            validator: (value) => value?.isEmpty ?? true
-                ? 'Please enter packing house name'
-                : null,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: phoneController,
-            decoration: InputDecoration(
-              labelText: 'Phone Number',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            keyboardType: TextInputType.phone,
-            validator: (value) =>
-                value?.isEmpty ?? true ? 'Please enter phone number' : null,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: addressController,
-            decoration: InputDecoration(
-              labelText: 'Address',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            maxLines: 2,
-            validator: (value) =>
-                value?.isEmpty ?? true ? 'Please enter address' : null,
-          ),
-          SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                // TODO: Implement packing house creation logic
-                Get.back();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xff548235),
-              foregroundColor: Colors.white,
-              minimumSize: Size(double.infinity, 45),
-            ),
-            child: Text('Add Packing House'),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -575,7 +507,7 @@ class GrowerDialogs {
   static Future<void> showEditOrchardDialog(
     BuildContext context,
     Orchard orchard,
-  ) async {
+  ) {
     final controller = Get.find<GrowerController>();
     final formKey = GlobalKey<FormState>();
     final treesController = TextEditingController(
@@ -589,199 +521,229 @@ class GrowerDialogs {
 
     return showDialog(
       context: context,
-      builder: (context) => Theme(
-        data: _dialogTheme,
-        child: AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            'Edit Orchard',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xffb2dec5), Color(0xffc0bcbb)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                    offset: Offset(0, 10),
+                  ),
+                ],
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextFormField(
-                    controller: treesController,
-                    decoration: InputDecoration(
-                      labelText: 'Number of Trees',
-                      prefixIcon: Icon(Icons.park),
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? 'Required' : null,
-                  ),
-                  SizedBox(height: 16),
-                  Obx(
-                    () => DropdownButtonFormField<HarvestStatus>(
-                      value: harvestStatus.value,
-                      decoration: InputDecoration(
-                        labelText: 'Harvest Status',
-                        prefixIcon: Icon(Icons.calendar_view_day),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(24),
+                        topRight: Radius.circular(24),
                       ),
-                      items: HarvestStatus.values.map((status) {
-                        return DropdownMenuItem<HarvestStatus>(
-                          value: status,
-                          child: Text(
-                            status.toString().split('.').last,
-                            style: TextStyle(fontSize: 14),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) => harvestStatus.value = value!,
+                    ),
+                    child: Text(
+                      'Edit Orchard',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  Obx(
-                    () => InkWell(
-                      onTap: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: harvestDate.value,
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(Duration(days: 365)),
-                          builder: (context, child) => Theme(
-                            data: Theme.of(context).copyWith(
-                              colorScheme: ColorScheme.light(
-                                primary: Color(0xff548235),
-                                onPrimary: Colors.white,
-                                surface: Colors.white,
-                                onSurface: Colors.black,
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: EdgeInsets.all(16),
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: treesController,
+                              decoration: _getInputDecoration(
+                                'Number of Trees',
+                                prefixIcon: Icons.park,
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? 'Required' : null,
+                            ),
+                            SizedBox(height: 16),
+                            TextFormField(
+                              controller: boxesController,
+                              decoration: _getInputDecoration(
+                                'Expected Boxes',
+                                prefixIcon: Icons.shopping_cart,
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? 'Required' : null,
+                            ),
+                            SizedBox(height: 16),
+                            Obx(
+                              () => DropdownButtonFormField<HarvestStatus>(
+                                value: harvestStatus.value,
+                                decoration: _getInputDecoration(
+                                  'Harvest Status',
+                                  prefixIcon: Icons.calendar_view_day,
+                                ),
+                                items: HarvestStatus.values.map((status) {
+                                  return DropdownMenuItem<HarvestStatus>(
+                                    value: status,
+                                    child: Text(
+                                      status.toString().split('.').last,
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) =>
+                                    harvestStatus.value = value!,
                               ),
                             ),
-                            child: child!,
-                          ),
-                        );
-                        if (date != null) harvestDate.value = date;
-                      },
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: 'Harvest Date',
-                          prefixIcon: Icon(Icons.calendar_today),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              DateFormat(
-                                'MMM dd, yyyy',
-                              ).format(harvestDate.value),
+                            SizedBox(height: 16),
+                            Obx(
+                              () => InkWell(
+                                onTap: () async {
+                                  final date = await showDatePicker(
+                                    context: context,
+                                    initialDate: harvestDate.value,
+                                    firstDate: DateTime.now(),
+                                    lastDate:
+                                        DateTime.now().add(Duration(days: 365)),
+                                    builder: (context, child) => Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: ColorScheme.light(
+                                          primary: Color(0xff548235),
+                                          onPrimary: Colors.white,
+                                          surface: Colors.white,
+                                          onSurface: Colors.black,
+                                        ),
+                                      ),
+                                      child: child!,
+                                    ),
+                                  );
+                                  if (date != null) harvestDate.value = date;
+                                },
+                                child: InputDecorator(
+                                  decoration: _getInputDecoration(
+                                    'Harvest Date',
+                                    prefixIcon: Icons.calendar_today,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        DateFormat('MMM dd, yyyy')
+                                            .format(harvestDate.value),
+                                      ),
+                                      Icon(Icons.arrow_drop_down),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
-                            Icon(Icons.arrow_drop_down),
                           ],
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    controller: boxesController,
-                    decoration: InputDecoration(
-                      labelText: 'Expected Boxes',
-                      prefixIcon: Icon(Icons.shopping_cart),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (formKey.currentState?.validate() ?? false) {
+                                final updatedOrchard = orchard.copyWith(
+                                  numberOfFruitingTrees:
+                                      int.parse(treesController.text),
+                                  expectedHarvestDate: harvestDate.value,
+                                  harvestStatus: harvestStatus.value,
+                                  estimatedBoxes:
+                                      int.parse(boxesController.text),
+                                  updatedAt: DateTime.now(),
+                                );
+                                controller.updateOrchard(updatedOrchard);
+                                Navigator.pop(context);
+                                Get.snackbar(
+                                  'Success',
+                                  'Orchard updated successfully',
+                                  backgroundColor: Colors.green,
+                                  colorText: Colors.white,
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 4,
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              shadowColor: Colors.white.withOpacity(0.3),
+                            ),
+                            child: Text(
+                              'Save',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? 'Required' : null,
                   ),
+                  SizedBox(height: 8),
                 ],
               ),
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(fontSize: 16)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (formKey.currentState?.validate() ?? false) {
-                  final updatedOrchard = orchard.copyWith(
-                    numberOfFruitingTrees: int.parse(treesController.text),
-                    expectedHarvestDate: harvestDate.value,
-                    harvestStatus: harvestStatus.value,
-                    estimatedBoxes: int.parse(boxesController.text),
-                    updatedAt: DateTime.now(),
-                  );
-                  controller.updateOrchard(updatedOrchard);
-                  Navigator.pop(context);
-                  Get.snackbar(
-                    'Success',
-                    'Orchard updated successfully',
-                    backgroundColor: Colors.green,
-                    colorText: Colors.white,
-                  );
-                }
-              },
-              child: Text('Save', style: TextStyle(fontSize: 16)),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
-            ),
-          ],
         ),
       ),
-    );
-  }
-
-  static Future<void> _showMapLocationPicker(
-    BuildContext context,
-    TextEditingController locationController,
-  ) async {
-    // TODO: Implement map location picker
-    // This should show a map where users can select a location
-    // For now, we'll just use the current location
-    try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw 'Location services are disabled.';
-      }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          throw 'Location permissions are denied';
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        throw 'Location permissions are permanently denied';
-      }
-
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-
-      String address = placemarks.isNotEmpty
-          ? '${placemarks.first.street}, ${placemarks.first.locality}, ${placemarks.first.postalCode}'
-          : 'Unknown Location';
-
-      locationController.text = address;
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to get location: ${e.toString()}');
-    }
-  }
-
-  // Update the location field in all forms to include a map button
-  static InputDecoration _getLocationDecoration(
-    String label,
-    VoidCallback onMapTap,
-  ) {
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(Icons.location_on),
-      suffixIcon: IconButton(icon: Icon(Icons.map), onPressed: onMapTap),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
     );
   }
 
@@ -833,7 +795,7 @@ class GrowerDialogs {
                         if (consignment.packingHouse != null)
                           _buildDetailRow(
                             'Packhouse',
-                            consignment.packingHouse!.packingHouseName ?? 'N/A',
+                            consignment.packingHouse!.name ?? 'N/A',
                           ),
                         if (consignment.hasOwnCrates != null)
                           _buildDetailRow(
@@ -841,20 +803,15 @@ class GrowerDialogs {
                             consignment.hasOwnCrates.toString(),
                           ),
                         _buildDetailRow('Status', consignment.status),
-                        if (consignment.driverName != null)
-                          _buildDetailRow(
-                            'Driver',
-                            '${consignment.driverName} (${consignment.driverContact})',
-                          ),
                         if (consignment.commissionAgent != null)
                           _buildDetailRow(
                             'Adhani',
-                            '${consignment.commissionAgent!.name} (${consignment.commissionAgent!.phoneNumber})',
+                            '${consignment.commissionAgent!.name} (${consignment.commissionAgent!.contact})',
                           ),
                         if (consignment.corporateCompany != null)
                           _buildDetailRow(
                             'Ladhani',
-                            '${consignment.corporateCompany!.name} (${consignment.corporateCompany!.phoneNumber})',
+                            '${consignment.corporateCompany!.name} (${consignment.corporateCompany!.contact})',
                           ),
                       ],
                     ),
@@ -916,6 +873,29 @@ class GrowerDialogs {
           Expanded(child: Text(value)),
         ],
       ),
+    );
+  }
+
+  static InputDecoration _getInputDecoration(String label,
+      {IconData? prefixIcon}) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+      filled: true,
+      fillColor: Colors.white.withOpacity(0.9),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Color(0xff548235), width: 2),
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
 }

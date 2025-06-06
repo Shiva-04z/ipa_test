@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-import '../../core/globals.dart' as globals;
+import '../../core/global_role_loader.dart' as gld;
 import '../../models/orchard_model.dart';
 
 class OrchardFormController extends GetxController {
@@ -401,10 +401,10 @@ class OrchardFormController extends GetxController {
       );
 
       final updatedOrchards = [
-        ...globals.globalGrower.value.orchards,
+        ...gld.globalGrower.value.orchards,
         newOrchard
       ];
-      globals.globalGrower.value = globals.globalGrower.value.copyWith(
+      gld.globalGrower.value = gld.globalGrower.value.copyWith(
         orchards: updatedOrchards,
         updatedAt: DateTime.now(),
       );

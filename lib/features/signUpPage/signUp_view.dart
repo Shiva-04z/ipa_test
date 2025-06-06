@@ -12,6 +12,7 @@ class SignUpView extends GetView<SignUpController> {
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.2),
           image: DecorationImage(
             fit: BoxFit.fill,
             image: AssetImage("assets/images/background.png"),
@@ -20,14 +21,19 @@ class SignUpView extends GetView<SignUpController> {
         child: Center(
           child: Container(
             constraints: BoxConstraints(maxWidth: 400),
+
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height>600? 10 : 80),
-                  Center(
-                    child: Image(
-                      image: AssetImage('assets/images/logo.png'),
-                      fit: BoxFit.contain,
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width>600? 400 : 200,
+                    child: Center(
+                      child: Image(
+                        image: AssetImage('assets/images/logo.png'),
+                        fit: BoxFit.contain,
+
+                      ),
                     ),
                   ),
                   SizedBox(height: 20),
@@ -43,7 +49,7 @@ class SignUpView extends GetView<SignUpController> {
                         () => Text(
                           "${controller.currentValue.value}'s Login",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.white,
 
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -64,7 +70,7 @@ class SignUpView extends GetView<SignUpController> {
                         Text(
                           "Enter Mobile Number",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
                           ),
@@ -86,7 +92,7 @@ class SignUpView extends GetView<SignUpController> {
                         Text(
                           "Enter Adhaar Number",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
                           ),
@@ -108,7 +114,7 @@ class SignUpView extends GetView<SignUpController> {
                         Text(
                           "Select Role",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
                           ),

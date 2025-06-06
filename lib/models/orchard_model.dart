@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 enum HarvestStatus { planned, inProgress, completed, delayed }
 
-class Orchard  {
+class Orchard {
   final String id;
   final String name;
   final String location;
@@ -44,10 +44,9 @@ class Orchard  {
       expectedHarvestDate: DateTime.parse(
         json['expectedHarvestDate'] as String,
       ),
-      boundaryPoints:
-          (json['boundaryPoints'] as List<dynamic>)
-              .map((e) => GPSPoint.fromJson(e as Map<String, dynamic>))
-              .toList(),
+      boundaryPoints: (json['boundaryPoints'] as List<dynamic>)
+          .map((e) => GPSPoint.fromJson(e as Map<String, dynamic>))
+          .toList(),
       area: json['area'] as double,
       boundaryImagePath: json['boundaryImagePath'] as String,
       harvestStatus: HarvestStatus.values.firstWhere(
@@ -56,10 +55,9 @@ class Orchard  {
       ),
       harvestDelayReason: json['harvestDelayReason'] as String?,
       estimatedBoxes: json['estimatedBoxes'] as int?,
-      actualHarvestDate:
-          json['actualHarvestDate'] != null
-              ? DateTime.parse(json['actualHarvestDate'] as String)
-              : null,
+      actualHarvestDate: json['actualHarvestDate'] != null
+          ? DateTime.parse(json['actualHarvestDate'] as String)
+          : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -121,21 +119,21 @@ class Orchard  {
 
   @override
   List<Object?> get props => [
-    id,
-    name,
-    location,
-    numberOfFruitingTrees,
-    expectedHarvestDate,
-    boundaryPoints,
-    area,
-    boundaryImagePath,
-    harvestStatus,
-    harvestDelayReason,
-    estimatedBoxes,
-    actualHarvestDate,
-    createdAt,
-    updatedAt,
-  ];
+        id,
+        name,
+        location,
+        numberOfFruitingTrees,
+        expectedHarvestDate,
+        boundaryPoints,
+        area,
+        boundaryImagePath,
+        harvestStatus,
+        harvestDelayReason,
+        estimatedBoxes,
+        actualHarvestDate,
+        createdAt,
+        updatedAt,
+      ];
 }
 
 class GPSPoint extends Equatable {
@@ -153,6 +151,16 @@ class GPSPoint extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {'latitude': latitude, 'longitude': longitude};
+  }
+
+  GPSPoint copyWith({
+    double? latitude,
+    double? longitude,
+  }) {
+    return GPSPoint(
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+    );
   }
 
   @override

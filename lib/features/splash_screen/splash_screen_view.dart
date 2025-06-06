@@ -16,7 +16,7 @@ class SplashScreenView extends GetView<SplashScreenController> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: Colors.white,
+        color: const Color(0xFF212564),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -45,12 +45,12 @@ class SplashScreenView extends GetView<SplashScreenController> {
              ()=> AnimatedOpacity(
                 opacity: controller.textOpacity.value,
                 duration: const Duration(seconds: 1),
-                child: Text(
+                child: const Text(
                   'Apple Grower',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue[800],
+                    color: Colors.white70,
                   ),
                 ),
               ),

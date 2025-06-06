@@ -1,24 +1,31 @@
+import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../core/globals.dart' as globals;
-import '../../models/packing_house_status_model.dart';
+import '../../core/globals.dart' as glb;
+import '../../core/global_role_loader.dart' as gld;
 
 class PackingHouseFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
   final addressController = TextEditingController();
+  final gradingMachineController = TextEditingController();
+  final sortingMachineController = TextEditingController();
+  final numberOfCratesController = TextEditingController();
+  final boxesPacked2023Controller = TextEditingController();
+  final boxesPacked2024Controller = TextEditingController();
+  final estimatedBoxes2025Controller = TextEditingController();
   final searchController = TextEditingController();
-  final selectedType = PackingHouseType.own.obs;
+  final selectedTrayType = TrayType.bothSide.obs;
   final isLoading = false.obs;
   final isSearching = true.obs;
-  final searchResults = <PackingHouse>[].obs;
+  final searchResults = <PackHouse>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = globals.availiablePackingHouse;
+    searchResults.value = glb.availablePackHouses;
   }
 
   @override
@@ -26,27 +33,33 @@ class PackingHouseFormController extends GetxController {
     nameController.dispose();
     phoneController.dispose();
     addressController.dispose();
+    gradingMachineController.dispose();
+    sortingMachineController.dispose();
+    numberOfCratesController.dispose();
+    boxesPacked2023Controller.dispose();
+    boxesPacked2024Controller.dispose();
+    estimatedBoxes2025Controller.dispose();
     searchController.dispose();
     super.onClose();
   }
 
   void onSearchChanged(String query) {
     if (query.isEmpty) {
-      searchResults.value = globals.availiablePackingHouse;
+      searchResults.value = glb.availablePackHouses;
     } else {
-      searchResults.value = globals.availiablePackingHouse.where((house) {
-        final name = house.packingHouseName?.toLowerCase();
-        final address = house.packingHouseAddress?.toLowerCase();
+      searchResults.value = glb.availablePackHouses.where((house) {
+        final name = house.name.toLowerCase();
+        final address = house.address.toLowerCase();
         final searchLower = query.toLowerCase();
 
-        return name!.contains(searchLower) || address!.contains(searchLower);
+        return name.contains(searchLower) || address.contains(searchLower);
       }).toList();
     }
   }
 
-  void selectPackingHouse(PackingHouse house) {
+  void selectPackingHouse(PackHouse house) {
     // Check if packing house already exists
-    final exists = globals.globalGrower.value.packingHouses.any(
+    final exists = gld.globalGrower.value.packingHouses.any(
       (existingHouse) => existingHouse.id == house.id,
     );
 
@@ -61,8 +74,8 @@ class PackingHouseFormController extends GetxController {
       return;
     }
 
-    final updatedHouses = [...globals.globalGrower.value.packingHouses, house];
-    globals.globalGrower.value = globals.globalGrower.value.copyWith(
+    final updatedHouses = [...gld.globalGrower.value.packingHouses, house];
+    gld.globalGrower.value = gld.globalGrower.value.copyWith(
       packingHouses: updatedHouses,
       updatedAt: DateTime.now(),
     );
@@ -83,21 +96,25 @@ class PackingHouseFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      final newPackingHouse = PackingHouse(
+      final newPackingHouse = PackHouse(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        type: selectedType.value,
-        packingHouseName: nameController.text,
-        packingHousePhone: phoneController.text,
-        packingHouseAddress: addressController.text,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        name: nameController.text,
+        phoneNumber: phoneController.text,
+        address: addressController.text,
+        gradingMachine: gradingMachineController.text,
+        sortingMachine: sortingMachineController.text,
+        numberOfCrates: int.parse(numberOfCratesController.text),
+        boxesPacked2023: int.parse(boxesPacked2023Controller.text),
+        boxesPacked2024: int.parse(boxesPacked2024Controller.text),
+        estimatedBoxes2025: int.parse(estimatedBoxes2025Controller.text),
+        trayType: selectedTrayType.value,
       );
 
       final updatedPackingHouses = [
-        ...globals.globalGrower.value.packingHouses,
+        ...gld.globalGrower.value.packingHouses,
         newPackingHouse
       ];
-      globals.globalGrower.value = globals.globalGrower.value.copyWith(
+      gld.globalGrower.value = gld.globalGrower.value.copyWith(
         packingHouses: updatedPackingHouses,
         updatedAt: DateTime.now(),
       );
@@ -172,7 +189,7 @@ class PackingHouseFormPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSearchSection(),
+                _buildSearchSection(context),
                 const SizedBox(height: 24),
                 Obx(() => controller.isSearching.value
                     ? _buildSearchResults()
@@ -185,7 +202,7 @@ class PackingHouseFormPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchSection() {
+  Widget _buildSearchSection(BuildContext context) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -197,12 +214,12 @@ class PackingHouseFormPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Select or Create Packing House',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xff548235),
+                    color: const Color(0xff548235),
                   ),
                 ),
                 Obx(() => TextButton.icon(
@@ -258,7 +275,7 @@ class PackingHouseFormPage extends StatelessWidget {
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
               final house = controller.searchResults[index];
-              final exists = globals.globalGrower.value.packingHouses.any(
+              final exists = gld.globalGrower.value.packingHouses.any(
                 (existingHouse) => existingHouse.id == house.id,
               );
 
@@ -285,9 +302,7 @@ class PackingHouseFormPage extends StatelessWidget {
                               Row(
                                 children: [
                                   Icon(
-                                    house.type == PackingHouseType.own
-                                        ? Icons.business
-                                        : Icons.business_outlined,
+                                    Icons.business,
                                     color: const Color(0xff548235),
                                     size: 24,
                                   ),
@@ -298,16 +313,14 @@ class PackingHouseFormPage extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${house.packingHouseName}',
+                                          house.name,
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          house.type == PackingHouseType.own
-                                              ? 'Own Packing House'
-                                              : 'Third Party Packing House',
+                                          'Tray Type: ${house.trayType?.toString().split('.').last ?? 'Not specified'}',
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[600],
@@ -321,12 +334,17 @@ class PackingHouseFormPage extends StatelessWidget {
                               const SizedBox(height: 12),
                               _buildInfoRow(
                                 Icons.phone,
-                                'Phone: ${house.packingHousePhone}',
+                                'Phone: ${house.phoneNumber}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
                                 Icons.location_on,
-                                'Address: ${house.packingHouseAddress}',
+                                'Address: ${house.address}',
+                              ),
+                              const SizedBox(height: 8),
+                              _buildInfoRow(
+                                Icons.inventory,
+                                'Crates: ${house.numberOfCrates}',
                               ),
                             ],
                           ),
@@ -390,9 +408,13 @@ class PackingHouseFormPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTypeSelector(),
+          _buildTrayTypeSelector(),
           const SizedBox(height: 24),
           _buildBasicDetails(),
+          const SizedBox(height: 24),
+          _buildMachineDetails(),
+          const SizedBox(height: 24),
+          _buildCapacityDetails(),
           const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
@@ -400,7 +422,7 @@ class PackingHouseFormPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTypeSelector() {
+  Widget _buildTrayTypeSelector() {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -410,7 +432,7 @@ class PackingHouseFormPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Packing House Type',
+              'Tray Type',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -419,22 +441,22 @@ class PackingHouseFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Obx(
-              () => SegmentedButton<PackingHouseType>(
+              () => SegmentedButton<TrayType>(
                 segments: [
                   ButtonSegment(
-                    value: PackingHouseType.own,
-                    label: const Text('Own'),
-                    icon: const Icon(Icons.business),
+                    value: TrayType.singleSide,
+                    label: const Text('Single Side'),
+                    icon: const Icon(Icons.view_agenda),
                   ),
                   ButtonSegment(
-                    value: PackingHouseType.thirdParty,
-                    label: const Text('Third Party'),
-                    icon: const Icon(Icons.business_outlined),
+                    value: TrayType.bothSide,
+                    label: const Text('Both Side'),
+                    icon: const Icon(Icons.view_agenda_outlined),
                   ),
                 ],
-                selected: {controller.selectedType.value},
-                onSelectionChanged: (Set<PackingHouseType> newSelection) {
-                  controller.selectedType.value = newSelection.first;
+                selected: {controller.selectedTrayType.value},
+                onSelectionChanged: (Set<TrayType> newSelection) {
+                  controller.selectedTrayType.value = newSelection.first;
                 },
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.resolveWith<Color>((
@@ -503,6 +525,122 @@ class PackingHouseFormPage extends StatelessWidget {
               maxLines: 2,
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Please enter address' : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMachineDetails() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Machine Details',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff548235),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.gradingMachineController,
+              decoration: _getInputDecoration(
+                'Grading Machine',
+                prefixIcon: Icons.precision_manufacturing,
+              ),
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter grading machine details'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.sortingMachineController,
+              decoration: _getInputDecoration(
+                'Sorting Machine',
+                prefixIcon: Icons.precision_manufacturing,
+              ),
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter sorting machine details'
+                  : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCapacityDetails() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Capacity Details',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff548235),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.numberOfCratesController,
+              decoration: _getInputDecoration(
+                'Number of Crates',
+                prefixIcon: Icons.inventory,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter number of crates'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.boxesPacked2023Controller,
+              decoration: _getInputDecoration(
+                'Boxes Packed in 2023',
+                prefixIcon: Icons.calendar_today,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter boxes packed in 2023'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.boxesPacked2024Controller,
+              decoration: _getInputDecoration(
+                'Boxes Packed in 2024',
+                prefixIcon: Icons.calendar_today,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter boxes packed in 2024'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.estimatedBoxes2025Controller,
+              decoration: _getInputDecoration(
+                'Estimated Boxes for 2025',
+                prefixIcon: Icons.calendar_today,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter estimated boxes for 2025'
+                  : null,
             ),
           ],
         ),

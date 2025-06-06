@@ -1,22 +1,21 @@
 import 'package:apple_grower/models/consignment_model.dart';
-import 'package:equatable/equatable.dart';
+import 'package:apple_grower/models/ladani_model.dart';
+import 'aadhati.dart';
 import 'orchard_model.dart';
-import 'commission_agent_model.dart';
-import 'packing_house_status_model.dart';
-import 'corporate_company_model.dart';
+import 'pack_house_model.dart';
 
 class Grower {
   final String id;
-  final String aadharNumber;
   final String name;
+  final String aadharNumber;
   final String phoneNumber;
   final String address;
   final String pinCode;
   final List<Orchard> orchards;
-  final List<CommissionAgent> commissionAgents;
-  final List<CorporateCompany> corporateCompanies;
+  final List<Aadhati> commissionAgents;
+  final List<Ladani> corporateCompanies;
   final List<Consignment> consignments;
-  final List<PackingHouse> packingHouses;
+  final List<PackHouse> packingHouses;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -34,7 +33,6 @@ class Grower {
     required this.packingHouses,
     required this.createdAt,
     required this.updatedAt,
-
   });
 
   factory Grower.fromJson(Map<String, dynamic> json) {
@@ -45,29 +43,25 @@ class Grower {
       phoneNumber: json['phoneNumber'] as String,
       address: json['address'] as String,
       pinCode: json['pinCode'] as String,
-      orchards:
-          (json['orchards'] as List<dynamic>?)
+      orchards: (json['orchards'] as List<dynamic>?)
               ?.map((e) => Orchard.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      commissionAgents:
-          (json['commissionAgents'] as List<dynamic>?)
-              ?.map((e) => CommissionAgent.fromJson(e as Map<String, dynamic>))
+      commissionAgents: (json['commissionAgents'] as List<dynamic>?)
+              ?.map((e) => Aadhati.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      corporateCompanies:
-          (json['corporateCompanies'] as List<dynamic>?)
-              ?.map((e) => CorporateCompany.fromJson(e as Map<String, dynamic>))
+      corporateCompanies: (json['corporateCompanies'] as List<dynamic>?)
+              ?.map((e) => Ladani.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      packingHouses:
-          (json['packingHouses'] as List<dynamic>?)
-              ?.map((e) => PackingHouse.fromJson(e as Map<String, dynamic>))
+      packingHouses: (json['packingHouses'] as List<dynamic>?)
+              ?.map((e) => PackHouse.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       consignments: (json['consignments'] as List<dynamic>?)
-          ?.map((e) => Consignment.fromJson(e as Map<String, dynamic>))
-          .toList() ??
+              ?.map((e) => Consignment.fromJson(e as Map<String, dynamic>))
+              .toList() ??
           [],
       createdAt: json['createdAt'] ?? DateTime.now().toIso8601String(),
       updatedAt: json['updatedAt'] ?? DateTime.now().toIso8601String(),
@@ -86,7 +80,7 @@ class Grower {
       'commissionAgents': commissionAgents.map((e) => e.toJson()).toList(),
       'corporateCompanies': corporateCompanies.map((e) => e.toJson()).toList(),
       'packingHouses': packingHouses.map((e) => e.toJson()).toList(),
-      'consignments' : consignments.map((e) => e.toJson()).toList(),
+      'consignments': consignments.map((e) => e.toJson()).toList(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -100,10 +94,10 @@ class Grower {
     String? address,
     String? pinCode,
     List<Orchard>? orchards,
-    List<CommissionAgent>? commissionAgents,
-    List<CorporateCompany>? corporateCompanies,
-    List<PackingHouse>? packingHouses,
+    List<Aadhati>? commissionAgents,
+    List<Ladani>? corporateCompanies,
     List<Consignment>? consignments,
+    List<PackHouse>? packingHouses,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -117,45 +111,10 @@ class Grower {
       orchards: orchards ?? this.orchards,
       commissionAgents: commissionAgents ?? this.commissionAgents,
       corporateCompanies: corporateCompanies ?? this.corporateCompanies,
-      consignments: consignments?? this.consignments,
+      consignments: consignments ?? this.consignments,
       packingHouses: packingHouses ?? this.packingHouses,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-
-  // Helper methods
-  int get totalOrchards => orchards.length;
-
-  int get totalFruitingTrees =>
-      orchards.fold(0, (sum, orchard) => sum + orchard.numberOfFruitingTrees);
-
-  bool get canAddMoreOrchards => totalOrchards < 7;
-
-  List<Orchard> get orchardsHarvestingToday {
-    final today = DateTime.now();
-    return orchards.where((orchard) {
-      final harvestDate = orchard.expectedHarvestDate;
-      return harvestDate.year == today.year &&
-          harvestDate.month == today.month &&
-          harvestDate.day == today.day;
-    }).toList();
-  }
-
-  @override
-  List<Object?> get props => [
-    id,
-    aadharNumber,
-    name,
-    phoneNumber,
-    address,
-    pinCode,
-    orchards,
-    commissionAgents,
-    corporateCompanies,
-    packingHouses,
-    consignments,
-    createdAt,
-    updatedAt,
-  ];
 }
