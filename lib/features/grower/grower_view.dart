@@ -1,3 +1,4 @@
+import 'package:apple_grower/features/grower/corporate_company_form_page.dart';
 import 'package:apple_grower/features/grower/grower_controller.dart';
 
 import 'package:apple_grower/navigation/routes_constant.dart';
@@ -14,6 +15,8 @@ import '../../models/packing_house_status_model.dart';
 import '../../models/consignment_model.dart';
 import 'consignment_form_page.dart';
 import 'orchard_form_page.dart';
+import 'commission_agent_form_page.dart';
+import 'packing_house_form_page.dart';
 
 class GrowerView extends GetView<GrowerController> {
   @override
@@ -617,7 +620,7 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildAddNewAgentCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return InkWell(
-      onTap: () => GrowerDialogs.showAddCommissionAgentDialog(context),
+      onTap: () => Get.to(() => CommissionAgentFormPage()),
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -759,7 +762,9 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildAddNewCompanyCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return InkWell(
-      onTap: () => GrowerDialogs.showAddCorporateCompanyDialog(context),
+      onTap: () {
+        Get.to(() => CorporateCompanyFormPage());
+      },
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -907,7 +912,7 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildAddNewPackingHouseCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return InkWell(
-      onTap: () => GrowerDialogs.showPackingHouseDialog(context),
+      onTap: () => Get.to(() => PackingHouseFormPage()),
       child: Card(
         color: Colors.white,
         elevation: 0,

@@ -117,7 +117,134 @@ final Rx<Grower> globalGrower = Grower(
   updatedAt: DateTime.now(),
 ).obs;
 
-// Dummy Data for support services (for testing/requesting support)
+RxList<PackingHouse> availiablePackingHouse = [
+  PackingHouse(
+    id: '1',
+    packingHouseName: 'Demo Packhouse 1',
+    packingHousePhone: '9876543230',
+    packingHouseAddress: 'Packhouse Address 1',
+    type: PackingHouseType.own,
+    createdAt: DateTime.now().subtract(Duration(days: 30)),
+    updatedAt: DateTime.now(),
+  ),
+  PackingHouse(
+    id: '2',
+    packingHouseName: 'Demo Packhouse 2',
+    packingHousePhone: '9876543231',
+    packingHouseAddress: 'Packhouse Address 2',
+    type: PackingHouseType.thirdParty,
+    createdAt: DateTime.now().subtract(Duration(days: 30)),
+    updatedAt: DateTime.now(),
+  ),
+  PackingHouse(
+    id: '3',
+    packingHouseName: 'Demo Packhouse 3',
+    packingHousePhone: '9876543230',
+    packingHouseAddress: 'Packhouse Address 3',
+    type: PackingHouseType.own,
+    createdAt: DateTime.now().subtract(Duration(days: 30)),
+    updatedAt: DateTime.now(),
+  ),
+  PackingHouse(
+    id: '4',
+    packingHouseName: 'Demo Packhouse 4',
+    packingHousePhone: '9876543231',
+    packingHouseAddress: 'Packhouse Address 4',
+    type: PackingHouseType.thirdParty,
+    createdAt: DateTime.now().subtract(Duration(days: 30)),
+    updatedAt: DateTime.now(),
+  ),
+
+
+].obs;
+
+
+
+RxList <CorporateCompany> availiableLadhanis = [ CorporateCompany(
+  id: '1',
+  name: 'Demo Ladhani 1',
+  phoneNumber: '9876543220',
+  companyType: 'Private Limited',
+  address: 'Ladhani Address 1',
+  createdAt: DateTime.now().subtract(Duration(days: 30)),
+  updatedAt: DateTime.now(),
+),
+  CorporateCompany(
+    id: '2',
+    name: 'Demo Ladhani 2',
+    phoneNumber: '9876543221',
+    companyType: 'Public Limited',
+    address: 'Ladhani Address 2',
+    createdAt: DateTime.now().subtract(Duration(days: 25)),
+    updatedAt: DateTime.now(),
+  ),
+  CorporateCompany(
+    id: '3',
+    name: 'Demo Ladhani 3',
+    phoneNumber: '9876543221',
+    companyType: 'Public Limited',
+    address: 'Ladhani Address 3',
+    createdAt: DateTime.now().subtract(Duration(days: 25)),
+    updatedAt: DateTime.now(),
+  ),
+  CorporateCompany(
+    id: '4',
+    name: 'Demo Ladhani 4',
+    phoneNumber: '9876543221',
+    companyType: 'Public Limited',
+    address: 'Ladhani Address 4',
+    createdAt: DateTime.now().subtract(Duration(days: 25)),
+    updatedAt: DateTime.now(),
+  ),
+
+].obs;
+
+
+
+
+RxList<CommissionAgent> aviliableAdhanis = [
+  CommissionAgent(
+    id: '1',
+    name: 'Demo Adhani 1',
+    phoneNumber: '9876543210',
+    apmcMandi: 'APMC 1',
+    address: 'Adhani Address 1',
+    createdAt: DateTime.now().subtract(Duration(days: 30)),
+    updatedAt: DateTime.now(),
+  ),
+  CommissionAgent(
+    id: '2',
+    name: 'Demo Adhani 2',
+    phoneNumber: '9876543211',
+    apmcMandi: 'APMC 2',
+    address: 'Adhani Address 2',
+    createdAt: DateTime.now().subtract(Duration(days: 25)),
+    updatedAt: DateTime.now(),
+  ),
+  CommissionAgent(
+    id: '3',
+    name: 'Demo Adhani 3',
+    phoneNumber: '9876543211',
+    apmcMandi: 'APMC 3',
+    address: 'Adhani Address 3',
+    createdAt: DateTime.now().subtract(Duration(days: 25)),
+    updatedAt: DateTime.now(),
+  ),
+  CommissionAgent(
+    id: '4',
+    name: 'Demo Adhani 4',
+    phoneNumber: '9876543211',
+    apmcMandi: 'APMC 4',
+    address: 'Adhani Address 4',
+    createdAt: DateTime.now().subtract(Duration(days: 25)),
+    updatedAt: DateTime.now(),
+  ),
+
+
+
+
+].obs;
+
 final List<Map<String, String>> dummyDrivers = [
   {'name': 'Rajesh Kumar', 'contact': '9876543210'},
   {'name': 'Suresh Singh', 'contact': '8765432109'},
