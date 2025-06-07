@@ -16,9 +16,9 @@ class PackHouseController extends GetxController {
   final RxList<Packer> associatedPackers = <Packer>[].obs;
   final RxList<DrivingProfile> associatedDrivers = <DrivingProfile>[].obs;
   final RxList<Consignment> consignments = <Consignment>[].obs;
-  String name= gld.packHouse.value.name;
+  String name = gld.packHouse.value.name;
   final Map details = {
-    'Grading Machine':'${gld.packHouse.value.gradingMachineCapacity}',
+    'Grading Machine': '${gld.packHouse.value.gradingMachineCapacity}',
     'Sorting Machine': '${gld.packHouse.value.sortingMachineCapacity}',
     'Daily Capacity': '${gld.packHouse.value.perDayCapacity}',
     'Crates': '${gld.packHouse.value.numberOfCrates}',
@@ -26,7 +26,6 @@ class PackHouseController extends GetxController {
     'Boxes 2024': '${gld.packHouse.value.boxesPacked2024}',
     'Boxes 2025': '${gld.packHouse.value.estimatedBoxes2025}',
   }.obs;
-
 
   void removeAssociatedGrower(String id) {
     associatedGrowers.removeWhere((grower) => grower.id == id);

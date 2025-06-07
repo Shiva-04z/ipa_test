@@ -1,5 +1,6 @@
+import 'package:apple_grower/models/freightForwarder.dart';
+
 import 'aadhati.dart';
-import 'buyer_model.dart';
 import 'grower_model.dart';
 // Assuming Aadhati model is in this path
 
@@ -21,7 +22,7 @@ class DrivingProfile {
   String? statesDrivenThrough;
   List<Grower>? appleGrowers;
   List<Aadhati>? aadhatis;
-  List<Buyer>? buyers;
+  List<FreightForwarder>? buyers;
 
   DrivingProfile({
     this.id,
@@ -69,7 +70,7 @@ class DrivingProfile {
           ?.map((e) => Aadhati.fromJson(e as Map<String, dynamic>))
           .toList(),
       buyers: (json['buyers'] as List<dynamic>?)
-          ?.map((e) => Buyer.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => FreightForwarder.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -97,6 +98,25 @@ class DrivingProfile {
     };
   }
 
+  Map<String, dynamic> toMap() {
+    return {
+      'Name': name,
+      'Contact': contact,
+      'Driving License No': drivingLicenseNo,
+      'Vehicle Reg. No': vehicleRegistrationNo,
+      'Chassis No.': chassiNoOfVehicle,
+      'Payload Capacity': payloadCapacityApprovedByRto,
+      'Gross Vehicle Weight': grossVehicleWeight,
+      'No. of Tyres': noOfTyres,
+      'Permit': permitOfVehicleDriving,
+      'Vehicle Owner Aadhaar/GST': vehicleOwnerAdharGst,
+      'Apple Boxes Transported 2023': appleBoxesTransported2023,
+      'Apple Boxes Transported 2024': appleBoxesTransported2024,
+      'Estimated Target 2025': estimatedTarget2025,
+      'States Driven Through': statesDrivenThrough,
+    };
+  }
+
   DrivingProfile copyWith({
     String? id,
     String? name,
@@ -115,7 +135,7 @@ class DrivingProfile {
     String? statesDrivenThrough,
     List<Grower>? appleGrowers,
     List<Aadhati>? aadhatis,
-    List<Buyer>? buyers,
+    List<FreightForwarder>? buyers,
   }) {
     return DrivingProfile(
       id: id ?? this.id,

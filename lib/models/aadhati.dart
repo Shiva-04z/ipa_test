@@ -1,6 +1,5 @@
-import 'apmc_model.dart';
-import 'buyer_model.dart';
 import 'driving_profile_model.dart';
+import 'freightForwarder.dart';
 import 'grower_model.dart';
 import 'ladani_model.dart';
 
@@ -23,7 +22,7 @@ class Aadhati {
   bool? needTradeFinance;
   int? noOfAppleGrowersServed;
   List<Grower>? farmers;
-  List<Buyer>? forwardBuyers;
+  List<FreightForwarder>? forwardBuyers;
   List<Ladani>? ladanis;
   List<DrivingProfile>? truckServiceProviders;
 
@@ -55,7 +54,7 @@ class Aadhati {
       id: json['id'] as String?,
       name: json['name'] as String?,
       contact: json['contact'] as String?,
-      apmc: json['ampc']as String?,
+      apmc: json['ampc'] as String?,
       address: json['address'] as String?,
       nameOfTradingFirm: json['nameOfTradingFirm'] as String?,
       tradingSinceYears: json['tradingSinceYears'] as int?,
@@ -72,7 +71,7 @@ class Aadhati {
           ?.map((e) => Grower.fromJson(e as Map<String, dynamic>))
           .toList(),
       forwardBuyers: (json['forwardBuyers'] as List<dynamic>?)
-          ?.map((e) => Buyer.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => FreightForwarder.fromJson(e as Map<String, dynamic>))
           .toList(),
       ladanis: (json['ladanis'] as List<dynamic>?)
           ?.map((e) => Ladani.fromJson(e as Map<String, dynamic>))
@@ -127,7 +126,7 @@ class Aadhati {
     bool? needTradeFinance,
     int? noOfAppleGrowersServed,
     List<Grower>? farmers,
-    List<Buyer>? forwardBuyers,
+    List<FreightForwarder>? forwardBuyers,
     List<Ladani>? ladanis,
     List<DrivingProfile>? truckServiceProviders,
   }) {

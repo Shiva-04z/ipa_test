@@ -1,9 +1,13 @@
+import 'package:apple_grower/models/freightForwarder.dart';
 import 'aadhati.dart';
-import 'buyer_model.dart';
 import 'driving_profile_model.dart';
 import 'grower_model.dart';
 
 class Transport {
+  String? id;
+  final String name;
+  final String contact;
+  final String address;
   String? nameOfTheTransportUnion;
   String? transportUnionRegistrationNo;
   int? noOfVehiclesRegistered;
@@ -18,10 +22,14 @@ class Transport {
   String? statesDrivenThrough;
   List<Grower>? appleGrowers;
   List<Aadhati>? aadhatis;
-  List<Buyer>? buyers;
+  List<FreightForwarder>? buyers;
   List<DrivingProfile>? associatedDrivers;
 
   Transport({
+    required this.name,
+    required this.contact,
+    required this.address,
+    this.id,
     this.nameOfTheTransportUnion,
     this.transportUnionRegistrationNo,
     this.noOfVehiclesRegistered,
@@ -42,6 +50,10 @@ class Transport {
 
   factory Transport.fromJson(Map<String, dynamic> json) {
     return Transport(
+      id: json['id'] as String?,
+      name: json['name'] as String,
+      contact: json['contact'] as String,
+      address: json['address'] as String,
       nameOfTheTransportUnion: json['nameOfTheTransportUnion'] as String?,
       transportUnionRegistrationNo:
           json['transportUnionRegistrationNo'] as String?,
@@ -65,7 +77,7 @@ class Transport {
           ?.map((e) => Aadhati.fromJson(e as Map<String, dynamic>))
           .toList(),
       buyers: (json['buyers'] as List<dynamic>?)
-          ?.map((e) => Buyer.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => FreightForwarder.fromJson(e as Map<String, dynamic>))
           .toList(),
       associatedDrivers: (json['associatedDrivers'] as List<dynamic>?)
           ?.map((e) => DrivingProfile.fromJson(e as Map<String, dynamic>))
@@ -75,6 +87,10 @@ class Transport {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
+      'name': name,
+      'contact': contact,
+      'address': address,
       'nameOfTheTransportUnion': nameOfTheTransportUnion,
       'transportUnionRegistrationNo': transportUnionRegistrationNo,
       'noOfVehiclesRegistered': noOfVehiclesRegistered,

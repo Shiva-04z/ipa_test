@@ -1,5 +1,7 @@
+import 'package:apple_grower/models/freightForwarder.dart';
+
 import 'aadhati.dart';
-import 'buyer_model.dart';
+
 import 'driving_profile_model.dart';
 
 class Ladani {
@@ -18,7 +20,7 @@ class Ladani {
   int? appleBoxesPurchased2024;
   double? estimatedTarget2025;
   List<Aadhati>? associatedAaddhatis;
-  List<Buyer>? associatedBuyer;
+  List<FreightForwarder>? associatedBuyer;
   List<DrivingProfile>? truckServiceProviders;
   double? perBoxExpensesAfterBidding;
 
@@ -63,7 +65,7 @@ class Ladani {
           ?.map((e) => Aadhati.fromJson(e as Map<String, dynamic>))
           .toList(),
       associatedBuyer: (json['associatedBuyer'] as List<dynamic>?)
-          ?.map((e) => Buyer.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => FreightForwarder.fromJson(e as Map<String, dynamic>))
           .toList(),
       truckServiceProviders: (json['truckServiceProviders'] as List<dynamic>?)
           ?.map((e) => DrivingProfile.fromJson(e as Map<String, dynamic>))
@@ -113,7 +115,7 @@ class Ladani {
     int? appleBoxesPurchased2024,
     double? estimatedTarget2025,
     List<Aadhati>? associatedAaddhatis,
-    List<Buyer>? associatedBuyer,
+    List<FreightForwarder>? associatedBuyer,
     List<DrivingProfile>? truckServiceProviders,
     double? perBoxExpensesAfterBidding,
   }) {

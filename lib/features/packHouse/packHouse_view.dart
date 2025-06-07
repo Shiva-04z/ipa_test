@@ -74,7 +74,9 @@ class PackHouseView extends GetView<PackHouseController> {
                   itemCount: controller.details.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) return _buildAddNewPackHouseCard(context);
-                    return _buildPackHouseCard(controller.details.keys.toList()[index-1],controller.details.values.toList()[index-1]);
+                    return _buildPackHouseCard(
+                        controller.details.keys.toList()[index - 1],
+                        controller.details.values.toList()[index - 1]);
                   },
                 ),
               ),
@@ -106,7 +108,6 @@ class PackHouseView extends GetView<PackHouseController> {
   Widget _buildPackHouseCard(String name, String detail) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
-
       child: Card(
         elevation: 0,
         color: Colors.white,

@@ -1,8 +1,8 @@
+import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:get/get.dart';
 import '../models/aadhati.dart';
 import '../models/apmc_model.dart';
 import '../models/auth_signatory_post_model.dart';
-import '../models/buyer_model.dart';
 import '../models/consignment_model.dart';
 import '../models/driving_profile_model.dart';
 import '../models/grower_model.dart';
@@ -12,6 +12,7 @@ import '../models/pack_house_model.dart';
 import '../models/packer_model.dart';
 import '../models/post_model.dart';
 import '../models/transport_model.dart';
+
 
 RxString roleType = "Grower".obs;
 RxString personName = "Ram Singh".obs;
@@ -115,24 +116,20 @@ RxList<AuthSignatoryPost> availableAuthSignatoryPosts = [
   ),
 ].obs;
 
-RxList<Buyer> availableBuyers = [
-  Buyer(
+RxList<FreightForwarder> availableBuyers = [
+  FreightForwarder(
     id: 'BUYER001',
     name: 'Delhi Fruits Market',
-    phoneNumber: '9876543217',
+    contact: '9876543217',
     address: 'Azadpur Mandi, Delhi',
-    gstNumber: 'GST123456789',
-    businessType: 'Wholesale',
     createdAt: DateTime.now().subtract(Duration(days: 365)),
     updatedAt: DateTime.now(),
   ),
-  Buyer(
+  FreightForwarder(
     id: 'BUYER002',
     name: 'Mumbai Fruits Corporation',
-    phoneNumber: '9876543218',
+    contact: '9876543218',
     address: 'Vashi Market, Mumbai',
-    gstNumber: 'GST987654321',
-    businessType: 'Retail Chain',
     createdAt: DateTime.now().subtract(Duration(days: 180)),
     updatedAt: DateTime.now(),
   ),
@@ -397,6 +394,7 @@ RxList<Post> availablePosts = [
 
 RxList<Transport> availableTransports = [
   Transport(
+    id:"TRS10",
     nameOfTheTransportUnion: 'Himachal Transport Union',
     transportUnionRegistrationNo: 'TU123456',
     noOfVehiclesRegistered: 50,
@@ -408,9 +406,10 @@ RxList<Transport> availableTransports = [
     appleBoxesTransported2023: 50000,
     appleBoxesTransported2024: 60000,
     estimatedTarget2025: 75000.0,
-    statesDrivenThrough: 'HP, HR, DL, MH',
+    statesDrivenThrough: 'HP, HR, DL, MH', name: 'Transport Union A', contact: '878676756', address: 'Himachal',
   ),
   Transport(
+    id:"TRS20",
     nameOfTheTransportUnion: 'Kullu Transport Union',
     transportUnionRegistrationNo: 'TU789012',
     noOfVehiclesRegistered: 30,
@@ -423,8 +422,12 @@ RxList<Transport> availableTransports = [
     appleBoxesTransported2024: 35000,
     estimatedTarget2025: 45000.0,
     statesDrivenThrough: 'HP, HR, DL',
+    name: 'Transport Union B', contact: '8786767567', address: 'Himachal',
   ),
 ].obs;
+
+
+
 // Dummy data for the consignment quality/category table
 final List<Map<String, dynamic>> consignmentTableData = [
   {
