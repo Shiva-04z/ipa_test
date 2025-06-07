@@ -55,6 +55,13 @@ class DriverController extends GetxController {
     ));
   }
 
+
+  void addConsignment(Consignment consignment) {
+    if (!myJobs.any((c) => c.id == consignment.id)) {
+      myJobs.add(consignment);
+    }
+  }
+
   void removeAssociatedTransportUnion(String id) {
     associatedTransportUnions.removeWhere((union) => union.id == id);
   }

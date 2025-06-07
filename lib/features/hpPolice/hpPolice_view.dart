@@ -1,4 +1,5 @@
 import 'package:apple_grower/features/hpPolice/hpPolice_controller.dart';
+import 'package:apple_grower/features/packHouse/consignment_form2_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../models/consignment_model.dart';
@@ -6,6 +7,8 @@ import '../../models/consignment_model.dart';
 import '../../core/globalsWidgets.dart' as glbw;
 
 class HPPoliceView extends GetView<HPPoliceController> {
+  final RxString selectedSection = 'Police Station Info'.obs;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,13 +19,65 @@ class HPPoliceView extends GetView<HPPoliceController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
-            _buildPoliceStationInfoContainer(),
-            _buildPostsContainer(),
-            _buildConsignmentsContainer(),
+            _buildSectionChips(),
+            Obx(() {
+              switch (selectedSection.value) {
+                case 'Police Station Info':
+                  return _buildPoliceStationInfoContainer();
+                case 'Check Posts':
+                  return _buildPostsContainer();
+                case 'Consignments':
+                  return _buildConsignmentsContainer();
+                default:
+                  return SizedBox.shrink();
+              }
+            }),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildSectionChips() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildSectionChip('Police Station Info'),
+            SizedBox(width: 8),
+            _buildSectionChip('Check Posts'),
+            SizedBox(width: 8),
+            _buildSectionChip('Consignments'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionChip(String label) {
+    return Obx(() => FilterChip(
+          label: Text(
+            label,
+            style: TextStyle(
+              color: selectedSection.value == label
+                  ? Colors.white
+                  : Colors.black87,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          selected: selectedSection.value == label,
+          onSelected: (bool selected) {
+            if (selected) {
+              selectedSection.value = label;
+            }
+          },
+          backgroundColor: Colors.grey[200],
+          selectedColor: Color(0xff548235),
+          checkmarkColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ));
   }
 
   Widget _buildPoliceStationInfoContainer() {
@@ -248,6 +303,8 @@ class HPPoliceView extends GetView<HPPoliceController> {
                   post['officerInCharge'],
                   style: TextStyle(fontSize: 12, color: Colors.blue),
                 ),
+                SizedBox(height: 4),
+                _buildPostStatusChip(post['status']),
               ],
             ],
           ),
@@ -293,6 +350,8 @@ class HPPoliceView extends GetView<HPPoliceController> {
                   consignment.quality,
                   style: TextStyle(fontSize: 12, color: Colors.orange),
                 ),
+                SizedBox(height: 4),
+                _buildConsignmentStatusChip(consignment.status),
               ],
             ],
           ),
@@ -333,7 +392,7 @@ class HPPoliceView extends GetView<HPPoliceController> {
   Widget _buildAddNewConsignmentCard() {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
-      onTap: () => _showAddConsignmentDialog(),
+      onTap: () => {Get.to(()=>ConsignmentForm2Page())},
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -498,6 +557,57 @@ class HPPoliceView extends GetView<HPPoliceController> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPostStatusChip(String status) {
+    Color color;
+    switch (status.toLowerCase()) {
+      case 'active':
+        color = Colors.green;
+        break;
+      case 'inactive':
+        color = Colors.red;
+        break;
+      default:
+        color = Colors.orange;
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color),
+      ),
+      child: Text(status, style: TextStyle(color: color, fontSize: 10)),
+    );
+  }
+
+  Widget _buildConsignmentStatusChip(String status) {
+    Color color;
+    switch (status.toLowerCase()) {
+      case 'in transit':
+        color = Colors.orange;
+        break;
+      case 'delivered':
+        color = Colors.green;
+        break;
+      case 'cancelled':
+        color = Colors.red;
+        break;
+      default:
+        color = Colors.blue;
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color),
+      ),
+      child: Text(status, style: TextStyle(color: color, fontSize: 10)),
     );
   }
 }

@@ -1,84 +1,125 @@
+import 'package:apple_grower/features/ampcOffice/ampcOffice_controller.dart';
+import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
+import 'package:apple_grower/models/aadhati.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../core/globals.dart' as glb;
 import '../../core/global_role_loader.dart' as gld;
-import '../../models/ladani_model.dart';
+import '../../core/globals.dart' as glb;
+import '../freightForwarder/freightForwarder_controller.dart';
+import '../grower/grower_controller.dart';
+import '../ladaniBuyers/ladaniBuyers_controller.dart';
+import '../packHouse/packHouse_controller.dart';
+import '../transportUnion/transportUnion_controller.dart';
 
-class CorporateCompanyFormController extends GetxController {
+class CommissionAgentFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
+  final apmcController = TextEditingController();
   final addressController = TextEditingController();
   final tradingFirmController = TextEditingController();
   final tradingYearsController = TextEditingController();
   final firmTypeController = TextEditingController();
   final licenseNoController = TextEditingController();
-  final purchaseLocationController = TextEditingController();
-  final apmcController = TextEditingController();
+  final salesLocationController = TextEditingController();
   final googleLocationController = TextEditingController();
   final boxes2023Controller = TextEditingController();
   final boxes2024Controller = TextEditingController();
   final target2025Controller = TextEditingController();
-  final perBoxExpensesController = TextEditingController();
+  final growersServedController = TextEditingController();
+  final needTradeFinance = false.obs;
   final searchController = TextEditingController();
   final isLoading = false.obs;
   final isSearching = true.obs;
-  final searchResults = <Ladani>[].obs;
+  final searchResults = <Aadhati>[].obs;
+  var exists;
 
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = glb.availableLadanis;
+    searchResults.value = glb.availableAadhatis;
   }
 
   @override
   void onClose() {
     nameController.dispose();
     phoneController.dispose();
+    apmcController.dispose();
     addressController.dispose();
     tradingFirmController.dispose();
     tradingYearsController.dispose();
     firmTypeController.dispose();
     licenseNoController.dispose();
-    purchaseLocationController.dispose();
-    apmcController.dispose();
+    salesLocationController.dispose();
     googleLocationController.dispose();
     boxes2023Controller.dispose();
     boxes2024Controller.dispose();
     target2025Controller.dispose();
-    perBoxExpensesController.dispose();
+    growersServedController.dispose();
     searchController.dispose();
     super.onClose();
   }
 
   void onSearchChanged(String query) {
     if (query.isEmpty) {
-      searchResults.value = glb.availableLadanis;
+      searchResults.value = glb.availableAadhatis;
     } else {
-      searchResults.value = glb.availableLadanis.where((company) {
-        final name = company.name!.toLowerCase();
-        final type = company.firmType!.toLowerCase();
-        final address = company.address!.toLowerCase();
+      searchResults.value = glb.availableAadhatis.where((agent) {
+        final name = agent.name!.toLowerCase();
+        final apmc = agent.apmc!.toLowerCase();
+        final address = agent.address!.toLowerCase();
         final searchLower = query.toLowerCase();
 
         return name.contains(searchLower) ||
-            type.contains(searchLower) ||
+            apmc.contains(searchLower) ||
             address.contains(searchLower);
       }).toList();
     }
   }
 
-  void selectCompany(Ladani company) {
-    // Check if company already exists
-    final exists = gld.globalGrower.value.corporateCompanies.any(
-      (existingCompany) => existingCompany.id == company.id,
-    );
+  void selectAgent(Aadhati agent) {
+    // Check if agent already exists
+    final exists = (glb.roleType.value == "PackHouse")
+        ? Get.find<PackHouseController>()
+            .associatedAadhatis
+            .any((existingDriver) => existingDriver.id == agent.id)
+        : (glb.roleType.value == "Grower")
+            ? Get.find<GrowerController>()
+                .commissionAgents
+                .any((existingDriver) => existingDriver.id == agent.id)
+            : (glb.roleType.value == "Ladani/Buyers")
+                ? Get.find<LadaniBuyersController>()
+                    .associatedAadhatis
+                    .any((existingDriver) => existingDriver.id == agent.id)
+                : (glb.roleType.value == "Freight Forwarder")
+                    ? Get.find<FreightForwarderController>()
+                        .associatedAadhatis
+                        .any((existingDriver) => existingDriver.id == agent.id)
+                    : (glb.roleType.value == "Transport Union")
+                        ? Get.find<TransportUnionController>().associatedAadhatis.any(
+                            (existingDriver) => existingDriver.id == agent.id)
+                        : (glb.roleType.value == "AMPC Office")
+                            ? Get.find<AmpcOfficeController>().flag.value
+                                ? Get.find<AmpcOfficeController>().approvedAadhatis.any((existingDriver) =>
+                                    existingDriver.id == agent.id)
+                                : Get.find<AmpcOfficeController>()
+                                    .blacklistedAadhatis
+                                    .any((existingDriver) =>
+                                        existingDriver.id == agent.id)
+                            : (Get.find<HPAgriBoardController>().flag.value)
+                                ? Get.find<HPAgriBoardController>()
+                                    .approvedAadhatis
+                                    .any((existingDriver) =>
+                                        existingDriver.id == agent.id)
+                                : Get.find<HPAgriBoardController>()
+                                    .blacklistedAadhatis
+                                    .any((existingDriver) => existingDriver.id == agent.id);
 
     if (exists) {
       Get.snackbar(
-        'Company Already Added',
-        'This company is already in your list',
+        'Agent Already Added',
+        'This commission agent is already in your list',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -86,23 +127,24 @@ class CorporateCompanyFormController extends GetxController {
       return;
     }
 
-    final updatedCompanies = [
-      ...gld.globalGrower.value.corporateCompanies,
-      company
-    ];
-    gld.globalGrower.value = gld.globalGrower.value.copyWith(
-      corporateCompanies: updatedCompanies,
-      updatedAt: DateTime.now(),
-    );
+    (glb.roleType.value == "PackHouse")
+        ? Get.find<PackHouseController>().addAssociatedAadhati(agent)
+        : (glb.roleType.value == "Grower")
+            ? Get.find<GrowerController>().addCommissionAgent(agent)
+            : (glb.roleType.value == "Ladani/Buyers")
+                ? Get.find<LadaniBuyersController>()
+                    .addAssociatedAadhatis(agent)
+                : (glb.roleType.value == "Freight Forwarder")
+                    ? Get.find<FreightForwarderController>()
+                        .addAssociatedAadhatis(agent)
+                    : (glb.roleType.value == "Transport Union")
+                        ? Get.find<TransportUnionController>().addAssociatedAadhatis(agent)
+                        : (glb.roleType.value == "AMPC Office")
+                            ? Get.find<AmpcOfficeController>().addAdhati(agent)
+                           : Get.find<HPAgriBoardController>().addAdhati(agent);
+
 
     Get.back();
-    Get.snackbar(
-      'Success',
-      'Corporate company added successfully',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xff548235),
-      colorText: Colors.white,
-    );
   }
 
   void submitForm() {
@@ -111,66 +153,66 @@ class CorporateCompanyFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      final newCompany = Ladani(
+      final agent = Aadhati(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: nameController.text,
         contact: phoneController.text,
+        apmc: apmcController.text,
         address: addressController.text,
         nameOfTradingFirm: tradingFirmController.text,
         tradingSinceYears: int.tryParse(tradingYearsController.text),
         firmType: firmTypeController.text,
         licenseNo: licenseNoController.text,
-        purchaseLocationAddress: purchaseLocationController.text,
-        licensesIssuingAPMC: apmcController.text,
+        salesPurchaseLocationName: salesLocationController.text,
         locationOnGoogle: googleLocationController.text,
         appleBoxesPurchased2023: int.tryParse(boxes2023Controller.text),
         appleBoxesPurchased2024: int.tryParse(boxes2024Controller.text),
         estimatedTarget2025: double.tryParse(target2025Controller.text),
-        perBoxExpensesAfterBidding:
-            double.tryParse(perBoxExpensesController.text),
+        needTradeFinance: needTradeFinance.value,
+        noOfAppleGrowersServed: int.tryParse(growersServedController.text),
       );
-
-      final updatedCompanies = [
-        ...gld.globalGrower.value.corporateCompanies,
-        newCompany
-      ];
-      gld.globalGrower.value = gld.globalGrower.value.copyWith(
-        corporateCompanies: updatedCompanies,
-        updatedAt: DateTime.now(),
-      );
+      (glb.roleType.value == "PackHouse")
+          ? Get.find<PackHouseController>().addAssociatedAadhati(agent)
+          : (glb.roleType.value == "Grower")
+          ? Get.find<GrowerController>().addCommissionAgent(agent)
+          : (glb.roleType.value == "Ladani/Buyers")
+          ? Get.find<LadaniBuyersController>()
+          .addAssociatedAadhatis(agent)
+          : (glb.roleType.value == "Freight Forwarder")
+          ? Get.find<FreightForwarderController>()
+          .addAssociatedAadhatis(agent)
+          : (glb.roleType.value == "Transport Union")
+          ? Get.find<TransportUnionController>().addAssociatedAadhatis(agent)
+          : (glb.roleType.value == "AMPC Office")
+          ? Get.find<AmpcOfficeController>().addAdhati(agent)
+          : Get.find<HPAgriBoardController>().addAdhati(agent);
 
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Corporate company added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xff548235),
-        colorText: Colors.white,
-      );
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Error adding corporate company: $e',
+        'Error adding commission agent: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } finally {
+      Get.back();
       isLoading.value = false;
     }
   }
 }
 
-class CorporateCompanyFormPage extends StatelessWidget {
-  CorporateCompanyFormPage({super.key});
+class CommissionAgentFormPage extends StatelessWidget {
+  CommissionAgentFormPage({super.key});
 
-  final controller = Get.put(CorporateCompanyFormController());
+  final controller = Get.put(CommissionAgentFormController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Corporate Company'),
+        title: const Text('Add Commission Agent'),
         backgroundColor: const Color(0xff548235),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -213,7 +255,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 Obx(() => controller.isSearching.value
                     ? _buildSearchResults()
-                    : _buildNewCompanyForm()),
+                    : _buildNewAgentForm()),
               ],
             ),
           ),
@@ -235,7 +277,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Select or Create Company',
+                  'Select or Create Agent',
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
                     fontWeight: FontWeight.bold,
@@ -263,7 +305,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
                 ? TextField(
                     controller: controller.searchController,
                     decoration: _getInputDecoration(
-                      'Search companies...',
+                      'Search agents...',
                       prefixIcon: Icons.search,
                     ),
                     onChanged: controller.onSearchChanged,
@@ -281,7 +323,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'No companies found',
+                'No agents found',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
@@ -294,10 +336,43 @@ class CorporateCompanyFormPage extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
-              final company = controller.searchResults[index];
-              final exists = gld.globalGrower.value.corporateCompanies.any(
-                (existingCompany) => existingCompany.id == company.id,
-              );
+              final agent = controller.searchResults[index];
+              final exists = (glb.roleType.value == "PackHouse")
+                  ? Get.find<PackHouseController>()
+                      .associatedAadhatis
+                      .any((existingDriver) => existingDriver.id == agent.id)
+                  : (glb.roleType.value == "Grower")
+                      ? Get.find<GrowerController>().commissionAgents.any(
+                          (existingDriver) => existingDriver.id == agent.id)
+                      : (glb.roleType.value == "Ladani/Buyers")
+                          ? Get.find<LadaniBuyersController>()
+                              .associatedAadhatis
+                              .any((existingDriver) =>
+                                  existingDriver.id == agent.id)
+                          : (glb.roleType.value == "Freight Forwarder")
+                              ? Get.find<FreightForwarderController>()
+                                  .associatedAadhatis
+                                  .any((existingDriver) =>
+                                      existingDriver.id == agent.id)
+                              : (glb.roleType.value == "Transport Union")
+                                  ? Get.find<TransportUnionController>()
+                                      .associatedAadhatis
+                                      .any((existingDriver) =>
+                                          existingDriver.id == agent.id)
+                                  : (glb.roleType.value == "AMPC Office")
+                                      ? Get.find<AmpcOfficeController>()
+                                              .flag
+                                              .value
+                                          ? Get.find<AmpcOfficeController>()
+                                              .approvedAadhatis
+                                              .any((existingDriver) =>
+                                                  existingDriver.id == agent.id)
+                                          : Get.find<AmpcOfficeController>()
+                                              .blacklistedAadhatis
+                                              .any((existingDriver) => existingDriver.id == agent.id)
+                                      : (Get.find<HPAgriBoardController>().flag.value)
+                                          ? Get.find<HPAgriBoardController>().approvedAadhatis.any((existingDriver) => existingDriver.id == agent.id)
+                                          : Get.find<HPAgriBoardController>().blacklistedAadhatis.any((existingDriver) => existingDriver.id == agent.id);
 
               return Stack(
                 children: [
@@ -308,9 +383,8 @@ class CorporateCompanyFormPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: InkWell(
-                      onTap: exists
-                          ? null
-                          : () => controller.selectCompany(company),
+                      onTap:
+                          exists ? null : () => controller.selectAgent(agent),
                       borderRadius: BorderRadius.circular(12),
                       child: Opacity(
                         opacity: exists ? 0.7 : 1.0,
@@ -322,7 +396,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
                               Row(
                                 children: [
                                   const Icon(
-                                    Icons.business,
+                                    Icons.person,
                                     color: Color(0xff548235),
                                     size: 24,
                                   ),
@@ -333,14 +407,14 @@ class CorporateCompanyFormPage extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          company.name ?? 'N/A',
+                                          agent.name ?? 'N/A',
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          'Trading Firm: ${company.nameOfTradingFirm ?? 'N/A'}',
+                                          'Trading Firm: ${agent.nameOfTradingFirm ?? 'N/A'}',
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[600],
@@ -353,23 +427,23 @@ class CorporateCompanyFormPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               _buildInfoRow(
-                                Icons.category,
-                                'Type: ${company.firmType ?? 'N/A'}',
+                                Icons.store,
+                                'APMC: ${agent.apmc ?? 'N/A'}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
                                 Icons.phone,
-                                'Phone: ${company.contact ?? 'N/A'}',
+                                'Phone: ${agent.contact ?? 'N/A'}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
                                 Icons.location_on,
-                                'Address: ${company.address ?? 'N/A'}',
+                                'Address: ${agent.address ?? 'N/A'}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
-                                Icons.store,
-                                'APMC: ${company.licensesIssuingAPMC ?? 'N/A'}',
+                                Icons.business,
+                                'Firm Type: ${agent.firmType ?? 'N/A'}',
                               ),
                             ],
                           ),
@@ -427,7 +501,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNewCompanyForm() {
+  Widget _buildNewAgentForm() {
     return Form(
       key: controller.formKey,
       child: Column(
@@ -466,11 +540,11 @@ class CorporateCompanyFormPage extends StatelessWidget {
             TextFormField(
               controller: controller.nameController,
               decoration: _getInputDecoration(
-                'Company Name',
-                prefixIcon: Icons.business,
+                'Commission Agent Name',
+                prefixIcon: Icons.person,
               ),
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter company name' : null,
+                  value?.isEmpty ?? true ? 'Please enter name' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -482,6 +556,16 @@ class CorporateCompanyFormPage extends StatelessWidget {
               keyboardType: TextInputType.phone,
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Please enter phone number' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.apmcController,
+              decoration: _getInputDecoration(
+                'APMC Mandi',
+                prefixIcon: Icons.store,
+              ),
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter APMC Mandi' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -585,24 +669,13 @@ class CorporateCompanyFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.purchaseLocationController,
+              controller: controller.salesLocationController,
               decoration: _getInputDecoration(
-                'Purchase Location Address',
+                'Sales/Purchase Location',
                 prefixIcon: Icons.location_city,
               ),
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter purchase location'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.apmcController,
-              decoration: _getInputDecoration(
-                'APMC License Issuing Authority',
-                prefixIcon: Icons.store,
-              ),
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter APMC authority' : null,
+                  value?.isEmpty ?? true ? 'Please enter sales location' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -653,16 +726,24 @@ class CorporateCompanyFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.perBoxExpensesController,
+              controller: controller.growersServedController,
               decoration: _getInputDecoration(
-                'Per Box Expenses After Bidding',
-                prefixIcon: Icons.attach_money,
+                'Number of Apple Growers Served',
+                prefixIcon: Icons.people,
               ),
               keyboardType: TextInputType.number,
               validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter per box expenses'
+                  ? 'Please enter number of growers served'
                   : null,
             ),
+            const SizedBox(height: 16),
+            Obx(() => SwitchListTile(
+                  title: const Text('Need Trade Finance'),
+                  value: controller.needTradeFinance.value,
+                  onChanged: (value) =>
+                      controller.needTradeFinance.value = value,
+                  activeColor: const Color(0xff548235),
+                )),
           ],
         ),
       ),
@@ -683,7 +764,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
           ),
         ),
         child: const Text(
-          'Add Corporate Company',
+          'Add Commission Agent',
           style: TextStyle(fontSize: 16),
         ),
       ),

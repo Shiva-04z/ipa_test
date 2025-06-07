@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/globalsWidgets.dart' as glbw;
-import 'freightForwarder_controller.dart';
 import '../../models/freightForwarder.dart';
+import '../freightForwarder/freightForwarder_controller.dart';
 
 class FreightForwarderFormPage extends GetView<FreightForwarderController> {
   final _formKey = GlobalKey<FormState>();

@@ -1,6 +1,5 @@
 import 'package:apple_grower/models/ladani_model.dart';
 
-
 import 'aadhati.dart';
 
 class Apmc {

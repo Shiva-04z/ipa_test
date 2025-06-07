@@ -1,5 +1,5 @@
+import 'package:apple_grower/features/forms/driver_form_page.dart';
 import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
-import 'package:apple_grower/features/packHouse/packer_form_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/global_role_loader.dart' as gld;
@@ -11,17 +11,19 @@ import '../../models/ladani_model.dart';
 import '../../models/packer_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/consignment_model.dart';
-import '../grower/commission_agent_form_page.dart';
-import '../grower/corporate_company_form_page.dart';
-import '../grower/packing_house_form_page.dart';
-import 'consignment_form2_page.dart';
-import 'driver_form_page.dart';
-import 'grower_form_page.dart';
+import '../driver/driver_form_page.dart';
+import '../forms/commission_agent_form_page.dart';
+import '../forms/corporate_company_form_page.dart';
+import '../forms/grower_form_page.dart';
+import '../forms/packer_form_page.dart';
+import '../forms/packing_house_form_page.dart';
 
+import 'consignment_form2_page.dart';
 import '../grower/grower_dialogs.dart';
-import '../grower/consignment_form_page.dart';
 
 class PackHouseView extends GetView<PackHouseController> {
+  final RxString selectedSection = 'My Packing Houses'.obs;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,17 +34,81 @@ class PackHouseView extends GetView<PackHouseController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
-            _buildMyPackHouseContainer(context),
-            _buildAssociatedGrowersContainer(context),
-            _buildAssociatedAadhatisContainer(context),
-            _buildAssociatedLadanisContainer(context),
-            _buildAssociatedPackersContainer(context),
-            _buildAssociatedDriversContainer(context),
-            _buildConsignmentsContainer(context),
+            _buildSectionChips(),
+            Obx(() {
+              switch (selectedSection.value) {
+                case 'My Packing Houses':
+                  return _buildMyPackHouseContainer(context);
+                case 'Associated Growers':
+                  return _buildAssociatedGrowersContainer(context);
+                case 'Associated Commission Agents':
+                  return _buildAssociatedAadhatisContainer(context);
+                case 'Associated Ladanis':
+                  return _buildAssociatedLadanisContainer(context);
+                case 'Associated Packers':
+                  return _buildAssociatedPackersContainer(context);
+                case 'Associated Drivers':
+                  return _buildAssociatedDriversContainer(context);
+                case 'Consignments':
+                  return _buildConsignmentsContainer(context);
+                default:
+                  return SizedBox.shrink();
+              }
+            }),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildSectionChips() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildSectionChip('My Packing Houses'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Growers'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Commission Agents'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Ladanis'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Packers'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Drivers'),
+            SizedBox(width: 8),
+            _buildSectionChip('Consignments'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionChip(String label) {
+    return Obx(() => FilterChip(
+          label: Text(
+            label,
+            style: TextStyle(
+              color: selectedSection.value == label
+                  ? Colors.white
+                  : Colors.black87,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          selected: selectedSection.value == label,
+          onSelected: (bool selected) {
+            if (selected) {
+              selectedSection.value = label;
+            }
+          },
+          backgroundColor: Colors.grey[200],
+          selectedColor: Color(0xff548235),
+          checkmarkColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ));
   }
 
   Widget _buildMyPackHouseContainer(BuildContext context) {
@@ -505,7 +571,7 @@ class PackHouseView extends GetView<PackHouseController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Associated Corporate Companies",
+            "Associated Ladanis",
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -524,7 +590,7 @@ class PackHouseView extends GetView<PackHouseController> {
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
         item: ladani,
-        title: 'Corporate Company Details',
+        title: 'Ladanis Details',
         details: [
           _buildDetailRow('Name', '${ladani.name}'),
           _buildDetailRow('Phone', '${ladani.contact}'),
@@ -856,7 +922,7 @@ class PackHouseView extends GetView<PackHouseController> {
   Widget _buildAddNewDriverCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return InkWell(
-      onTap: () => Get.to(() => DriverFormPage()),
+      onTap: () => Get.to(() => DriverFormPageView()),
       child: Card(
         color: Colors.white,
         elevation: 0,

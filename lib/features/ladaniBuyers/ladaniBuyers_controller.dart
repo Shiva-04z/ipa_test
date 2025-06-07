@@ -30,6 +30,30 @@ class LadaniBuyersController extends GetxController {
     };
   }
 
+
+  void addAssociatedAadhatis(Aadhati aadhati) {
+    if (!associatedAadhatis.any((g) => g.id == aadhati.id)) {
+      associatedAadhatis.add(aadhati);
+    }
+  }
+  void addAssociatedBuyers(FreightForwarder buyer) {
+    if (!associatedBuyers.any((g) => g.id == buyer.id)) {
+      associatedBuyers.add(buyer);
+    }
+  }
+  void addAssociatedDrivers(DrivingProfile driver) {
+    if (!associatedDrivers.any((g) => g.id == driver.id)) {
+      associatedDrivers.add(driver);
+    }
+  }
+
+  void addConsignments(Consignment consignment) {
+    if (!consignments.any((g) => g.id == consignment.id)) {
+      consignments.add(consignment);
+    }
+  }
+
+
   void removeAssociatedAadhati(String id) {
     associatedAadhatis.removeWhere((aadhati) => aadhati.id == id);
   }

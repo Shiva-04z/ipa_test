@@ -47,7 +47,8 @@ class SignUpView extends GetView<SignUpController> {
                     child: Center(
                       child: Obx(
                         () => Text(
-                          "${controller.currentValue.value}'s Login",
+
+                          "${controller.currentValue.value}'s Login",textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
 

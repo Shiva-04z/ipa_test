@@ -1,6 +1,13 @@
+import 'package:apple_grower/features/driver/driver_controller.dart';
+import 'package:apple_grower/features/hpPolice/hpPolice_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../models/consignment_model.dart';
+import '../aadhati/aadhati_controller.dart';
+import '../freightForwarder/freightForwarder_controller.dart';
+import '../grower/grower_controller.dart';
+import '../ladaniBuyers/ladaniBuyers_controller.dart';
+import '../transportUnion/transportUnion_controller.dart';
 import 'packHouse_controller.dart';
 import '../../core/globals.dart' as glb;
 import '../../core/global_role_loader.dart' as gld;
@@ -40,9 +47,38 @@ class ConsignmentForm2Controller extends GetxController {
   }
 
   void selectConsignment(Consignment consignment) {
-    final exists = Get.find<PackHouseController>().consignments.any(
-          (existingConsignment) => existingConsignment.id == consignment.id,
-        );
+    final exists = (glb.roleType.value == "PackHouse")
+        ? Get.find<PackHouseController>()
+            .consignments
+            .any((existingDriver) => existingDriver.id == consignment.id)
+        : (glb.roleType.value == "Grower")
+            ? Get.find<GrowerController>()
+                .consignments
+                .any((existingDriver) => existingDriver.id == consignment.id)
+            : (glb.roleType.value == "Aadhati")
+                ? Get.find<AadhatiController>().consignments.any(
+                    (existingDriver) => existingDriver.id == consignment.id)
+                : (glb.roleType.value == "Ladani/Buyers")
+                    ? Get.find<LadaniBuyersController>().consignments.any(
+                        (existingDriver) => existingDriver.id == consignment.id)
+                    : (glb.roleType.value == "Freight Forwarder")
+                        ? Get.find<FreightForwarderController>()
+                            .consignments
+                            .any((existingDriver) =>
+                                existingDriver.id == consignment.id)
+                        : (glb.roleType.value == "Transport Union")
+                            ? Get.find<TransportUnionController>()
+                                .consignments
+                                .any((existingDriver) =>
+                                    existingDriver.id == consignment.id)
+                            : (glb.roleType.value == "Driver")
+                                ? Get.find<DriverController>().myJobs.any(
+                                    (existingDriver) =>
+                                        existingDriver.id == consignment.id)
+                                : Get.find<HPPoliceController>()
+                                    .consignments
+                                    .any((existingDriver) =>
+                                        existingDriver.id == consignment.id);
 
     if (exists) {
       Get.snackbar(
@@ -55,15 +91,27 @@ class ConsignmentForm2Controller extends GetxController {
       return;
     }
 
-    Get.find<PackHouseController>().addConsignment(consignment);
+    (glb.roleType.value == "PackHouse")
+        ? Get.find<PackHouseController>().addConsignment(consignment)
+        : (glb.roleType.value == "Grower")
+            ? Get.find<GrowerController>().addConsignment(consignment)
+            : (glb.roleType.value == "Aadhati")
+                ? Get.find<AadhatiController>().addConsignment(consignment)
+                : (glb.roleType.value == "Ladani/Buyers")
+                    ? Get.find<LadaniBuyersController>()
+                        .addConsignments(consignment)
+                    : (glb.roleType.value == "Freight Forwarder")
+                        ? Get.find<FreightForwarderController>()
+                            .addConsignments(consignment)
+                        : (glb.roleType.value == "Transport Union")
+                            ? Get.find<TransportUnionController>()
+                                .addConsignments(consignment)
+                            : (glb.roleType.value == "Driver")
+                                ? Get.find<DriverController>()
+                                    .addConsignment(consignment)
+                                : Get.find<HPPoliceController>()
+                                    .addConsignment(consignment);
     Get.back();
-    Get.snackbar(
-      'Success',
-      'Consignment added successfully',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xff548235),
-      colorText: Colors.white,
-    );
   }
 
   void navigateToNewConsignmentForm() {
@@ -187,9 +235,37 @@ class ConsignmentForm2Page extends StatelessWidget {
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
               final consignment = controller.searchResults[index];
-              final exists = Get.find<PackHouseController>().consignments.any(
-                  (existingConsignment) =>
-                      existingConsignment.id == consignment.id);
+              final exists = (glb.roleType.value == "PackHouse")
+                  ? Get.find<PackHouseController>().consignments.any(
+                      (existingDriver) => existingDriver.id == consignment.id)
+                  : (glb.roleType.value == "Grower")
+                      ? Get.find<GrowerController>().consignments.any(
+                          (existingDriver) =>
+                              existingDriver.id == consignment.id)
+                      : (glb.roleType.value == "Aadhati")
+                          ? Get.find<AadhatiController>().consignments.any(
+                              (existingDriver) =>
+                                  existingDriver.id == consignment.id)
+                          : (glb.roleType.value == "Ladani/Buyers")
+                              ? Get.find<LadaniBuyersController>()
+                                  .consignments
+                                  .any((existingDriver) =>
+                                      existingDriver.id == consignment.id)
+                              : (glb.roleType.value == "Freight Forwarder")
+                                  ? Get.find<FreightForwarderController>()
+                                      .consignments
+                                      .any((existingDriver) =>
+                                          existingDriver.id == consignment.id)
+                                  : (glb.roleType.value == "Transport Union")
+                                      ? Get.find<TransportUnionController>()
+                                          .consignments
+                                          .any((existingDriver) =>
+                                              existingDriver.id ==
+                                              consignment.id)
+                                      : (glb.roleType.value == "Driver")
+                                          ? Get.find<DriverController>().myJobs.any(
+                                              (existingDriver) => existingDriver.id == consignment.id)
+                                          : Get.find<HPPoliceController>().consignments.any((existingDriver) => existingDriver.id == consignment.id);
 
               return Stack(
                 children: [

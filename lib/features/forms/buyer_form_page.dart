@@ -1,66 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../models/driving_profile_model.dart';
-import 'packHouse_controller.dart';
+import '../../core/globalsWidgets.dart' as glbw;
 import '../../core/globals.dart' as glb;
+import '../../models/freightForwarder.dart';
+import '../aadhati/aadhati_controller.dart';
+import '../ladaniBuyers/ladaniBuyers_controller.dart';
+import '../transportUnion/transportUnion_controller.dart';
 
-class DriverFormController extends GetxController {
+class BuyerFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
-  final licenseController = TextEditingController();
-  final vehicleTypeController = TextEditingController();
-  final vehicleNumberController = TextEditingController();
+  final addressController = TextEditingController();
   final searchController = TextEditingController();
   final isLoading = false.obs;
   final isSearching = true.obs;
-  final searchResults = <DrivingProfile>[].obs;
+  final searchResults = <FreightForwarder>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = glb.availableDrivingProfiles;
+    searchResults.value = glb.availableBuyers;
   }
 
   @override
   void onClose() {
     nameController.dispose();
     phoneController.dispose();
-    licenseController.dispose();
-    vehicleTypeController.dispose();
-    vehicleNumberController.dispose();
+    addressController.dispose();
     searchController.dispose();
     super.onClose();
   }
 
   void onSearchChanged(String query) {
     if (query.isEmpty) {
-      searchResults.value = glb.availableDrivingProfiles;
+      searchResults.value = glb.availableBuyers;
     } else {
-      searchResults.value = glb.availableDrivingProfiles.where((driver) {
-        final name = driver.name!.toLowerCase();
-        final phone = driver.contact!.toLowerCase();
-        final license = driver.drivingLicenseNo!.toLowerCase();
-        final vehicle = driver.vehicleRegistrationNo!.toLowerCase();
+      searchResults.value = glb.availableBuyers.where((buyer) {
+        final name = buyer.name.toLowerCase();
+        final phone = buyer.contact.toLowerCase();
+        final address = buyer.address.toLowerCase();
         final searchLower = query.toLowerCase();
 
         return name.contains(searchLower) ||
             phone.contains(searchLower) ||
-            license.contains(searchLower) ||
-            vehicle.contains(searchLower);
+            address.contains(searchLower);
       }).toList();
     }
   }
 
-  void selectDriver(DrivingProfile driver) {
-    final exists = Get.find<PackHouseController>().associatedDrivers.any(
-          (existingDriver) => existingDriver.id == driver.id,
-        );
+  void selectBuyer(FreightForwarder buyer) {
+   final  exists = (glb.roleType.value == "Aadhati")
+        ? Get.find<AadhatiController>()
+        .associatedBuyers
+        .any((existingDriver) => existingDriver.id == buyer.id)
+        : (glb.roleType.value == "Ladani/Buyers")
+        ? Get.find<LadaniBuyersController>()
+        .associatedBuyers
+        .any((existingDriver) => existingDriver.id == buyer.id)
+        :Get.find<TransportUnionController>()
+        .associatedFreightForwarders
+        .any((existingDriver) =>
+    existingDriver.id == buyer.id);
 
     if (exists) {
       Get.snackbar(
-        'Driver Already Added',
-        'This driver is already in your list',
+        'Buyer Already Added',
+        'This buyer is already in your list',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -68,15 +74,15 @@ class DriverFormController extends GetxController {
       return;
     }
 
-    Get.find<PackHouseController>().addAssociatedDriver(driver);
+   (glb.roleType.value == "Aadhati")
+       ? Get.find<AadhatiController>()
+       .addAssociatedBuyer(buyer)
+       : (glb.roleType.value == "Ladani/Buyers")
+       ? Get.find<LadaniBuyersController>()
+       .addAssociatedBuyers(buyer)
+       :Get.find<TransportUnionController>()
+       .addAssociatedBuyers(buyer);
     Get.back();
-    Get.snackbar(
-      'Success',
-      'Driver added successfully',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xff548235),
-      colorText: Colors.white,
-    );
   }
 
   void submitForm() {
@@ -85,47 +91,50 @@ class DriverFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      final driver = DrivingProfile(
-        id: 'D${DateTime.now().millisecondsSinceEpoch}',
+      final now = DateTime.now();
+      final buyer = FreightForwarder(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: nameController.text,
         contact: phoneController.text,
-        drivingLicenseNo: licenseController.text,
-        vehicleRegistrationNo: vehicleNumberController.text,
+        address: addressController.text,
+        createdAt: now,
+        updatedAt: now,
       );
 
-      Get.find<PackHouseController>().addAssociatedDriver(driver);
+      (glb.roleType.value == "Aadhati")
+          ? Get.find<AadhatiController>()
+          .addAssociatedBuyer(buyer)
+          : (glb.roleType.value == "Ladani/Buyers")
+          ? Get.find<LadaniBuyersController>()
+          .addAssociatedBuyers(buyer)
+          :Get.find<TransportUnionController>()
+          .addAssociatedBuyers(buyer);
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Driver added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xff548235),
-        colorText: Colors.white,
-      );
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Error adding driver: $e',
+        'Error adding buyer: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } finally {
+      Get.back();
       isLoading.value = false;
     }
   }
 }
 
-class DriverFormPage extends StatelessWidget {
-  DriverFormPage({super.key});
+class BuyerFormPage extends StatelessWidget {
+  BuyerFormPage({super.key});
 
-  final controller = Get.put(DriverFormController());
+  final controller = Get.put(BuyerFormController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Driver'),
+        title: const Text('Add New Buyer'),
         backgroundColor: const Color(0xff548235),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -168,7 +177,7 @@ class DriverFormPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 Obx(() => controller.isSearching.value
                     ? _buildSearchResults()
-                    : _buildNewDriverForm()),
+                    : _buildNewBuyerForm()),
               ],
             ),
           ),
@@ -190,7 +199,7 @@ class DriverFormPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Select or Create Driver',
+                  'Select or Create Buyer',
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
                     fontWeight: FontWeight.bold,
@@ -218,7 +227,7 @@ class DriverFormPage extends StatelessWidget {
                 ? TextField(
                     controller: controller.searchController,
                     decoration: _getInputDecoration(
-                      'Search drivers...',
+                      'Search buyers...',
                       prefixIcon: Icons.search,
                     ),
                     onChanged: controller.onSearchChanged,
@@ -236,7 +245,7 @@ class DriverFormPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'No drivers found',
+                'No buyers found',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
@@ -249,10 +258,19 @@ class DriverFormPage extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
-              final driver = controller.searchResults[index];
-              final exists = Get.find<PackHouseController>()
-                  .associatedDrivers
-                  .any((existingDriver) => existingDriver.id == driver.id);
+              final buyer = controller.searchResults[index];
+              final  exists = (glb.roleType.value == "Aadhati")
+                  ? Get.find<AadhatiController>()
+                  .associatedBuyers
+                  .any((existingDriver) => existingDriver.id == buyer.id)
+                  : (glb.roleType.value == "Ladani/Buyers")
+                  ? Get.find<LadaniBuyersController>()
+                  .associatedBuyers
+                  .any((existingDriver) => existingDriver.id == buyer.id)
+                  :Get.find<TransportUnionController>()
+                  .associatedFreightForwarders
+                  .any((existingDriver) =>
+              existingDriver.id == buyer.id);
 
               return Stack(
                 children: [
@@ -264,7 +282,7 @@ class DriverFormPage extends StatelessWidget {
                     ),
                     child: InkWell(
                       onTap:
-                          exists ? null : () => controller.selectDriver(driver),
+                          exists ? null : () => controller.selectBuyer(buyer),
                       borderRadius: BorderRadius.circular(12),
                       child: Opacity(
                         opacity: exists ? 0.7 : 1.0,
@@ -287,14 +305,14 @@ class DriverFormPage extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${driver.name}',
+                                          buyer.name,
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          'Phone: ${driver.contact}',
+                                          'Phone: ${buyer.contact}',
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.grey[600],
@@ -307,13 +325,8 @@ class DriverFormPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               _buildInfoRow(
-                                Icons.badge,
-                                'License: ${driver.drivingLicenseNo}',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildInfoRow(
-                                Icons.directions_car,
-                                'Vehicle: ${driver.vehicleRegistrationNo}',
+                                Icons.location_on,
+                                'Address: ${buyer.address}',
                               ),
                             ],
                           ),
@@ -371,15 +384,13 @@ class DriverFormPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNewDriverForm() {
+  Widget _buildNewBuyerForm() {
     return Form(
       key: controller.formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildBasicDetails(),
-          const SizedBox(height: 24),
-          _buildVehicleDetails(),
           const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
@@ -433,48 +444,16 @@ class DriverFormPage extends StatelessWidget {
                 return null;
               },
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVehicleDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Vehicle Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.licenseController,
+              controller: controller.addressController,
               decoration: _getInputDecoration(
-                'Driving License Number',
-                prefixIcon: Icons.badge,
+                'Address',
+                prefixIcon: Icons.location_on,
               ),
+              maxLines: 3,
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter license number' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.vehicleNumberController,
-              decoration: _getInputDecoration(
-                'Vehicle Registration Number',
-                prefixIcon: Icons.directions_car,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter vehicle number' : null,
+                  value?.isEmpty ?? true ? 'Please enter address' : null,
             ),
           ],
         ),
@@ -496,7 +475,7 @@ class DriverFormPage extends StatelessWidget {
           ),
         ),
         child: const Text(
-          'Add Driver',
+          'Add Buyer',
           style: TextStyle(fontSize: 16),
         ),
       ),

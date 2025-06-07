@@ -1,85 +1,117 @@
-import 'package:apple_grower/models/aadhati.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../core/global_role_loader.dart' as gld;
 import '../../core/globals.dart' as glb;
+import '../../core/global_role_loader.dart' as gld;
+import '../../models/ladani_model.dart';
+import '../aadhati/aadhati_controller.dart';
+import '../ampcOffice/ampcOffice_controller.dart';
+import '../freightForwarder/freightForwarder_controller.dart';
+import '../grower/grower_controller.dart';
+import '../hpAgriBoard/hpAgriBoard_controller.dart';
+import '../packHouse/packHouse_controller.dart';
+import '../transportUnion/transportUnion_controller.dart';
 
-class CommissionAgentFormController extends GetxController {
+class CorporateCompanyFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
-  final apmcController = TextEditingController();
   final addressController = TextEditingController();
   final tradingFirmController = TextEditingController();
   final tradingYearsController = TextEditingController();
   final firmTypeController = TextEditingController();
   final licenseNoController = TextEditingController();
-  final salesLocationController = TextEditingController();
+  final purchaseLocationController = TextEditingController();
+  final apmcController = TextEditingController();
   final googleLocationController = TextEditingController();
   final boxes2023Controller = TextEditingController();
   final boxes2024Controller = TextEditingController();
   final target2025Controller = TextEditingController();
-  final growersServedController = TextEditingController();
-  final needTradeFinance = false.obs;
+  final perBoxExpensesController = TextEditingController();
   final searchController = TextEditingController();
   final isLoading = false.obs;
   final isSearching = true.obs;
-  final searchResults = <Aadhati>[].obs;
+  final searchResults = <Ladani>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = glb.availableAadhatis;
+    searchResults.value = glb.availableLadanis;
   }
 
   @override
   void onClose() {
     nameController.dispose();
     phoneController.dispose();
-    apmcController.dispose();
     addressController.dispose();
     tradingFirmController.dispose();
     tradingYearsController.dispose();
     firmTypeController.dispose();
     licenseNoController.dispose();
-    salesLocationController.dispose();
+    purchaseLocationController.dispose();
+    apmcController.dispose();
     googleLocationController.dispose();
     boxes2023Controller.dispose();
     boxes2024Controller.dispose();
     target2025Controller.dispose();
-    growersServedController.dispose();
+    perBoxExpensesController.dispose();
     searchController.dispose();
     super.onClose();
   }
 
   void onSearchChanged(String query) {
     if (query.isEmpty) {
-      searchResults.value = glb.availableAadhatis;
+      searchResults.value = glb.availableLadanis;
     } else {
-      searchResults.value = glb.availableAadhatis.where((agent) {
-        final name = agent.name!.toLowerCase();
-        final apmc = agent.apmc!.toLowerCase();
-        final address = agent.address!.toLowerCase();
+      searchResults.value = glb.availableLadanis.where((company) {
+        final name = company.name!.toLowerCase();
+        final type = company.firmType!.toLowerCase();
+        final address = company.address!.toLowerCase();
         final searchLower = query.toLowerCase();
 
         return name.contains(searchLower) ||
-            apmc.contains(searchLower) ||
+            type.contains(searchLower) ||
             address.contains(searchLower);
       }).toList();
     }
   }
 
-  void selectAgent(Aadhati agent) {
-    // Check if agent already exists
-    final exists = gld.globalGrower.value.commissionAgents.any(
-      (existingAgent) => existingAgent.id == agent.id,
-    );
+  void selectCompany(Ladani company) {
+    // Check if company already exists
+    final exists =
+    (glb.roleType.value == "Grower")
+        ? Get.find<GrowerController>()
+        .corporateCompanies
+        .any((existingDriver) => existingDriver.id == company.id):
+    (glb.roleType.value == "PackHouse")
+        ? Get.find<PackHouseController>()
+        .associatedLadanis
+        .any((existingDriver) => existingDriver.id == company.id)
+        : (glb.roleType.value == "Aadhati")?Get.find<AadhatiController>().associatedLadanis.any(
+            (existingDriver) =>
+        existingDriver.id == company.id): (glb.roleType.value == "AMPC Office")
+    ? Get.find<AmpcOfficeController>().flag.value
+    ? Get.find<AmpcOfficeController>().approvedLadanis.any((existingDriver) =>
+    existingDriver.id == company.id)
+        : Get.find<AmpcOfficeController>()
+        .blacklistedLadanis
+        .any((existingDriver) =>
+    existingDriver.id == company.id)
+        : (Get.find<HPAgriBoardController>().flag.value)
+    ? Get.find<HPAgriBoardController>()
+        .approvedLadanis
+        .any((existingDriver) =>
+    existingDriver.id == company.id)
+        : Get.find<HPAgriBoardController>()
+        .blacklistedLadanis
+        .any((existingDriver) => existingDriver.id == company.id);
+
+
 
     if (exists) {
       Get.snackbar(
-        'Agent Already Added',
-        'This commission agent is already in your list',
+        'Company Already Added',
+        'This company is already in your list',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -87,20 +119,16 @@ class CommissionAgentFormController extends GetxController {
       return;
     }
 
-    final updatedAgents = [...gld.globalGrower.value.commissionAgents, agent];
-    gld.globalGrower.value = gld.globalGrower.value.copyWith(
-      commissionAgents: updatedAgents,
-      updatedAt: DateTime.now(),
-    );
-
+    (glb.roleType.value == "PackHouse")
+        ? Get.find<PackHouseController>().addAssociatedLadani(company)
+        : (glb.roleType.value == "Aadhati")
+        ? Get.find<AadhatiController>()
+        .addAssociatedLadani(company):
+    (glb.roleType.value == "Grower") ?Get.find<GrowerController>()
+        .addCorporateCompany(company) : (glb.roleType.value == "AMPC Office")
+        ? Get.find<AmpcOfficeController>().addLadani(company)
+        : Get.find<HPAgriBoardController>().addLadani(company);
     Get.back();
-    Get.snackbar(
-      'Success',
-      'Commission agent added successfully',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xff548235),
-      colorText: Colors.white,
-    );
   }
 
   void submitForm() {
@@ -109,66 +137,60 @@ class CommissionAgentFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      final newAgent = Aadhati(
+      final newCompany = Ladani(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: nameController.text,
         contact: phoneController.text,
-        apmc: apmcController.text,
         address: addressController.text,
         nameOfTradingFirm: tradingFirmController.text,
         tradingSinceYears: int.tryParse(tradingYearsController.text),
         firmType: firmTypeController.text,
         licenseNo: licenseNoController.text,
-        salesPurchaseLocationName: salesLocationController.text,
+        purchaseLocationAddress: purchaseLocationController.text,
+        licensesIssuingAPMC: apmcController.text,
         locationOnGoogle: googleLocationController.text,
         appleBoxesPurchased2023: int.tryParse(boxes2023Controller.text),
         appleBoxesPurchased2024: int.tryParse(boxes2024Controller.text),
         estimatedTarget2025: double.tryParse(target2025Controller.text),
-        needTradeFinance: needTradeFinance.value,
-        noOfAppleGrowersServed: int.tryParse(growersServedController.text),
+        perBoxExpensesAfterBidding:
+            double.tryParse(perBoxExpensesController.text),
       );
 
-      final updatedAgents = [
-        ...gld.globalGrower.value.commissionAgents,
-        newAgent
-      ];
-      gld.globalGrower.value = gld.globalGrower.value.copyWith(
-        commissionAgents: updatedAgents,
-        updatedAt: DateTime.now(),
-      );
+      (glb.roleType.value == "PackHouse")
+          ? Get.find<PackHouseController>().addAssociatedLadani(newCompany)
+          : (glb.roleType.value == "Aadhati")
+          ? Get.find<AadhatiController>()
+          .addAssociatedLadani(newCompany):(glb.roleType.value == "Grower") ?Get.find<GrowerController>()
+          .addCorporateCompany(newCompany) : (glb.roleType.value == "AMPC Office")
+    ? Get.find<AmpcOfficeController>().addLadani(newCompany)
+        : Get.find<HPAgriBoardController>().addLadani(newCompany);
 
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Commission agent added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xff548235),
-        colorText: Colors.white,
-      );
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Error adding commission agent: $e',
+        'Error adding corporate company: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } finally {
+      Get.back();
       isLoading.value = false;
     }
   }
 }
 
-class CommissionAgentFormPage extends StatelessWidget {
-  CommissionAgentFormPage({super.key});
+class CorporateCompanyFormPage extends StatelessWidget {
+  CorporateCompanyFormPage({super.key});
 
-  final controller = Get.put(CommissionAgentFormController());
+  final controller = Get.put(CorporateCompanyFormController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Commission Agent'),
+        title: const Text('Add Corporate Company'),
         backgroundColor: const Color(0xff548235),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -211,7 +233,7 @@ class CommissionAgentFormPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 Obx(() => controller.isSearching.value
                     ? _buildSearchResults()
-                    : _buildNewAgentForm()),
+                    : _buildNewCompanyForm()),
               ],
             ),
           ),
@@ -233,7 +255,7 @@ class CommissionAgentFormPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Select or Create Agent',
+                  'Select or Create Company',
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
                     fontWeight: FontWeight.bold,
@@ -261,7 +283,7 @@ class CommissionAgentFormPage extends StatelessWidget {
                 ? TextField(
                     controller: controller.searchController,
                     decoration: _getInputDecoration(
-                      'Search agents...',
+                      'Search companies...',
                       prefixIcon: Icons.search,
                     ),
                     onChanged: controller.onSearchChanged,
@@ -279,7 +301,7 @@ class CommissionAgentFormPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'No agents found',
+                'No companies found',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
@@ -292,10 +314,35 @@ class CommissionAgentFormPage extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
-              final agent = controller.searchResults[index];
-              final exists = gld.globalGrower.value.commissionAgents.any(
-                (existingAgent) => existingAgent.id == agent.id,
-              );
+              final company = controller.searchResults[index];
+              final exists =
+              (glb.roleType.value == "Grower")
+                  ? Get.find<GrowerController>()
+                  .corporateCompanies
+                  .any((existingDriver) => existingDriver.id == company.id):
+              (glb.roleType.value == "PackHouse")
+                  ? Get.find<PackHouseController>()
+                  .associatedLadanis
+                  .any((existingDriver) => existingDriver.id == company.id)
+                  : (glb.roleType.value == "Aadhati")?Get.find<AadhatiController>().associatedLadanis.any(
+                      (existingDriver) =>
+                  existingDriver.id == company.id): (glb.roleType.value == "AMPC Office")
+                  ? Get.find<AmpcOfficeController>().flag.value
+                  ? Get.find<AmpcOfficeController>().approvedLadanis.any((existingDriver) =>
+              existingDriver.id == company.id)
+                  : Get.find<AmpcOfficeController>()
+                  .blacklistedLadanis
+                  .any((existingDriver) =>
+              existingDriver.id == company.id)
+                  : (Get.find<HPAgriBoardController>().flag.value)
+                  ? Get.find<HPAgriBoardController>()
+                  .approvedLadanis
+                  .any((existingDriver) =>
+              existingDriver.id == company.id)
+                  : Get.find<HPAgriBoardController>()
+                  .blacklistedLadanis
+                  .any((existingDriver) => existingDriver.id == company.id);
+
 
               return Stack(
                 children: [
@@ -306,8 +353,9 @@ class CommissionAgentFormPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: InkWell(
-                      onTap:
-                          exists ? null : () => controller.selectAgent(agent),
+                      onTap: exists
+                          ? null
+                          : () => controller.selectCompany(company),
                       borderRadius: BorderRadius.circular(12),
                       child: Opacity(
                         opacity: exists ? 0.7 : 1.0,
@@ -319,7 +367,7 @@ class CommissionAgentFormPage extends StatelessWidget {
                               Row(
                                 children: [
                                   const Icon(
-                                    Icons.person,
+                                    Icons.business,
                                     color: Color(0xff548235),
                                     size: 24,
                                   ),
@@ -330,14 +378,14 @@ class CommissionAgentFormPage extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          agent.name ?? 'N/A',
+                                          company.name ?? 'N/A',
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          'Trading Firm: ${agent.nameOfTradingFirm ?? 'N/A'}',
+                                          'Trading Firm: ${company.nameOfTradingFirm ?? 'N/A'}',
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[600],
@@ -350,23 +398,23 @@ class CommissionAgentFormPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               _buildInfoRow(
-                                Icons.store,
-                                'APMC: ${agent.apmc ?? 'N/A'}',
+                                Icons.category,
+                                'Type: ${company.firmType ?? 'N/A'}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
                                 Icons.phone,
-                                'Phone: ${agent.contact ?? 'N/A'}',
+                                'Phone: ${company.contact ?? 'N/A'}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
                                 Icons.location_on,
-                                'Address: ${agent.address ?? 'N/A'}',
+                                'Address: ${company.address ?? 'N/A'}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
-                                Icons.business,
-                                'Firm Type: ${agent.firmType ?? 'N/A'}',
+                                Icons.store,
+                                'APMC: ${company.licensesIssuingAPMC ?? 'N/A'}',
                               ),
                             ],
                           ),
@@ -424,7 +472,7 @@ class CommissionAgentFormPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNewAgentForm() {
+  Widget _buildNewCompanyForm() {
     return Form(
       key: controller.formKey,
       child: Column(
@@ -463,11 +511,11 @@ class CommissionAgentFormPage extends StatelessWidget {
             TextFormField(
               controller: controller.nameController,
               decoration: _getInputDecoration(
-                'Commission Agent Name',
-                prefixIcon: Icons.person,
+                'Company Name',
+                prefixIcon: Icons.business,
               ),
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter name' : null,
+                  value?.isEmpty ?? true ? 'Please enter company name' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -479,16 +527,6 @@ class CommissionAgentFormPage extends StatelessWidget {
               keyboardType: TextInputType.phone,
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Please enter phone number' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.apmcController,
-              decoration: _getInputDecoration(
-                'APMC Mandi',
-                prefixIcon: Icons.store,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter APMC Mandi' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -592,13 +630,24 @@ class CommissionAgentFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.salesLocationController,
+              controller: controller.purchaseLocationController,
               decoration: _getInputDecoration(
-                'Sales/Purchase Location',
+                'Purchase Location Address',
                 prefixIcon: Icons.location_city,
               ),
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter purchase location'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.apmcController,
+              decoration: _getInputDecoration(
+                'APMC License Issuing Authority',
+                prefixIcon: Icons.store,
+              ),
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter sales location' : null,
+                  value?.isEmpty ?? true ? 'Please enter APMC authority' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -649,24 +698,16 @@ class CommissionAgentFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.growersServedController,
+              controller: controller.perBoxExpensesController,
               decoration: _getInputDecoration(
-                'Number of Apple Growers Served',
-                prefixIcon: Icons.people,
+                'Per Box Expenses After Bidding',
+                prefixIcon: Icons.attach_money,
               ),
               keyboardType: TextInputType.number,
               validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter number of growers served'
+                  ? 'Please enter per box expenses'
                   : null,
             ),
-            const SizedBox(height: 16),
-            Obx(() => SwitchListTile(
-                  title: const Text('Need Trade Finance'),
-                  value: controller.needTradeFinance.value,
-                  onChanged: (value) =>
-                      controller.needTradeFinance.value = value,
-                  activeColor: const Color(0xff548235),
-                )),
           ],
         ),
       ),
@@ -687,7 +728,7 @@ class CommissionAgentFormPage extends StatelessWidget {
           ),
         ),
         child: const Text(
-          'Add Commission Agent',
+          'Add Corporate Company',
           style: TextStyle(fontSize: 16),
         ),
       ),

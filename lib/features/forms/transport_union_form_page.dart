@@ -4,7 +4,7 @@ import '../../core/globalsWidgets.dart' as glbw;
 import '../../core/globals.dart' as glb;
  // Use a prefix for the model import
 import '../../models/transport_model.dart';
-import 'driver_controller.dart'; // Access TransportUnion model from driver_controller.dart
+import '../driver/driver_controller.dart';
 
 class TransportUnionFormController extends GetxController {
   final formKey = GlobalKey<FormState>();

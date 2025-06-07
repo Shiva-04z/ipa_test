@@ -1,64 +1,94 @@
+import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
+import 'package:apple_grower/features/freightForwarder/freightForwarder_controller.dart';
+import 'package:apple_grower/features/grower/grower_controller.dart';
+import 'package:apple_grower/features/ladaniBuyers/ladaniBuyers_controller.dart';
+import 'package:apple_grower/features/transportUnion/transportUnion_controller.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../models/grower_model.dart';
-import 'packHouse_controller.dart';
+import '../../models/driving_profile_model.dart';
 import '../../core/globals.dart' as glb;
+import '../packHouse/packHouse_controller.dart';
 
-class GrowerFormController extends GetxController {
+class DriverFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
-  final aadharController = TextEditingController();
   final phoneController = TextEditingController();
-  final addressController = TextEditingController();
-  final pinCodeController = TextEditingController();
+  final licenseController = TextEditingController();
+  final vehicleTypeController = TextEditingController();
+  final vehicleNumberController = TextEditingController();
   final searchController = TextEditingController();
   final isLoading = false.obs;
   final isSearching = true.obs;
-  final searchResults = <Grower>[].obs;
-
+  final searchResults = <DrivingProfile>[].obs;
+  var exists;
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = glb.availableGrowers;
+    searchResults.value = glb.availableDrivingProfiles;
   }
 
   @override
   void onClose() {
     nameController.dispose();
-    aadharController.dispose();
     phoneController.dispose();
-    addressController.dispose();
-    pinCodeController.dispose();
+    licenseController.dispose();
+    vehicleTypeController.dispose();
+    vehicleNumberController.dispose();
     searchController.dispose();
     super.onClose();
   }
 
   void onSearchChanged(String query) {
     if (query.isEmpty) {
-      searchResults.value = glb.availableGrowers;
+      searchResults.value = glb.availableDrivingProfiles;
     } else {
-      searchResults.value = glb.availableGrowers.where((grower) {
-        final name = grower.name.toLowerCase();
-        final phone = grower.phoneNumber.toLowerCase();
-        final address = grower.address.toLowerCase();
+      searchResults.value = glb.availableDrivingProfiles.where((driver) {
+        final name = driver.name!.toLowerCase();
+        final phone = driver.contact!.toLowerCase();
+        final license = driver.drivingLicenseNo!.toLowerCase();
+        final vehicle = driver.vehicleRegistrationNo!.toLowerCase();
         final searchLower = query.toLowerCase();
 
         return name.contains(searchLower) ||
             phone.contains(searchLower) ||
-            address.contains(searchLower);
+            license.contains(searchLower) ||
+            vehicle.contains(searchLower);
       }).toList();
     }
   }
 
-  void selectGrower(Grower grower) {
-    final exists = Get.find<PackHouseController>().associatedGrowers.any(
-          (existingGrower) => existingGrower.id == grower.id,
-        );
+  void selectDriver(DrivingProfile driver) {
+    exists = (glb.roleType.value == "PackHouse")
+        ? Get.find<PackHouseController>()
+            .associatedDrivers
+            .any((existingDriver) => existingDriver.id == driver.id)
+        : (glb.roleType.value == "Grower")
+            ? Get.find<GrowerController>()
+                .drivers
+                .any((existingDriver) => existingDriver.id == driver.id)
+            : (glb.roleType.value == "Aadhati")
+                ? Get.find<AadhatiController>()
+                    .associatedDrivers
+                    .any((existingDriver) => existingDriver.id == driver.id)
+                : (glb.roleType.value == "Ladani/Buyers")
+                    ? Get.find<LadaniBuyersController>()
+                        .associatedDrivers
+                        .any((existingDriver) => existingDriver.id == driver.id)
+                    : (glb.roleType.value == "Freight Forwarder")
+                        ? Get.find<FreightForwarderController>()
+                            .associatedDrivers
+                            .any((existingDriver) =>
+                                existingDriver.id == driver.id)
+                        : Get.find<TransportUnionController>()
+                            .associatedDrivers
+                            .any((existingDriver) =>
+                                existingDriver.id == driver.id);
 
     if (exists) {
       Get.snackbar(
-        'Grower Already Added',
-        'This grower is already in your list',
+        'Driver Already Added',
+        'This driver is already in your list',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -66,15 +96,21 @@ class GrowerFormController extends GetxController {
       return;
     }
 
-    Get.find<PackHouseController>().addAssociatedGrower(grower);
+    (glb.roleType.value == "PackHouse")
+        ? Get.find<PackHouseController>().addAssociatedDriver(driver)
+        : (glb.roleType.value == "Grower")
+            ? Get.find<GrowerController>().addDriver(driver)
+            : (glb.roleType.value == "Aadhati")
+                ? Get.find<AadhatiController>().addAssociatedDriver(driver)
+                : (glb.roleType.value == "Ladani/Buyers")
+                    ? Get.find<LadaniBuyersController>()
+                        .addAssociatedDrivers(driver)
+                    : (glb.roleType.value == "Freight Forwarder")
+                        ? Get.find<FreightForwarderController>()
+                            .addAssociatedDrivers(driver)
+                        : Get.find<TransportUnionController>()
+                            .addAssociatedDrivers(driver);
     Get.back();
-    Get.snackbar(
-      'Success',
-      'Grower added successfully',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xff548235),
-      colorText: Colors.white,
-    );
   }
 
   void submitForm() {
@@ -83,51 +119,55 @@ class GrowerFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      final grower = Grower(
-        id: 'G${DateTime.now().millisecondsSinceEpoch}',
+      final driver = DrivingProfile(
+        id: 'D${DateTime.now().millisecondsSinceEpoch}',
         name: nameController.text,
-        aadharNumber: aadharController.text,
-        phoneNumber: phoneController.text,
-        address: addressController.text,
-        pinCode: pinCodeController.text,
-        packingHouses: [],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        contact: phoneController.text,
+        drivingLicenseNo: licenseController.text,
+        vehicleRegistrationNo: vehicleNumberController.text,
       );
 
-      Get.find<PackHouseController>().addAssociatedGrower(grower);
+      (glb.roleType.value == "PackHouse")
+          ? Get.find<PackHouseController>().addAssociatedDriver(driver)
+          : (glb.roleType.value == "Grower")
+              ? Get.find<GrowerController>().addDriver(driver)
+              : (glb.roleType.value == "Aadhati")
+                  ? Get.find<AadhatiController>().addAssociatedDriver(driver)
+                  : (glb.roleType.value == "Ladani/Buyers")
+                      ? Get.find<LadaniBuyersController>()
+                          .addAssociatedDrivers(driver)
+                      : (glb.roleType.value == "Freight Forwarder")
+                          ? Get.find<FreightForwarderController>()
+                              .addAssociatedDrivers(driver)
+                          : Get.find<TransportUnionController>()
+                              .addAssociatedDrivers(driver);
+
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Grower added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xff548235),
-        colorText: Colors.white,
-      );
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Error adding grower: $e',
+        'Error adding driver: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } finally {
+      Get.back();
       isLoading.value = false;
     }
   }
 }
 
-class GrowerFormPage extends StatelessWidget {
-  GrowerFormPage({super.key});
+class DriverFormPageView extends StatelessWidget {
+  DriverFormPageView({super.key});
 
-  final controller = Get.put(GrowerFormController());
+  final controller = Get.put(DriverFormController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Grower'),
+        title: const Text('Add New Driver'),
         backgroundColor: const Color(0xff548235),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -170,7 +210,7 @@ class GrowerFormPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 Obx(() => controller.isSearching.value
                     ? _buildSearchResults()
-                    : _buildNewGrowerForm()),
+                    : _buildNewDriverForm()),
               ],
             ),
           ),
@@ -192,7 +232,7 @@ class GrowerFormPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Select or Create Grower',
+                  'Select or Create Driver',
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
                     fontWeight: FontWeight.bold,
@@ -220,7 +260,7 @@ class GrowerFormPage extends StatelessWidget {
                 ? TextField(
                     controller: controller.searchController,
                     decoration: _getInputDecoration(
-                      'Search growers...',
+                      'Search drivers...',
                       prefixIcon: Icons.search,
                     ),
                     onChanged: controller.onSearchChanged,
@@ -238,7 +278,7 @@ class GrowerFormPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'No growers found',
+                'No drivers found',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
@@ -251,10 +291,32 @@ class GrowerFormPage extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
-              final grower = controller.searchResults[index];
-              final exists = Get.find<PackHouseController>()
-                  .associatedGrowers
-                  .any((existingGrower) => existingGrower.id == grower.id);
+              final driver = controller.searchResults[index];
+              final exists = (glb.roleType.value == "PackHouse")
+                  ? Get.find<PackHouseController>()
+                      .associatedDrivers
+                      .any((existingDriver) => existingDriver.id == driver.id)
+                  : (glb.roleType.value == "Grower")
+                      ? Get.find<GrowerController>().drivers.any(
+                          (existingDriver) => existingDriver.id == driver.id)
+                      : (glb.roleType.value == "Aadhati")
+                          ? Get.find<AadhatiController>().associatedDrivers.any(
+                              (existingDriver) =>
+                                  existingDriver.id == driver.id)
+                          : (glb.roleType.value == "Ladani/Buyers")
+                              ? Get.find<LadaniBuyersController>()
+                                  .associatedDrivers
+                                  .any((existingDriver) =>
+                                      existingDriver.id == driver.id)
+                              : (glb.roleType.value == "Freight Forwarder")
+                                  ? Get.find<FreightForwarderController>()
+                                      .associatedDrivers
+                                      .any((existingDriver) =>
+                                          existingDriver.id == driver.id)
+                                  : Get.find<TransportUnionController>()
+                                      .associatedDrivers
+                                      .any((existingDriver) =>
+                                          existingDriver.id == driver.id);
 
               return Stack(
                 children: [
@@ -266,7 +328,7 @@ class GrowerFormPage extends StatelessWidget {
                     ),
                     child: InkWell(
                       onTap:
-                          exists ? null : () => controller.selectGrower(grower),
+                          exists ? null : () => controller.selectDriver(driver),
                       borderRadius: BorderRadius.circular(12),
                       child: Opacity(
                         opacity: exists ? 0.7 : 1.0,
@@ -289,16 +351,16 @@ class GrowerFormPage extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          grower.name,
+                                          '${driver.name}',
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          'Aadhar: ${grower.aadharNumber}',
+                                          'Phone: ${driver.contact}',
                                           style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 14,
                                             color: Colors.grey[600],
                                           ),
                                         ),
@@ -309,18 +371,13 @@ class GrowerFormPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               _buildInfoRow(
-                                Icons.phone,
-                                'Phone: ${grower.phoneNumber}',
+                                Icons.badge,
+                                'License: ${driver.drivingLicenseNo}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
-                                Icons.location_on,
-                                'Address: ${grower.address}',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildInfoRow(
-                                Icons.pin_drop,
-                                'PIN Code: ${grower.pinCode}',
+                                Icons.directions_car,
+                                'Vehicle: ${driver.vehicleRegistrationNo}',
                               ),
                             ],
                           ),
@@ -378,7 +435,7 @@ class GrowerFormPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNewGrowerForm() {
+  Widget _buildNewDriverForm() {
     return Form(
       key: controller.formKey,
       child: Column(
@@ -386,7 +443,7 @@ class GrowerFormPage extends StatelessWidget {
         children: [
           _buildBasicDetails(),
           const SizedBox(height: 24),
-          _buildAddressDetails(),
+          _buildVehicleDetails(),
           const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
@@ -423,25 +480,6 @@ class GrowerFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.aadharController,
-              decoration: _getInputDecoration(
-                'Aadhar Number',
-                prefixIcon: Icons.badge,
-              ),
-              keyboardType: TextInputType.number,
-              maxLength: 12,
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter Aadhar number';
-                }
-                if (value!.length != 12) {
-                  return 'Aadhar number must be 12 digits';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
               controller: controller.phoneController,
               decoration: _getInputDecoration(
                 'Phone Number',
@@ -465,7 +503,7 @@ class GrowerFormPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAddressDetails() {
+  Widget _buildVehicleDetails() {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -475,7 +513,7 @@ class GrowerFormPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Address Details',
+              'Vehicle Details',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -484,33 +522,23 @@ class GrowerFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.addressController,
+              controller: controller.licenseController,
               decoration: _getInputDecoration(
-                'Address',
-                prefixIcon: Icons.location_on,
+                'Driving License Number',
+                prefixIcon: Icons.badge,
               ),
-              maxLines: 3,
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter address' : null,
+                  value?.isEmpty ?? true ? 'Please enter license number' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.pinCodeController,
+              controller: controller.vehicleNumberController,
               decoration: _getInputDecoration(
-                'PIN Code',
-                prefixIcon: Icons.pin_drop,
+                'Vehicle Registration Number',
+                prefixIcon: Icons.directions_car,
               ),
-              keyboardType: TextInputType.number,
-              maxLength: 6,
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter PIN code';
-                }
-                if (value!.length != 6) {
-                  return 'PIN code must be 6 digits';
-                }
-                return null;
-              },
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter vehicle number' : null,
             ),
           ],
         ),
@@ -532,7 +560,7 @@ class GrowerFormPage extends StatelessWidget {
           ),
         ),
         child: const Text(
-          'Add Grower',
+          'Add Driver',
           style: TextStyle(fontSize: 16),
         ),
       ),

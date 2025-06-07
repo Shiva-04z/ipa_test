@@ -12,6 +12,7 @@ import '../../models/aadhati.dart';
 import '../../models/grower_model.dart';
 import '../../models/orchard_model.dart';
 import '../../models/consignment_model.dart';
+import '../../models/driving_profile_model.dart';
 
 class GrowerController extends GetxController {
   // Text Controllers
@@ -34,10 +35,10 @@ class GrowerController extends GetxController {
   // Observable lists
   RxList<Orchard> get orchards => grower.orchards.obs;
   RxList<Aadhati> get commissionAgents => grower.commissionAgents.obs;
-  RxList<Ladani> get corporateCompanies =>
-      grower.corporateCompanies.obs;
+  RxList<Ladani> get corporateCompanies => grower.corporateCompanies.obs;
   RxList<PackHouse> get packingHouses => grower.packingHouses.obs;
   RxList<Consignment> get consignments => grower.consignments.obs;
+RxList<DrivingProfile> drivers = <DrivingProfile>[].obs;
 
   // Methods for managing orchards
   void addOrchard(Orchard orchard) {
@@ -201,6 +202,14 @@ class GrowerController extends GetxController {
       updatedAt: DateTime.now(),
     );
     globalGrower.value = updatedGrower;
+  }
+
+  void addDriver(DrivingProfile driver) {
+    drivers.add(driver);
+  }
+
+  void removeDriver(String id) {
+    drivers.removeWhere((driver) => driver.id == id);
   }
 
   @override

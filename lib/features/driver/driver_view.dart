@@ -1,5 +1,4 @@
 import 'package:apple_grower/features/driver/driver_controller.dart';
-import 'package:apple_grower/features/driver/transport_union_form_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -7,11 +6,14 @@ import '../../core/globalsWidgets.dart' as glbw;
 
 import '../../models/consignment_model.dart';
 import '../../models/transport_model.dart';
+import '../forms/transport_union_form_page.dart';
 import '../grower/grower_dialogs.dart';
 import 'driver_form_page.dart';
 import '../packHouse/consignment_form2_page.dart'; // For adding new consignments
 
 class DriverView extends GetView<DriverController> {
+  final RxString selectedSection = 'My Info'.obs;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,13 +24,65 @@ class DriverView extends GetView<DriverController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
-            _buildDriverInfoContainer(context),
-            _buildTransportUnionContainer(context),
-            _buildMyJobsContainer(context),
+            _buildSectionChips(),
+            Obx(() {
+              switch (selectedSection.value) {
+                case 'My Info':
+                  return _buildDriverInfoContainer(context);
+                case 'Associated Transport Union':
+                  return _buildTransportUnionContainer(context);
+                case 'My Jobs':
+                  return _buildMyJobsContainer(context);
+                default:
+                  return SizedBox.shrink();
+              }
+            }),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildSectionChips() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildSectionChip('My Info'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Transport Union'),
+            SizedBox(width: 8),
+            _buildSectionChip('My Jobs'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionChip(String label) {
+    return Obx(() => FilterChip(
+          label: Text(
+            label,
+            style: TextStyle(
+              color: selectedSection.value == label
+                  ? Colors.white
+                  : Colors.black87,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          selected: selectedSection.value == label,
+          onSelected: (bool selected) {
+            if (selected) {
+              selectedSection.value = label;
+            }
+          },
+          backgroundColor: Colors.grey[200],
+          selectedColor: Color(0xff548235),
+          checkmarkColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ));
   }
 
   Widget _buildDriverInfoContainer(BuildContext context) {

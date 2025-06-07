@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../models/packer_model.dart';
-import 'packHouse_controller.dart';
 import '../../core/globals.dart' as glb;
+import '../packHouse/packHouse_controller.dart';
 
 class PackerFormController extends GetxController {
   final formKey = GlobalKey<FormState>();

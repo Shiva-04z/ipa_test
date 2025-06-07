@@ -1,4 +1,4 @@
-import 'package:apple_grower/features/grower/corporate_company_form_page.dart';
+import 'package:apple_grower/features/forms/driver_form_page.dart';
 import 'package:apple_grower/features/grower/grower_controller.dart';
 import 'package:apple_grower/models/ladani_model.dart';
 import 'package:flutter/material.dart';
@@ -7,15 +7,20 @@ import 'package:apple_grower/core/globalsWidgets.dart' as glbw;
 import 'package:intl/intl.dart';
 import '../../models/aadhati.dart';
 import '../../models/pack_house_model.dart';
+import '../../models/driving_profile_model.dart';
+import '../forms/commission_agent_form_page.dart';
+import '../forms/consignment_form_page.dart';
+import '../forms/corporate_company_form_page.dart';
+import '../forms/orchard_form_page.dart';
+import '../forms/packing_house_form_page.dart';
+import '../driver/driver_form_page.dart';
 import 'grower_dialogs.dart';
 import '../../models/orchard_model.dart';
 import '../../models/consignment_model.dart';
-import 'consignment_form_page.dart';
-import 'orchard_form_page.dart';
-import 'commission_agent_form_page.dart';
-import 'packing_house_form_page.dart';
 
 class GrowerView extends GetView<GrowerController> {
+  final RxString selectedSection = 'Orchards'.obs;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,16 +31,82 @@ class GrowerView extends GetView<GrowerController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
-            _buildOrchardContainer(context),
-            _buildTable(),
-            _buildConsignmentsContainer(context),
-            _buildCommissionAgentsContainer(context),
-            _buildCorporateCompaniesContainer(context),
-            _buildPackingHouseContainer(context),
+            _buildSectionSelector(),
+            SizedBox(height: 20),
+            Obx(() {
+              return Column(
+                children: [
+                  if (selectedSection.value == 'Orchards') ...[
+                    _buildOrchardContainer(context),
+                    _buildTable(),
+                  ],
+                  if (selectedSection.value == 'Consignments')
+                    _buildConsignmentsContainer(context),
+                  if (selectedSection.value == 'Commission Agents')
+                    _buildCommissionAgentsContainer(context),
+                  if (selectedSection.value == "Ladani's")
+                    _buildCorporateCompaniesContainer(context),
+                  if (selectedSection.value == 'Packing Houses')
+                    _buildPackingHouseContainer(context),
+                  if (selectedSection.value == 'Drivers')
+                    _buildDriversContainer(context),
+                ],
+              );
+            }),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildSectionSelector() {
+    final sections = [
+      'Orchards',
+      'Consignments',
+      'Commission Agents',
+      "Ladani's",
+      'Packing Houses',
+      'Drivers',
+    ];
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: sections.map((section) {
+            return Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: _buildSectionChip(section),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionChip(String label) {
+    return Obx(() => FilterChip(
+          label: Text(
+            label,
+            style: TextStyle(
+              color: selectedSection.value == label
+                  ? Colors.white
+                  : Colors.black87,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          selected: selectedSection.value == label,
+          onSelected: (bool selected) {
+            if (selected) {
+              selectedSection.value = label;
+            }
+          },
+          backgroundColor: Colors.grey[200],
+          selectedColor: Color(0xff548235),
+          checkmarkColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ));
   }
 
   Widget _buildOrchardContainer(BuildContext context) {
@@ -67,7 +138,8 @@ class GrowerView extends GetView<GrowerController> {
                   itemCount: controller.orchards.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) return _buildAddNewOrchardCard(context);
-                    return _buildOrchardCard(context,controller.orchards[index - 1]);
+                    return _buildOrchardCard(
+                        context, controller.orchards[index - 1]);
                   },
                 ),
               ),
@@ -96,7 +168,7 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  Widget _buildOrchardCard(BuildContext context,Orchard orchard) {
+  Widget _buildOrchardCard(BuildContext context, Orchard orchard) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
       onTap: () => GrowerDialogs.showOrchardDetailsDialog(context, orchard),
@@ -542,7 +614,7 @@ class GrowerView extends GetView<GrowerController> {
         item: agent,
         title: 'Commission Agent Details',
         details: [
-          _buildDetailRow('Name ','${agent.name}'),
+          _buildDetailRow('Name ', '${agent.name}'),
           _buildDetailRow('Phone', '${agent.contact}'),
           _buildDetailRow('APMC Mandi', '${agent.apmc}'),
           _buildDetailRow('Address', '${agent.address}'),
@@ -562,7 +634,7 @@ class GrowerView extends GetView<GrowerController> {
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
-               '${agent.name}',
+                '${agent.name}',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -663,7 +735,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Corporate Companies",
+            "Ladani's",
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -682,7 +754,7 @@ class GrowerView extends GetView<GrowerController> {
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
         item: company,
-        title: 'Corporate Company Details',
+        title: 'Ladani Details',
         details: [
           _buildDetailRow('Name', '${company.nameOfTradingFirm}'),
           _buildDetailRow('Phone', '${company.contact}'),
@@ -829,7 +901,7 @@ class GrowerView extends GetView<GrowerController> {
         item: house,
         title: 'Packing House Details',
         details: [
-          _buildDetailRow('Name', house.name ),
+          _buildDetailRow('Name', house.name),
           _buildDetailRow('Type', '${house.trayType}'),
           _buildDetailRow('Phone', house.phoneNumber),
           _buildDetailRow('Address', house.address),
@@ -883,6 +955,152 @@ class GrowerView extends GetView<GrowerController> {
     final isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return InkWell(
       onTap: () => Get.to(() => PackingHouseFormPage()),
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle,
+              size: isSmallScreen ? 32 : 40,
+              color: Colors.red,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "ADD NEW",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDriversContainer(BuildContext context) {
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Obx(
+                () => GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.drivers.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) return _buildAddNewDriverCard(context);
+                    return _buildDriverCard(controller.drivers[index - 1]);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "Associated Drivers",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDriverCard(DrivingProfile driver) {
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    return InkWell(
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: driver,
+        title: 'Driver Details',
+        details: [
+          _buildDetailRow('Name', '${driver.name}'),
+          _buildDetailRow('Contact', '${driver.contact}'),
+          _buildDetailRow('License', '${driver.drivingLicenseNo}'),
+          _buildDetailRow('Vehicle', '${driver.vehicleRegistrationNo}'),
+          _buildDetailRow('Tyres', '${driver.noOfTyres}'),
+        ],
+        onEdit: () {},
+        onDelete: () => controller.removeDriver('${driver.id}'),
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.drive_eta,
+                size: isSmallScreen ? 32 : 40,
+                color: Colors.blue,
+              ),
+              SizedBox(height: 8),
+              Text(
+                '${driver.name}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text(
+                  '${driver.contact}',
+                  style: TextStyle(fontSize: 12),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  '${driver.drivingLicenseNo}',
+                  style: TextStyle(fontSize: 12, color: Colors.blue),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewDriverCard(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    return InkWell(
+      onTap: () => Get.to(() => DriverFormPageView()),
       child: Card(
         color: Colors.white,
         elevation: 0,

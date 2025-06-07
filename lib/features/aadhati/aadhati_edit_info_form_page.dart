@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../core/globalsWidgets.dart' as glbw;
 import 'aadhati_controller.dart';
 
+
 class AadhatiFormPage extends GetView<AadhatiController> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();

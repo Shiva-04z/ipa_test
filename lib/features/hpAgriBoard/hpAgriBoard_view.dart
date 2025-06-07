@@ -1,3 +1,5 @@
+import 'package:apple_grower/features/forms/commission_agent_form_page.dart';
+import 'package:apple_grower/features/forms/corporate_company_form_page.dart';
 import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,6 +9,8 @@ import '../../models/ladani_model.dart';
 import '../../core/globalsWidgets.dart' as glbw;
 
 class HPAgriBoardView extends GetView<HPAgriBoardController> {
+  final RxString selectedSection = 'Agriculture Board Info'.obs;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,15 +21,73 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
-            _buildBoardInfoContainer(),
-            _buildApprovedAadhatisContainer(),
-            _buildBlacklistedAadhatisContainer(),
-            _buildApprovedLadanisContainer(),
-            _buildBlacklistedLadanisContainer(),
+            _buildSectionChips(),
+            Obx(() {
+              switch (selectedSection.value) {
+                case 'Agriculture Board Info':
+                  return _buildBoardInfoContainer();
+                case 'Approved Aadhatis':
+                  return _buildApprovedAadhatisContainer();
+                case 'Blacklisted Aadhatis':
+                  return _buildBlacklistedAadhatisContainer();
+                case 'Approved Ladanis':
+                  return _buildApprovedLadanisContainer();
+                case 'Blacklisted Ladanis':
+                  return _buildBlacklistedLadanisContainer();
+                default:
+                  return SizedBox.shrink();
+              }
+            }),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildSectionChips() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildSectionChip('Agriculture Board Info'),
+            SizedBox(width: 8),
+            _buildSectionChip('Approved Aadhatis'),
+            SizedBox(width: 8),
+            _buildSectionChip('Blacklisted Aadhatis'),
+            SizedBox(width: 8),
+            _buildSectionChip('Approved Ladanis'),
+            SizedBox(width: 8),
+            _buildSectionChip('Blacklisted Ladanis'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionChip(String label) {
+    return Obx(() => FilterChip(
+          label: Text(
+            label,
+            style: TextStyle(
+              color: selectedSection.value == label
+                  ? Colors.white
+                  : Colors.black87,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          selected: selectedSection.value == label,
+          onSelected: (bool selected) {
+            if (selected) {
+              selectedSection.value = label;
+            }
+          },
+          backgroundColor: Colors.grey[200],
+          selectedColor: Color(0xff548235),
+          checkmarkColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ));
   }
 
   Widget _buildBoardInfoContainer() {
@@ -374,6 +436,8 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
                   '${aadhati.contact}',
                   style: TextStyle(fontSize: 12, color: Colors.blue),
                 ),
+                SizedBox(height: 4),
+                _buildStatusChip(isApproved),
               ],
             ],
           ),
@@ -417,6 +481,8 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
                   '${ladani.contact}',
                   style: TextStyle(fontSize: 12, color: Colors.purple),
                 ),
+                SizedBox(height: 4),
+                _buildStatusChip(isApproved),
               ],
             ],
           ),
@@ -429,7 +495,8 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
       onTap: () {
-        // TODO: Navigate to add new aadhati form
+        controller.flag.value =isApproved;
+        Get.to(()=>CommissionAgentFormPage());
       },
       child: Card(
         color: Colors.white,
@@ -460,7 +527,8 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
       onTap: () {
-        // TODO: Navigate to add new ladani form
+        controller.flag.value =isApproved;
+        Get.to(()=>CorporateCompanyFormPage());
       },
       child: Card(
         color: Colors.white,
@@ -484,6 +552,21 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatusChip(bool isApproved) {
+    final color = isApproved ? Colors.green : Colors.red;
+    final text = isApproved ? 'Approved' : 'Blacklisted';
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color),
+      ),
+      child: Text(text, style: TextStyle(color: color, fontSize: 10)),
     );
   }
 }

@@ -1,4 +1,6 @@
 import 'package:apple_grower/features/ampcOffice/ampcOffice_controller.dart';
+import 'package:apple_grower/features/forms/commission_agent_form_page.dart';
+import 'package:apple_grower/features/forms/corporate_company_form_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,13 +17,90 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
-            _buildAmpcOfficeInfoContainer(),
-            _buildApprovedAadhatisContainer(),
-            _buildBlacklistedAadhatisContainer(),
-            _buildApprovedLadanisContainer(),
-            _buildBlacklistedLadanisContainer(),
+            _buildFilterChips(),
+            Obx(() => Column(
+                  children: [
+                    if (controller.selectedFilter.value == 'Office Info')
+                      _buildAmpcOfficeInfoContainer(),
+                    if (controller.selectedFilter.value == 'Approved Aadhati')
+                      _buildApprovedAadhatisContainer(),
+                    if (controller.selectedFilter.value ==
+                        'Blacklisted Aadhati')
+                      _buildBlacklistedAadhatisContainer(),
+                    if (controller.selectedFilter.value == 'Approved Ladani')
+                      _buildApprovedLadanisContainer(),
+                    if (controller.selectedFilter.value == 'Blacklisted Ladani')
+                      _buildBlacklistedLadanisContainer(),
+                  ],
+                )),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChips() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Obx(() => Row(
+              children: [
+                FilterChip(
+                  label: Text('Office Info'),
+                  selected: controller.selectedFilter.value == 'Office Info',
+                  onSelected: (bool selected) {
+                    if (selected) controller.setFilter('Office Info');
+                  },
+                  selectedColor: Color(0xff548235).withOpacity(0.3),
+                  checkmarkColor: Color(0xff548235),
+                ),
+                SizedBox(width: 8),
+                FilterChip(
+                  label: Text('Approved Aadhatis'),
+                  selected:
+                      controller.selectedFilter.value == 'Approved Aadhati',
+                  onSelected: (bool selected) {
+                    if (selected) controller.setFilter('Approved Aadhati');
+                  },
+                  selectedColor: Color(0xff548235).withOpacity(0.3),
+                  checkmarkColor: Color(0xff548235),
+                ),
+                SizedBox(width: 8),
+                FilterChip(
+                  label: Text('Blacklisted Aadhatis'),
+                  selected:
+                      controller.selectedFilter.value == 'Blacklisted Aadhati',
+                  onSelected: (bool selected) {
+                    if (selected) controller.setFilter('Blacklisted Aadhati');
+                  },
+                  selectedColor: Colors.red[800]!.withOpacity(0.3),
+                  checkmarkColor: Colors.red[800],
+                ),
+                SizedBox(width: 8),
+                FilterChip(
+                  label: Text('Approved Ladanis'),
+                  selected:
+                      controller.selectedFilter.value == 'Approved Ladani',
+                  onSelected: (bool selected) {
+                    if (selected) controller.setFilter('Approved Ladani');
+                  },
+                  selectedColor: Color(0xff548235).withOpacity(0.3),
+                  checkmarkColor: Color(0xff548235),
+                ),
+                SizedBox(width: 8),
+                FilterChip(
+                  label: Text('Blacklisted Ladanis'),
+                  selected:
+                      controller.selectedFilter.value == 'Blacklisted Ladani',
+                  onSelected: (bool selected) {
+                    if (selected) controller.setFilter('Blacklisted Ladani');
+                  },
+                  selectedColor: Colors.red[800]!.withOpacity(0.3),
+                  checkmarkColor: Colors.red[800],
+                ),
+              ],
+            )),
       ),
     );
   }
@@ -422,7 +501,8 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
       onTap: () {
-        // TODO: Navigate to add new aadhati form
+        controller.flag.value =isApproved;
+        Get.to(()=>CommissionAgentFormPage());
       },
       child: Card(
         color: Colors.white,
@@ -453,7 +533,8 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
     return InkWell(
       onTap: () {
-        // TODO: Navigate to add new ladani form
+        controller.flag.value =isApproved;
+        Get.to(()=>CorporateCompanyFormPage());
       },
       child: Card(
         color: Colors.white,

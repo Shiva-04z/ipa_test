@@ -1,43 +1,52 @@
+import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
+import 'package:apple_grower/models/aadhati.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/globalsWidgets.dart' as glbw;
+import '../../models/grower_model.dart';
 import '../../core/globals.dart' as glb;
-import '../../models/freightForwarder.dart';
-import 'aadhati_controller.dart';
+import '../freightForwarder/freightForwarder_controller.dart';
+import '../grower/grower_controller.dart';
+import '../ladaniBuyers/ladaniBuyers_controller.dart';
+import '../packHouse/packHouse_controller.dart';
+import '../transportUnion/transportUnion_controller.dart';
 
-class BuyerFormController extends GetxController {
+class GrowerFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
+  final aadharController = TextEditingController();
   final phoneController = TextEditingController();
   final addressController = TextEditingController();
+  final pinCodeController = TextEditingController();
   final searchController = TextEditingController();
   final isLoading = false.obs;
   final isSearching = true.obs;
-  final searchResults = <FreightForwarder>[].obs;
-
+  final searchResults = <Grower>[].obs;
+  var exists;
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = glb.availableBuyers;
+    searchResults.value = glb.availableGrowers;
   }
 
   @override
   void onClose() {
     nameController.dispose();
+    aadharController.dispose();
     phoneController.dispose();
     addressController.dispose();
+    pinCodeController.dispose();
     searchController.dispose();
     super.onClose();
   }
 
   void onSearchChanged(String query) {
     if (query.isEmpty) {
-      searchResults.value = glb.availableBuyers;
+      searchResults.value = glb.availableGrowers;
     } else {
-      searchResults.value = glb.availableBuyers.where((buyer) {
-        final name = buyer.name.toLowerCase();
-        final phone = buyer.contact.toLowerCase();
-        final address = buyer.address.toLowerCase();
+      searchResults.value = glb.availableGrowers.where((grower) {
+        final name = grower.name.toLowerCase();
+        final phone = grower.phoneNumber.toLowerCase();
+        final address = grower.address.toLowerCase();
         final searchLower = query.toLowerCase();
 
         return name.contains(searchLower) ||
@@ -47,15 +56,27 @@ class BuyerFormController extends GetxController {
     }
   }
 
-  void selectBuyer(FreightForwarder buyer) {
-    final exists = Get.find<AadhatiController>().associatedBuyers.any(
-          (existingBuyer) => existingBuyer.id == buyer.id,
-        );
+  void selectGrower(Grower grower) {
+    final exists = (glb.roleType.value == "PackHouse")
+        ? Get.find<PackHouseController>()
+            .associatedGrowers
+            .any((existingDriver) => existingDriver.id == grower.id)
+        : (glb.roleType.value == "Aadhati")
+            ? Get.find<AadhatiController>()
+                .associatedGrowers
+                .any((existingDriver) => existingDriver.id == grower.id)
+            : (glb.roleType.value == "Freight Forwarder")
+                ? Get.find<FreightForwarderController>()
+                    .associatedGrowers
+                    .any((existingDriver) => existingDriver.id == grower.id)
+                : Get.find<TransportUnionController>()
+                    .associatedGrowers
+                    .any((existingDriver) => existingDriver.id == grower.id);
 
     if (exists) {
       Get.snackbar(
-        'Buyer Already Added',
-        'This buyer is already in your list',
+        'Grower Already Added',
+        'This grower is already in your list',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -63,15 +84,17 @@ class BuyerFormController extends GetxController {
       return;
     }
 
-    Get.find<AadhatiController>().associatedBuyers.add(buyer);
+    (glb.roleType.value == "PackHouse")
+        ? Get.find<PackHouseController>().addAssociatedGrower(grower)
+        : (glb.roleType.value == "Aadhati")
+        ? Get.find<AadhatiController>()
+        .addAssociatedGrower(grower)
+        : (glb.roleType.value == "Freight Forwarder")
+        ? Get.find<FreightForwarderController>()
+        .addAssociatedGrower(grower)
+        : Get.find<TransportUnionController>()
+        .addAssociatedGrower(grower);
     Get.back();
-    Get.snackbar(
-      'Success',
-      'Buyer added successfully',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xff548235),
-      colorText: Colors.white,
-    );
   }
 
   void submitForm() {
@@ -80,49 +103,55 @@ class BuyerFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      final now = DateTime.now();
-      final buyer = FreightForwarder(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+      final grower = Grower(
+        id: 'G${DateTime.now().millisecondsSinceEpoch}',
         name: nameController.text,
-        contact: phoneController.text,
+        aadharNumber: aadharController.text,
+        phoneNumber: phoneController.text,
         address: addressController.text,
-        createdAt: now,
-        updatedAt: now,
+        pinCode: pinCodeController.text,
+        packingHouses: [],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
-      Get.find<AadhatiController>().associatedBuyers.add(buyer);
+      (glb.roleType.value == "PackHouse")
+          ? Get.find<PackHouseController>().addAssociatedGrower(grower)
+          : (glb.roleType.value == "Aadhati")
+          ? Get.find<AadhatiController>()
+          .addAssociatedGrower(grower)
+          : (glb.roleType.value == "Freight Forwarder")
+          ? Get.find<FreightForwarderController>()
+          .addAssociatedGrower(grower)
+          : Get.find<TransportUnionController>()
+          .addAssociatedGrower(grower);
+
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Buyer added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xff548235),
-        colorText: Colors.white,
-      );
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Error adding buyer: $e',
+        'Error adding grower: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } finally {
+      Get.back();
       isLoading.value = false;
     }
   }
 }
 
-class BuyerFormPage extends StatelessWidget {
-  BuyerFormPage({super.key});
+class GrowerFormPage extends StatelessWidget {
+  GrowerFormPage({super.key});
 
-  final controller = Get.put(BuyerFormController());
+  final controller = Get.put(GrowerFormController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Buyer'),
+        title: const Text('Add New Grower'),
         backgroundColor: const Color(0xff548235),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -165,7 +194,7 @@ class BuyerFormPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 Obx(() => controller.isSearching.value
                     ? _buildSearchResults()
-                    : _buildNewBuyerForm()),
+                    : _buildNewGrowerForm()),
               ],
             ),
           ),
@@ -187,7 +216,7 @@ class BuyerFormPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Select or Create Buyer',
+                  'Select or Create Grower',
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
                     fontWeight: FontWeight.bold,
@@ -215,7 +244,7 @@ class BuyerFormPage extends StatelessWidget {
                 ? TextField(
                     controller: controller.searchController,
                     decoration: _getInputDecoration(
-                      'Search buyers...',
+                      'Search growers...',
                       prefixIcon: Icons.search,
                     ),
                     onChanged: controller.onSearchChanged,
@@ -233,7 +262,7 @@ class BuyerFormPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'No buyers found',
+                'No growers found',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
@@ -246,10 +275,22 @@ class BuyerFormPage extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
-              final buyer = controller.searchResults[index];
-              final exists = Get.find<AadhatiController>()
-                  .associatedBuyers
-                  .any((existingBuyer) => existingBuyer.id == buyer.id);
+              final grower = controller.searchResults[index];
+              final exists = (glb.roleType.value == "PackHouse")
+                  ? Get.find<PackHouseController>()
+                  .associatedGrowers
+                  .any((existingDriver) => existingDriver.id == grower.id)
+                  : (glb.roleType.value == "Aadhati")
+                  ? Get.find<AadhatiController>()
+                  .associatedGrowers
+                  .any((existingDriver) => existingDriver.id == grower.id)
+                  : (glb.roleType.value == "Freight Forwarder")
+                  ? Get.find<FreightForwarderController>()
+                  .associatedGrowers
+                  .any((existingDriver) => existingDriver.id == grower.id)
+                  : Get.find<TransportUnionController>()
+                  .associatedGrowers
+                  .any((existingDriver) => existingDriver.id == grower.id);
 
               return Stack(
                 children: [
@@ -261,7 +302,7 @@ class BuyerFormPage extends StatelessWidget {
                     ),
                     child: InkWell(
                       onTap:
-                          exists ? null : () => controller.selectBuyer(buyer),
+                          exists ? null : () => controller.selectGrower(grower),
                       borderRadius: BorderRadius.circular(12),
                       child: Opacity(
                         opacity: exists ? 0.7 : 1.0,
@@ -284,16 +325,16 @@ class BuyerFormPage extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          buyer.name,
+                                          grower.name,
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          'Phone: ${buyer.contact}',
+                                          'Aadhar: ${grower.aadharNumber}',
                                           style: TextStyle(
-                                            fontSize: 14,
+                                            fontSize: 12,
                                             color: Colors.grey[600],
                                           ),
                                         ),
@@ -304,8 +345,18 @@ class BuyerFormPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               _buildInfoRow(
+                                Icons.phone,
+                                'Phone: ${grower.phoneNumber}',
+                              ),
+                              const SizedBox(height: 8),
+                              _buildInfoRow(
                                 Icons.location_on,
-                                'Address: ${buyer.address}',
+                                'Address: ${grower.address}',
+                              ),
+                              const SizedBox(height: 8),
+                              _buildInfoRow(
+                                Icons.pin_drop,
+                                'PIN Code: ${grower.pinCode}',
                               ),
                             ],
                           ),
@@ -363,13 +414,15 @@ class BuyerFormPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNewBuyerForm() {
+  Widget _buildNewGrowerForm() {
     return Form(
       key: controller.formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildBasicDetails(),
+          const SizedBox(height: 24),
+          _buildAddressDetails(),
           const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
@@ -406,6 +459,25 @@ class BuyerFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
+              controller: controller.aadharController,
+              decoration: _getInputDecoration(
+                'Aadhar Number',
+                prefixIcon: Icons.badge,
+              ),
+              keyboardType: TextInputType.number,
+              maxLength: 12,
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter Aadhar number';
+                }
+                if (value!.length != 12) {
+                  return 'Aadhar number must be 12 digits';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
               controller: controller.phoneController,
               decoration: _getInputDecoration(
                 'Phone Number',
@@ -423,6 +495,29 @@ class BuyerFormPage extends StatelessWidget {
                 return null;
               },
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddressDetails() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Address Details',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff548235),
+              ),
+            ),
             const SizedBox(height: 16),
             TextFormField(
               controller: controller.addressController,
@@ -433,6 +528,25 @@ class BuyerFormPage extends StatelessWidget {
               maxLines: 3,
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Please enter address' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.pinCodeController,
+              decoration: _getInputDecoration(
+                'PIN Code',
+                prefixIcon: Icons.pin_drop,
+              ),
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter PIN code';
+                }
+                if (value!.length != 6) {
+                  return 'PIN code must be 6 digits';
+                }
+                return null;
+              },
             ),
           ],
         ),
@@ -454,7 +568,7 @@ class BuyerFormPage extends StatelessWidget {
           ),
         ),
         child: const Text(
-          'Add Buyer',
+          'Add Grower',
           style: TextStyle(fontSize: 16),
         ),
       ),

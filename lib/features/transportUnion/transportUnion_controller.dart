@@ -29,6 +29,36 @@ class TransportUnionController extends GetxController {
   final associatedFreightForwarders = <FreightForwarder>[].obs;
   final consignments = <Consignment>[].obs;
 
+
+
+  void addAssociatedGrower(Grower grower) {
+    if (!associatedGrowers.any((g) => g.id == grower.id)) {
+      associatedGrowers.add(grower);
+    }
+  }
+
+  void addAssociatedAadhatis(Aadhati aadhati) {
+    if (!associatedAadhatis.any((g) => g.id == aadhati.id)) {
+      associatedAadhatis.add(aadhati);
+    }
+  }
+  void addAssociatedBuyers(FreightForwarder buyer) {
+    if (!associatedFreightForwarders.any((g) => g.id == buyer.id)) {
+      associatedFreightForwarders.add(buyer);
+    }
+  }
+  void addAssociatedDrivers(DrivingProfile driver) {
+    if (!associatedDrivers.any((g) => g.id == driver.id)) {
+      associatedDrivers.add(driver);
+    }
+  }
+
+  void addConsignments(Consignment consignment) {
+    if (!consignments.any((g) => g.id == consignment.id)) {
+      consignments.add(consignment);
+    }
+  }
+
   void removeAssociatedDriver(String id) {
     associatedDrivers.removeWhere((driver) => driver.id == id);
   }
@@ -44,6 +74,12 @@ class TransportUnionController extends GetxController {
   void removeAssociatedFreightForwarder(String id) {
     associatedFreightForwarders.removeWhere((ff) => ff.id == id);
   }
+
+
+
+
+
+
 
   @override
   void onInit() {

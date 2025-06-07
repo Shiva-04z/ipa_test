@@ -51,6 +51,36 @@ class FreightForwarderController extends GetxController {
     );
   }
 
+
+
+
+  void addAssociatedAadhatis(Aadhati aadhati) {
+    if (!associatedAadhatis.any((g) => g.id == aadhati.id)) {
+      associatedAadhatis.add(aadhati);
+    }
+  }
+
+
+  void addAssociatedDrivers(DrivingProfile driver) {
+    if (!associatedDrivers.any((g) => g.id == driver.id)) {
+      associatedDrivers.add(driver);
+    }
+  }
+
+  void addConsignments(Consignment consignment) {
+    if (!consignments.any((g) => g.id == consignment.id)) {
+      consignments.add(consignment);
+    }
+  }
+
+  void addAssociatedGrower(Grower grower) {
+    if (!associatedGrowers.any((g) => g.id == grower.id)) {
+      associatedGrowers.add(grower);
+    }
+  }
+
+
+
   void removeAssociatedGrower(String id) {
     associatedGrowers.removeWhere((grower) => grower.id == id);
   }

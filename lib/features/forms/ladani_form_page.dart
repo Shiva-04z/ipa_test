@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/globalsWidgets.dart' as glbw;
-import 'ladaniBuyers_controller.dart';
+import '../ladaniBuyers/ladaniBuyers_controller.dart';
+
 
 class LadaniFormPage extends GetView<LadaniBuyersController> {
   final _formKey = GlobalKey<FormState>();

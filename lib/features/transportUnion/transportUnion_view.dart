@@ -1,3 +1,5 @@
+import 'package:apple_grower/features/forms/buyer_form_page.dart';
+import 'package:apple_grower/features/forms/commission_agent_form_page.dart';
 import 'package:apple_grower/features/transportUnion/transportUnion_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,15 +12,19 @@ import '../../models/driving_profile_model.dart';
 import '../../models/aadhati.dart';
 import '../../models/freightForwarder.dart';
 import '../../models/consignment_model.dart';
-import '../driver/transport_union_form_page.dart';
+
+import '../driver/driver_form_page.dart';
+import '../aadhati/aadhati_edit_info_form_page.dart';
+import '../forms/driver_form_page.dart';
+import '../forms/freightForwarder_form_page.dart';
+import '../forms/grower_form_page.dart';
+import '../forms/transport_union_form_page.dart';
 import '../grower/grower_dialogs.dart';
 import '../packHouse/consignment_form2_page.dart';
-import '../packHouse/driver_form_page.dart';
-import '../packHouse/grower_form_page.dart';
-import '../aadhati/aadhati_form_page.dart';
-import '../freightForwarder/freightForwarder_form_page.dart';
 
 class TransportUnionView extends GetView<TransportUnionController> {
+  final RxString selectedSection = 'My Info'.obs;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,16 +35,77 @@ class TransportUnionView extends GetView<TransportUnionController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
-            _buildTransportUnionInfoContainer(context),
-            _buildAssociatedDriversContainer(context),
-            _buildAssociatedGrowersContainer(context),
-            _buildAssociatedAadhatisContainer(context),
-            _buildAssociatedFreightForwardersContainer(context),
-            _buildConsignmentsContainer(context),
+            _buildSectionChips(),
+            Obx(() {
+              switch (selectedSection.value) {
+                case 'My Info':
+                  return _buildTransportUnionInfoContainer(context);
+                case 'Associated Drivers':
+                  return _buildAssociatedDriversContainer(context);
+                case 'Associated Growers':
+                  return _buildAssociatedGrowersContainer(context);
+                case 'Associated Aadhatis':
+                  return _buildAssociatedAadhatisContainer(context);
+                case 'Associated Freight Forwarders':
+                  return _buildAssociatedFreightForwardersContainer(context);
+                case 'Consignments':
+                  return _buildConsignmentsContainer(context);
+                default:
+                  return SizedBox.shrink();
+              }
+            }),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildSectionChips() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildSectionChip('My Info'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Drivers'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Growers'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Aadhatis'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Freight Forwarders'),
+            SizedBox(width: 8),
+            _buildSectionChip('Consignments'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionChip(String label) {
+    return Obx(() => FilterChip(
+          label: Text(
+            label,
+            style: TextStyle(
+              color: selectedSection.value == label
+                  ? Colors.white
+                  : Colors.black87,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          selected: selectedSection.value == label,
+          onSelected: (bool selected) {
+            if (selected) {
+              selectedSection.value = label;
+            }
+          },
+          backgroundColor: Colors.grey[200],
+          selectedColor: Color(0xff548235),
+          checkmarkColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ));
   }
 
   Widget _buildTransportUnionInfoContainer(BuildContext context) {
@@ -72,7 +139,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
                     if (index == 0)
                       return _buildAddNewTransportUnionCard(context);
                     final key = controller.details.keys.toList()[index - 1];
-                    final value = controller.details.values.toList()[index-1];
+                    final value = controller.details.values.toList()[index - 1];
                     return _buildTransportUnionCard(key, value.toString());
                   },
                 ),
@@ -113,7 +180,8 @@ class TransportUnionView extends GetView<TransportUnionController> {
           _buildDetailRow('Name', gld.globalTransport.value.name),
           _buildDetailRow('Contact', gld.globalTransport.value.contact),
           _buildDetailRow('Address', gld.globalTransport.value.address),
-          _buildDetailRow('Union Name', gld.globalTransport.value.nameOfTheTransportUnion ?? 'N/A'),
+          _buildDetailRow('Union Name',
+              gld.globalTransport.value.nameOfTheTransportUnion ?? 'N/A'),
           _buildDetailRow('Registration No',
               gld.globalTransport.value.transportUnionRegistrationNo ?? 'N/A'),
           _buildDetailRow(
@@ -338,7 +406,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   Widget _buildAddNewDriverCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return InkWell(
-      onTap: () => Get.to(() => DriverFormPage()),
+      onTap: () => Get.to(() => DriverFormPageView()),
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -629,7 +697,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   Widget _buildAddNewAadhatiCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return InkWell(
-      onTap: () => Get.to(() => AadhatiFormPage()),
+      onTap: () => Get.to(() => CommissionAgentFormPage()),
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -777,7 +845,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   Widget _buildAddNewFreightForwarderCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return InkWell(
-      onTap: () => Get.to(() => FreightForwarderFormPage()),
+      onTap: () => Get.to(() => BuyerFormPage()),
       child: Card(
         color: Colors.white,
         elevation: 0,
