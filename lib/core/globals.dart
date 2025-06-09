@@ -12,6 +12,7 @@ import '../models/pack_house_model.dart';
 import '../models/packer_model.dart';
 import '../models/post_model.dart';
 import '../models/transport_model.dart';
+import 'dictionary.dart';
 
 
 RxString roleType = "Grower".obs;
@@ -21,6 +22,7 @@ RxString personVillage = "Nangal Jarialan".obs;
 RxString personPost = "247001".obs;
 RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
+RxBool isHindiLanguage = false.obs;
 
 // Demo lists for all models
 RxList<Aadhati> availableAadhatis = [
@@ -557,3 +559,25 @@ final List<Map<String, dynamic>> consignmentTableData = [
     'piecesInBox': 175,
   },
 ].obs;
+
+
+
+
+String getTranslatedText(String englishText) {
+  String selectedLang = isHindiLanguage.value ? "hi" : "en";
+
+  // Return original text for English
+  if (selectedLang == "en") {
+    return englishText;
+  }
+
+  // Check cache only
+  if (translationCache[selectedLang]?.containsKey(englishText.trim()) ??
+      false) {
+    return translationCache[selectedLang]![englishText.trim()]!;
+  }
+
+  return englishText; // Return English if not in cache
+}
+
+// Asynchronous version - uses Google Translate for new translations
