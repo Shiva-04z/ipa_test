@@ -35,6 +35,8 @@ class TransportUnionView extends GetView<TransportUnionController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
+            _buildSummarySection(),
+            SizedBox(height: 20),
             _buildSectionChips(),
             Obx(() {
               switch (selectedSection.value) {
@@ -120,7 +122,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -129,7 +131,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -170,7 +172,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildTransportUnionCard(String name, String detail) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
@@ -257,7 +259,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildAddNewTransportUnionCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => TransportUnionFormPage()),
       child: Card(
@@ -297,7 +299,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -306,7 +308,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -345,7 +347,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildDriverCard(DrivingProfile driver) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
@@ -404,7 +406,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildAddNewDriverCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => DriverFormPageView()),
       child: Card(
@@ -444,7 +446,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -453,7 +455,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -492,7 +494,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildGrowerCard(Grower grower) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
@@ -549,7 +551,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildAddNewGrowerCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => GrowerFormPage()),
       child: Card(
@@ -589,7 +591,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -598,7 +600,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -637,7 +639,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildAadhatiCard(Aadhati aadhati) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
@@ -695,7 +697,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildAddNewAadhatiCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => CommissionAgentFormPage()),
       child: Card(
@@ -735,7 +737,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -744,7 +746,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -784,7 +786,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildFreightForwarderCard(FreightForwarder freightForwarder) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
@@ -843,7 +845,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildAddNewFreightForwarderCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => BuyerFormPage()),
       child: Card(
@@ -883,7 +885,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -892,7 +894,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -931,7 +933,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildConsignmentCard(Consignment consignment) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showConsignmentDetailsDialog(
         Get.context!,
@@ -980,7 +982,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
   }
 
   Widget _buildAddNewConsignmentCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => ConsignmentForm2Page()),
       child: Card(
@@ -1026,6 +1028,122 @@ class TransportUnionView extends GetView<TransportUnionController> {
           ),
           Expanded(child: Text(value)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSummarySection() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Obx(() => GridView.count(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            crossAxisCount:
+                MediaQuery.of(Get.context!).size.width > 800 ? 6 : 3,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.5,
+            children: [
+              _buildSummaryCard(
+                'Associated Drivers',
+                controller.associatedDrivers.length.toString(),
+                Colors.blue,
+                Icons.drive_eta,
+              ),
+              _buildSummaryCard(
+                'Associated Growers',
+                controller.associatedGrowers.length.toString(),
+                Colors.green,
+                Icons.agriculture,
+              ),
+              _buildSummaryCard(
+                'Associated Aadhatis',
+                controller.associatedAadhatis.length.toString(),
+                Colors.purple,
+                Icons.person,
+              ),
+              _buildSummaryCard(
+                'Associated Freight Forwarders',
+                controller.associatedFreightForwarders.length.toString(),
+                Colors.orange,
+                Icons.local_shipping,
+              ),
+              _buildSummaryCard(
+                'Active Consignments',
+                controller.consignments
+                    .where((c) => c.status == 'In Transit')
+                    .length
+                    .toString(),
+                Colors.indigo,
+                Icons.assignment,
+              ),
+              _buildSummaryCard(
+                'Completed Consignments',
+                controller.consignments
+                    .where((c) => c.status == 'Delivered')
+                    .length
+                    .toString(),
+                Colors.teal,
+                Icons.check_circle,
+              ),
+            ],
+          )),
+    );
+  }
+
+  Widget _buildSummaryCard(
+      String title, String count, Color color, IconData icon) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color.withOpacity(0.7),
+              color,
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 28,
+              ),
+              SizedBox(height: 8),
+              Text(
+                count,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

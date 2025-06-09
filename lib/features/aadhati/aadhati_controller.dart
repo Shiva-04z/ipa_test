@@ -1,5 +1,6 @@
 import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../models/grower_model.dart';
 import '../../models/ladani_model.dart';
 import '../../models/driving_profile_model.dart';
@@ -12,6 +13,7 @@ class AadhatiController extends GetxController {
   final associatedLadanis = <Ladani>[].obs;
   final associatedDrivers = <DrivingProfile>[].obs;
   final consignments = <Consignment>[].obs;
+  final galleryImages = <String>[].obs;
 
   @override
   void onInit() {
@@ -33,6 +35,7 @@ class AadhatiController extends GetxController {
       consignments.add(consignment);
     }
   }
+
   void removeAssociatedGrower(String id) {
     associatedGrowers.removeWhere((grower) => grower.id == id);
   }
@@ -72,7 +75,23 @@ class AadhatiController extends GetxController {
       consignments.add(consignment);
     }
   }
+
   void removeConsignment(String id) {
     consignments.removeWhere((consignment) => consignment.id == id);
+  }
+
+  Future<void> pickAndUploadImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      // Here you would typically upload the image to your storage service
+      // For now, we'll just add the local path to the gallery
+      galleryImages.add(image.path);
+    }
+  }
+
+  void removeGalleryImage(String imageUrl) {
+    galleryImages.remove(imageUrl);
   }
 }

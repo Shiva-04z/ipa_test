@@ -19,6 +19,8 @@ class HPPoliceView extends GetView<HPPoliceController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
+            _buildSummarySection(),
+            SizedBox(height: 20),
             _buildSectionChips(),
             Obx(() {
               switch (selectedSection.value) {
@@ -140,7 +142,7 @@ class HPPoliceView extends GetView<HPPoliceController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(Get.context!).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(Get.context!).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(Get.context!).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -149,7 +151,7 @@ class HPPoliceView extends GetView<HPPoliceController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(Get.context!).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(Get.context!).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -198,7 +200,7 @@ class HPPoliceView extends GetView<HPPoliceController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(Get.context!).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(Get.context!).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(Get.context!).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -207,7 +209,7 @@ class HPPoliceView extends GetView<HPPoliceController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(Get.context!).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(Get.context!).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -268,7 +270,7 @@ class HPPoliceView extends GetView<HPPoliceController> {
   }
 
   Widget _buildPostCard(Map<String, dynamic> post) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () {
         // TODO: Show post details dialog
@@ -314,7 +316,7 @@ class HPPoliceView extends GetView<HPPoliceController> {
   }
 
   Widget _buildConsignmentCard(Consignment consignment) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () {
         // TODO: Show consignment details dialog
@@ -361,7 +363,7 @@ class HPPoliceView extends GetView<HPPoliceController> {
   }
 
   Widget _buildAddNewPostCard() {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => _showAddPostDialog(),
       child: Card(
@@ -390,9 +392,9 @@ class HPPoliceView extends GetView<HPPoliceController> {
   }
 
   Widget _buildAddNewConsignmentCard() {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
-      onTap: () => {Get.to(()=>ConsignmentForm2Page())},
+      onTap: () => {Get.to(() => ConsignmentForm2Page())},
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -608,6 +610,107 @@ class HPPoliceView extends GetView<HPPoliceController> {
         border: Border.all(color: color),
       ),
       child: Text(status, style: TextStyle(color: color, fontSize: 10)),
+    );
+  }
+
+  Widget _buildSummarySection() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Obx(() => GridView.count(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            crossAxisCount:
+                MediaQuery.of(Get.context!).size.width > 800 ? 3 : 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.5,
+            children: [
+              _buildSummaryCard(
+                'Active Check Posts',
+                controller.posts
+                    .where((post) => post['status'] == 'Active')
+                    .length
+                    .toString(),
+                Colors.blue,
+                Icons.location_on,
+              ),
+              _buildSummaryCard(
+                'In Transit Consignments',
+                controller.consignments
+                    .where((c) => c.status == 'In Transit')
+                    .length
+                    .toString(),
+                Colors.orange,
+                Icons.local_shipping,
+              ),
+              _buildSummaryCard(
+                'Delivered Consignments',
+                controller.consignments
+                    .where((c) => c.status == 'Delivered')
+                    .length
+                    .toString(),
+                Colors.green,
+                Icons.check_circle,
+              ),
+            ],
+          )),
+    );
+  }
+
+  Widget _buildSummaryCard(
+      String title, String count, Color color, IconData icon) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color.withOpacity(0.7),
+              color,
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 28,
+              ),
+              SizedBox(height: 8),
+              Text(
+                count,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

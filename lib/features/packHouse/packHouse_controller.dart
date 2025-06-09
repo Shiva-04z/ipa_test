@@ -7,6 +7,7 @@ import '../../models/packer_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/consignment_model.dart';
 import '../../core/global_role_loader.dart' as gld;
+import 'package:image_picker/image_picker.dart';
 
 class PackHouseController extends GetxController {
   // Observable lists for all associated entities
@@ -16,6 +17,7 @@ class PackHouseController extends GetxController {
   final RxList<Packer> associatedPackers = <Packer>[].obs;
   final RxList<DrivingProfile> associatedDrivers = <DrivingProfile>[].obs;
   final RxList<Consignment> consignments = <Consignment>[].obs;
+  final RxList<String> galleryImages = <String>[].obs;
   String name = gld.packHouse.value.name;
   final Map details = {
     'Grading Machine': '${gld.packHouse.value.gradingMachineCapacity}',
@@ -82,6 +84,20 @@ class PackHouseController extends GetxController {
     if (!consignments.any((c) => c.id == consignment.id)) {
       consignments.add(consignment);
     }
+  }
+
+  Future<void> pickAndUploadImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      // Here you would typically upload the image to your storage
+      // For now, we'll just add the path to the list
+      galleryImages.add(image.path);
+    }
+  }
+
+  void removeGalleryImage(String imageUrl) {
+    galleryImages.remove(imageUrl);
   }
 
   // Method to load initial data

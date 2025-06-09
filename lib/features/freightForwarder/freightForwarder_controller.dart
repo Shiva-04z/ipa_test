@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../models/freightForwarder.dart';
 import '../../models/grower_model.dart';
 import '../../models/driving_profile_model.dart';
@@ -10,6 +11,7 @@ class FreightForwarderController extends GetxController {
   // Add freightForwarder-specific properties and methods here
   RxString companyName = ''.obs;
   RxString licenseNumber = ''.obs;
+  final galleryImages = <String>[].obs;
   final details = Rx<FreightForwarder>(FreightForwarder(
     id: '',
     name: '',
@@ -51,15 +53,11 @@ class FreightForwarderController extends GetxController {
     );
   }
 
-
-
-
   void addAssociatedAadhatis(Aadhati aadhati) {
     if (!associatedAadhatis.any((g) => g.id == aadhati.id)) {
       associatedAadhatis.add(aadhati);
     }
   }
-
 
   void addAssociatedDrivers(DrivingProfile driver) {
     if (!associatedDrivers.any((g) => g.id == driver.id)) {
@@ -79,8 +77,6 @@ class FreightForwarderController extends GetxController {
     }
   }
 
-
-
   void removeAssociatedGrower(String id) {
     associatedGrowers.removeWhere((grower) => grower.id == id);
   }
@@ -95,5 +91,20 @@ class FreightForwarderController extends GetxController {
 
   void removeConsignment(String id) {
     consignments.removeWhere((consignment) => consignment.id == id);
+  }
+
+  Future<void> pickAndUploadImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      // In a real app, you would upload the image to a server and get back a URL
+      // For now, we'll just use the local path
+      galleryImages.add(image.path);
+    }
+  }
+
+  void removeGalleryImage(String imageUrl) {
+    galleryImages.remove(imageUrl);
   }
 }

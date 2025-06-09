@@ -17,6 +17,8 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
+            _buildSummarySection(),
+            SizedBox(height: 20),
             _buildFilterChips(),
             Obx(() => Column(
                   children: [
@@ -165,7 +167,7 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(Get.context!).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(Get.context!).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(Get.context!).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -174,7 +176,7 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(Get.context!).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(Get.context!).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -224,7 +226,7 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(Get.context!).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(Get.context!).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(Get.context!).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -233,7 +235,7 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(Get.context!).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(Get.context!).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -283,7 +285,7 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(Get.context!).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(Get.context!).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(Get.context!).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -292,7 +294,7 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(Get.context!).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(Get.context!).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -342,7 +344,7 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(Get.context!).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(Get.context!).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(Get.context!).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -351,7 +353,7 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(Get.context!).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(Get.context!).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -412,7 +414,7 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
   }
 
   Widget _buildAadhatiCard(dynamic aadhati, bool isApproved) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () {
         // TODO: Show details dialog
@@ -455,7 +457,7 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
   }
 
   Widget _buildLadaniCard(dynamic ladani, bool isApproved) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () {
         // TODO: Show details dialog
@@ -498,11 +500,11 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
   }
 
   Widget _buildAddNewAadhatiCard(bool isApproved) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () {
-        controller.flag.value =isApproved;
-        Get.to(()=>CommissionAgentFormPage());
+        controller.flag.value = isApproved;
+        Get.to(() => CommissionAgentFormPage());
       },
       child: Card(
         color: Colors.white,
@@ -530,11 +532,11 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
   }
 
   Widget _buildAddNewLadaniCard(bool isApproved) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () {
-        controller.flag.value =isApproved;
-        Get.to(()=>CorporateCompanyFormPage());
+        controller.flag.value = isApproved;
+        Get.to(() => CorporateCompanyFormPage());
       },
       child: Card(
         color: Colors.white,
@@ -556,6 +558,104 @@ class AmpcOfficeView extends GetView<AmpcOfficeController> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummarySection() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Obx(() => GridView.count(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            crossAxisCount:
+                MediaQuery.of(Get.context!).size.width > 800 ? 5 : 3,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.5,
+            children: [
+              _buildSummaryCard(
+                'Approved Aadhatis',
+                controller.approvedAadhatis.length.toString(),
+                Colors.green,
+                Icons.check_circle,
+              ),
+              _buildSummaryCard(
+                'Blacklisted Aadhatis',
+                controller.blacklistedAadhatis.length.toString(),
+                Colors.red,
+                Icons.cancel,
+              ),
+              _buildSummaryCard(
+                'Approved Ladanis',
+                controller.approvedLadanis.length.toString(),
+                Colors.green,
+                Icons.check_circle,
+              ),
+              _buildSummaryCard(
+                'Blacklisted Ladanis',
+                controller.blacklistedLadanis.length.toString(),
+                Colors.red,
+                Icons.cancel,
+              ),
+            ],
+          )),
+    );
+  }
+
+  Widget _buildSummaryCard(
+      String title, String count, Color color, IconData icon) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color.withOpacity(0.7),
+              color,
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 28,
+              ),
+              SizedBox(height: 8),
+              Text(
+                count,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );

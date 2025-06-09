@@ -31,6 +31,8 @@ class GrowerView extends GetView<GrowerController> {
           children: [
             glbw.buildInfo(),
             SizedBox(height: 20),
+            _buildSummarySection(),
+            SizedBox(height: 20),
             _buildSectionSelector(),
             SizedBox(height: 20),
             Obx(() {
@@ -50,6 +52,8 @@ class GrowerView extends GetView<GrowerController> {
                     _buildPackingHouseContainer(context),
                   if (selectedSection.value == 'Drivers')
                     _buildDriversContainer(context),
+                  if (selectedSection.value == 'Gallery')
+                    _buildGalleryContainer(context),
                 ],
               );
             }),
@@ -67,6 +71,7 @@ class GrowerView extends GetView<GrowerController> {
       "Ladani's",
       'Packing Houses',
       'Drivers',
+      'Gallery',
     ];
 
     return Container(
@@ -121,7 +126,7 @@ class GrowerView extends GetView<GrowerController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -130,7 +135,7 @@ class GrowerView extends GetView<GrowerController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -169,7 +174,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildOrchardCard(BuildContext context, Orchard orchard) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showOrchardDetailsDialog(context, orchard),
       child: Card(
@@ -272,7 +277,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildAddNewOrchardCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => OrchardFormPage()),
       child: Card(
@@ -409,7 +414,7 @@ class GrowerView extends GetView<GrowerController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -418,7 +423,7 @@ class GrowerView extends GetView<GrowerController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -460,7 +465,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildAddNewConsignmentCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () =>
           Get.to(() => ConsignmentFormPage()), // Navigate to the new page
@@ -493,7 +498,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildConsignmentCard(Consignment consignment) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showConsignmentDetailsDialog(
         Get.context!,
@@ -558,7 +563,7 @@ class GrowerView extends GetView<GrowerController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -567,7 +572,7 @@ class GrowerView extends GetView<GrowerController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -607,7 +612,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildAgentCard(Aadhati agent) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
@@ -660,7 +665,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildAddNewAgentCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => CommissionAgentFormPage()),
       child: Card(
@@ -700,7 +705,7 @@ class GrowerView extends GetView<GrowerController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -709,7 +714,7 @@ class GrowerView extends GetView<GrowerController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -749,7 +754,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildCompanyCard(Ladani company) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
@@ -802,7 +807,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildAddNewCompanyCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () {
         Get.to(() => CorporateCompanyFormPage());
@@ -844,7 +849,7 @@ class GrowerView extends GetView<GrowerController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -853,7 +858,7 @@ class GrowerView extends GetView<GrowerController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -894,7 +899,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildPackingHouseCard(PackHouse house) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
@@ -952,7 +957,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildAddNewPackingHouseCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => PackingHouseFormPage()),
       child: Card(
@@ -992,7 +997,7 @@ class GrowerView extends GetView<GrowerController> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.width > 600 ? 325 : 200,
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
             width: MediaQuery.of(context).size.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
@@ -1001,7 +1006,7 @@ class GrowerView extends GetView<GrowerController> {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 5 : 4,
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
@@ -1039,7 +1044,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildDriverCard(DrivingProfile driver) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
@@ -1098,7 +1103,7 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildAddNewDriverCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => DriverFormPageView()),
       child: Card(
@@ -1121,6 +1126,253 @@ class GrowerView extends GetView<GrowerController> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummarySection() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Obx(() => GridView.count(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            crossAxisCount:
+                MediaQuery.of(Get.context!).size.width > 800 ? 6 : 3,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            children: [
+              _buildSummaryCard(
+                'Orchards',
+                controller.orchards.length.toString(),
+                Colors.green,
+                Icons.landscape,
+              ),
+              _buildSummaryCard(
+                'Consignments',
+                controller.consignments.length.toString(),
+                Colors.orange,
+                Icons.assignment,
+              ),
+              _buildSummaryCard(
+                'Commission Agents',
+                controller.commissionAgents.length.toString(),
+                Colors.blue,
+                Icons.people,
+              ),
+              _buildSummaryCard(
+                "Ladani's",
+                controller.corporateCompanies.length.toString(),
+                Colors.purple,
+                Icons.business,
+              ),
+              _buildSummaryCard(
+                'Packing Houses',
+                controller.packingHouses.length.toString(),
+                Colors.red,
+                Icons.warehouse,
+              ),
+              _buildSummaryCard(
+                'Drivers',
+                controller.drivers.length.toString(),
+                Colors.teal,
+                Icons.drive_eta,
+              ),
+            ],
+          )),
+    );
+  }
+
+  Widget _buildSummaryCard(
+      String title, String count, Color color, IconData icon) {
+    return SingleChildScrollView(
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withOpacity(0.7),
+                color,
+              ],
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  count,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGalleryContainer(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLargeScreen = screenWidth > 800;
+
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: Container(
+            height: MediaQuery.of(context).size.height -
+                200, // Adjust height based on available space
+            width: screenWidth,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: SingleChildScrollView(
+                child: Obx(
+                  () => GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: isLargeScreen ? 3 : 1,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      childAspectRatio: isLargeScreen ? 1.0 : 1.5,
+                    ),
+                    itemCount: controller.galleryImages.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) return _buildAddNewImageCard(context);
+                      return _buildImageCard(
+                          controller.galleryImages[index - 1]);
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "Gallery",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImageCard(String imageUrl) {
+    return InkWell(
+      onTap: () => GrowerDialogs.showImageDetailsDialog(
+        Get.context!,
+        imageUrl,
+        onDelete: () => controller.removeGalleryImage(imageUrl),
+      ),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            image: DecorationImage(
+              image: NetworkImage(imageUrl),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewImageCard(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 800;
+    return InkWell(
+      onTap: () => controller.pickAndUploadImage(),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.grey[200]!,
+                Colors.grey[300]!,
+              ],
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.add_photo_alternate,
+                size: isLargeScreen ? 48 : 64,
+                color: Colors.red,
+              ),
+              SizedBox(height: 12),
+              Text(
+                "UPLOAD NEW",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isLargeScreen ? 16 : 20,
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

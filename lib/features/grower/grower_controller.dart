@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../core/globals.dart';
 import '../../models/aadhati.dart';
@@ -38,7 +39,8 @@ class GrowerController extends GetxController {
   RxList<Ladani> get corporateCompanies => grower.corporateCompanies.obs;
   RxList<PackHouse> get packingHouses => grower.packingHouses.obs;
   RxList<Consignment> get consignments => grower.consignments.obs;
-RxList<DrivingProfile> drivers = <DrivingProfile>[].obs;
+  RxList<DrivingProfile> drivers = <DrivingProfile>[].obs;
+  final RxList<String> galleryImages = <String>[].obs;
 
   // Methods for managing orchards
   void addOrchard(Orchard orchard) {
@@ -210,6 +212,30 @@ RxList<DrivingProfile> drivers = <DrivingProfile>[].obs;
 
   void removeDriver(String id) {
     drivers.removeWhere((driver) => driver.id == id);
+  }
+
+  Future<void> pickAndUploadImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        // TODO: Implement image upload to your storage service
+        // For now, we'll just add the local path to demonstrate the UI
+        galleryImages.add(image.path);
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick image: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  void removeGalleryImage(String imageUrl) {
+    galleryImages.remove(imageUrl);
+    // TODO: Implement image deletion from your storage service
   }
 
   @override
