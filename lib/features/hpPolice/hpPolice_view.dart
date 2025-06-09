@@ -616,44 +616,48 @@ class HPPoliceView extends GetView<HPPoliceController> {
   Widget _buildSummarySection() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Obx(() => GridView.count(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            crossAxisCount:
-                MediaQuery.of(Get.context!).size.width > 800 ? 3 : 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.5,
-            children: [
-              _buildSummaryCard(
-                'Active Check Posts',
-                controller.posts
-                    .where((post) => post['status'] == 'Active')
-                    .length
-                    .toString(),
-                Colors.blue,
-                Icons.location_on,
-              ),
-              _buildSummaryCard(
-                'In Transit Consignments',
-                controller.consignments
-                    .where((c) => c.status == 'In Transit')
-                    .length
-                    .toString(),
-                Colors.orange,
-                Icons.local_shipping,
-              ),
-              _buildSummaryCard(
-                'Delivered Consignments',
-                controller.consignments
-                    .where((c) => c.status == 'Delivered')
-                    .length
-                    .toString(),
-                Colors.green,
-                Icons.check_circle,
-              ),
-            ],
-          )),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWideScreen = constraints.maxWidth > 600;
+          return Obx(() => GridView.count(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                crossAxisCount: isWideScreen ? 3 : 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.5,
+                children: [
+                  _buildSummaryCard(
+                    'Active Check Posts',
+                    controller.posts
+                        .where((post) => post['status'] == 'Active')
+                        .length
+                        .toString(),
+                    Colors.blue,
+                    Icons.location_on,
+                  ),
+                  _buildSummaryCard(
+                    'In Transit Consignments',
+                    controller.consignments
+                        .where((c) => c.status == 'In Transit')
+                        .length
+                        .toString(),
+                    Colors.orange,
+                    Icons.local_shipping,
+                  ),
+                  _buildSummaryCard(
+                    'Delivered Consignments',
+                    controller.consignments
+                        .where((c) => c.status == 'Delivered')
+                        .length
+                        .toString(),
+                    Colors.green,
+                    Icons.check_circle,
+                  ),
+                ],
+              ));
+        },
+      ),
     );
   }
 

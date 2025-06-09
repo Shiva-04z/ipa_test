@@ -32,7 +32,7 @@ class GrowerView extends GetView<GrowerController> {
             glbw.buildInfo(),
             SizedBox(height: 20),
             _buildSummarySection(),
-            SizedBox(height: 20),
+            SizedBox(height: 40),
             _buildSectionSelector(),
             SizedBox(height: 20),
             Obx(() {
@@ -75,7 +75,7 @@ class GrowerView extends GetView<GrowerController> {
     ];
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -1138,9 +1138,9 @@ class GrowerView extends GetView<GrowerController> {
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             crossAxisCount:
-                MediaQuery.of(Get.context!).size.width > 800 ? 6 : 3,
+                MediaQuery.of(Get.context!).size.width > 840 ? 6 : 3,
             crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            mainAxisSpacing:  12,
             children: [
               _buildSummaryCard(
                 'Orchards',
@@ -1185,57 +1185,54 @@ class GrowerView extends GetView<GrowerController> {
 
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
-    return SingleChildScrollView(
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
+    return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),),
+      child: Container(
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                color.withOpacity(0.7),
-                color,
-              ],
-            ),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color.withOpacity(0.7),
+              color,
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 28,
+              ),
+              SizedBox(height: 8),
+              Text(
+                count,
+                style: TextStyle(
                   color: Colors.white,
-                  size: 28,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
-                SizedBox(height: 8),
-                Text(
-                  count,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                 ),
-                SizedBox(height: 4),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
       ),

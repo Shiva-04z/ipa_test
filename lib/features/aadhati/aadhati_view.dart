@@ -984,10 +984,9 @@ class AadhatiView extends GetView<AadhatiController> {
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             crossAxisCount:
-                MediaQuery.of(Get.context!).size.width > 800 ? 6 : 3,
+                MediaQuery.of(Get.context!).size.width > 800 ? 5 : 3,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            childAspectRatio: 1.5,
             children: [
               _buildSummaryCard(
                 'Associated Growers',

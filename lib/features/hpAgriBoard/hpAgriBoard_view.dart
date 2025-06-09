@@ -575,41 +575,44 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
   Widget _buildSummarySection() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Obx(() => GridView.count(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            crossAxisCount:
-                MediaQuery.of(Get.context!).size.width > 800 ? 4 : 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.5,
-            children: [
-              _buildSummaryCard(
-                'Approved Aadhatis',
-                controller.approvedAadhatis.length.toString(),
-                Colors.green,
-                Icons.check_circle,
-              ),
-              _buildSummaryCard(
-                'Blacklisted Aadhatis',
-                controller.blacklistedAadhatis.length.toString(),
-                Colors.red,
-                Icons.cancel,
-              ),
-              _buildSummaryCard(
-                'Approved Ladanis',
-                controller.approvedLadanis.length.toString(),
-                Colors.green,
-                Icons.check_circle,
-              ),
-              _buildSummaryCard(
-                'Blacklisted Ladanis',
-                controller.blacklistedLadanis.length.toString(),
-                Colors.red,
-                Icons.cancel,
-              ),
-            ],
-          )),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWideScreen = constraints.maxWidth > 600;
+          return Obx(() => GridView.count(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                crossAxisCount: isWideScreen ? 4 : 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                children: [
+                  _buildSummaryCard(
+                    'Approved Aadhatis',
+                    controller.approvedAadhatis.length.toString(),
+                    Colors.green,
+                    Icons.check_circle,
+                  ),
+                  _buildSummaryCard(
+                    'Blacklisted Aadhatis',
+                    controller.blacklistedAadhatis.length.toString(),
+                    Colors.red,
+                    Icons.cancel,
+                  ),
+                  _buildSummaryCard(
+                    'Approved Ladanis',
+                    controller.approvedLadanis.length.toString(),
+                    Colors.green,
+                    Icons.check_circle,
+                  ),
+                  _buildSummaryCard(
+                    'Blacklisted Ladanis',
+                    controller.blacklistedLadanis.length.toString(),
+                    Colors.red,
+                    Icons.cancel,
+                  ),
+                ],
+              ));
+        },
+      ),
     );
   }
 

@@ -7,14 +7,11 @@ import 'package:get/get.dart';
 
 import '../../core/globalsWidgets.dart' as glbw;
 import '../../core/global_role_loader.dart' as gld;
-import '../../models/ladani_model.dart';
 import '../../models/aadhati.dart';
 
 import '../../models/driving_profile_model.dart';
 import '../../models/consignment_model.dart';
-import '../driver/driver_form_page.dart';
 import '../forms/buyer_form_page.dart';
-import '../forms/grower_form_page.dart';
 import '../forms/ladani_form_page.dart';
 import '../grower/grower_dialogs.dart';
 
@@ -985,7 +982,6 @@ class LadaniBuyersView extends GetView<LadaniBuyersController> {
                 MediaQuery.of(Get.context!).size.width > 800 ? 5 : 3,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            childAspectRatio: 1.5,
             children: [
               _buildSummaryCard(
                 'Associated Aadhatis',
