@@ -1,4 +1,5 @@
-
+import 'package:apple_grower/features/profile_page/profile_page_bindings.dart';
+import 'package:apple_grower/features/profile_page/profile_page_view.dart';
 import 'package:apple_grower/features/signUpPage/signUP_binidng.dart';
 import 'package:apple_grower/features/signUpPage/signUp_view.dart';
 import 'package:apple_grower/features/splash_screen/splash_screen_bindings.dart';
@@ -108,6 +109,13 @@ List<GetPage> getPages = [
     name: RoutesConstant.hpAgriBoard,
     page: () => HPAgriBoardView(),
     binding: HPAgriBoardBinding(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),
+  GetPage(
+    name: RoutesConstant.profile,
+    page: () => ProfilePageView(),
+    binding: ProfilePageBindigs(),
     transition: Transition.fadeIn,
     transitionDuration: Duration(microseconds: 300),
   ),

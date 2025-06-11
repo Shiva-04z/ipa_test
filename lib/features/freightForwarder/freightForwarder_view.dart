@@ -1066,6 +1066,7 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
 
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
+    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 840;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -1093,7 +1094,7 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
               count,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 24,
+                fontSize: isSmallScreen? 24:12,
                 fontWeight: FontWeight.bold,
               ),
             ),

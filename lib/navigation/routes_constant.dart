@@ -1,4 +1,4 @@
-class RoutesConstant{
+class RoutesConstant {
   static String splash = "/splashPage";
   static String signUp = "/signupPage";
   static String grower = "/growerPage";
@@ -12,4 +12,5 @@ class RoutesConstant{
   static String ampcOffice = "/ampcOfficePage";
   static String hpPolice = "/hpPolicePage";
   static String hpAgriBoard = "/hpAgriBoardPage";
+  static String profile = "/profilePage";
 }

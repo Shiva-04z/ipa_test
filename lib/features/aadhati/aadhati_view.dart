@@ -1025,6 +1025,7 @@ class AadhatiView extends GetView<AadhatiController> {
 
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
+    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 840;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -1057,7 +1058,7 @@ class AadhatiView extends GetView<AadhatiController> {
                 count,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: isSmallScreen? 24 :14,
                   fontWeight: FontWeight.bold,
                 ),
               ),

@@ -594,8 +594,10 @@ class DriverView extends GetView<DriverController> {
 
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
+    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 800;
     return Card(
       elevation: 2,
+
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -626,7 +628,7 @@ class DriverView extends GetView<DriverController> {
                 count,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: isSmallScreen? 24:14,
                   fontWeight: FontWeight.bold,
                 ),
               ),

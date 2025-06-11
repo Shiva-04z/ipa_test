@@ -1132,15 +1132,16 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildSummarySection() {
+    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 840;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Obx(() => GridView.count(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             crossAxisCount:
-                MediaQuery.of(Get.context!).size.width > 840 ? 6 : 3,
-            crossAxisSpacing: 12,
-            mainAxisSpacing:  12,
+              isSmallScreen ? 6 : 3,
+            crossAxisSpacing: 8,
+            mainAxisSpacing:  8,
             children: [
               _buildSummaryCard(
                 'Orchards',
@@ -1185,6 +1186,7 @@ class GrowerView extends GetView<GrowerController> {
 
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
+    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 840;
     return Card(
           elevation: 2,
           shape: RoundedRectangleBorder(
@@ -1216,7 +1218,7 @@ class GrowerView extends GetView<GrowerController> {
                 count,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: isSmallScreen? 24 : 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),

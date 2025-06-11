@@ -14,6 +14,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../../core/global_role_loader.dart' as gld;
 import '../../models/orchard_model.dart';
+import '../grower/grower_dialogs.dart';
 
 class OrchardFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -66,6 +67,15 @@ class OrchardFormController extends GetxController {
       debugPrint('Error getting location: $e');
       _setDefaultLocation();
     }
+  }
+
+  Widget savedImage() {
+    return Center(
+      child: Container(
+          height: MediaQuery.of(Get.context!).size.height / 2,
+          width: MediaQuery.of(Get.context!).size.width - 100,
+          child: Image.network("${boundaryImagePath.value}")),
+    );
   }
 
   Future<void> _handleWebLocation() async {
@@ -260,19 +270,6 @@ class OrchardFormController extends GetxController {
         }
 
         locationController.text = address;
-
-        // Show a snackbar with the full address details
-        Get.snackbar(
-          'Location Details',
-          'Name: ${place.name ?? 'N/A'}\n'
-              'Village/Locality: ${place.locality ?? place.subLocality ?? 'N/A'}\n'
-              'District: ${place.administrativeArea ?? 'N/A'}\n'
-              'Pincode: ${place.postalCode ?? 'N/A'}',
-          backgroundColor: const Color(0xff548235).withOpacity(0.9),
-          colorText: Colors.white,
-          duration: const Duration(seconds: 5),
-          snackPosition: SnackPosition.BOTTOM,
-        );
       } else {
         _setFallbackLocation(lat, lng);
       }
@@ -370,13 +367,6 @@ class OrchardFormController extends GetxController {
           await file.writeAsBytes(pngBytes);
           boundaryImagePath.value = file.path;
         }
-
-        Get.snackbar(
-          'Success',
-          'Map boundary image captured successfully',
-          backgroundColor: const Color(0xff548235),
-          colorText: Colors.white,
-        );
       }
     } catch (e) {
       debugPrint('Error capturing map screenshot: $e');
@@ -457,13 +447,6 @@ class OrchardFormController extends GetxController {
       );
 
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Orchard added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xff548235),
-        colorText: Colors.white,
-      );
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -863,77 +846,115 @@ class OrchardFormPage extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: RepaintBoundary(
-                  key: controller.mapKey,
-                  child: Obx(() {
-                    if (controller.currentPosition.value == null) {
-                      return const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  Color(0xff548235)),
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              'Loading map...',
-                              style: TextStyle(color: Color(0xff548235)),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
+                child: Obx(() {
+                  if (controller.boundaryImagePath.value != null) {
+                    return kIsWeb
+                        ? Image.network(
+                            controller.boundaryImagePath.value!,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.file(
+                            File(controller.boundaryImagePath.value!),
+                            fit: BoxFit.cover,
+                          );
+                  }
 
-                    return Stack(
-                      children: [
-                        FlutterMap(
-                          mapController: controller.mapController,
-                          options: MapOptions(
-                            initialCenter: LatLng(
-                              controller.currentPosition.value!.latitude,
-                              controller.currentPosition.value!.longitude,
-                            ),
-                            initialZoom: 14,
-                            onTap: (tapPosition, latLng) {
-                              controller.addBoundaryPoint(latLng);
-                            },
+                  if (controller.currentPosition.value == null) {
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                Color(0xff548235)),
                           ),
-                          children: [
-                            TileLayer(
-                              urlTemplate:
-                                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                              userAgentPackageName: 'com.example.apple_grower',
-                            ),
-                            MarkerLayer(markers: controller.markers),
-                            PolygonLayer(polygons: controller.polygons),
-                          ],
+                          SizedBox(height: 16),
+                          Text(
+                            'Loading map...',
+                            style: TextStyle(color: Color(0xff548235)),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return Stack(
+                    children: [
+                      FlutterMap(
+                        mapController: controller.mapController,
+                        options: MapOptions(
+                          initialCenter: LatLng(
+                            controller.currentPosition.value!.latitude,
+                            controller.currentPosition.value!.longitude,
+                          ),
+                          initialZoom: 14,
+                          onTap: (tapPosition, latLng) {
+                            controller.addBoundaryPoint(latLng);
+                          },
+                          onMapReady: () {
+                            if (controller.currentPosition.value != null) {
+                              controller.mapController.move(
+                                LatLng(
+                                  controller.currentPosition.value!.latitude,
+                                  controller.currentPosition.value!.longitude,
+                                ),
+                                14,
+                              );
+                            }
+                          },
                         ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: FloatingActionButton(
-                            heroTag: 'center_location',
-                            onPressed: () {
-                              if (controller.currentPosition.value != null) {
-                                controller.mapController.move(
-                                  LatLng(
+                        children: [
+                          TileLayer(
+                            urlTemplate:
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            userAgentPackageName: 'com.example.apple_grower',
+                          ),
+                          MarkerLayer(
+                            markers: [
+                              if (controller.currentPosition.value != null)
+                                Marker(
+                                  point: LatLng(
                                     controller.currentPosition.value!.latitude,
                                     controller.currentPosition.value!.longitude,
                                   ),
-                                  14,
-                                );
-                              }
-                            },
-                            backgroundColor: const Color(0xff548235),
-                            child: const Icon(Icons.my_location,
-                                color: Colors.white),
+                                  width: 40,
+                                  height: 40,
+                                  child: const Icon(
+                                    Icons.my_location,
+                                    color: Colors.blue,
+                                    size: 40,
+                                  ),
+                                ),
+                              ...controller.markers,
+                            ],
                           ),
+                          PolygonLayer(polygons: controller.polygons),
+                        ],
+                      ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: FloatingActionButton(
+                          heroTag: 'center_location',
+                          onPressed: () {
+                            if (controller.currentPosition.value != null) {
+                              controller.mapController.move(
+                                LatLng(
+                                  controller.currentPosition.value!.latitude,
+                                  controller.currentPosition.value!.longitude,
+                                ),
+                                14,
+                              );
+                            }
+                          },
+                          backgroundColor: const Color(0xff548235),
+                          child: const Icon(Icons.my_location,
+                              color: Colors.white),
                         ),
-                      ],
-                    );
-                  }),
-                ),
+                      ),
+                    ],
+                  );
+                }),
               ),
             ),
             const SizedBox(height: 8),
@@ -942,51 +963,93 @@ class OrchardFormPage extends StatelessWidget {
               children: [
                 Obx(() =>
                     Text('${controller.boundaryPoints.length} points marked')),
-                Row(
-                  children: [
-                    TextButton.icon(
-                      onPressed: controller.clearBoundary,
-                      icon: const Icon(Icons.clear),
-                      label: const Text('Clear'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xff548235),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    TextButton.icon(
-                      onPressed: controller.captureMapScreenshot,
-                      icon: const Icon(Icons.camera_alt),
-                      label: const Text('Capture Map'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xff548235),
-                      ),
-                    ),
-                  ],
+                TextButton.icon(
+                  onPressed: () {
+                    controller.clearBoundary();
+                    controller.boundaryImagePath.value = null;
+                  },
+                  icon: const Icon(Icons.clear),
+                  label: const Text('Clear'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xff548235),
+                  ),
                 ),
               ],
             ),
-            if (controller.boundaryImagePath.value != null) ...[
-              const SizedBox(height: 8),
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: kIsWeb
-                      ? Image.network(
-                          controller.boundaryImagePath.value!,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.file(
-                          File(controller.boundaryImagePath.value!),
-                          fit: BoxFit.cover,
-                        ),
-                ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
               ),
-            ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Upload Boundary Image',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff548235),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Upload a screenshot or image of your orchard boundary',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child:
+                            Obx(() => controller.boundaryImagePath.value != null
+                                ? Row(
+                                    children: [
+                                      Icon(
+                                        Icons.image,
+                                        color: const Color(0xff548235),
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          controller.boundaryImagePath.value!,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : const Text(
+                                    'No image selected',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                  )),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton.icon(
+                        onPressed: controller.pickImage,
+                        icon: const Icon(Icons.upload_file),
+                        label: const Text('Upload Image'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff548235),
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
