@@ -20,6 +20,7 @@ import '../grower/grower_dialogs.dart';
 import '../packHouse/consignment_form2_page.dart';
 import '../forms/transport_union_form_page.dart';
 import '../forms/employee_form_page.dart';
+import 'dart:io';
 
 class AadhatiView extends GetView<AadhatiController> {
   final RxString selectedSection = 'My Commission Agent Info'.obs;
@@ -1170,13 +1171,38 @@ class AadhatiView extends GetView<AadhatiController> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            image: DecorationImage(
-              image: NetworkImage(imageUrl),
-              fit: BoxFit.cover,
-            ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image(
+            image: imageUrl.startsWith('http')
+                ? NetworkImage(imageUrl) as ImageProvider
+                : FileImage(File(imageUrl)) as ImageProvider,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: Colors.grey[200],
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 32,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Failed to load image',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),

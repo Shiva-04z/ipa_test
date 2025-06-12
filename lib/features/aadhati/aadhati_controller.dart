@@ -24,7 +24,7 @@ class AadhatiController extends GetxController {
   // Staff Management
   final RxMap<String, Employee> staff = <String, Employee>{}.obs;
 
-    RxString key= "".obs;
+  RxString key = "".obs;
   @override
   void onInit() {
     super.onInit();
@@ -34,14 +34,11 @@ class AadhatiController extends GetxController {
     details['Address'] = 'Sample Address';
   }
 
-
-
-  void addStaff(Employee employee)
-  {
-    staff.assign(key.value, employee);
-    print(key.value + employee.name + employee.phoneNumber!);
+  void addStaff(Employee employee) {
+    staff[key.value] = employee;
+    print(
+        'Added staff: ${key.value} - ${employee.name} - ${employee.phoneNumber}');
   }
-
 
   void addAssociatedGrower(Grower grower) {
     if (!associatedGrowers.any((g) => g.id == grower.id)) {
@@ -121,7 +118,6 @@ class AadhatiController extends GetxController {
   void removeAssociatedTransportUnion(String id) {
     associatedTransportUnions.removeWhere((union) => union.id == id);
   }
-
 
   void removeStaff(String role) {
     staff.remove(role);

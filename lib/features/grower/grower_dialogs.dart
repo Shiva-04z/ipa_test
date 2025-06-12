@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
 
 import 'grower_controller.dart';
 import '../../models/orchard_model.dart';
@@ -1108,15 +1109,47 @@ class GrowerDialogs {
             children: [
               Expanded(
                 child: InteractiveViewer(
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Center(
-                        child: Text('Failed to load image'),
-                      );
-                    },
-                  ),
+                  child: imageUrl.startsWith('http')
+                      ? Image.network(
+                          imageUrl,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.error_outline,
+                                      color: Colors.red, size: 48),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Failed to load image',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        )
+                      : Image.file(
+                          File(imageUrl),
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.error_outline,
+                                      color: Colors.red, size: 48),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Failed to load image',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                 ),
               ),
               Padding(

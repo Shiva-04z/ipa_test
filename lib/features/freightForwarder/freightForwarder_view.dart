@@ -2,6 +2,7 @@ import 'package:apple_grower/features/forms/commission_agent_form_page.dart';
 import 'package:apple_grower/features/freightForwarder/freightForwarder_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:io';
 
 import '../../core/globalsWidgets.dart' as glbw;
 import '../../models/grower_model.dart';
@@ -861,6 +862,9 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
   }
 
   Widget _buildGalleryContainer(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLargeScreen = screenWidth > 800;
+
     return Stack(
       children: [
         Card(
@@ -871,26 +875,30 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
             side: BorderSide(color: Colors.black26, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
-            width: MediaQuery.of(context).size.width,
+          child: Container(
+            height: MediaQuery.of(context).size.height - 200,
+            width: screenWidth,
             child: Padding(
               padding: const EdgeInsets.only(top: 30),
-              child: Obx(
-                () => GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount:
-                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    childAspectRatio: 1.0,
+              child: SingleChildScrollView(
+                child: Obx(
+                  () => GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: isLargeScreen ? 3 : 1,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      childAspectRatio: isLargeScreen ? 1.0 : 1.5,
+                    ),
+                    itemCount: controller.galleryImages.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) return _buildAddNewImageCard(context);
+                      return _buildImageCard(
+                          controller.galleryImages[index - 1]);
+                    },
                   ),
-                  itemCount: controller.galleryImages.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) return _buildAddNewImageCard(context);
-                    return _buildImageCard(controller.galleryImages[index - 1]);
-                  },
                 ),
               ),
             ),
@@ -919,42 +927,49 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
   }
 
   Widget _buildImageCard(String imageUrl) {
-    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
-      onTap: () => GrowerDialogs.showItemDetailsDialog(
-        context: Get.context!,
-        item: imageUrl,
-        title: 'Image Details',
-        details: [
-          _buildDetailRow('Image URL', imageUrl),
-        ],
-        onEdit: () {},
+      onTap: () => GrowerDialogs.showImageDetailsDialog(
+        Get.context!,
+        imageUrl,
         onDelete: () => controller.removeGalleryImage(imageUrl),
       ),
       child: Card(
-        elevation: 0,
-        color: Colors.white,
-        child: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.image,
-                size: isSmallScreen ? 32 : 40,
-                color: Colors.blue,
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Image ${imageUrl.substring(0, 4)}...',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: isSmallScreen ? 12 : 14,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image(
+            image: imageUrl.startsWith('http')
+                ? NetworkImage(imageUrl) as ImageProvider
+                : FileImage(File(imageUrl)) as ImageProvider,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: Colors.grey[200],
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 32,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Failed to load image',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -962,29 +977,45 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
   }
 
   Widget _buildAddNewImageCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    final isLargeScreen = MediaQuery.of(context).size.width > 800;
     return InkWell(
       onTap: () => controller.pickAndUploadImage(),
       child: Card(
-        color: Colors.white,
-        elevation: 0,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.add_circle,
-              size: isSmallScreen ? 32 : 40,
-              color: Colors.red,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.grey[200]!,
+                Colors.grey[300]!,
+              ],
             ),
-            SizedBox(height: 8),
-            Text(
-              "UPLOAD NEW",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: isSmallScreen ? 12 : 14,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.add_photo_alternate,
+                size: isLargeScreen ? 48 : 64,
+                color: Colors.red,
               ),
-            ),
-          ],
+              SizedBox(height: 12),
+              Text(
+                "UPLOAD NEW",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isLargeScreen ? 16 : 20,
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1066,7 +1097,7 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
 
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
-    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 840;
+    bool isSmallScreen = MediaQuery.of(Get.context!).size.width > 840;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -1094,7 +1125,7 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
               count,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: isSmallScreen? 24:12,
+                fontSize: isSmallScreen ? 24 : 12,
                 fontWeight: FontWeight.bold,
               ),
             ),
