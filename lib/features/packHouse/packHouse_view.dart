@@ -1,5 +1,8 @@
+import 'package:apple_grower/features/forms/buyer_form_page.dart';
 import 'package:apple_grower/features/forms/driver_form_page.dart';
+import 'package:apple_grower/features/forms/employee_form_page.dart';
 import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
+import 'package:apple_grower/models/employee_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/global_role_loader.dart' as gld;
@@ -7,16 +10,16 @@ import '../../core/globalsWidgets.dart' as glbw;
 import '../../models/pack_house_model.dart';
 import '../../models/grower_model.dart';
 import '../../models/aadhati.dart';
-import '../../models/ladani_model.dart';
-import '../../models/packer_model.dart';
+import '../../models/ladani_model.dart' as buyer_model;
 import '../../models/driving_profile_model.dart';
 import '../../models/consignment_model.dart';
+import '../../models/transport_model.dart';
 import '../driver/driver_form_page.dart';
 import '../forms/commission_agent_form_page.dart';
 import '../forms/corporate_company_form_page.dart';
 import '../forms/grower_form_page.dart';
-import '../forms/packer_form_page.dart';
 import '../forms/packing_house_form_page.dart';
+import '../forms/transport_union_form_page.dart';
 
 import 'consignment_form2_page.dart';
 import '../grower/grower_dialogs.dart';
@@ -45,8 +48,12 @@ class PackHouseView extends GetView<PackHouseController> {
                   return _buildAssociatedGrowersContainer(context);
                 case 'Associated Commission Agents':
                   return _buildAssociatedAadhatisContainer(context);
-                case 'Associated Ladanis':
-                  return _buildAssociatedLadanisContainer(context);
+                case 'Associated Buyers':
+                  return _buildAssociatedBuyersContainer(context);
+                case 'Associated Freight Forwarders':
+                  return _buildAssociatedFreightForwardersContainer(context);
+                case 'Associated Transport Unions':
+                  return _buildTransportUnionContainer(context);
                 case 'Associated Packers':
                   return _buildAssociatedPackersContainer(context);
                 case 'Associated Drivers':
@@ -89,10 +96,22 @@ class PackHouseView extends GetView<PackHouseController> {
                 Icons.person,
               ),
               _buildSummaryCard(
-                'Associated Ladanis',
+                'Associated Buyers',
                 controller.associatedLadanis.length.toString(),
                 Colors.purple,
                 Icons.business,
+              ),
+              _buildSummaryCard(
+                'Associated Freight Forwarders',
+                controller.associatedFreightForwarders.length.toString(),
+                Colors.amber,
+                Icons.local_shipping,
+              ),
+              _buildSummaryCard(
+                'Associated Transport Unions',
+                controller.associatedTransportUnions.length.toString(),
+                Colors.indigo,
+                Icons.groups,
               ),
               _buildSummaryCard(
                 'Associated Packers',
@@ -122,7 +141,7 @@ class PackHouseView extends GetView<PackHouseController> {
 
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
-    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 840;
+    bool isSmallScreen = MediaQuery.of(Get.context!).size.width > 840;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -155,7 +174,7 @@ class PackHouseView extends GetView<PackHouseController> {
                 count,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize:  isSmallScreen? 24:14,
+                  fontSize: isSmallScreen ? 24 : 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -191,7 +210,11 @@ class PackHouseView extends GetView<PackHouseController> {
             SizedBox(width: 8),
             _buildSectionChip('Associated Commission Agents'),
             SizedBox(width: 8),
-            _buildSectionChip('Associated Ladanis'),
+            _buildSectionChip('Associated Buyers'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Freight Forwarders'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Transport Unions'),
             SizedBox(width: 8),
             _buildSectionChip('Associated Packers'),
             SizedBox(width: 8),
@@ -644,7 +667,7 @@ class PackHouseView extends GetView<PackHouseController> {
     );
   }
 
-  Widget _buildAssociatedLadanisContainer(BuildContext context) {
+  Widget _buildAssociatedBuyersContainer(BuildContext context) {
     return Stack(
       children: [
         Card(
@@ -672,8 +695,8 @@ class PackHouseView extends GetView<PackHouseController> {
                   ),
                   itemCount: controller.associatedLadanis.length + 1,
                   itemBuilder: (context, index) {
-                    if (index == 0) return _buildAddNewLadaniCard(context);
-                    return _buildLadaniCard(
+                    if (index == 0) return _buildAddNewBuyerCard(context);
+                    return _buildBuyerCard(
                         controller.associatedLadanis[index - 1]);
                   },
                 ),
@@ -690,7 +713,7 @@ class PackHouseView extends GetView<PackHouseController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Associated Ladanis",
+            "Associated Buyers",
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -703,21 +726,21 @@ class PackHouseView extends GetView<PackHouseController> {
     );
   }
 
-  Widget _buildLadaniCard(Ladani ladani) {
+  Widget _buildBuyerCard(buyer_model.Ladani buyer) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
-        item: ladani,
-        title: 'Ladanis Details',
+        item: buyer,
+        title: 'Buyer Details',
         details: [
-          _buildDetailRow('Name', '${ladani.name}'),
-          _buildDetailRow('Phone', '${ladani.contact}'),
-          _buildDetailRow('Type', '${ladani.firmType}'),
-          _buildDetailRow('Address', '${ladani.address}'),
+          _buildDetailRow('Name', '${buyer.name}'),
+          _buildDetailRow('Phone', '${buyer.contact}'),
+          _buildDetailRow('Type', '${buyer.firmType}'),
+          _buildDetailRow('Address', '${buyer.address}'),
         ],
         onEdit: () {},
-        onDelete: () => controller.removeAssociatedLadani('${ladani.id}'),
+        onDelete: () => controller.removeAssociatedLadani('${buyer.id}'),
       ),
       child: Card(
         elevation: 0,
@@ -731,7 +754,7 @@ class PackHouseView extends GetView<PackHouseController> {
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
-                "${ladani.name}",
+                "${buyer.name}",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -742,10 +765,10 @@ class PackHouseView extends GetView<PackHouseController> {
               ),
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
-                Text('${ladani.firmType}', style: TextStyle(fontSize: 12)),
+                Text('${buyer.firmType}', style: TextStyle(fontSize: 12)),
                 SizedBox(height: 4),
                 Text(
-                  '${ladani.contact}',
+                  '${buyer.contact}',
                   style: TextStyle(fontSize: 12, color: Colors.purple),
                 ),
               ],
@@ -756,10 +779,303 @@ class PackHouseView extends GetView<PackHouseController> {
     );
   }
 
-  Widget _buildAddNewLadaniCard(BuildContext context) {
+  Widget _buildAddNewBuyerCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => CorporateCompanyFormPage()),
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle,
+              size: isSmallScreen ? 32 : 40,
+              color: Colors.red,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "ADD NEW",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAssociatedFreightForwardersContainer(BuildContext context) {
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Obx(
+                () => GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.associatedFreightForwarders.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0)
+                      return _buildAddNewFreightForwarderCard(context);
+                    return _buildFreightForwarderCard(
+                        controller.associatedFreightForwarders[index - 1]);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "Associated Freight Forwarders",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFreightForwarderCard(dynamic freightForwarder) {
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
+    return InkWell(
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: freightForwarder,
+        title: 'Freight Forwarder Details',
+        details: [
+          _buildDetailRow('Name', '${freightForwarder.name}'),
+          _buildDetailRow('Phone', '${freightForwarder.contact}'),
+          _buildDetailRow('License', '${freightForwarder.licenseNo}'),
+          _buildDetailRow('Address', '${freightForwarder.address}'),
+        ],
+        onEdit: () {},
+        onDelete: () => controller
+            .removeAssociatedFreightForwarder('${freightForwarder.id}'),
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.local_shipping,
+                size: isSmallScreen ? 32 : 40,
+                color: Colors.amber,
+              ),
+              Text(
+                "${freightForwarder.name}",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text('${freightForwarder.licenseNo}',
+                    style: TextStyle(fontSize: 12)),
+                SizedBox(height: 4),
+                Text(
+                  '${freightForwarder.contact}',
+                  style: TextStyle(fontSize: 12, color: Colors.amber),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewFreightForwarderCard(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    return InkWell(
+      onTap: () => Get.to(() => BuyerFormPage()),
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle,
+              size: isSmallScreen ? 32 : 40,
+              color: Colors.red,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "ADD NEW",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTransportUnionContainer(BuildContext context) {
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Obx(
+                    () => GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                    MediaQuery.of(context).size.width > 800 ? 5 : 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.associatedTransportUnions.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0)
+                      return _buildAddNewTransportUnionCard(context);
+                    return _buildTransportUnionCard(
+                        controller.associatedTransportUnions[index - 1]);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "Transport Union",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTransportUnionCard(Transport union) {
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
+    return InkWell(
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: union,
+        title: 'Transport Union Details',
+        details: [
+          _buildDetailRow('Name', '${union.name}'),
+          _buildDetailRow('Contact', '${union.contact}'),
+          _buildDetailRow(
+              'Registeration No.', '${union.transportUnionRegistrationNo}'),
+          _buildDetailRow('Address', '${union.address}'),
+        ],
+        onEdit: () {},
+        onDelete: () => controller.removeAssociatedTransportUnion('${union.id}'),
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.local_shipping,
+                size: isSmallScreen ? 32 : 40,
+                color: Colors.indigo,
+              ),
+              SizedBox(height: 8),
+              Text(
+                '${union.name}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text(
+                  '${union.contact}',
+                  style: TextStyle(fontSize: 12),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  '${union.transportUnionRegistrationNo}',
+                  style: TextStyle(fontSize: 12, color: Colors.indigo),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewTransportUnionCard(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    return InkWell(
+      onTap: () => Get.to(() => TransportUnionFormPage()),
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -844,7 +1160,7 @@ class PackHouseView extends GetView<PackHouseController> {
     );
   }
 
-  Widget _buildPackerCard(Packer packer) {
+  Widget _buildPackerCard(Employee packer) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
@@ -896,7 +1212,7 @@ class PackHouseView extends GetView<PackHouseController> {
   Widget _buildAddNewPackerCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
-      onTap: () => Get.to(() => PackerFormPage()),
+      onTap: () => Get.to(() => EmployeeFormPage()),
       child: Card(
         color: Colors.white,
         elevation: 0,

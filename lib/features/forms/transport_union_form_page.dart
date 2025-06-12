@@ -1,10 +1,13 @@
+import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
+import 'package:apple_grower/models/driving_profile_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/globalsWidgets.dart' as glbw;
 import '../../core/globals.dart' as glb;
- // Use a prefix for the model import
+// Use a prefix for the model import
 import '../../models/transport_model.dart';
 import '../driver/driver_controller.dart';
+import '../grower/grower_controller.dart';
 
 class TransportUnionFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -48,10 +51,17 @@ class TransportUnionFormController extends GetxController {
   }
 
   void selectUnion(Transport union) {
-    final driverController = Get.find<DriverController>();
-    final exists = driverController.associatedTransportUnions.any(
-      (existingUnion) => existingUnion.id == union.id,
-    );
+    final exists = (glb.roleType.value == "Grower")
+        ? Get.find<GrowerController>()
+            .transportUnions
+            .any((existingDriver) => existingDriver.id == union.id)
+        : (glb.roleType.value == "Driver")
+            ? Get.find<DriverController>()
+                .associatedTransportUnions
+                .any((existingDriver) => existingDriver.id == union.id)
+            : Get.find<PackHouseController>()
+                .associatedTransportUnions
+                .any((existingDriver) => existingDriver.id == union.id);
 
     if (exists) {
       Get.snackbar(
@@ -64,7 +74,11 @@ class TransportUnionFormController extends GetxController {
       return;
     }
 
-    driverController.associatedTransportUnions.add(union);
+    (glb.roleType.value == "Grower")
+        ? Get.find<GrowerController>().addTransportUnion(union)
+        : (glb.roleType.value == "Driver")
+            ? Get.find<DriverController>().addTransportUnion(union)
+            : Get.find<PackHouseController>().addAssociatedTransportUnion(union);
     Get.back();
     Get.snackbar(
       'Success',
@@ -81,14 +95,18 @@ class TransportUnionFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      final newUnion =Transport(
+      final union = Transport(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: nameController.text,
         contact: phoneController.text,
         address: addressController.text,
       );
 
-      Get.find<DriverController>().associatedTransportUnions.add(newUnion);
+      (glb.roleType.value == "Grower")
+          ? Get.find<GrowerController>().addTransportUnion(union)
+          : (glb.roleType.value == "Driver")
+              ? Get.find<DriverController>().addTransportUnion(union)
+              : Get.find<PackHouseController>().addAssociatedTransportUnion(union);
       Get.back();
       Get.snackbar(
         'Success',
@@ -245,10 +263,19 @@ class TransportUnionFormPage extends StatelessWidget {
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
               final union = controller.searchResults[index];
-              final driverController = Get.find<DriverController>();
-              final exists = driverController.associatedTransportUnions.any(
-                (existingUnion) => existingUnion.id == union.id,
-              );
+              final exists = (glb.roleType.value == "Grower")
+                  ? Get.find<GrowerController>()
+                      .transportUnions
+                      .any((existingDriver) => existingDriver.id == union.id)
+                  : (glb.roleType.value == "Driver")
+                      ? Get.find<DriverController>()
+                          .associatedTransportUnions
+                          .any(
+                              (existingDriver) => existingDriver.id == union.id)
+                      : Get.find<PackHouseController>()
+                          .associatedTransportUnions
+                          .any((existingDriver) =>
+                              existingDriver.id == union.id);
 
               return Stack(
                 children: [

@@ -50,9 +50,9 @@ class SignUpController extends GetxController{
         glb.roleType.value = "Transport Union";
         Get.toNamed(RoutesConstant.transportUnion);
         break;
-      case "AMPC Office":
-        glb.roleType.value = "AMPC Office";
-        Get.toNamed(RoutesConstant.ampcOffice);
+      case "APMC Office":
+        glb.roleType.value = "APMC Office";
+        Get.toNamed(RoutesConstant.apmcOffice);
         break;
       case "HP Police":
         glb.roleType.value = "HP Police";

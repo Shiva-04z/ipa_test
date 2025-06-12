@@ -1,6 +1,70 @@
 import 'package:equatable/equatable.dart';
 
-enum HarvestStatus { planned, inProgress, completed, delayed }
+enum CropStage {
+  walnutSize,
+  fruitDevelopment,
+  colourInitiation,
+  fiftyPercentColour,
+  eightyPercentColour,
+  harvest,
+  packing
+}
+
+enum QualityMarker {
+  antiHailNet,
+  openFarm,
+  hailingMarks,
+  russetting,
+  underSize
+}
+
+enum QualityStatus {
+  good, // Green
+  average, // Blue
+  poor // Red
+}
+
+class OrchardQuality {
+  final Map<QualityMarker, QualityStatus> markers;
+
+  const OrchardQuality({
+    this.markers = const {
+      QualityMarker.antiHailNet: QualityStatus.good,
+      QualityMarker.openFarm: QualityStatus.good,
+      QualityMarker.hailingMarks: QualityStatus.good,
+      QualityMarker.russetting: QualityStatus.good,
+      QualityMarker.underSize: QualityStatus.good,
+    },
+  });
+
+  factory OrchardQuality.fromJson(Map<String, dynamic> json) {
+    final markers = <QualityMarker, QualityStatus>{};
+    json.forEach((key, value) {
+      markers[QualityMarker.values.firstWhere(
+        (e) => e.toString() == 'QualityMarker.$key',
+      )] = QualityStatus.values.firstWhere(
+        (e) => e.toString() == 'QualityStatus.$value',
+      );
+    });
+    return OrchardQuality(markers: markers);
+  }
+
+  Map<String, dynamic> toJson() {
+    final map = <String, String>{};
+    markers.forEach((key, value) {
+      map[key.toString().split('.').last] = value.toString().split('.').last;
+    });
+    return map;
+  }
+
+  OrchardQuality copyWith({
+    Map<QualityMarker, QualityStatus>? markers,
+  }) {
+    return OrchardQuality(
+      markers: markers ?? this.markers,
+    );
+  }
+}
 
 class Orchard {
   final String id;
@@ -11,7 +75,8 @@ class Orchard {
   final List<GPSPoint> boundaryPoints;
   final double area; // in hectares
   final String boundaryImagePath;
-  final HarvestStatus harvestStatus;
+  final CropStage cropStage;
+  final OrchardQuality quality;
   final String? harvestDelayReason;
   final int? estimatedBoxes;
   final DateTime? actualHarvestDate;
@@ -27,7 +92,8 @@ class Orchard {
     required this.boundaryPoints,
     required this.area,
     required this.boundaryImagePath,
-    this.harvestStatus = HarvestStatus.planned,
+    this.cropStage = CropStage.walnutSize,
+    this.quality = const OrchardQuality(),
     this.harvestDelayReason,
     this.estimatedBoxes,
     this.actualHarvestDate,
@@ -49,10 +115,13 @@ class Orchard {
           .toList(),
       area: json['area'] as double,
       boundaryImagePath: json['boundaryImagePath'] as String,
-      harvestStatus: HarvestStatus.values.firstWhere(
-        (e) => e.toString() == 'HarvestStatus.${json['harvestStatus']}',
-        orElse: () => HarvestStatus.planned,
+      cropStage: CropStage.values.firstWhere(
+        (e) => e.toString() == 'CropStage.${json['cropStage']}',
+        orElse: () => CropStage.walnutSize,
       ),
+      quality: json['quality'] != null
+          ? OrchardQuality.fromJson(json['quality'] as Map<String, dynamic>)
+          : const OrchardQuality(),
       harvestDelayReason: json['harvestDelayReason'] as String?,
       estimatedBoxes: json['estimatedBoxes'] as int?,
       actualHarvestDate: json['actualHarvestDate'] != null
@@ -73,7 +142,8 @@ class Orchard {
       'boundaryPoints': boundaryPoints.map((e) => e.toJson()).toList(),
       'area': area,
       'boundaryImagePath': boundaryImagePath,
-      'harvestStatus': harvestStatus.toString().split('.').last,
+      'cropStage': cropStage.toString().split('.').last,
+      'quality': quality.toJson(),
       'harvestDelayReason': harvestDelayReason,
       'estimatedBoxes': estimatedBoxes,
       'actualHarvestDate': actualHarvestDate?.toIso8601String(),
@@ -91,7 +161,8 @@ class Orchard {
     List<GPSPoint>? boundaryPoints,
     double? area,
     String? boundaryImagePath,
-    HarvestStatus? harvestStatus,
+    CropStage? cropStage,
+    OrchardQuality? quality,
     String? harvestDelayReason,
     int? estimatedBoxes,
     DateTime? actualHarvestDate,
@@ -108,7 +179,8 @@ class Orchard {
       boundaryPoints: boundaryPoints ?? this.boundaryPoints,
       area: area ?? this.area,
       boundaryImagePath: boundaryImagePath ?? this.boundaryImagePath,
-      harvestStatus: harvestStatus ?? this.harvestStatus,
+      cropStage: cropStage ?? this.cropStage,
+      quality: quality ?? this.quality,
       harvestDelayReason: harvestDelayReason ?? this.harvestDelayReason,
       estimatedBoxes: estimatedBoxes ?? this.estimatedBoxes,
       actualHarvestDate: actualHarvestDate ?? this.actualHarvestDate,
@@ -127,7 +199,8 @@ class Orchard {
         boundaryPoints,
         area,
         boundaryImagePath,
-        harvestStatus,
+        cropStage,
+        quality,
         harvestDelayReason,
         estimatedBoxes,
         actualHarvestDate,

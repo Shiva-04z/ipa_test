@@ -62,6 +62,12 @@ class DriverController extends GetxController {
     }
   }
 
+  void addTransportUnion(Transport union) {
+    if (!associatedTransportUnions.any((c) => c.id == union.id)) {
+      associatedTransportUnions.add(union);
+    }
+  }
+
   void removeAssociatedTransportUnion(String id) {
     associatedTransportUnions.removeWhere((union) => union.id == id);
   }

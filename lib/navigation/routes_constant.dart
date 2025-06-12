@@ -9,7 +9,7 @@ class RoutesConstant {
   static String freightForwarder = "/freightForwarderPage";
   static String driver = "/driverPage";
   static String transportUnion = "/transportUnionPage";
-  static String ampcOffice = "/ampcOfficePage";
+  static String apmcOffice = "/apmcOfficePage";
   static String hpPolice = "/hpPolicePage";
   static String hpAgriBoard = "/hpAgriBoardPage";
   static String profile = "/profilePage";

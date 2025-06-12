@@ -89,11 +89,11 @@ class CorporateCompanyFormController extends GetxController {
         .any((existingDriver) => existingDriver.id == company.id)
         : (glb.roleType.value == "Aadhati")?Get.find<AadhatiController>().associatedLadanis.any(
             (existingDriver) =>
-        existingDriver.id == company.id): (glb.roleType.value == "AMPC Office")
-    ? Get.find<AmpcOfficeController>().flag.value
-    ? Get.find<AmpcOfficeController>().approvedLadanis.any((existingDriver) =>
+        existingDriver.id == company.id): (glb.roleType.value == "APMC Office")
+    ? Get.find<ApmcOfficeController>().flag.value
+    ? Get.find<ApmcOfficeController>().approvedLadanis.any((existingDriver) =>
     existingDriver.id == company.id)
-        : Get.find<AmpcOfficeController>()
+        : Get.find<ApmcOfficeController>()
         .blacklistedLadanis
         .any((existingDriver) =>
     existingDriver.id == company.id)
@@ -125,8 +125,8 @@ class CorporateCompanyFormController extends GetxController {
         ? Get.find<AadhatiController>()
         .addAssociatedLadani(company):
     (glb.roleType.value == "Grower") ?Get.find<GrowerController>()
-        .addCorporateCompany(company) : (glb.roleType.value == "AMPC Office")
-        ? Get.find<AmpcOfficeController>().addLadani(company)
+        .addCorporateCompany(company) : (glb.roleType.value == "APMC Office")
+        ? Get.find<ApmcOfficeController>().addLadani(company)
         : Get.find<HPAgriBoardController>().addLadani(company);
     Get.back();
   }
@@ -161,8 +161,8 @@ class CorporateCompanyFormController extends GetxController {
           : (glb.roleType.value == "Aadhati")
           ? Get.find<AadhatiController>()
           .addAssociatedLadani(newCompany):(glb.roleType.value == "Grower") ?Get.find<GrowerController>()
-          .addCorporateCompany(newCompany) : (glb.roleType.value == "AMPC Office")
-    ? Get.find<AmpcOfficeController>().addLadani(newCompany)
+          .addCorporateCompany(newCompany) : (glb.roleType.value == "APMC Office")
+    ? Get.find<ApmcOfficeController>().addLadani(newCompany)
         : Get.find<HPAgriBoardController>().addLadani(newCompany);
 
       Get.back();
@@ -326,11 +326,11 @@ class CorporateCompanyFormPage extends StatelessWidget {
                   .any((existingDriver) => existingDriver.id == company.id)
                   : (glb.roleType.value == "Aadhati")?Get.find<AadhatiController>().associatedLadanis.any(
                       (existingDriver) =>
-                  existingDriver.id == company.id): (glb.roleType.value == "AMPC Office")
-                  ? Get.find<AmpcOfficeController>().flag.value
-                  ? Get.find<AmpcOfficeController>().approvedLadanis.any((existingDriver) =>
+                  existingDriver.id == company.id): (glb.roleType.value == "APMC Office")
+                  ? Get.find<ApmcOfficeController>().flag.value
+                  ? Get.find<ApmcOfficeController>().approvedLadanis.any((existingDriver) =>
               existingDriver.id == company.id)
-                  : Get.find<AmpcOfficeController>()
+                  : Get.find<ApmcOfficeController>()
                   .blacklistedLadanis
                   .any((existingDriver) =>
               existingDriver.id == company.id)

@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 
 import '../../core/globalsWidgets.dart' as glbw;
 
-class AmpcOfficeView extends GetView<AmpcOfficeController> {
+class ApmcOfficeView extends GetView<ApmcOfficeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,6 +1,7 @@
 import '../../core/global_role_loader.dart';
 import 'package:apple_grower/models/ladani_model.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
+import 'package:apple_grower/models/freightForwarder.dart';
 
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -14,6 +15,7 @@ import '../../models/grower_model.dart';
 import '../../models/orchard_model.dart';
 import '../../models/consignment_model.dart';
 import '../../models/driving_profile_model.dart';
+import '../../models/transport_model.dart';
 
 class GrowerController extends GetxController {
   // Text Controllers
@@ -41,6 +43,8 @@ class GrowerController extends GetxController {
   RxList<Consignment> get consignments => grower.consignments.obs;
   RxList<DrivingProfile> drivers = <DrivingProfile>[].obs;
   final RxList<String> galleryImages = <String>[].obs;
+  final transportUnions = <Transport>[].obs;
+  final freightForwarders = <FreightForwarder>[].obs;
 
   // Methods for managing orchards
   void addOrchard(Orchard orchard) {
@@ -236,6 +240,30 @@ class GrowerController extends GetxController {
   void removeGalleryImage(String imageUrl) {
     galleryImages.remove(imageUrl);
     // TODO: Implement image deletion from your storage service
+  }
+
+  void addTransportUnion(Transport union) {
+    transportUnions.add(union);
+  }
+
+  void removeTransportUnion(String id) {
+    transportUnions.removeWhere((union) => union.id == id);
+  }
+
+  // Methods for managing freight forwarders
+  void addFreightForwarder(FreightForwarder forwarder) {
+    freightForwarders.add(forwarder);
+  }
+
+  void updateFreightForwarder(FreightForwarder forwarder) {
+    final index = freightForwarders.indexWhere((f) => f.id == forwarder.id);
+    if (index != -1) {
+      freightForwarders[index] = forwarder;
+    }
+  }
+
+  void removeFreightForwarder(String id) {
+    freightForwarders.removeWhere((f) => f.id == id);
   }
 
   @override

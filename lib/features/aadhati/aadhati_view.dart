@@ -9,6 +9,8 @@ import '../../models/grower_model.dart';
 import '../../models/ladani_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/consignment_model.dart';
+import '../../models/transport_model.dart';
+import '../../models/employee_model.dart';
 import '../driver/driver_form_page.dart';
 import 'aadhati_edit_info_form_page.dart';
 import '../forms/buyer_form_page.dart';
@@ -16,6 +18,8 @@ import '../forms/corporate_company_form_page.dart';
 import '../forms/grower_form_page.dart';
 import '../grower/grower_dialogs.dart';
 import '../packHouse/consignment_form2_page.dart';
+import '../forms/transport_union_form_page.dart';
+import '../forms/employee_form_page.dart';
 
 class AadhatiView extends GetView<AadhatiController> {
   final RxString selectedSection = 'My Commission Agent Info'.obs;
@@ -43,6 +47,10 @@ class AadhatiView extends GetView<AadhatiController> {
                   return _buildAssociatedBuyersContainer(context);
                 case 'Associated Ladanis':
                   return _buildAssociatedLadanisContainer(context);
+                case 'Associated Transport Unions':
+                  return _buildAssociatedTransportUnionsContainer(context);
+                case 'My Staff':
+                  return _buildStaffContainer(context);
                 case 'Associated Drivers':
                   return _buildAssociatedDriversContainer(context);
                 case 'Consignments':
@@ -73,6 +81,10 @@ class AadhatiView extends GetView<AadhatiController> {
             _buildSectionChip('Associated Freight Forwarder'),
             SizedBox(width: 8),
             _buildSectionChip('Associated Ladanis'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Transport Unions'),
+            SizedBox(width: 8),
+            _buildSectionChip('My Staff'),
             SizedBox(width: 8),
             _buildSectionChip('Associated Drivers'),
             SizedBox(width: 8),
@@ -1025,7 +1037,7 @@ class AadhatiView extends GetView<AadhatiController> {
 
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
-    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 840;
+    bool isSmallScreen = MediaQuery.of(Get.context!).size.width > 840;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -1058,7 +1070,7 @@ class AadhatiView extends GetView<AadhatiController> {
                 count,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: isSmallScreen? 24 :14,
+                  fontSize: isSmallScreen ? 24 : 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1211,6 +1223,315 @@ class AadhatiView extends GetView<AadhatiController> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAssociatedTransportUnionsContainer(BuildContext context) {
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Obx(
+                () => GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.associatedTransportUnions.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0)
+                      return _buildAddNewTransportUnionCard(context);
+                    return _buildTransportUnionCard(
+                        controller.associatedTransportUnions[index - 1]);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "Associated Transport Unions",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTransportUnionCard(Transport union) {
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
+    return InkWell(
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: union,
+        title: 'Transport Union Details',
+        details: [
+          _buildDetailRow('Name', union.name),
+          _buildDetailRow('Contact', union.contact),
+          _buildDetailRow(
+              'Registration', union.transportUnionRegistrationNo ?? 'N/A'),
+          _buildDetailRow('Address', union.address),
+          _buildDetailRow('Vehicles', '${union.noOfVehiclesRegistered ?? 0}'),
+        ],
+        onEdit: () {},
+        onDelete: () =>
+            controller.removeAssociatedTransportUnion(union.id ?? ''),
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.local_shipping,
+                size: isSmallScreen ? 32 : 40,
+                color: Colors.indigo,
+              ),
+              Text(
+                union.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text(
+                  union.contact,
+                  style: TextStyle(fontSize: 12),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  union.transportUnionRegistrationNo ?? 'N/A',
+                  style: TextStyle(fontSize: 12, color: Colors.indigo),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewTransportUnionCard(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    return InkWell(
+      onTap: () => Get.to(() => TransportUnionFormPage()),
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle,
+              size: isSmallScreen ? 32 : 40,
+              color: Colors.red,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "ADD NEW",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStaffContainer(BuildContext context) {
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Obx(
+                () => GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.staff.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) return _buildAddNewStaffCard(context);
+                    final staffEntry =
+                        controller.staff.entries.elementAt(index - 1);
+                    return _buildStaffCard(staffEntry.key, staffEntry.value);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "My Staff",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStaffCard(String role, Employee employee) {
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
+    return InkWell(
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: employee,
+        title: 'Staff Details',
+        details: [
+          _buildDetailRow('Name', employee.name),
+          _buildDetailRow('Role', role),
+          _buildDetailRow('Phone', employee.phoneNumber ?? 'N/A'),
+          _buildDetailRow('Address', employee.address ?? 'N/A'),
+          _buildDetailRow('Joining Date', employee.joiningDate ?? 'N/A'),
+          _buildDetailRow('Salary', employee.salary ?? 'N/A'),
+        ],
+        onEdit: () {},
+        onDelete: () => controller.removeStaff(role),
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.person,
+                size: isSmallScreen ? 32 : 40,
+                color: Colors.teal,
+              ),
+              Text(
+                employee.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text(
+                  role,
+                  style: TextStyle(fontSize: 12, color: Colors.teal),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  employee.phoneNumber ?? 'N/A',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewStaffCard(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    return InkWell(
+      onTap: () {
+        if (controller.staff.length >= 4) {
+          Get.snackbar(
+            'Maximum Staff Limit',
+            'You can only add up to 4 staff members',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          return;
+        }
+        Get.to(() => EmployeeFormPage());
+      },
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle,
+              size: isSmallScreen ? 32 : 40,
+              color: Colors.red,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "ADD NEW",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,3 +1,5 @@
+import 'package:apple_grower/features/grower/grower_controller.dart';
+import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/globalsWidgets.dart' as glbw;
@@ -50,18 +52,26 @@ class BuyerFormController extends GetxController {
   }
 
   void selectBuyer(FreightForwarder buyer) {
-   final  exists = (glb.roleType.value == "Aadhati")
+    final exists = (glb.roleType.value == "Aadhati")
         ? Get.find<AadhatiController>()
-        .associatedBuyers
-        .any((existingDriver) => existingDriver.id == buyer.id)
+            .associatedBuyers
+            .any((existingDriver) => existingDriver.id == buyer.id)
         : (glb.roleType.value == "Ladani/Buyers")
-        ? Get.find<LadaniBuyersController>()
-        .associatedBuyers
-        .any((existingDriver) => existingDriver.id == buyer.id)
-        :Get.find<TransportUnionController>()
-        .associatedFreightForwarders
-        .any((existingDriver) =>
-    existingDriver.id == buyer.id);
+            ? Get.find<LadaniBuyersController>()
+                .associatedBuyers
+                .any((existingDriver) => existingDriver.id == buyer.id)
+            : (glb.roleType.value == "Transport Union")
+                ? Get.find<TransportUnionController>()
+                    .associatedFreightForwarders
+                    .any((existingDriver) => existingDriver.id == buyer.id)
+                : (glb.roleType.value == "Grower")
+                    ? Get.find<GrowerController>()
+                        .freightForwarders
+                        .any((existingDriver) => existingDriver.id == buyer.id)
+                        : Get.find<PackHouseController>()
+                            .associatedFreightForwarders
+                            .any((existingDriver) =>
+                                existingDriver.id == buyer.id);
 
     if (exists) {
       Get.snackbar(
@@ -74,14 +84,17 @@ class BuyerFormController extends GetxController {
       return;
     }
 
-   (glb.roleType.value == "Aadhati")
-       ? Get.find<AadhatiController>()
-       .addAssociatedBuyer(buyer)
-       : (glb.roleType.value == "Ladani/Buyers")
-       ? Get.find<LadaniBuyersController>()
-       .addAssociatedBuyers(buyer)
-       :Get.find<TransportUnionController>()
-       .addAssociatedBuyers(buyer);
+    (glb.roleType.value == "Aadhati")
+        ? Get.find<AadhatiController>().addAssociatedBuyer(buyer)
+        : (glb.roleType.value == "Ladani/Buyers")
+            ? Get.find<LadaniBuyersController>().addAssociatedBuyers(buyer)
+            : (glb.roleType.value == "Transport Union")
+                ? Get.find<TransportUnionController>()
+                    .addAssociatedBuyers(buyer)
+                : (glb.roleType.value == "Grower")
+                    ? Get.find<GrowerController>().addFreightForwarder(buyer)
+                    : Get.find<PackHouseController>()
+                        .addAssociatedFreightForwarder(buyer);
     Get.back();
   }
 
@@ -102,13 +115,16 @@ class BuyerFormController extends GetxController {
       );
 
       (glb.roleType.value == "Aadhati")
-          ? Get.find<AadhatiController>()
-          .addAssociatedBuyer(buyer)
+          ? Get.find<AadhatiController>().addAssociatedBuyer(buyer)
           : (glb.roleType.value == "Ladani/Buyers")
-          ? Get.find<LadaniBuyersController>()
-          .addAssociatedBuyers(buyer)
-          :Get.find<TransportUnionController>()
-          .addAssociatedBuyers(buyer);
+              ? Get.find<LadaniBuyersController>().addAssociatedBuyers(buyer)
+              : (glb.roleType.value == "Transport Union")
+                  ? Get.find<TransportUnionController>()
+                      .addAssociatedBuyers(buyer)
+                  : (glb.roleType.value == "Grower")
+                      ? Get.find<GrowerController>().addFreightForwarder(buyer)
+                      : Get.find<PackHouseController>()
+                          .addAssociatedFreightForwarder(buyer);
       Get.back();
     } catch (e) {
       Get.snackbar(
@@ -259,15 +275,23 @@ class BuyerFormPage extends StatelessWidget {
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
               final buyer = controller.searchResults[index];
-              final  exists = (glb.roleType.value == "Aadhati")
+              final exists = (glb.roleType.value == "Aadhati")
                   ? Get.find<AadhatiController>()
-                  .associatedBuyers
-                  .any((existingDriver) => existingDriver.id == buyer.id)
+                      .associatedBuyers
+                      .any((existingDriver) => existingDriver.id == buyer.id)
                   : (glb.roleType.value == "Ladani/Buyers")
-                  ? Get.find<LadaniBuyersController>()
-                  .associatedBuyers
+                      ? Get.find<LadaniBuyersController>().associatedBuyers.any(
+                          (existingDriver) => existingDriver.id == buyer.id)
+                      : (glb.roleType.value == "Transport Union")
+                          ? Get.find<TransportUnionController>()
+                              .associatedFreightForwarders
+                              .any((existingDriver) =>
+                                  existingDriver.id == buyer.id)
+                          :  (glb.roleType.value == "Grower")
+                  ? Get.find<GrowerController>()
+                  .freightForwarders
                   .any((existingDriver) => existingDriver.id == buyer.id)
-                  :Get.find<TransportUnionController>()
+                  : Get.find<PackHouseController>()
                   .associatedFreightForwarders
                   .any((existingDriver) =>
               existingDriver.id == buyer.id);

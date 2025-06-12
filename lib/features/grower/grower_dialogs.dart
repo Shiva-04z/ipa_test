@@ -460,8 +460,44 @@ class GrowerDialogs {
                                 .format(orchard.expectedHarvestDate),
                           ),
                           _buildDetailRow(
-                            'Status',
-                            orchard.harvestStatus.toString().split('.').last,
+                            'Crop Stage',
+                            orchard.cropStage
+                                .toString()
+                                .split('.')
+                                .last
+                                .replaceAll(RegExp(r'(?=[A-Z])'), ' ')
+                                .trim(),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Crop Quality',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff548235),
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          _buildQualityMarker(
+                            'Anti Hail Net',
+                            orchard.quality.markers[QualityMarker.antiHailNet]!,
+                          ),
+                          _buildQualityMarker(
+                            'Open Farm',
+                            orchard.quality.markers[QualityMarker.openFarm]!,
+                          ),
+                          _buildQualityMarker(
+                            'Hailing Marks',
+                            orchard
+                                .quality.markers[QualityMarker.hailingMarks]!,
+                          ),
+                          _buildQualityMarker(
+                            'Russetting',
+                            orchard.quality.markers[QualityMarker.russetting]!,
+                          ),
+                          _buildQualityMarker(
+                            'Under Size',
+                            orchard.quality.markers[QualityMarker.underSize]!,
                           ),
                         ],
                       ),
@@ -504,6 +540,54 @@ class GrowerDialogs {
     );
   }
 
+  static Widget _buildQualityMarker(String label, QualityStatus status) {
+    Color color;
+    String text;
+    switch (status) {
+      case QualityStatus.good:
+        color = Colors.green;
+        text = 'Good';
+        break;
+      case QualityStatus.average:
+        color = Colors.blue;
+        text = 'Average';
+        break;
+      case QualityStatus.poor:
+        color = Colors.red;
+        text = 'Poor';
+        break;
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xff548235),
+              ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: color),
+            ),
+            child: Text(
+              text,
+              style: TextStyle(color: color, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   static Future<void> showEditOrchardDialog(
     BuildContext context,
     Orchard orchard,
@@ -517,7 +601,9 @@ class GrowerDialogs {
       text: orchard.estimatedBoxes?.toString() ?? '',
     );
     final harvestDate = orchard.expectedHarvestDate.obs;
-    final harvestStatus = orchard.harvestStatus.obs;
+    final cropStage = orchard.cropStage.obs;
+    final quality =
+        Rx<Map<QualityMarker, QualityStatus>>(orchard.quality.markers);
 
     return showDialog(
       context: context,
@@ -600,24 +686,63 @@ class GrowerDialogs {
                             ),
                             SizedBox(height: 16),
                             Obx(
-                              () => DropdownButtonFormField<HarvestStatus>(
-                                value: harvestStatus.value,
+                              () => DropdownButtonFormField<CropStage>(
+                                value: cropStage.value,
                                 decoration: _getInputDecoration(
-                                  'Harvest Status',
-                                  prefixIcon: Icons.calendar_view_day,
+                                  'Crop Stage',
+                                  prefixIcon: Icons.grass,
                                 ),
-                                items: HarvestStatus.values.map((status) {
-                                  return DropdownMenuItem<HarvestStatus>(
-                                    value: status,
+                                items: CropStage.values.map((stage) {
+                                  return DropdownMenuItem<CropStage>(
+                                    value: stage,
                                     child: Text(
-                                      status.toString().split('.').last,
+                                      stage
+                                          .toString()
+                                          .split('.')
+                                          .last
+                                          .replaceAll(RegExp(r'(?=[A-Z])'), ' ')
+                                          .trim(),
                                       style: TextStyle(fontSize: 14),
                                     ),
                                   );
                                 }).toList(),
-                                onChanged: (value) =>
-                                    harvestStatus.value = value!,
+                                onChanged: (value) => cropStage.value = value!,
                               ),
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Crop Quality',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xff548235),
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            _buildQualitySelector(
+                              'Anti Hail Net',
+                              QualityMarker.antiHailNet,
+                              quality,
+                            ),
+                            _buildQualitySelector(
+                              'Open Farm',
+                              QualityMarker.openFarm,
+                              quality,
+                            ),
+                            _buildQualitySelector(
+                              'Hailing Marks',
+                              QualityMarker.hailingMarks,
+                              quality,
+                            ),
+                            _buildQualitySelector(
+                              'Russetting',
+                              QualityMarker.russetting,
+                              quality,
+                            ),
+                            _buildQualitySelector(
+                              'Under Size',
+                              QualityMarker.underSize,
+                              quality,
                             ),
                             SizedBox(height: 16),
                             Obx(
@@ -700,7 +825,9 @@ class GrowerDialogs {
                                   numberOfFruitingTrees:
                                       int.parse(treesController.text),
                                   expectedHarvestDate: harvestDate.value,
-                                  harvestStatus: harvestStatus.value,
+                                  cropStage: cropStage.value,
+                                  quality:
+                                      OrchardQuality(markers: quality.value),
                                   estimatedBoxes:
                                       int.parse(boxesController.text),
                                   updatedAt: DateTime.now(),
@@ -743,6 +870,76 @@ class GrowerDialogs {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  static Widget _buildQualitySelector(
+    String label,
+    QualityMarker marker,
+    Rx<Map<QualityMarker, QualityStatus>> quality,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xff548235),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Obx(
+              () => DropdownButtonFormField<QualityStatus>(
+                value: quality.value[marker],
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.9),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
+                items: QualityStatus.values.map((status) {
+                  Color color;
+                  switch (status) {
+                    case QualityStatus.good:
+                      color = Colors.green;
+                      break;
+                    case QualityStatus.average:
+                      color = Colors.blue;
+                      break;
+                    case QualityStatus.poor:
+                      color = Colors.red;
+                      break;
+                  }
+                  return DropdownMenuItem<QualityStatus>(
+                    value: status,
+                    child: Text(
+                      status.toString().split('.').last,
+                      style: TextStyle(color: color),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    final newQuality =
+                        Map<QualityMarker, QualityStatus>.from(quality.value);
+                    newQuality[marker] = value;
+                    quality.value = newQuality;
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

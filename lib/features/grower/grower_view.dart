@@ -1,3 +1,4 @@
+import 'package:apple_grower/features/forms/buyer_form_page.dart';
 import 'package:apple_grower/features/forms/driver_form_page.dart';
 import 'package:apple_grower/features/grower/grower_controller.dart';
 import 'package:apple_grower/models/ladani_model.dart';
@@ -8,15 +9,17 @@ import 'package:intl/intl.dart';
 import '../../models/aadhati.dart';
 import '../../models/pack_house_model.dart';
 import '../../models/driving_profile_model.dart';
+import '../../models/transport_model.dart';
+import '../../models/freightForwarder.dart';
 import '../forms/commission_agent_form_page.dart';
 import '../forms/consignment_form_page.dart';
-import '../forms/corporate_company_form_page.dart';
 import '../forms/orchard_form_page.dart';
 import '../forms/packing_house_form_page.dart';
 import '../driver/driver_form_page.dart';
 import 'grower_dialogs.dart';
 import '../../models/orchard_model.dart';
 import '../../models/consignment_model.dart';
+import '../forms/transport_union_form_page.dart';
 
 class GrowerView extends GetView<GrowerController> {
   final RxString selectedSection = 'Orchards'.obs;
@@ -46,12 +49,14 @@ class GrowerView extends GetView<GrowerController> {
                     _buildConsignmentsContainer(context),
                   if (selectedSection.value == 'Commission Agents')
                     _buildCommissionAgentsContainer(context),
-                  if (selectedSection.value == "Ladani's")
-                    _buildCorporateCompaniesContainer(context),
+                  if (selectedSection.value == 'Freight Forwarders')
+                    _buildFreightForwardersContainer(context),
                   if (selectedSection.value == 'Packing Houses')
                     _buildPackingHouseContainer(context),
                   if (selectedSection.value == 'Drivers')
                     _buildDriversContainer(context),
+                  if (selectedSection.value == 'Transport Union')
+                    _buildTransportUnionContainer(context),
                   if (selectedSection.value == 'Gallery')
                     _buildGalleryContainer(context),
                 ],
@@ -66,11 +71,12 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildSectionSelector() {
     final sections = [
       'Orchards',
-      'Consignments',
-      'Commission Agents',
-      "Ladani's",
       'Packing Houses',
+      'Commission Agents',
+      'Freight Forwarders',
       'Drivers',
+      'Transport Union',
+      'Consignments',
       'Gallery',
     ];
 
@@ -175,6 +181,30 @@ class GrowerView extends GetView<GrowerController> {
 
   Widget _buildOrchardCard(BuildContext context, Orchard orchard) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
+    Color iconColor;
+    switch (orchard.cropStage) {
+      case CropStage.walnutSize:
+        iconColor = Colors.blue;
+        break;
+      case CropStage.fruitDevelopment:
+        iconColor = Colors.lightBlue;
+        break;
+      case CropStage.colourInitiation:
+        iconColor = Colors.orange;
+        break;
+      case CropStage.fiftyPercentColour:
+        iconColor = Colors.deepOrange;
+        break;
+      case CropStage.eightyPercentColour:
+        iconColor = Colors.red;
+        break;
+      case CropStage.harvest:
+        iconColor = Colors.green;
+        break;
+      case CropStage.packing:
+        iconColor = Colors.teal;
+        break;
+    }
     return InkWell(
       onTap: () => GrowerDialogs.showOrchardDetailsDialog(context, orchard),
       child: Card(
@@ -187,7 +217,7 @@ class GrowerView extends GetView<GrowerController> {
               ImageIcon(
                 AssetImage("assets/images/orchard.png"),
                 size: isSmallScreen ? 32 : 40,
-                color: Colors.green,
+                color: iconColor,
               ),
               Text(
                 orchard.name,
@@ -210,10 +240,10 @@ class GrowerView extends GetView<GrowerController> {
                   DateFormat(
                     'MMM dd, yyyy',
                   ).format(orchard.expectedHarvestDate),
-                  style: TextStyle(fontSize: 12, color: Colors.green),
+                  style: TextStyle(fontSize: 12, color: iconColor),
                 ),
                 SizedBox(height: 4),
-                _buildHarvestStatusChip(orchard.harvestStatus),
+                _buildHarvestStatusChip(orchard.cropStage),
               ],
             ],
           ),
@@ -244,25 +274,37 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  Widget _buildHarvestStatusChip(HarvestStatus status) {
+  Widget _buildHarvestStatusChip(CropStage stage) {
     Color color;
     String text;
-    switch (status) {
-      case HarvestStatus.planned:
+    switch (stage) {
+      case CropStage.walnutSize:
         color = Colors.blue;
-        text = 'Planned';
+        text = 'Walnut Size';
         break;
-      case HarvestStatus.inProgress:
+      case CropStage.fruitDevelopment:
+        color = Colors.lightBlue;
+        text = 'Fruit Development';
+        break;
+      case CropStage.colourInitiation:
         color = Colors.orange;
-        text = 'In Progress';
+        text = 'Colour Initiation';
         break;
-      case HarvestStatus.completed:
-        color = Colors.green;
-        text = 'Completed';
+      case CropStage.fiftyPercentColour:
+        color = Colors.deepOrange;
+        text = '50% Colour';
         break;
-      case HarvestStatus.delayed:
+      case CropStage.eightyPercentColour:
         color = Colors.red;
-        text = 'Delayed';
+        text = '80% Colour';
+        break;
+      case CropStage.harvest:
+        color = Colors.green;
+        text = 'Harvest';
+        break;
+      case CropStage.packing:
+        color = Colors.teal;
+        text = 'Packing';
         break;
     }
     return Container(
@@ -367,7 +409,7 @@ class GrowerView extends GetView<GrowerController> {
               ),
               _buildDataCell(orchard.numberOfFruitingTrees.toString()),
               _buildDataCell(orchard.estimatedBoxes?.toString() ?? 'N/A'),
-              _buildDataCell(_getHarvestStatusText(orchard.harvestStatus)),
+              _buildDataCell(_getHarvestStatusText(orchard.cropStage)),
             ],
           );
         }).toList(),
@@ -389,16 +431,22 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  String _getHarvestStatusText(HarvestStatus status) {
-    switch (status) {
-      case HarvestStatus.planned:
-        return 'Planned';
-      case HarvestStatus.inProgress:
-        return 'In Progress';
-      case HarvestStatus.completed:
-        return 'Completed';
-      case HarvestStatus.delayed:
-        return 'Delayed';
+  String _getHarvestStatusText(CropStage stage) {
+    switch (stage) {
+      case CropStage.walnutSize:
+        return 'Walnut Size';
+      case CropStage.fruitDevelopment:
+        return 'Fruit Development';
+      case CropStage.colourInitiation:
+        return 'Colour Initiation';
+      case CropStage.fiftyPercentColour:
+        return '50% Colour';
+      case CropStage.eightyPercentColour:
+        return '80% Colour';
+      case CropStage.harvest:
+        return 'Harvest';
+      case CropStage.packing:
+        return 'Packing';
     }
   }
 
@@ -693,7 +741,7 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  Widget _buildCorporateCompaniesContainer(BuildContext context) {
+  Widget _buildFreightForwardersContainer(BuildContext context) {
     return Stack(
       children: [
         Card(
@@ -719,11 +767,12 @@ class GrowerView extends GetView<GrowerController> {
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
                   ),
-                  itemCount: controller.corporateCompanies.length + 1,
+                  itemCount: controller.freightForwarders.length + 1,
                   itemBuilder: (context, index) {
-                    if (index == 0) return _buildAddNewCompanyCard(context);
-                    return _buildCompanyCard(
-                      controller.corporateCompanies[index - 1],
+                    if (index == 0)
+                      return _buildAddNewFreightForwarderCard(context);
+                    return _buildFreightForwarderCard(
+                      controller.freightForwarders[index - 1],
                     );
                   },
                 ),
@@ -740,7 +789,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Ladani's",
+            "Freight Forwarders",
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -753,21 +802,27 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  Widget _buildCompanyCard(Ladani company) {
+  Widget _buildFreightForwarderCard(FreightForwarder forwarder) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
     return InkWell(
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
-        item: company,
-        title: 'Ladani Details',
+        item: forwarder,
+        title: 'Freight Forwarder Details',
         details: [
-          _buildDetailRow('Name', '${company.nameOfTradingFirm}'),
-          _buildDetailRow('Phone', '${company.contact}'),
-          _buildDetailRow('Type', '${company.firmType}'),
-          _buildDetailRow('Address', '${company.address}'),
+          _buildDetailRow('Name', forwarder.name),
+          _buildDetailRow('Contact', forwarder.contact),
+          _buildDetailRow('License No', forwarder.licenseNo ?? 'N/A'),
+          _buildDetailRow('Address', forwarder.address),
+          _buildDetailRow(
+              'Forwarding Since', '${forwarder.forwardingSinceYears} years'),
+          _buildDetailRow(
+              'Boxes Forwarded 2023', '${forwarder.appleBoxesForwarded2023}'),
+          _buildDetailRow(
+              'Boxes Forwarded 2024', '${forwarder.appleBoxesForwarded2024}'),
         ],
-        onEdit: () {}, // Empty callback since we don't want edit functionality
-        onDelete: () => controller.removeCorporateCompany('${company.id}'),
+        onEdit: () {},
+        onDelete: () => controller.removeFreightForwarder(forwarder.id),
       ),
       child: Card(
         elevation: 0,
@@ -776,12 +831,14 @@ class GrowerView extends GetView<GrowerController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image(
-                image: AssetImage("assets/images/company.png"),
-                height: isSmallScreen ? 32 : 40,
+              Icon(
+                Icons.local_shipping,
+                size: isSmallScreen ? 32 : 40,
+                color: Colors.purple,
               ),
+              SizedBox(height: 8),
               Text(
-                '${company.name}',
+                forwarder.name,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -792,10 +849,13 @@ class GrowerView extends GetView<GrowerController> {
               ),
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
-                Text('${company.firmType}', style: TextStyle(fontSize: 12)),
+                Text(
+                  forwarder.contact,
+                  style: TextStyle(fontSize: 12),
+                ),
                 SizedBox(height: 4),
                 Text(
-                  '${company.contact}',
+                  'License: ${forwarder.licenseNo ?? 'N/A'}',
                   style: TextStyle(fontSize: 12, color: Colors.purple),
                 ),
               ],
@@ -806,12 +866,10 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  Widget _buildAddNewCompanyCard(BuildContext context) {
+  Widget _buildAddNewFreightForwarderCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
-      onTap: () {
-        Get.to(() => CorporateCompanyFormPage());
-      },
+      onTap: () => Get.to(() => BuyerFormPage()),
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -1132,16 +1190,15 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildSummarySection() {
-    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 840;
+    bool isSmallScreen = MediaQuery.of(Get.context!).size.width > 840;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Obx(() => GridView.count(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            crossAxisCount:
-              isSmallScreen ? 6 : 3,
+            crossAxisCount: isSmallScreen ? 7 : 3,
             crossAxisSpacing: 8,
-            mainAxisSpacing:  8,
+            mainAxisSpacing: 8,
             children: [
               _buildSummaryCard(
                 'Orchards',
@@ -1162,10 +1219,10 @@ class GrowerView extends GetView<GrowerController> {
                 Icons.people,
               ),
               _buildSummaryCard(
-                "Ladani's",
-                controller.corporateCompanies.length.toString(),
+                'Freight Forwarders',
+                controller.freightForwarders.length.toString(),
                 Colors.purple,
-                Icons.business,
+                Icons.local_shipping,
               ),
               _buildSummaryCard(
                 'Packing Houses',
@@ -1179,6 +1236,12 @@ class GrowerView extends GetView<GrowerController> {
                 Colors.teal,
                 Icons.drive_eta,
               ),
+              _buildSummaryCard(
+                'Transport Union',
+                controller.transportUnions.length.toString(),
+                Colors.indigo,
+                Icons.local_shipping,
+              ),
             ],
           )),
     );
@@ -1186,11 +1249,12 @@ class GrowerView extends GetView<GrowerController> {
 
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
-    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 840;
+    bool isSmallScreen = MediaQuery.of(Get.context!).size.width > 840;
     return Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -1218,7 +1282,7 @@ class GrowerView extends GetView<GrowerController> {
                 count,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: isSmallScreen? 24 : 14,
+                  fontSize: isSmallScreen ? 24 : 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1372,6 +1436,154 @@ class GrowerView extends GetView<GrowerController> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTransportUnionContainer(BuildContext context) {
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Obx(
+                () => GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.transportUnions.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0)
+                      return _buildAddNewTransportUnionCard(context);
+                    return _buildTransportUnionCard(
+                        controller.transportUnions[index - 1]);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "Transport Union",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTransportUnionCard(Transport union) {
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
+    return InkWell(
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: union,
+        title: 'Transport Union Details',
+        details: [
+          _buildDetailRow('Name', '${union.name}'),
+          _buildDetailRow('Contact', '${union.contact}'),
+          _buildDetailRow(
+              'Registeration No.', '${union.transportUnionRegistrationNo}'),
+          _buildDetailRow('Address', '${union.address}'),
+        ],
+        onEdit: () {},
+        onDelete: () => controller.removeTransportUnion('${union.id}'),
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.local_shipping,
+                size: isSmallScreen ? 32 : 40,
+                color: Colors.indigo,
+              ),
+              SizedBox(height: 8),
+              Text(
+                '${union.name}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text(
+                  '${union.contact}',
+                  style: TextStyle(fontSize: 12),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  '${union.transportUnionRegistrationNo}',
+                  style: TextStyle(fontSize: 12, color: Colors.indigo),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewTransportUnionCard(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    return InkWell(
+      onTap: () => Get.to(() => TransportUnionFormPage()),
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle,
+              size: isSmallScreen ? 32 : 40,
+              color: Colors.red,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "ADD NEW",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
         ),
       ),
     );

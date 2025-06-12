@@ -26,7 +26,7 @@ class OrchardFormController extends GetxController {
   final boxesController = TextEditingController();
 
   final expectedHarvestDate = Rxn<DateTime>();
-  final harvestStatus = HarvestStatus.planned.obs;
+  final cropStage = CropStage.walnutSize.obs;
   final isLoading = false.obs;
   final boundaryPoints = <GPSPoint>[].obs;
   final boundaryImagePath = Rxn<String>();
@@ -429,10 +429,8 @@ class OrchardFormController extends GetxController {
         numberOfFruitingTrees: int.parse(treesController.text),
         expectedHarvestDate: expectedHarvestDate.value!,
         area: double.parse(areaController.text),
-        harvestStatus: harvestStatus.value,
-        harvestDelayReason: harvestStatus.value == HarvestStatus.delayed
-            ? delayReasonController.text
-            : null,
+        cropStage: cropStage.value,
+        harvestDelayReason: null,
         estimatedBoxes: boxesController.text.isNotEmpty
             ? int.parse(boxesController.text)
             : null,
@@ -1066,7 +1064,7 @@ class OrchardFormPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Harvest Details',
+              'Crop Stage',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -1074,25 +1072,27 @@ class OrchardFormPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Obx(() => RadioListTile<HarvestStatus>(
-                  title: const Text('Planned'),
-                  value: HarvestStatus.planned,
-                  groupValue: controller.harvestStatus.value,
-                  onChanged: (value) {
-                    controller.harvestStatus.value = value!;
-                    controller.delayReasonController.clear();
-                  },
-                  activeColor: const Color(0xff548235),
-                )),
-            Obx(() => RadioListTile<HarvestStatus>(
-                  title: const Text('Completed'),
-                  value: HarvestStatus.completed,
-                  groupValue: controller.harvestStatus.value,
-                  onChanged: (value) {
-                    controller.harvestStatus.value = value!;
-                    controller.delayReasonController.clear();
-                  },
-                  activeColor: const Color(0xff548235),
+            Obx(() => DropdownButtonFormField<CropStage>(
+                  value: controller.cropStage.value,
+                  decoration: _getInputDecoration(
+                    'Select Crop Stage',
+                    prefixIcon: Icons.grass,
+                  ),
+                  items: CropStage.values.map((stage) {
+                    return DropdownMenuItem<CropStage>(
+                      value: stage,
+                      child: Text(
+                        stage
+                            .toString()
+                            .split('.')
+                            .last
+                            .replaceAll(RegExp(r'(?=[A-Z])'), ' ')
+                            .trim(),
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) => controller.cropStage.value = value!,
                 )),
             const SizedBox(height: 16),
             TextFormField(

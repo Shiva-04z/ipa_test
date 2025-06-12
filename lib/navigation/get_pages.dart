@@ -92,9 +92,9 @@ List<GetPage> getPages = [
     transitionDuration: Duration(microseconds: 300),
   ),
   GetPage(
-    name: RoutesConstant.ampcOffice,
-    page: () => AmpcOfficeView(),
-    binding: AmpcOfficeBinding(),
+    name: RoutesConstant.apmcOffice,
+    page: () => ApmcOfficeView(),
+    binding: ApmcOfficeBinding(),
     transition: Transition.fadeIn,
     transitionDuration: Duration(microseconds: 300),
   ),

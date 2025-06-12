@@ -1,3 +1,4 @@
+import 'package:apple_grower/models/employee_model.dart';
 import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:get/get.dart';
 import '../models/aadhati.dart';
@@ -9,7 +10,6 @@ import '../models/grower_model.dart';
 import '../models/ladani_model.dart';
 import '../models/orchard_model.dart';
 import '../models/pack_house_model.dart';
-import '../models/packer_model.dart';
 import '../models/post_model.dart';
 import '../models/transport_model.dart';
 import 'dictionary.dart';
@@ -291,7 +291,7 @@ RxList<Orchard> availableOrchards = [
     ],
     area: 5.2,
     boundaryImagePath: 'assets/orchards/main_orchard.png',
-    harvestStatus: HarvestStatus.planned,
+    cropStage: CropStage.colourInitiation,
     estimatedBoxes: 2000,
     createdAt: DateTime.now().subtract(Duration(days: 30)),
     updatedAt: DateTime.now(),
@@ -310,7 +310,7 @@ RxList<Orchard> availableOrchards = [
     ],
     area: 3.8,
     boundaryImagePath: 'assets/orchards/north_field.png',
-    harvestStatus: HarvestStatus.planned,
+    cropStage: CropStage.colourInitiation,
     estimatedBoxes: 1200,
     createdAt: DateTime.now().subtract(Duration(days: 20)),
     updatedAt: DateTime.now(),
@@ -360,13 +360,13 @@ RxList<PackHouse> availablePackHouses = [
   ),
 ].obs;
 
-RxList<Packer> availablePackers = [
-  Packer(
+RxList<Employee> availablePackers = [
+ Employee(
     id: 'PACKER001',
     name: 'Himalayan Packers',
     phoneNumber: '9876543213',
   ),
-  Packer(
+  Employee(
     id: 'PACKER002',
     name: 'Kullu Packers',
     phoneNumber: '9876543214',

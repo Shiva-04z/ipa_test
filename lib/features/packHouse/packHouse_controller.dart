@@ -1,9 +1,9 @@
+import 'package:apple_grower/models/employee_model.dart';
 import 'package:get/get.dart';
 import '../../models/pack_house_model.dart';
 import '../../models/grower_model.dart';
 import '../../models/aadhati.dart';
 import '../../models/ladani_model.dart';
-import '../../models/packer_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/consignment_model.dart';
 import '../../core/global_role_loader.dart' as gld;
@@ -14,8 +14,10 @@ class PackHouseController extends GetxController {
   final RxList<Grower> associatedGrowers = <Grower>[].obs;
   final RxList<Aadhati> associatedAadhatis = <Aadhati>[].obs;
   final RxList<Ladani> associatedLadanis = <Ladani>[].obs;
-  final RxList<Packer> associatedPackers = <Packer>[].obs;
+  final RxList<Employee> associatedPackers = <Employee>[].obs;
   final RxList<DrivingProfile> associatedDrivers = <DrivingProfile>[].obs;
+  final RxList<dynamic> associatedFreightForwarders = <dynamic>[].obs;
+  final RxList<dynamic> associatedTransportUnions = <dynamic>[].obs;
   final RxList<Consignment> consignments = <Consignment>[].obs;
   final RxList<String> galleryImages = <String>[].obs;
   String name = gld.packHouse.value.name;
@@ -49,6 +51,14 @@ class PackHouseController extends GetxController {
     associatedDrivers.removeWhere((driver) => driver.id == id);
   }
 
+  void removeAssociatedFreightForwarder(String id) {
+    associatedFreightForwarders.removeWhere((ff) => ff.id == id);
+  }
+
+  void removeAssociatedTransportUnion(String id) {
+    associatedTransportUnions.removeWhere((tu) => tu.id == id);
+  }
+
   // Methods to add associated entities
   void addAssociatedGrower(Grower grower) {
     if (!associatedGrowers.any((g) => g.id == grower.id)) {
@@ -68,7 +78,7 @@ class PackHouseController extends GetxController {
     }
   }
 
-  void addAssociatedPacker(Packer packer) {
+  void addAssociatedPacker(Employee packer) {
     if (!associatedPackers.any((p) => p.id == packer.id)) {
       associatedPackers.add(packer);
     }
@@ -77,6 +87,19 @@ class PackHouseController extends GetxController {
   void addAssociatedDriver(DrivingProfile driver) {
     if (!associatedDrivers.any((d) => d.id == driver.id)) {
       associatedDrivers.add(driver);
+    }
+  }
+
+  void addAssociatedFreightForwarder(dynamic freightForwarder) {
+    if (!associatedFreightForwarders
+        .any((ff) => ff.id == freightForwarder.id)) {
+      associatedFreightForwarders.add(freightForwarder);
+    }
+  }
+
+  void addAssociatedTransportUnion(dynamic transportUnion) {
+    if (!associatedTransportUnions.any((tu) => tu.id == transportUnion.id)) {
+      associatedTransportUnions.add(transportUnion);
     }
   }
 

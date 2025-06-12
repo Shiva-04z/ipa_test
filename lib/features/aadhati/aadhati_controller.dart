@@ -1,10 +1,13 @@
 import 'package:apple_grower/models/freightForwarder.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../models/grower_model.dart';
 import '../../models/ladani_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/consignment_model.dart';
+import '../../models/transport_model.dart';
+import '../../models/employee_model.dart';
 
 class AadhatiController extends GetxController {
   final details = <String, String>{}.obs;
@@ -14,6 +17,12 @@ class AadhatiController extends GetxController {
   final associatedDrivers = <DrivingProfile>[].obs;
   final consignments = <Consignment>[].obs;
   final galleryImages = <String>[].obs;
+
+  // Transport Unions
+  final RxList<Transport> associatedTransportUnions = <Transport>[].obs;
+
+  // Staff Management
+  final RxMap<String, Employee> staff = <String, Employee>{}.obs;
 
   @override
   void onInit() {
@@ -93,5 +102,31 @@ class AadhatiController extends GetxController {
 
   void removeGalleryImage(String imageUrl) {
     galleryImages.remove(imageUrl);
+  }
+
+  void addAssociatedTransportUnion(Transport union) {
+    associatedTransportUnions.add(union);
+  }
+
+  void removeAssociatedTransportUnion(String id) {
+    associatedTransportUnions.removeWhere((union) => union.id == id);
+  }
+
+  void addStaff(String role, Employee employee) {
+    if (staff.length >= 4) {
+      Get.snackbar(
+        'Maximum Staff Limit',
+        'You can only add up to 4 staff members',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+    staff[role] = employee;
+  }
+
+  void removeStaff(String role) {
+    staff.remove(role);
   }
 }

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../models/aadhati.dart';
 import '../../models/ladani_model.dart';
 
-class AmpcOfficeController extends GetxController {
+class ApmcOfficeController extends GetxController {
   // Filter state
   final RxString selectedFilter = 'Office Info'.obs;
 

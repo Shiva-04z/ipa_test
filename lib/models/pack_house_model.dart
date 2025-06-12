@@ -1,7 +1,7 @@
 import 'aadhati.dart';
 import 'driving_profile_model.dart';
 import 'grower_model.dart';
-import 'packer_model.dart';
+import 'employee_model.dart';
 
 enum TrayType {
   singleSide,
@@ -29,7 +29,7 @@ class PackHouse {
   final int? numberOfGrowersServed;
   final List<Grower> associatedGrowers;
   final List<Aadhati> associatedCommissionAgents;
-  final List<Packer> associatedPackers;
+  final List<Employee> associatedPackers;
   final List<DrivingProfile> associatedPickers;
 
   PackHouse({
@@ -90,7 +90,7 @@ class PackHouse {
                   .toList() ??
               [],
       associatedPackers: (json['associatedPackers'] as List<dynamic>?)
-              ?.map((e) => Packer.fromJson(e as Map<String, dynamic>))
+              ?.map((e) => Employee.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       associatedPickers: (json['associatedPickers'] as List<dynamic>?)
@@ -149,7 +149,7 @@ class PackHouse {
     int? numberOfGrowersServed,
     List<Grower>? associatedGrowers,
     List<Aadhati>? associatedCommissionAgents,
-    List<Packer>? associatedPackers,
+    List<Employee>? associatedPackers,
     List<DrivingProfile>? associatedPickers,
   }) {
     return PackHouse(
