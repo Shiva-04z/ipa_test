@@ -1,5 +1,8 @@
+import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
+import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../core/globals.dart' as glb;
 import '../../models/employee_model.dart';
 import '../../core/globalsWidgets.dart' as glbw;
 
@@ -7,17 +10,6 @@ class EmployeeFormPage extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _joiningDateController = TextEditingController();
-  final _salaryController = TextEditingController();
-  final RxString _selectedRole = ''.obs;
-
-  final List<String> _availableRoles = [
-    'Assistant Aadhati',
-    'Auction Recorder',
-    'MUNSHI',
-    'Loader'
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -40,15 +32,11 @@ class EmployeeFormPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 24),
-                _buildRoleSelection(),
-                SizedBox(height: 24),
                 _buildBasicDetailsSection(),
-                SizedBox(height: 24),
-                _buildAdditionalDetailsSection(),
                 SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _submitForm,
-                  child: Text('Save'),
+                  child: Text('Save', style: TextStyle(color: Colors.white),),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xff548235),
                     padding: EdgeInsets.symmetric(vertical: 16),
@@ -57,53 +45,6 @@ class EmployeeFormPage extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRoleSelection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Select Role',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            SizedBox(height: 16),
-            Obx(() => DropdownButtonFormField<String>(
-                  value:
-                      _selectedRole.value.isEmpty ? null : _selectedRole.value,
-                  decoration: InputDecoration(
-                    labelText: 'Role',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: _availableRoles.map((String role) {
-                    return DropdownMenuItem<String>(
-                      value: role,
-                      child: Text(role),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      _selectedRole.value = newValue;
-                    }
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a role';
-                    }
-                    return null;
-                  },
-                )),
-          ],
         ),
       ),
     );
@@ -139,104 +80,36 @@ class EmployeeFormPage extends StatelessWidget {
               },
             ),
             SizedBox(height: 16),
-            TextFormField(
-              controller: _phoneController,
-              decoration: InputDecoration(
-                labelText: 'Phone Number',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter the phone number';
-                }
-                if (value.length != 10) {
-                  return 'Phone number must be 10 digits';
-                }
-                return null;
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAdditionalDetailsSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Additional Details',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextFormField(
-              controller: _addressController,
-              decoration: InputDecoration(
-                labelText: 'Address',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter the address';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 16),
-            TextFormField(
-              controller: _joiningDateController,
-              decoration: InputDecoration(
-                labelText: 'Joining Date',
-                border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () async {
-                    final DateTime? picked = await showDatePicker(
-                      context: Get.context!,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime.now(),
-                    );
-                    if (picked != null) {
-                      _joiningDateController.text =
-                          '${picked.day}/${picked.month}/${picked.year}';
-                    }
-                  },
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _phoneController,
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter the phone number';
+                      }
+                      if (value.length != 10) {
+                        return 'Phone number must be 10 digits';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-              ),
-              readOnly: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please select joining date';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 16),
-            TextFormField(
-              controller: _salaryController,
-              decoration: InputDecoration(
-                labelText: 'Salary',
-                border: OutlineInputBorder(),
-                prefixText: '₹ ',
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter the salary';
-                }
-                return null;
-              },
+                SizedBox(width: 8),
+                IconButton(
+                  onPressed: () async {
+                   _submitForm();
+                  },
+                  icon: Icon(Icons.contacts),
+                  color: Color(0xff548235),
+                ),
+              ],
             ),
           ],
         ),
@@ -250,12 +123,12 @@ class EmployeeFormPage extends StatelessWidget {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text,
         phoneNumber: _phoneController.text,
-        address: _addressController.text,
-        joiningDate: _joiningDateController.text,
-        salary: _salaryController.text,
       );
 
-      // TODO: Add the employee to the controller with the selected role
+      (glb.roleType.value=="PackHouse")?
+          Get.find<PackHouseController>().addAssociatedPacker(employee):
+      Get.find<AadhatiController>().addStaff(employee);
+
       Get.back();
     }
   }

@@ -24,6 +24,7 @@ class AadhatiController extends GetxController {
   // Staff Management
   final RxMap<String, Employee> staff = <String, Employee>{}.obs;
 
+    RxString key= "".obs;
   @override
   void onInit() {
     super.onInit();
@@ -32,6 +33,15 @@ class AadhatiController extends GetxController {
     details['APMC'] = 'Sample APMC';
     details['Address'] = 'Sample Address';
   }
+
+
+
+  void addStaff(Employee employee)
+  {
+    staff.assign(key.value, employee);
+    print(key.value + employee.name + employee.phoneNumber!);
+  }
+
 
   void addAssociatedGrower(Grower grower) {
     if (!associatedGrowers.any((g) => g.id == grower.id)) {
@@ -112,19 +122,6 @@ class AadhatiController extends GetxController {
     associatedTransportUnions.removeWhere((union) => union.id == id);
   }
 
-  void addStaff(String role, Employee employee) {
-    if (staff.length >= 4) {
-      Get.snackbar(
-        'Maximum Staff Limit',
-        'You can only add up to 4 staff members',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-    staff[role] = employee;
-  }
 
   void removeStaff(String role) {
     staff.remove(role);

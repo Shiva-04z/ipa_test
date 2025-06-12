@@ -14,7 +14,6 @@ import '../models/post_model.dart';
 import '../models/transport_model.dart';
 import 'dictionary.dart';
 
-
 RxString roleType = "Grower".obs;
 RxString personName = "Ram Singh".obs;
 RxString personPhone = "+91 123567890".obs;
@@ -361,7 +360,7 @@ RxList<PackHouse> availablePackHouses = [
 ].obs;
 
 RxList<Employee> availablePackers = [
- Employee(
+  Employee(
     id: 'PACKER001',
     name: 'Himalayan Packers',
     phoneNumber: '9876543213',
@@ -396,7 +395,7 @@ RxList<Post> availablePosts = [
 
 RxList<Transport> availableTransports = [
   Transport(
-    id:"TRS10",
+    id: "TRS10",
     nameOfTheTransportUnion: 'Himachal Transport Union',
     transportUnionRegistrationNo: 'TU123456',
     noOfVehiclesRegistered: 50,
@@ -408,10 +407,13 @@ RxList<Transport> availableTransports = [
     appleBoxesTransported2023: 50000,
     appleBoxesTransported2024: 60000,
     estimatedTarget2025: 75000.0,
-    statesDrivenThrough: 'HP, HR, DL, MH', name: 'Transport Union A', contact: '878676756', address: 'Himachal',
+    statesDrivenThrough: 'HP, HR, DL, MH',
+    name: 'Transport Union A',
+    contact: '878676756',
+    address: 'Himachal',
   ),
   Transport(
-    id:"TRS20",
+    id: "TRS20",
     nameOfTheTransportUnion: 'Kullu Transport Union',
     transportUnionRegistrationNo: 'TU789012',
     noOfVehiclesRegistered: 30,
@@ -424,11 +426,11 @@ RxList<Transport> availableTransports = [
     appleBoxesTransported2024: 35000,
     estimatedTarget2025: 45000.0,
     statesDrivenThrough: 'HP, HR, DL',
-    name: 'Transport Union B', contact: '8786767567', address: 'Himachal',
+    name: 'Transport Union B',
+    contact: '8786767567',
+    address: 'Himachal',
   ),
 ].obs;
-
-
 
 // Dummy data for the consignment quality/category table
 final List<Map<String, dynamic>> consignmentTableData = [
@@ -559,9 +561,6 @@ final List<Map<String, dynamic>> consignmentTableData = [
     'piecesInBox': 175,
   },
 ].obs;
-
-
-
 
 String getTranslatedText(String englishText) {
   String selectedLang = isHindiLanguage.value ? "hi" : "en";

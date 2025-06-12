@@ -1378,6 +1378,13 @@ class AadhatiView extends GetView<AadhatiController> {
   }
 
   Widget _buildStaffContainer(BuildContext context) {
+    final List<String> requiredRoles = [
+      'Assistant Aadhati',
+      'MUNSHI',
+      'Auction Recorder',
+      'Loader'
+    ];
+
     return Stack(
       children: [
         Card(
@@ -1403,12 +1410,15 @@ class AadhatiView extends GetView<AadhatiController> {
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
                   ),
-                  itemCount: controller.staff.length + 1,
+                  itemCount: requiredRoles.length,
                   itemBuilder: (context, index) {
-                    if (index == 0) return _buildAddNewStaffCard(context);
-                    final staffEntry =
-                        controller.staff.entries.elementAt(index - 1);
-                    return _buildStaffCard(staffEntry.key, staffEntry.value);
+                    final role = requiredRoles[index];
+                    return Obx(() {
+                      final employee = controller.staff[role];
+                      return employee != null
+                          ? _buildStaffCard(role, employee)
+                          : _buildEmptyStaffCard(context, role);
+                    });
                   },
                 ),
               ),
@@ -1434,6 +1444,51 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildEmptyStaffCard(BuildContext context, String role) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    return InkWell(
+      onTap: () {
+        controller.key.value = role;
+        Get.to(() => EmployeeFormPage());
+      },
+      child: Card(
+        elevation: 0,
+        color: Colors.grey[100],
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.person_add,
+                size: isSmallScreen ? 32 : 40,
+                color: Colors.grey[400],
+              ),
+              SizedBox(height: 8),
+              Text(
+                role,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text(
+                  'Click to add',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -1491,47 +1546,6 @@ class AadhatiView extends GetView<AadhatiController> {
               ],
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAddNewStaffCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
-    return InkWell(
-      onTap: () {
-        if (controller.staff.length >= 4) {
-          Get.snackbar(
-            'Maximum Staff Limit',
-            'You can only add up to 4 staff members',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-          return;
-        }
-        Get.to(() => EmployeeFormPage());
-      },
-      child: Card(
-        color: Colors.white,
-        elevation: 0,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.add_circle,
-              size: isSmallScreen ? 32 : 40,
-              color: Colors.red,
-            ),
-            SizedBox(height: 8),
-            Text(
-              "ADD NEW",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: isSmallScreen ? 12 : 14,
-              ),
-            ),
-          ],
         ),
       ),
     );
