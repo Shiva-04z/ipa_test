@@ -1,6 +1,7 @@
 import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
 import 'package:apple_grower/features/freightForwarder/freightForwarder_controller.dart';
 import 'package:apple_grower/features/grower/grower_controller.dart';
+import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
 import 'package:apple_grower/features/ladaniBuyers/ladaniBuyers_controller.dart';
 import 'package:apple_grower/features/transportUnion/transportUnion_controller.dart';
 
@@ -80,10 +81,15 @@ class DriverFormController extends GetxController {
                             .associatedDrivers
                             .any((existingDriver) =>
                                 existingDriver.id == driver.id)
-                        : Get.find<TransportUnionController>()
-                            .associatedDrivers
-                            .any((existingDriver) =>
-                                existingDriver.id == driver.id);
+                        : (glb.roleType.value == "HPMC DEPOT")
+                            ? Get.find<HPAgriBoardController>()
+                                .associatedDrivers
+                                .any((existingDriver) =>
+                                    existingDriver.id == driver.id)
+                            : Get.find<TransportUnionController>()
+                                .associatedDrivers
+                                .any((existingDriver) =>
+                                    existingDriver.id == driver.id);
 
     if (exists) {
       Get.snackbar(
@@ -108,8 +114,11 @@ class DriverFormController extends GetxController {
                     : (glb.roleType.value == "Freight Forwarder")
                         ? Get.find<FreightForwarderController>()
                             .addAssociatedDrivers(driver)
-                        : Get.find<TransportUnionController>()
-                            .addAssociatedDrivers(driver);
+                        : (glb.roleType.value == "HPMC DEPOT")
+                            ? Get.find<HPAgriBoardController>()
+                                .addAssociatedDriver(driver)
+                            : Get.find<TransportUnionController>()
+                                .addAssociatedDrivers(driver);
     Get.back();
   }
 
@@ -139,8 +148,11 @@ class DriverFormController extends GetxController {
                       : (glb.roleType.value == "Freight Forwarder")
                           ? Get.find<FreightForwarderController>()
                               .addAssociatedDrivers(driver)
-                          : Get.find<TransportUnionController>()
-                              .addAssociatedDrivers(driver);
+                          : (glb.roleType.value == "HPMC DEPOT")
+                              ? Get.find<HPAgriBoardController>()
+                                  .addAssociatedDriver(driver)
+                              : Get.find<TransportUnionController>()
+                                  .addAssociatedDrivers(driver);
 
       Get.back();
     } catch (e) {
@@ -313,10 +325,15 @@ class DriverFormPageView extends StatelessWidget {
                                       .associatedDrivers
                                       .any((existingDriver) =>
                                           existingDriver.id == driver.id)
-                                  : Get.find<TransportUnionController>()
-                                      .associatedDrivers
-                                      .any((existingDriver) =>
-                                          existingDriver.id == driver.id);
+                                  : (glb.roleType.value == "HPMC DEPOT")
+                                      ? Get.find<HPAgriBoardController>()
+                                          .associatedDrivers
+                                          .any((existingDriver) =>
+                                              existingDriver.id == driver.id)
+                                      : Get.find<TransportUnionController>()
+                                          .associatedDrivers
+                                          .any((existingDriver) =>
+                                              existingDriver.id == driver.id);
 
               return Stack(
                 children: [

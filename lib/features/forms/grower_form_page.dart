@@ -1,4 +1,5 @@
 import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
+import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
 import 'package:apple_grower/models/aadhati.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -74,7 +75,12 @@ class GrowerFormController extends GetxController {
                     ? Get.find<DriverController>()
                         .associatedGrowers
                         .any((existingDriver) => existingDriver.id == grower.id)
-                    : Get.find<TransportUnionController>()
+                    : (glb.roleType.value == "HPMC DEPOT")
+        ? Get.find<HPAgriBoardController>()
+        .associatedGrowers
+        .any((existingDriver) =>
+    existingDriver.id == grower.id)
+        : Get.find<TransportUnionController>()
                         .associatedGrowers
                         .any(
                             (existingDriver) => existingDriver.id == grower.id);
@@ -99,7 +105,10 @@ class GrowerFormController extends GetxController {
                     .addAssociatedGrower(grower)
                 : (glb.roleType.value == "Driver")
                     ? Get.find<DriverController>().addAssociatedGrower(grower)
-                    : Get.find<TransportUnionController>()
+                    : (glb.roleType.value == "HPMC DEPOT")
+        ? Get.find<HPAgriBoardController>()
+        .addAssociatedGrower(grower)
+        : Get.find<TransportUnionController>()
                         .addAssociatedGrower(grower);
     Get.back();
   }
@@ -131,7 +140,9 @@ class GrowerFormController extends GetxController {
                       .addAssociatedGrower(grower)
                   : (glb.roleType.value == "Driver")
                       ? Get.find<DriverController>().addAssociatedGrower(grower)
-                      : Get.find<TransportUnionController>()
+                      : (glb.roleType.value == "HPMC DEPOT")
+          ? Get.find<HPAgriBoardController>()
+          .addAssociatedGrower(grower):Get.find<TransportUnionController>()
                           .addAssociatedGrower(grower);
 
       Get.back();
@@ -296,14 +307,20 @@ class GrowerFormPage extends StatelessWidget {
                               .associatedGrowers
                               .any((existingDriver) =>
                                   existingDriver.id == grower.id)
-                          :  (glb.roleType.value == "Driver")
-                  ? Get.find<DriverController>()
-                  .associatedGrowers
-                  .any((existingDriver) => existingDriver.id == grower.id)
-                  : Get.find<TransportUnionController>()
-                              .associatedGrowers
-                              .any((existingDriver) =>
-                                  existingDriver.id == grower.id);
+                          : (glb.roleType.value == "Driver")
+                              ? Get.find<DriverController>()
+                                  .associatedGrowers
+                                  .any((existingDriver) =>
+                                      existingDriver.id == grower.id)
+                              : (glb.roleType.value == "HPMC DEPOT")
+                                  ? Get.find<HPAgriBoardController>()
+                                      .associatedGrowers
+                                      .any((existingDriver) =>
+                                          existingDriver.id == grower.id)
+                                  : Get.find<TransportUnionController>()
+                                      .associatedGrowers
+                                      .any((existingDriver) =>
+                                          existingDriver.id == grower.id);
 
               return Stack(
                 children: [

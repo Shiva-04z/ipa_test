@@ -1,4 +1,5 @@
 import 'package:apple_grower/features/driver/driver_controller.dart';
+import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -64,15 +65,19 @@ class PackingHouseFormController extends GetxController {
     // Check if packing house already exists
     final exists = (glb.roleType.value == "Grower")
         ? Get.find<GrowerController>()
-        .packingHouses
-        .any((existingDriver) => existingDriver.id == house.id)
+            .packingHouses
+            .any((existingDriver) => existingDriver.id == house.id)
         : (glb.roleType.value == "Aadhti")
-        ? Get.find<AadhatiController>()
-        .associatedPackHouses
-        .any((existingDriver) => existingDriver.id == house.id)
-        : Get.find<DriverController>()
-        .associatedPackhouses
-        .any((existingDriver) => existingDriver.id == house.id);
+            ? Get.find<AadhatiController>()
+                .associatedPackHouses
+                .any((existingDriver) => existingDriver.id == house.id)
+            : (glb.roleType.value == "HPMC DEPOT")
+                ? Get.find<HPAgriBoardController>()
+                    .associatedPackHouses
+                    .any((existingDriver) => existingDriver.id == house.id)
+                : Get.find<DriverController>()
+                    .associatedPackhouses
+                    .any((existingDriver) => existingDriver.id == house.id);
 
     if (exists) {
       Get.snackbar(
@@ -84,17 +89,16 @@ class PackingHouseFormController extends GetxController {
       );
       return;
     }
-  (glb.roleType.value == "Grower")
-        ? Get.find<GrowerController>()
-        .addPackingHouse(house)
+    (glb.roleType.value == "Grower")
+        ? Get.find<GrowerController>().addPackingHouse(house)
         : (glb.roleType.value == "Aadhti")
-        ? Get.find<AadhatiController>()
-        .addAssociatedPackhouses(house)
-        : Get.find<DriverController>()
-        .addAssociatedPackhouse(house);
+            ? Get.find<AadhatiController>().addAssociatedPackhouses(house)
+            : (glb.roleType.value == "HPMC DEPOT")
+                ? Get.find<HPAgriBoardController>()
+                    .addAssociatedPackHouse(house)
+                : Get.find<DriverController>().addAssociatedPackhouse(house);
 
     Get.back();
-
   }
 
   void submitForm() {
@@ -118,13 +122,13 @@ class PackingHouseFormController extends GetxController {
       );
 
       (glb.roleType.value == "Grower")
-          ? Get.find<GrowerController>()
-          .addPackingHouse(house)
+          ? Get.find<GrowerController>().addPackingHouse(house)
           : (glb.roleType.value == "Aadhti")
-          ? Get.find<AadhatiController>()
-          .addAssociatedPackhouses(house)
-          : Get.find<DriverController>()
-          .addAssociatedPackhouse(house);
+              ? Get.find<AadhatiController>().addAssociatedPackhouses(house)
+              : (glb.roleType.value == "HPMC DEPOT")
+                  ? Get.find<HPAgriBoardController>()
+                      .addAssociatedPackHouse(house)
+                  : Get.find<DriverController>().addAssociatedPackhouse(house);
 
       Get.back();
       Get.snackbar(
@@ -284,15 +288,17 @@ class PackingHouseFormPage extends StatelessWidget {
               final house = controller.searchResults[index];
               final exists = (glb.roleType.value == "Grower")
                   ? Get.find<GrowerController>()
-                  .packingHouses
-                  .any((existingDriver) => existingDriver.id == house.id)
+                      .packingHouses
+                      .any((existingDriver) => existingDriver.id == house.id)
                   : (glb.roleType.value == "Aadhti")
-                  ? Get.find<AadhatiController>()
+                      ? Get.find<AadhatiController>().associatedPackHouses.any(
+                          (existingDriver) => existingDriver.id == house.id)
+                      : (glb.roleType.value == "HPMC DEPOT")
+                  ? Get.find<HPAgriBoardController>()
                   .associatedPackHouses
                   .any((existingDriver) => existingDriver.id == house.id)
-                  : Get.find<DriverController>()
-                  .associatedPackhouses
-                  .any((existingDriver) => existingDriver.id == house.id);
+                  : Get.find<DriverController>().associatedPackhouses.any(
+                          (existingDriver) => existingDriver.id == house.id);
 
               return Stack(
                 children: [

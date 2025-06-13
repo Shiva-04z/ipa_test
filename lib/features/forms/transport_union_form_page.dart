@@ -1,3 +1,4 @@
+import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
 import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
 import 'package:apple_grower/models/driving_profile_model.dart';
 import 'package:flutter/material.dart';
@@ -64,9 +65,13 @@ class TransportUnionFormController extends GetxController {
                 ? Get.find<PackHouseController>()
                     .associatedTransportUnions
                     .any((existingDriver) => existingDriver.id == union.id)
-                : Get.find<LadaniBuyersController>()
-                    .associatedTransportUnions
-                    .any((existingDriver) => existingDriver.id == union.id);
+                : (glb.roleType.value == "HPMC DEPOT")
+                    ? Get.find<HPAgriBoardController>()
+                        .associatedTransportUnions
+                        .any((existingDriver) => existingDriver.id == union.id)
+                    : Get.find<LadaniBuyersController>()
+                        .associatedTransportUnions
+                        .any((existingDriver) => existingDriver.id == union.id);
 
     if (exists) {
       Get.snackbar(
@@ -86,7 +91,10 @@ class TransportUnionFormController extends GetxController {
             : (glb.roleType.value == "PackHouse")
                 ? Get.find<PackHouseController>()
                     .addAssociatedTransportUnion(union)
-                : Get.find<LadaniBuyersController>()
+                : (glb.roleType.value == "HPMC DEPOT")
+        ? Get.find<HPAgriBoardController>()
+        .addAssociatedTransportUnion(union)
+        : Get.find<LadaniBuyersController>()
                     .addAssociatedTransportUnion(union);
     Get.back();
   }
@@ -109,10 +117,12 @@ class TransportUnionFormController extends GetxController {
           : (glb.roleType.value == "Driver")
               ? Get.find<DriverController>().addTransportUnion(union)
               : (glb.roleType.value == "PackHouse")
-          ? Get.find<PackHouseController>()
-          .addAssociatedTransportUnion(union)
-          : Get.find<LadaniBuyersController>()
-          .addAssociatedTransportUnion(union);
+                  ? Get.find<PackHouseController>()
+                      .addAssociatedTransportUnion(union)
+                  :(glb.roleType.value == "HPMC DEPOT")
+          ? Get.find<HPAgriBoardController>()
+          .addAssociatedTransportUnion(union): Get.find<LadaniBuyersController>()
+                      .addAssociatedTransportUnion(union);
       Get.back();
     } catch (e) {
       Get.snackbar(
@@ -276,7 +286,11 @@ class TransportUnionFormPage extends StatelessWidget {
                               .associatedTransportUnions
                               .any((existingDriver) =>
                                   existingDriver.id == union.id)
-                          : Get.find<LadaniBuyersController>()
+                          :(glb.roleType.value == "HPMC DEPOT")
+                  ? Get.find<HPAgriBoardController>()
+                  .associatedTransportUnions
+                  .any((existingDriver) => existingDriver.id == union.id)
+                  :  Get.find<LadaniBuyersController>()
                               .associatedTransportUnions
                               .any((existingDriver) =>
                                   existingDriver.id == union.id);

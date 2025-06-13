@@ -106,15 +106,8 @@ class CommissionAgentFormController extends GetxController {
                                 : Get.find<ApmcOfficeController>()
                                     .blacklistedAadhatis
                                     .any((existingDriver) =>
-                                        existingDriver.id == agent.id)
-                            : (Get.find<HPAgriBoardController>().flag.value)
-                                ? Get.find<HPAgriBoardController>()
-                                    .approvedAadhatis
-                                    .any((existingDriver) =>
-                                        existingDriver.id == agent.id)
-                                : Get.find<HPAgriBoardController>()
-                                    .blacklistedAadhatis
-                                    .any((existingDriver) => existingDriver.id == agent.id);
+                                        existingDriver.id == agent.id): Get.find<TransportUnionController>().associatedAadhatis.any(
+            (existingDriver) => existingDriver.id == agent.id);
 
     if (exists) {
       Get.snackbar(
@@ -139,9 +132,7 @@ class CommissionAgentFormController extends GetxController {
                         .addAssociatedAadhatis(agent)
                     : (glb.roleType.value == "Transport Union")
                         ? Get.find<TransportUnionController>().addAssociatedAadhatis(agent)
-                        : (glb.roleType.value == "APMC Office")
-                            ? Get.find<ApmcOfficeController>().addAdhati(agent)
-                           : Get.find<HPAgriBoardController>().addAdhati(agent);
+                        :  Get.find<ApmcOfficeController>().addAdhati(agent);
 
 
     Get.back();
@@ -183,9 +174,7 @@ class CommissionAgentFormController extends GetxController {
           .addAssociatedAadhatis(agent)
           : (glb.roleType.value == "Transport Union")
           ? Get.find<TransportUnionController>().addAssociatedAadhatis(agent)
-          : (glb.roleType.value == "APMC Office")
-          ? Get.find<ApmcOfficeController>().addAdhati(agent)
-          : Get.find<HPAgriBoardController>().addAdhati(agent);
+          :  Get.find<ApmcOfficeController>().addAdhati(agent);
 
       Get.back();
     } catch (e) {
@@ -370,10 +359,8 @@ class CommissionAgentFormPage extends StatelessWidget {
                                           : Get.find<ApmcOfficeController>()
                                               .blacklistedAadhatis
                                               .any((existingDriver) => existingDriver.id == agent.id)
-                                      : (Get.find<HPAgriBoardController>().flag.value)
-                                          ? Get.find<HPAgriBoardController>().approvedAadhatis.any((existingDriver) => existingDriver.id == agent.id)
-                                          : Get.find<HPAgriBoardController>().blacklistedAadhatis.any((existingDriver) => existingDriver.id == agent.id);
-
+                                      : Get.find<TransportUnionController>().associatedAadhatis.any(
+                      (existingDriver) => existingDriver.id == agent.id);
               return Stack(
                 children: [
                   Card(
