@@ -17,7 +17,7 @@ class SignUpController extends GetxController{
     DropdownMenuItem(value: "Transport Union", child: Text("Transport Union")),
     DropdownMenuItem(value: "APMC Office", child: Text("APMC Office")),
     DropdownMenuItem(value: "HP Police", child: Text("HP Police")),
-    DropdownMenuItem(value: "HP State Agriculture Board", child: Text("HP State Agriculture Board")),
+    DropdownMenuItem(value: "HPMC DEPOT", child: Text("HPMC DEPOT")),
   ];
 
   void navigateToRolePage() {
@@ -58,8 +58,8 @@ class SignUpController extends GetxController{
         glb.roleType.value = "HP Police";
         Get.toNamed(RoutesConstant.hpPolice);
         break;
-      case "HP State Agriculture Board":
-        glb.roleType.value = "HP State Agriculture Board";
+      case "HPMC DEPOT":
+        glb.roleType.value = "HPMC DEPOT";
         Get.toNamed(RoutesConstant.hpAgriBoard);
         break;
       default:

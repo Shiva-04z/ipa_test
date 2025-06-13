@@ -2,6 +2,7 @@ import 'aadhati.dart';
 import 'driving_profile_model.dart';
 import 'grower_model.dart';
 import 'employee_model.dart';
+import 'package:apple_grower/models/complaint_model.dart';
 
 enum TrayType {
   singleSide,
@@ -31,6 +32,7 @@ class PackHouse {
   final List<Aadhati> associatedCommissionAgents;
   final List<Employee> associatedPackers;
   final List<DrivingProfile> associatedPickers;
+  final List<Complaint> myComplaints;
 
   PackHouse({
     required this.id,
@@ -55,6 +57,7 @@ class PackHouse {
     this.associatedCommissionAgents = const [],
     this.associatedPackers = const [],
     this.associatedPickers = const [],
+    this.myComplaints = const [],
   });
 
   factory PackHouse.fromJson(Map<String, dynamic> json) {
@@ -97,6 +100,10 @@ class PackHouse {
               ?.map((e) => DrivingProfile.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      myComplaints: (json['myComplaints'] as List<dynamic>?)
+              ?.map((e) => Complaint.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
@@ -125,6 +132,7 @@ class PackHouse {
           associatedCommissionAgents.map((e) => e.toJson()).toList(),
       'associatedPackers': associatedPackers.map((e) => e.toJson()).toList(),
       'associatedPickers': associatedPickers.map((e) => e.toJson()).toList(),
+      'myComplaints': myComplaints.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -151,6 +159,7 @@ class PackHouse {
     List<Aadhati>? associatedCommissionAgents,
     List<Employee>? associatedPackers,
     List<DrivingProfile>? associatedPickers,
+    List<Complaint>? myComplaints,
   }) {
     return PackHouse(
       id: id ?? this.id,
@@ -179,6 +188,7 @@ class PackHouse {
           associatedCommissionAgents ?? this.associatedCommissionAgents,
       associatedPackers: associatedPackers ?? this.associatedPackers,
       associatedPickers: associatedPickers ?? this.associatedPickers,
+      myComplaints: myComplaints ?? this.myComplaints,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:apple_grower/models/freightForwarder.dart';
+import 'package:apple_grower/models/complaint_model.dart';
 
 import 'aadhati.dart';
 import 'grower_model.dart';
@@ -23,6 +24,7 @@ class DrivingProfile {
   List<Grower>? appleGrowers;
   List<Aadhati>? aadhatis;
   List<FreightForwarder>? buyers;
+  List<Complaint> myComplaints;
 
   DrivingProfile({
     this.id,
@@ -43,6 +45,7 @@ class DrivingProfile {
     this.appleGrowers,
     this.aadhatis,
     this.buyers,
+    this.myComplaints = const [],
   });
 
   factory DrivingProfile.fromJson(Map<String, dynamic> json) {
@@ -72,6 +75,10 @@ class DrivingProfile {
       buyers: (json['buyers'] as List<dynamic>?)
           ?.map((e) => FreightForwarder.fromJson(e as Map<String, dynamic>))
           .toList(),
+      myComplaints: (json['myComplaints'] as List<dynamic>?)
+              ?.map((e) => Complaint.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
@@ -95,6 +102,7 @@ class DrivingProfile {
       'appleGrowers': appleGrowers?.map((e) => e.toJson()).toList(),
       'aadhatis': aadhatis?.map((e) => e.toJson()).toList(),
       'buyers': buyers?.map((e) => e.toJson()).toList(),
+      'myComplaints': myComplaints.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -136,6 +144,7 @@ class DrivingProfile {
     List<Grower>? appleGrowers,
     List<Aadhati>? aadhatis,
     List<FreightForwarder>? buyers,
+    List<Complaint>? myComplaints,
   }) {
     return DrivingProfile(
       id: id ?? this.id,
@@ -161,6 +170,7 @@ class DrivingProfile {
       appleGrowers: appleGrowers ?? this.appleGrowers,
       aadhatis: aadhatis ?? this.aadhatis,
       buyers: buyers ?? this.buyers,
+      myComplaints: myComplaints ?? this.myComplaints,
     );
   }
 }

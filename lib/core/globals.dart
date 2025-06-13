@@ -13,6 +13,9 @@ import '../models/pack_house_model.dart';
 import '../models/post_model.dart';
 import '../models/transport_model.dart';
 import 'dictionary.dart';
+import '../models/user_model.dart';
+
+import '../models/complaint_model.dart';
 
 RxString roleType = "Grower".obs;
 RxString personName = "Ram Singh".obs;
@@ -23,6 +26,7 @@ RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
 
+RxList<Complaint> myComplaint = <Complaint>[].obs;
 // Demo lists for all models
 RxList<Aadhati> availableAadhatis = [
   Aadhati(
@@ -61,6 +65,9 @@ RxList<Aadhati> availableAadhatis = [
 
 RxList<Apmc> availableApmcs = [
   Apmc(
+    id: 'APMC001',
+    name: 'Kotkhai APMC',
+    address: 'Kotkhai Market, Shimla, Himachal Pradesh',
     nameOfAuthorizedSignatory: 'Rajesh Kumar',
     designation: 'Market Inspector',
     officePhoneNo: '9876543215',
@@ -78,6 +85,9 @@ RxList<Apmc> availableApmcs = [
     blacklistedLadanis: [],
   ),
   Apmc(
+    id: 'APMC002',
+    name: 'Kullu APMC',
+    address: 'Kullu Market, Kullu, Himachal Pradesh',
     nameOfAuthorizedSignatory: 'Suresh Singh',
     designation: 'Deputy Market Inspector',
     officePhoneNo: '9876543216',

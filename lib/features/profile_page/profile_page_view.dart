@@ -4,6 +4,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import '../../core/globals.dart';
 import '../../core/globalsWidgets.dart' as glbw;
+import '../forms/complaint_form_page.dart';
+import '../../models/complaint_model.dart';
 
 class ProfilePageView extends GetView<ProfilePageController> {
   @override
@@ -68,6 +70,53 @@ class ProfilePageView extends GetView<ProfilePageController> {
                         getTranslatedText('Change Language'),
                         () => controller.changeLanguage(),
                       ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 24),
+
+                // My Complaints Section
+                _buildSection(
+                  title: getTranslatedText('My Complaints'),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: ElevatedButton.icon(
+                          onPressed: () => Get.to(() => ComplaintFormPage()),
+                          icon: Icon(Icons.add),
+                          label: Text(getTranslatedText('Raise New Complaint')),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xff548235),
+                            foregroundColor: Colors.white,
+                            minimumSize: Size(double.infinity, 45),
+                          ),
+                        ),
+                      ),
+                      if (myComplaint.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Center(
+                            child: Text(
+                              getTranslatedText('No complaints yet'),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: myComplaint.length,
+                          itemBuilder: (context, index) {
+                            final complaint = myComplaint[index];
+                            return _buildComplaintCard(complaint);
+                          },
+                        ),
                     ],
                   ),
                 ),
@@ -196,5 +245,86 @@ class ProfilePageView extends GetView<ProfilePageController> {
       indent: 16,
       endIndent: 16,
     );
+  }
+
+  Widget _buildComplaintCard(Complaint complaint) {
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Complaint Against: ${complaint.complaintAgainstName}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(complaint.status).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    complaint.status ?? 'Pending',
+                    style: TextStyle(
+                      color: _getStatusColor(complaint.status),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Text(
+              'APMC: ${complaint.apmcName}',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Description: ${complaint.complaintDescription}',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: Colors.grey[800]),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Date: ${_formatDate(complaint.complaintDate)}',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _getStatusColor(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'under review':
+        return Colors.blue;
+      case 'resolved':
+        return Colors.green;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'N/A';
+    return '${date.day}/${date.month}/${date.year}';
   }
 }

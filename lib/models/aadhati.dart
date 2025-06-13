@@ -1,4 +1,5 @@
 import 'package:apple_grower/models/employee_model.dart';
+import 'package:apple_grower/models/complaint_model.dart';
 
 import 'driving_profile_model.dart';
 import 'freightForwarder.dart';
@@ -28,6 +29,7 @@ class Aadhati {
   List<Ladani>? ladanis;
   List<DrivingProfile>? truckServiceProviders;
   Map<String, Employee>? staff;
+  final List<Complaint> myComplaints;
 
   Aadhati({
     this.id,
@@ -51,6 +53,7 @@ class Aadhati {
     this.truckServiceProviders,
     this.address,
     this.staff,
+    this.myComplaints = const [],
   });
 
   factory Aadhati.fromJson(Map<String, dynamic> json) {
@@ -87,6 +90,10 @@ class Aadhati {
         (key, value) =>
             MapEntry(key, Employee.fromJson(value as Map<String, dynamic>)),
       ),
+      myComplaints: (json['myComplaints'] as List<dynamic>?)
+              ?.map((e) => Complaint.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
@@ -114,6 +121,7 @@ class Aadhati {
       'truckServiceProviders':
           truckServiceProviders?.map((e) => e.toJson()).toList(),
       'staff': staff?.map((key, value) => MapEntry(key, value.toJson())),
+      'myComplaints': myComplaints.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -139,6 +147,7 @@ class Aadhati {
     List<Ladani>? ladanis,
     List<DrivingProfile>? truckServiceProviders,
     Map<String, Employee>? staff,
+    List<Complaint>? myComplaints,
   }) {
     return Aadhati(
       id: id ?? this.id,
@@ -167,6 +176,7 @@ class Aadhati {
       truckServiceProviders:
           truckServiceProviders ?? this.truckServiceProviders,
       staff: staff ?? this.staff,
+      myComplaints: myComplaints ?? this.myComplaints,
     );
   }
 }

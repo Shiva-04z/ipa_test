@@ -3,6 +3,7 @@ import 'package:apple_grower/models/ladani_model.dart';
 import 'aadhati.dart';
 import 'orchard_model.dart';
 import 'pack_house_model.dart';
+import 'package:apple_grower/models/complaint_model.dart';
 
 class Grower {
   final String id;
@@ -16,6 +17,7 @@ class Grower {
   final List<Ladani> corporateCompanies;
   final List<Consignment> consignments;
   final List<PackHouse> packingHouses;
+  final List<Complaint> myComplaints;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -31,6 +33,7 @@ class Grower {
     this.corporateCompanies = const [],
     this.consignments = const [],
     required this.packingHouses,
+    this.myComplaints = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -63,6 +66,10 @@ class Grower {
               ?.map((e) => Consignment.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      myComplaints: (json['myComplaints'] as List<dynamic>?)
+              ?.map((e) => Complaint.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       createdAt: json['createdAt'] ?? DateTime.now().toIso8601String(),
       updatedAt: json['updatedAt'] ?? DateTime.now().toIso8601String(),
     );
@@ -81,6 +88,7 @@ class Grower {
       'corporateCompanies': corporateCompanies.map((e) => e.toJson()).toList(),
       'packingHouses': packingHouses.map((e) => e.toJson()).toList(),
       'consignments': consignments.map((e) => e.toJson()).toList(),
+      'myComplaints': myComplaints.map((e) => e.toJson()).toList(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -98,6 +106,7 @@ class Grower {
     List<Ladani>? corporateCompanies,
     List<Consignment>? consignments,
     List<PackHouse>? packingHouses,
+    List<Complaint>? myComplaints,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -113,6 +122,7 @@ class Grower {
       corporateCompanies: corporateCompanies ?? this.corporateCompanies,
       consignments: consignments ?? this.consignments,
       packingHouses: packingHouses ?? this.packingHouses,
+      myComplaints: myComplaints ?? this.myComplaints,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -1,4 +1,5 @@
 import 'package:apple_grower/models/freightForwarder.dart';
+import 'package:apple_grower/models/complaint_model.dart';
 
 import 'aadhati.dart';
 
@@ -23,6 +24,7 @@ class Ladani {
   List<FreightForwarder>? associatedBuyer;
   List<DrivingProfile>? truckServiceProviders;
   double? perBoxExpensesAfterBidding;
+  final List<Complaint> myComplaints;
 
   Ladani({
     this.id,
@@ -43,6 +45,7 @@ class Ladani {
     this.associatedBuyer,
     this.truckServiceProviders,
     this.perBoxExpensesAfterBidding,
+    this.myComplaints = const [],
   });
 
   factory Ladani.fromJson(Map<String, dynamic> json) {
@@ -71,6 +74,10 @@ class Ladani {
           ?.map((e) => DrivingProfile.fromJson(e as Map<String, dynamic>))
           .toList(),
       perBoxExpensesAfterBidding: json['perBoxExpensesAfterBidding'] as double?,
+      myComplaints: (json['myComplaints'] as List<dynamic>?)
+              ?.map((e) => Complaint.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
@@ -96,6 +103,7 @@ class Ladani {
       'truckServiceProviders':
           truckServiceProviders?.map((e) => e.toJson()).toList(),
       'perBoxExpensesAfterBidding': perBoxExpensesAfterBidding,
+      'myComplaints': myComplaints.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -118,6 +126,7 @@ class Ladani {
     List<FreightForwarder>? associatedBuyer,
     List<DrivingProfile>? truckServiceProviders,
     double? perBoxExpensesAfterBidding,
+    List<Complaint>? myComplaints,
   }) {
     return Ladani(
       id: id ?? this.id,
@@ -143,6 +152,7 @@ class Ladani {
           truckServiceProviders ?? this.truckServiceProviders,
       perBoxExpensesAfterBidding:
           perBoxExpensesAfterBidding ?? this.perBoxExpensesAfterBidding,
+      myComplaints: myComplaints ?? this.myComplaints,
     );
   }
 }
