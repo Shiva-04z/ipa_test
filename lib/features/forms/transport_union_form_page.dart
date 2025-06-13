@@ -8,6 +8,7 @@ import '../../core/globals.dart' as glb;
 import '../../models/transport_model.dart';
 import '../driver/driver_controller.dart';
 import '../grower/grower_controller.dart';
+import '../ladaniBuyers/ladaniBuyers_controller.dart';
 
 class TransportUnionFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -59,9 +60,13 @@ class TransportUnionFormController extends GetxController {
             ? Get.find<DriverController>()
                 .associatedTransportUnions
                 .any((existingDriver) => existingDriver.id == union.id)
-            : Get.find<PackHouseController>()
-                .associatedTransportUnions
-                .any((existingDriver) => existingDriver.id == union.id);
+            : (glb.roleType.value == "PackHouse")
+                ? Get.find<PackHouseController>()
+                    .associatedTransportUnions
+                    .any((existingDriver) => existingDriver.id == union.id)
+                : Get.find<LadaniBuyersController>()
+                    .associatedTransportUnions
+                    .any((existingDriver) => existingDriver.id == union.id);
 
     if (exists) {
       Get.snackbar(
@@ -78,15 +83,12 @@ class TransportUnionFormController extends GetxController {
         ? Get.find<GrowerController>().addTransportUnion(union)
         : (glb.roleType.value == "Driver")
             ? Get.find<DriverController>().addTransportUnion(union)
-            : Get.find<PackHouseController>().addAssociatedTransportUnion(union);
+            : (glb.roleType.value == "PackHouse")
+                ? Get.find<PackHouseController>()
+                    .addAssociatedTransportUnion(union)
+                : Get.find<LadaniBuyersController>()
+                    .addAssociatedTransportUnion(union);
     Get.back();
-    Get.snackbar(
-      'Success',
-      'Transport union added successfully',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xff548235),
-      colorText: Colors.white,
-    );
   }
 
   void submitForm() {
@@ -106,15 +108,12 @@ class TransportUnionFormController extends GetxController {
           ? Get.find<GrowerController>().addTransportUnion(union)
           : (glb.roleType.value == "Driver")
               ? Get.find<DriverController>().addTransportUnion(union)
-              : Get.find<PackHouseController>().addAssociatedTransportUnion(union);
+              : (glb.roleType.value == "PackHouse")
+          ? Get.find<PackHouseController>()
+          .addAssociatedTransportUnion(union)
+          : Get.find<LadaniBuyersController>()
+          .addAssociatedTransportUnion(union);
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Transport union added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xff548235),
-        colorText: Colors.white,
-      );
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -272,10 +271,15 @@ class TransportUnionFormPage extends StatelessWidget {
                           .associatedTransportUnions
                           .any(
                               (existingDriver) => existingDriver.id == union.id)
-                      : Get.find<PackHouseController>()
-                          .associatedTransportUnions
-                          .any((existingDriver) =>
-                              existingDriver.id == union.id);
+                      : (glb.roleType.value == "PackHouse")
+                          ? Get.find<PackHouseController>()
+                              .associatedTransportUnions
+                              .any((existingDriver) =>
+                                  existingDriver.id == union.id)
+                          : Get.find<LadaniBuyersController>()
+                              .associatedTransportUnions
+                              .any((existingDriver) =>
+                                  existingDriver.id == union.id);
 
               return Stack(
                 children: [

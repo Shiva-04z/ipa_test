@@ -2,9 +2,8 @@ import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../models/ladani_model.dart';
 import '../../models/aadhati.dart';
-
+import '../../models/transport_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/consignment_model.dart';
 
@@ -18,6 +17,7 @@ class LadaniBuyersController extends GetxController {
   final associatedAadhatis = <Aadhati>[].obs;
   final associatedBuyers = <FreightForwarder>[].obs;
   final associatedDrivers = <DrivingProfile>[].obs;
+  final associatedTransportUnions = <Transport>[].obs;
   final consignments = <Consignment>[].obs;
 
   @override
@@ -50,6 +50,12 @@ class LadaniBuyersController extends GetxController {
     }
   }
 
+  void addAssociatedTransportUnion(Transport union) {
+    if (!associatedTransportUnions.any((g) => g.id == union.id)) {
+      associatedTransportUnions.add(union);
+    }
+  }
+
   void addConsignments(Consignment consignment) {
     if (!consignments.any((g) => g.id == consignment.id)) {
       consignments.add(consignment);
@@ -66,6 +72,10 @@ class LadaniBuyersController extends GetxController {
 
   void removeAssociatedDriver(String id) {
     associatedDrivers.removeWhere((driver) => driver.id == id);
+  }
+
+  void removeAssociatedTransportUnion(String id) {
+    associatedTransportUnions.removeWhere((union) => union.id == id);
   }
 
   void removeConsignment(String id) {

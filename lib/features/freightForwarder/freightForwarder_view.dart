@@ -10,11 +10,13 @@ import '../../models/driving_profile_model.dart';
 import '../../models/aadhati.dart';
 import '../../models/consignment_model.dart';
 import '../../models/freightForwarder.dart';
+import '../../models/ladani_model.dart';
 import '../driver/driver_form_page.dart';
 import '../aadhati/aadhati_edit_info_form_page.dart';
 import '../forms/driver_form_page.dart';
 import '../forms/freightForwarder_form_page.dart';
 import '../forms/grower_form_page.dart';
+import '../forms/corporate_company_form_page.dart';
 import '../grower/grower_dialogs.dart';
 import '../packHouse/consignment_form2_page.dart';
 
@@ -46,6 +48,8 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
                   return _buildAssociatedAadhatisContainer(context);
                 case 'Associated Drivers':
                   return _buildAssociatedDriversContainer(context);
+                case 'Associated Buyers/Ladanis':
+                  return _buildAssociatedLadanisContainer(context);
                 case 'Gallery':
                   return _buildGalleryContainer(context);
                 default:
@@ -74,6 +78,8 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
             _buildSectionChip('Associated Aadhatis'),
             SizedBox(width: 8),
             _buildSectionChip('Associated Drivers'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Buyers/Ladanis'),
             SizedBox(width: 8),
             _buildSectionChip('Gallery'),
           ],
@@ -836,6 +842,147 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
     final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => DriverFormPageView()),
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle,
+              size: isSmallScreen ? 32 : 40,
+              color: Colors.red,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "ADD NEW",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAssociatedLadanisContainer(BuildContext context) {
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Obx(
+                () => GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.associatedLadanis.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) return _buildAddNewLadaniCard(context);
+                    return _buildLadaniCard(
+                        controller.associatedLadanis[index - 1]);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "Associated Buyers/Ladanis",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLadaniCard(Ladani ladani) {
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
+    return InkWell(
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: ladani,
+        title: 'Buyers/Ladanis Details',
+        details: [
+          _buildDetailRow('Name', '${ladani.name}'),
+          _buildDetailRow('Phone', '${ladani.contact}'),
+          _buildDetailRow('Type', '${ladani.firmType}'),
+          _buildDetailRow('Address', '${ladani.address}'),
+        ],
+        onEdit: () {},
+        onDelete: () => controller.removeAssociatedLadani('${ladani.id}'),
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image(
+                image: AssetImage("assets/images/company.png"),
+                height: isSmallScreen ? 32 : 40,
+              ),
+              Text(
+                "${ladani.name}",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text('${ladani.firmType}', style: TextStyle(fontSize: 12)),
+                SizedBox(height: 4),
+                Text(
+                  '${ladani.contact}',
+                  style: TextStyle(fontSize: 12, color: Colors.purple),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewLadaniCard(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    return InkWell(
+      onTap: () => Get.to(() => CorporateCompanyFormPage()),
       child: Card(
         color: Colors.white,
         elevation: 0,

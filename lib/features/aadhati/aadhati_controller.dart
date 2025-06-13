@@ -1,4 +1,5 @@
 import 'package:apple_grower/models/freightForwarder.dart';
+import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,6 +21,7 @@ class AadhatiController extends GetxController {
 
   // Transport Unions
   final RxList<Transport> associatedTransportUnions = <Transport>[].obs;
+  final RxList<PackHouse> associatedPackHouses = <PackHouse>[].obs;
 
   // Staff Management
   final RxMap<String, Employee> staff = <String, Employee>{}.obs;
@@ -43,6 +45,12 @@ class AadhatiController extends GetxController {
   void addAssociatedGrower(Grower grower) {
     if (!associatedGrowers.any((g) => g.id == grower.id)) {
       associatedGrowers.add(grower);
+    }
+  }
+
+  void addAssociatedPackhouses(PackHouse house) {
+    if (!associatedPackHouses.any((g) => g.id == house.id)) {
+      associatedPackHouses.add(house);
     }
   }
 
@@ -70,6 +78,10 @@ class AadhatiController extends GetxController {
     if (!associatedLadanis.any((g) => g.id == buyer.id)) {
       associatedLadanis.add(buyer);
     }
+  }
+
+  void removeAssociatedPackhouse(String id) {
+    associatedPackHouses.removeWhere((ladani) => ladani.id == id);
   }
 
   void removeAssociatedLadani(String id) {

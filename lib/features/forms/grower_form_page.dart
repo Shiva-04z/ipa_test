@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../models/grower_model.dart';
 import '../../core/globals.dart' as glb;
+import '../driver/driver_controller.dart';
 import '../freightForwarder/freightForwarder_controller.dart';
 import '../grower/grower_controller.dart';
 import '../ladaniBuyers/ladaniBuyers_controller.dart';
@@ -69,9 +70,14 @@ class GrowerFormController extends GetxController {
                 ? Get.find<FreightForwarderController>()
                     .associatedGrowers
                     .any((existingDriver) => existingDriver.id == grower.id)
-                : Get.find<TransportUnionController>()
-                    .associatedGrowers
-                    .any((existingDriver) => existingDriver.id == grower.id);
+                : (glb.roleType.value == "Driver")
+                    ? Get.find<DriverController>()
+                        .associatedGrowers
+                        .any((existingDriver) => existingDriver.id == grower.id)
+                    : Get.find<TransportUnionController>()
+                        .associatedGrowers
+                        .any(
+                            (existingDriver) => existingDriver.id == grower.id);
 
     if (exists) {
       Get.snackbar(
@@ -87,13 +93,14 @@ class GrowerFormController extends GetxController {
     (glb.roleType.value == "PackHouse")
         ? Get.find<PackHouseController>().addAssociatedGrower(grower)
         : (glb.roleType.value == "Aadhati")
-        ? Get.find<AadhatiController>()
-        .addAssociatedGrower(grower)
-        : (glb.roleType.value == "Freight Forwarder")
-        ? Get.find<FreightForwarderController>()
-        .addAssociatedGrower(grower)
-        : Get.find<TransportUnionController>()
-        .addAssociatedGrower(grower);
+            ? Get.find<AadhatiController>().addAssociatedGrower(grower)
+            : (glb.roleType.value == "Freight Forwarder")
+                ? Get.find<FreightForwarderController>()
+                    .addAssociatedGrower(grower)
+                : (glb.roleType.value == "Driver")
+                    ? Get.find<DriverController>().addAssociatedGrower(grower)
+                    : Get.find<TransportUnionController>()
+                        .addAssociatedGrower(grower);
     Get.back();
   }
 
@@ -118,13 +125,14 @@ class GrowerFormController extends GetxController {
       (glb.roleType.value == "PackHouse")
           ? Get.find<PackHouseController>().addAssociatedGrower(grower)
           : (glb.roleType.value == "Aadhati")
-          ? Get.find<AadhatiController>()
-          .addAssociatedGrower(grower)
-          : (glb.roleType.value == "Freight Forwarder")
-          ? Get.find<FreightForwarderController>()
-          .addAssociatedGrower(grower)
-          : Get.find<TransportUnionController>()
-          .addAssociatedGrower(grower);
+              ? Get.find<AadhatiController>().addAssociatedGrower(grower)
+              : (glb.roleType.value == "Freight Forwarder")
+                  ? Get.find<FreightForwarderController>()
+                      .addAssociatedGrower(grower)
+                  : (glb.roleType.value == "Driver")
+                      ? Get.find<DriverController>().addAssociatedGrower(grower)
+                      : Get.find<TransportUnionController>()
+                          .addAssociatedGrower(grower);
 
       Get.back();
     } catch (e) {
@@ -278,19 +286,24 @@ class GrowerFormPage extends StatelessWidget {
               final grower = controller.searchResults[index];
               final exists = (glb.roleType.value == "PackHouse")
                   ? Get.find<PackHouseController>()
-                  .associatedGrowers
-                  .any((existingDriver) => existingDriver.id == grower.id)
+                      .associatedGrowers
+                      .any((existingDriver) => existingDriver.id == grower.id)
                   : (glb.roleType.value == "Aadhati")
-                  ? Get.find<AadhatiController>()
-                  .associatedGrowers
-                  .any((existingDriver) => existingDriver.id == grower.id)
-                  : (glb.roleType.value == "Freight Forwarder")
-                  ? Get.find<FreightForwarderController>()
+                      ? Get.find<AadhatiController>().associatedGrowers.any(
+                          (existingDriver) => existingDriver.id == grower.id)
+                      : (glb.roleType.value == "Freight Forwarder")
+                          ? Get.find<FreightForwarderController>()
+                              .associatedGrowers
+                              .any((existingDriver) =>
+                                  existingDriver.id == grower.id)
+                          :  (glb.roleType.value == "Driver")
+                  ? Get.find<DriverController>()
                   .associatedGrowers
                   .any((existingDriver) => existingDriver.id == grower.id)
                   : Get.find<TransportUnionController>()
-                  .associatedGrowers
-                  .any((existingDriver) => existingDriver.id == grower.id);
+                              .associatedGrowers
+                              .any((existingDriver) =>
+                                  existingDriver.id == grower.id);
 
               return Stack(
                 children: [

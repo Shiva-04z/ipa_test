@@ -46,7 +46,7 @@ class AadhatiView extends GetView<AadhatiController> {
                   return _buildAssociatedGrowersContainer(context);
                 case 'Associated Freight Forwarder':
                   return _buildAssociatedBuyersContainer(context);
-                case 'Associated Ladanis':
+                case 'Associated Buyers/Ladanis':
                   return _buildAssociatedLadanisContainer(context);
                 case 'Associated Transport Unions':
                   return _buildAssociatedTransportUnionsContainer(context);
@@ -81,7 +81,7 @@ class AadhatiView extends GetView<AadhatiController> {
             SizedBox(width: 8),
             _buildSectionChip('Associated Freight Forwarder'),
             SizedBox(width: 8),
-            _buildSectionChip('Associated Ladanis'),
+            _buildSectionChip('Associated Buyers/Ladanis'),
             SizedBox(width: 8),
             _buildSectionChip('Associated Transport Unions'),
             SizedBox(width: 8),
@@ -586,7 +586,7 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Associated Ladanis",
+            "Associated Buyers/Ladanis",
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -605,7 +605,7 @@ class AadhatiView extends GetView<AadhatiController> {
       onTap: () => GrowerDialogs.showItemDetailsDialog(
         context: Get.context!,
         item: ladani,
-        title: 'Ladanis Details',
+        title: 'Buyer/Ladanis Details',
         details: [
           _buildDetailRow('Name', '${ladani.name}'),
           _buildDetailRow('Phone', '${ladani.contact}'),

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../core/globals.dart' as glb;
 import '../../models/driving_profile_model.dart';
 import '../../models/consignment_model.dart';
 import '../../models/transport_model.dart';
+import '../../models/grower_model.dart';
+import '../../models/pack_house_model.dart';
+import '../../models/ladani_model.dart';
 
 class DriverController extends GetxController {
   final details = Rx<DrivingProfile>(DrivingProfile(
@@ -15,11 +19,15 @@ class DriverController extends GetxController {
   ));
   final associatedTransportUnions = <Transport>[].obs;
   final myJobs = <Consignment>[].obs;
+  final associatedGrowers = <Grower>[].obs;
+  final associatedPackhouses = <PackHouse>[].obs;
+  final associatedBuyers = <Ladani>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     // Initialize with sample data
+    glb.roleType.value="Driver";
     details.value = DrivingProfile(
       id: 'DRV1',
       name: 'Sample Driver',
@@ -55,7 +63,6 @@ class DriverController extends GetxController {
     ));
   }
 
-
   void addConsignment(Consignment consignment) {
     if (!myJobs.any((c) => c.id == consignment.id)) {
       myJobs.add(consignment);
@@ -74,5 +81,35 @@ class DriverController extends GetxController {
 
   void removeMyJob(String id) {
     myJobs.removeWhere((job) => job.id == id);
+  }
+
+  void addAssociatedGrower(Grower grower) {
+    if (!associatedGrowers.any((g) => g.id == grower.id)) {
+      associatedGrowers.add(grower);
+    }
+  }
+
+  void removeAssociatedGrower(String id) {
+    associatedGrowers.removeWhere((grower) => grower.id == id);
+  }
+
+  void addAssociatedPackhouse(PackHouse packhouse) {
+    if (!associatedPackhouses.any((p) => p.id == packhouse.id)) {
+      associatedPackhouses.add(packhouse);
+    }
+  }
+
+  void removeAssociatedPackhouse(String id) {
+    associatedPackhouses.removeWhere((packhouse) => packhouse.id == id);
+  }
+
+  void addAssociatedBuyer(Ladani buyer) {
+    if (!associatedBuyers.any((b) => b.id == buyer.id)) {
+      associatedBuyers.add(buyer);
+    }
+  }
+
+  void removeAssociatedBuyer(String id) {
+    associatedBuyers.removeWhere((buyer) => buyer.id == id);
   }
 }

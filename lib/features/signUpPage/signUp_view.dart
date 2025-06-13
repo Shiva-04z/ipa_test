@@ -7,34 +7,38 @@ import '../../core/globals.dart' as glb;
 class SignUpView extends GetView<SignUpController> {
   @override
   Widget build(BuildContext context) {
-    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 400;
+    bool isSmallScreen = MediaQuery.of(Get.context!).size.width > 400;
     return Scaffold(
       body: Stack(
         children: [
-          Container(height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color:  Colors.black.withOpacity(0.2),
-              image: DecorationImage(
-                fit: BoxFit.fill,
-                image: isSmallScreen? AssetImage("assets/images/background.png"): AssetImage("assets/images/bgmobile.jpg"),
-              ),
-            ),),
           Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
-              color:  Colors.black.withOpacity(0.3),
+              color: Colors.black.withOpacity(0.2),
+              image: DecorationImage(
+                fit: BoxFit.fill,
+                image: isSmallScreen
+                    ? AssetImage("assets/images/background.png")
+                    : AssetImage("assets/images/bgmobile.jpg"),
+              ),
+            ),
+          ),
+          Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.3),
             ),
             child: Center(
               child: Container(
                 constraints: BoxConstraints(maxWidth: 400),
-
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height > 600 ? 10 : 80,
+                        height:
+                            MediaQuery.of(context).size.height > 600 ? 10 : 80,
                       ),
                       _buildLogo(context),
                       SizedBox(height: 20),
@@ -81,7 +85,7 @@ class SignUpView extends GetView<SignUpController> {
       ),
       child: Center(
         child: Obx(
-              () => Text(
+          () => Text(
             "${controller.currentValue.value}${glb.getTranslatedText("'s Login")}",
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -195,7 +199,7 @@ class SignUpView extends GetView<SignUpController> {
         ],
       ),
       child: Obx(
-            () => DropdownButtonHideUnderline(
+        () => DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             value: controller.currentValue.value,
             items: controller.roles,

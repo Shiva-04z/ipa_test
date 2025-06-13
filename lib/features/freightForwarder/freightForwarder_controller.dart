@@ -6,6 +6,7 @@ import '../../models/grower_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/aadhati.dart';
 import '../../models/consignment_model.dart';
+import '../../models/ladani_model.dart';
 
 class FreightForwarderController extends GetxController {
   // Add freightForwarder-specific properties and methods here
@@ -29,6 +30,7 @@ class FreightForwarderController extends GetxController {
   final associatedGrowers = <Grower>[].obs;
   final associatedDrivers = <DrivingProfile>[].obs;
   final associatedAadhatis = <Aadhati>[].obs;
+  final associatedLadanis = <Ladani>[].obs;
   final consignments = <Consignment>[].obs;
 
   @override
@@ -77,6 +79,12 @@ class FreightForwarderController extends GetxController {
     }
   }
 
+  void addAssociatedLadani(Ladani ladani) {
+    if (!associatedLadanis.any((l) => l.id == ladani.id)) {
+      associatedLadanis.add(ladani);
+    }
+  }
+
   void removeAssociatedGrower(String id) {
     associatedGrowers.removeWhere((grower) => grower.id == id);
   }
@@ -91,6 +99,10 @@ class FreightForwarderController extends GetxController {
 
   void removeConsignment(String id) {
     consignments.removeWhere((consignment) => consignment.id == id);
+  }
+
+  void removeAssociatedLadani(String id) {
+    associatedLadanis.removeWhere((ladani) => ladani.id == id);
   }
 
   Future<void> pickAndUploadImage() async {

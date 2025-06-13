@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../core/globals.dart' as glb;
-import '../../core/global_role_loader.dart' as gld;
 import '../../models/ladani_model.dart';
 import '../aadhati/aadhati_controller.dart';
 import '../ampcOffice/ampcOffice_controller.dart';
+import '../driver/driver_controller.dart';
 import '../freightForwarder/freightForwarder_controller.dart';
 import '../grower/grower_controller.dart';
 import '../hpAgriBoard/hpAgriBoard_controller.dart';
 import '../packHouse/packHouse_controller.dart';
-import '../transportUnion/transportUnion_controller.dart';
 
 class CorporateCompanyFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -78,35 +76,47 @@ class CorporateCompanyFormController extends GetxController {
 
   void selectCompany(Ladani company) {
     // Check if company already exists
-    final exists =
-    (glb.roleType.value == "Grower")
+    final exists = (glb.roleType.value == "Grower")
         ? Get.find<GrowerController>()
-        .corporateCompanies
-        .any((existingDriver) => existingDriver.id == company.id):
-    (glb.roleType.value == "PackHouse")
-        ? Get.find<PackHouseController>()
-        .associatedLadanis
-        .any((existingDriver) => existingDriver.id == company.id)
-        : (glb.roleType.value == "Aadhati")?Get.find<AadhatiController>().associatedLadanis.any(
-            (existingDriver) =>
-        existingDriver.id == company.id): (glb.roleType.value == "APMC Office")
-    ? Get.find<ApmcOfficeController>().flag.value
-    ? Get.find<ApmcOfficeController>().approvedLadanis.any((existingDriver) =>
-    existingDriver.id == company.id)
-        : Get.find<ApmcOfficeController>()
-        .blacklistedLadanis
-        .any((existingDriver) =>
-    existingDriver.id == company.id)
-        : (Get.find<HPAgriBoardController>().flag.value)
-    ? Get.find<HPAgriBoardController>()
-        .approvedLadanis
-        .any((existingDriver) =>
-    existingDriver.id == company.id)
-        : Get.find<HPAgriBoardController>()
-        .blacklistedLadanis
-        .any((existingDriver) => existingDriver.id == company.id);
-
-
+            .corporateCompanies
+            .any((existingDriver) => existingDriver.id == company.id)
+        : (glb.roleType.value == "PackHouse")
+            ? Get.find<PackHouseController>()
+                .associatedLadanis
+                .any((existingDriver) => existingDriver.id == company.id)
+            : (glb.roleType.value == "Aadhati")
+                ? Get.find<AadhatiController>()
+                    .associatedLadanis
+                    .any((existingDriver) => existingDriver.id == company.id)
+                : (glb.roleType.value == "Freight Forwarder")
+                    ? Get.find<FreightForwarderController>()
+                        .associatedLadanis
+                        .any(
+                            (existingDriver) => existingDriver.id == company.id)
+                    : (glb.roleType.value == "Driver")
+        ? Get.find<DriverController>()
+        .associatedBuyers
+        .any(
+            (existingDriver) => existingDriver.id == company.id)
+        :(glb.roleType.value == "APMC Office")
+                        ? Get.find<ApmcOfficeController>().flag.value
+                            ? Get.find<ApmcOfficeController>()
+                                .approvedLadanis
+                                .any((existingDriver) =>
+                                    existingDriver.id == company.id)
+                            : Get.find<ApmcOfficeController>()
+                                .blacklistedLadanis
+                                .any((existingDriver) =>
+                                    existingDriver.id == company.id)
+                        : (Get.find<HPAgriBoardController>().flag.value)
+                            ? Get.find<HPAgriBoardController>()
+                                .approvedLadanis
+                                .any((existingDriver) =>
+                                    existingDriver.id == company.id)
+                            : Get.find<HPAgriBoardController>()
+                                .blacklistedLadanis
+                                .any(
+                                    (existingDriver) => existingDriver.id == company.id);
 
     if (exists) {
       Get.snackbar(
@@ -122,12 +132,17 @@ class CorporateCompanyFormController extends GetxController {
     (glb.roleType.value == "PackHouse")
         ? Get.find<PackHouseController>().addAssociatedLadani(company)
         : (glb.roleType.value == "Aadhati")
-        ? Get.find<AadhatiController>()
-        .addAssociatedLadani(company):
-    (glb.roleType.value == "Grower") ?Get.find<GrowerController>()
-        .addCorporateCompany(company) : (glb.roleType.value == "APMC Office")
-        ? Get.find<ApmcOfficeController>().addLadani(company)
-        : Get.find<HPAgriBoardController>().addLadani(company);
+            ? Get.find<AadhatiController>().addAssociatedLadani(company)
+            : (glb.roleType.value == "Grower")
+                ? Get.find<GrowerController>().addCorporateCompany(company)
+                : (glb.roleType.value == "Freight Forwarder")
+                    ? Get.find<FreightForwarderController>()
+                        .addAssociatedLadani(company)
+                    : (glb.roleType.value == "Driver")
+        ? Get.find<DriverController>().addAssociatedBuyer(company)
+        :(glb.roleType.value == "APMC Office")
+                        ? Get.find<ApmcOfficeController>().addLadani(company)
+                        : Get.find<HPAgriBoardController>().addLadani(company);
     Get.back();
   }
 
@@ -159,11 +174,17 @@ class CorporateCompanyFormController extends GetxController {
       (glb.roleType.value == "PackHouse")
           ? Get.find<PackHouseController>().addAssociatedLadani(newCompany)
           : (glb.roleType.value == "Aadhati")
-          ? Get.find<AadhatiController>()
-          .addAssociatedLadani(newCompany):(glb.roleType.value == "Grower") ?Get.find<GrowerController>()
-          .addCorporateCompany(newCompany) : (glb.roleType.value == "APMC Office")
-    ? Get.find<ApmcOfficeController>().addLadani(newCompany)
-        : Get.find<HPAgriBoardController>().addLadani(newCompany);
+              ? Get.find<AadhatiController>().addAssociatedLadani(newCompany)
+              : (glb.roleType.value == "Grower")
+                  ? Get.find<GrowerController>().addCorporateCompany(newCompany)
+                  : (glb.roleType.value == "Freight Forwarder")
+          ? Get.find<FreightForwarderController>()
+          .addAssociatedLadani(newCompany)
+          :  (glb.roleType.value == "Driver")
+    ? Get.find<DriverController>().addAssociatedBuyer(newCompany)
+        : (glb.roleType.value == "APMC Office")
+                      ? Get.find<ApmcOfficeController>().addLadani(newCompany)
+                      : Get.find<HPAgriBoardController>().addLadani(newCompany);
 
       Get.back();
     } catch (e) {
@@ -315,34 +336,45 @@ class CorporateCompanyFormPage extends StatelessWidget {
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
               final company = controller.searchResults[index];
-              final exists =
-              (glb.roleType.value == "Grower")
+              final exists = (glb.roleType.value == "Grower")
                   ? Get.find<GrowerController>()
-                  .corporateCompanies
-                  .any((existingDriver) => existingDriver.id == company.id):
-              (glb.roleType.value == "PackHouse")
-                  ? Get.find<PackHouseController>()
-                  .associatedLadanis
-                  .any((existingDriver) => existingDriver.id == company.id)
-                  : (glb.roleType.value == "Aadhati")?Get.find<AadhatiController>().associatedLadanis.any(
-                      (existingDriver) =>
-                  existingDriver.id == company.id): (glb.roleType.value == "APMC Office")
-                  ? Get.find<ApmcOfficeController>().flag.value
-                  ? Get.find<ApmcOfficeController>().approvedLadanis.any((existingDriver) =>
-              existingDriver.id == company.id)
-                  : Get.find<ApmcOfficeController>()
-                  .blacklistedLadanis
-                  .any((existingDriver) =>
-              existingDriver.id == company.id)
-                  : (Get.find<HPAgriBoardController>().flag.value)
-                  ? Get.find<HPAgriBoardController>()
-                  .approvedLadanis
-                  .any((existingDriver) =>
-              existingDriver.id == company.id)
-                  : Get.find<HPAgriBoardController>()
-                  .blacklistedLadanis
-                  .any((existingDriver) => existingDriver.id == company.id);
-
+                      .corporateCompanies
+                      .any((existingDriver) => existingDriver.id == company.id)
+                  : (glb.roleType.value == "PackHouse")
+                      ? Get.find<PackHouseController>().associatedLadanis.any(
+                          (existingDriver) => existingDriver.id == company.id)
+                      : (glb.roleType.value == "Aadhati")
+                          ? Get.find<AadhatiController>().associatedLadanis.any(
+                              (existingDriver) =>
+                                  existingDriver.id == company.id)
+                          : (glb.roleType.value == "Freight Forwarder")
+                              ? Get.find<FreightForwarderController>()
+                                  .associatedLadanis
+                                  .any((existingDriver) =>
+                                      existingDriver.id == company.id)
+                              : (glb.roleType.value == "Driver")
+                  ? Get.find<DriverController>()
+                  .associatedBuyers
+                  .any(
+                      (existingDriver) => existingDriver.id == company.id)
+                  : (glb.roleType.value == "APMC Office")
+                                  ? Get.find<ApmcOfficeController>().flag.value
+                                      ? Get.find<ApmcOfficeController>()
+                                          .approvedLadanis
+                                          .any((existingDriver) =>
+                                              existingDriver.id == company.id)
+                                      : Get.find<ApmcOfficeController>()
+                                          .blacklistedLadanis
+                                          .any((existingDriver) =>
+                                              existingDriver.id == company.id)
+                                  : (Get.find<HPAgriBoardController>()
+                                          .flag
+                                          .value)
+                                      ? Get.find<HPAgriBoardController>()
+                                          .approvedLadanis
+                                          .any(
+                                              (existingDriver) => existingDriver.id == company.id)
+                                      : Get.find<HPAgriBoardController>().blacklistedLadanis.any((existingDriver) => existingDriver.id == company.id);
 
               return Stack(
                 children: [

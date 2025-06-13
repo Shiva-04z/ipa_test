@@ -1,9 +1,12 @@
+import 'package:apple_grower/features/driver/driver_controller.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/globals.dart' as glb;
 import '../../core/global_role_loader.dart' as gld;
+import '../aadhati/aadhati_controller.dart';
+import '../grower/grower_controller.dart';
 
 class PackingHouseFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -59,9 +62,17 @@ class PackingHouseFormController extends GetxController {
 
   void selectPackingHouse(PackHouse house) {
     // Check if packing house already exists
-    final exists = gld.globalGrower.value.packingHouses.any(
-      (existingHouse) => existingHouse.id == house.id,
-    );
+    final exists = (glb.roleType.value == "Grower")
+        ? Get.find<GrowerController>()
+        .packingHouses
+        .any((existingDriver) => existingDriver.id == house.id)
+        : (glb.roleType.value == "Aadhti")
+        ? Get.find<AadhatiController>()
+        .associatedPackHouses
+        .any((existingDriver) => existingDriver.id == house.id)
+        : Get.find<DriverController>()
+        .associatedPackhouses
+        .any((existingDriver) => existingDriver.id == house.id);
 
     if (exists) {
       Get.snackbar(
@@ -73,21 +84,17 @@ class PackingHouseFormController extends GetxController {
       );
       return;
     }
-
-    final updatedHouses = [...gld.globalGrower.value.packingHouses, house];
-    gld.globalGrower.value = gld.globalGrower.value.copyWith(
-      packingHouses: updatedHouses,
-      updatedAt: DateTime.now(),
-    );
+  (glb.roleType.value == "Grower")
+        ? Get.find<GrowerController>()
+        .addPackingHouse(house)
+        : (glb.roleType.value == "Aadhti")
+        ? Get.find<AadhatiController>()
+        .addAssociatedPackhouses(house)
+        : Get.find<DriverController>()
+        .addAssociatedPackhouse(house);
 
     Get.back();
-    Get.snackbar(
-      'Success',
-      'Packing house added successfully',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xff548235),
-      colorText: Colors.white,
-    );
+
   }
 
   void submitForm() {
@@ -96,7 +103,7 @@ class PackingHouseFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      final newPackingHouse = PackHouse(
+      final house = PackHouse(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: nameController.text,
         phoneNumber: phoneController.text,
@@ -110,14 +117,14 @@ class PackingHouseFormController extends GetxController {
         trayType: selectedTrayType.value,
       );
 
-      final updatedPackingHouses = [
-        ...gld.globalGrower.value.packingHouses,
-        newPackingHouse
-      ];
-      gld.globalGrower.value = gld.globalGrower.value.copyWith(
-        packingHouses: updatedPackingHouses,
-        updatedAt: DateTime.now(),
-      );
+      (glb.roleType.value == "Grower")
+          ? Get.find<GrowerController>()
+          .addPackingHouse(house)
+          : (glb.roleType.value == "Aadhti")
+          ? Get.find<AadhatiController>()
+          .addAssociatedPackhouses(house)
+          : Get.find<DriverController>()
+          .addAssociatedPackhouse(house);
 
       Get.back();
       Get.snackbar(
@@ -275,9 +282,17 @@ class PackingHouseFormPage extends StatelessWidget {
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
               final house = controller.searchResults[index];
-              final exists = gld.globalGrower.value.packingHouses.any(
-                (existingHouse) => existingHouse.id == house.id,
-              );
+              final exists = (glb.roleType.value == "Grower")
+                  ? Get.find<GrowerController>()
+                  .packingHouses
+                  .any((existingDriver) => existingDriver.id == house.id)
+                  : (glb.roleType.value == "Aadhti")
+                  ? Get.find<AadhatiController>()
+                  .associatedPackHouses
+                  .any((existingDriver) => existingDriver.id == house.id)
+                  : Get.find<DriverController>()
+                  .associatedPackhouses
+                  .any((existingDriver) => existingDriver.id == house.id);
 
               return Stack(
                 children: [
