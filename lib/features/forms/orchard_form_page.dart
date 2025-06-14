@@ -36,6 +36,7 @@ class OrchardFormController extends GetxController {
   final currentPosition = Rxn<Position>();
   final imagePicker = ImagePicker();
   final GlobalKey mapKey = GlobalKey();
+  final isSatelliteMode = false.obs;
 
   @override
   void onInit() {
@@ -391,7 +392,7 @@ class OrchardFormController extends GetxController {
       height: 40,
       child: const Icon(
         Icons.location_on,
-        color: Color(0xff548235),
+        color: Colors.red,
         size: 40,
       ),
     ));
@@ -401,8 +402,8 @@ class OrchardFormController extends GetxController {
       polygons.add(Polygon(
         points:
             boundaryPoints.map((p) => LatLng(p.latitude, p.longitude)).toList(),
-        color: const Color(0xff548235).withOpacity(0.2),
-        borderColor: const Color(0xff548235),
+        color: Colors.red.withOpacity(0.2),
+        borderColor: Colors.red,
         borderStrokeWidth: 2,
       ));
     }
@@ -518,6 +519,8 @@ class OrchardFormController extends GetxController {
                               currentPosition.value!.longitude,
                             ),
                             initialZoom: 14,
+                            minZoom: 5.0,
+                            maxZoom: 18.0,
                             onTap: (tapPosition, point) {
                               markers.clear();
                               markers.add(Marker(
@@ -538,8 +541,9 @@ class OrchardFormController extends GetxController {
                           ),
                           children: [
                             TileLayer(
-                              urlTemplate:
-                                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              urlTemplate: isSatelliteMode.value
+                                  ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                                  : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                               userAgentPackageName: 'com.example.apple_grower',
                             ),
                             MarkerLayer(markers: markers),
@@ -549,22 +553,89 @@ class OrchardFormController extends GetxController {
                         Positioned(
                           top: 8,
                           right: 8,
-                          child: FloatingActionButton(
-                            heroTag: 'center_location',
-                            onPressed: () {
-                              if (currentPosition.value != null) {
-                                mapController.move(
-                                  LatLng(
-                                    currentPosition.value!.latitude,
-                                    currentPosition.value!.longitude,
-                                  ),
-                                  14,
-                                );
-                              }
-                            },
-                            backgroundColor: const Color(0xff548235),
-                            child: const Icon(Icons.my_location,
-                                color: Colors.white),
+                          child: Column(
+                            children: [
+                              FloatingActionButton(
+                                heroTag: 'viewMode',
+                                onPressed: () {
+                                  isSatelliteMode.value =
+                                      !isSatelliteMode.value;
+                                  Get.snackbar(
+                                    'Map View Changed',
+                                    isSatelliteMode.value
+                                        ? 'Satellite View'
+                                        : 'Standard View',
+                                    snackPosition: SnackPosition.BOTTOM,
+                                  );
+                                },
+                                backgroundColor: const Color(0xff548235),
+                                child: Icon(
+                                  isSatelliteMode.value
+                                      ? Icons.map
+                                      : Icons.satellite,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              FloatingActionButton(
+                                heroTag: 'center_location',
+                                onPressed: () {
+                                  if (currentPosition.value != null) {
+                                    mapController.move(
+                                      LatLng(
+                                        currentPosition.value!.latitude,
+                                        currentPosition.value!.longitude,
+                                      ),
+                                      14,
+                                    );
+                                  }
+                                },
+                                backgroundColor: const Color(0xff548235),
+                                child: const Icon(Icons.my_location,
+                                    color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          left: 16,
+                          bottom: 16,
+                          child: Card(
+                            elevation: 4,
+                            child: Column(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: () {
+                                    final currentZoom =
+                                        mapController.camera.zoom;
+                                    final newZoom =
+                                        (currentZoom + 1).clamp(5.0, 18.0);
+                                    if (newZoom != currentZoom) {
+                                      mapController.move(
+                                        mapController.camera.center,
+                                        newZoom,
+                                      );
+                                    }
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.remove),
+                                  onPressed: () {
+                                    final currentZoom =
+                                        mapController.camera.zoom;
+                                    final newZoom =
+                                        (currentZoom - 1).clamp(5.0, 18.0);
+                                    if (newZoom != currentZoom) {
+                                      mapController.move(
+                                        mapController.camera.center,
+                                        newZoom,
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -837,7 +908,7 @@ class OrchardFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Container(
-              height: 300,
+              height: 500,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(8),
@@ -886,6 +957,8 @@ class OrchardFormPage extends StatelessWidget {
                             controller.currentPosition.value!.longitude,
                           ),
                           initialZoom: 14,
+                          minZoom: 5.0,
+                          maxZoom: 18.0,
                           onTap: (tapPosition, latLng) {
                             controller.addBoundaryPoint(latLng);
                           },
@@ -903,8 +976,9 @@ class OrchardFormPage extends StatelessWidget {
                         ),
                         children: [
                           TileLayer(
-                            urlTemplate:
-                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            urlTemplate: controller.isSatelliteMode.value
+                                ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                                : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                             userAgentPackageName: 'com.example.apple_grower',
                           ),
                           MarkerLayer(
@@ -932,22 +1006,91 @@ class OrchardFormPage extends StatelessWidget {
                       Positioned(
                         top: 8,
                         right: 8,
-                        child: FloatingActionButton(
-                          heroTag: 'center_location',
-                          onPressed: () {
-                            if (controller.currentPosition.value != null) {
-                              controller.mapController.move(
-                                LatLng(
-                                  controller.currentPosition.value!.latitude,
-                                  controller.currentPosition.value!.longitude,
-                                ),
-                                14,
-                              );
-                            }
-                          },
-                          backgroundColor: const Color(0xff548235),
-                          child: const Icon(Icons.my_location,
-                              color: Colors.white),
+                        child: Column(
+                          children: [
+                            FloatingActionButton(
+                              heroTag: 'boundary_viewMode',
+                              onPressed: () {
+                                controller.isSatelliteMode.value =
+                                    !controller.isSatelliteMode.value;
+                                Get.snackbar(
+                                  'Map View Changed',
+                                  controller.isSatelliteMode.value
+                                      ? 'Satellite View'
+                                      : 'Standard View',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              },
+                              backgroundColor: const Color(0xff548235),
+                              child: Icon(
+                                controller.isSatelliteMode.value
+                                    ? Icons.map
+                                    : Icons.satellite,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            FloatingActionButton(
+                              heroTag: 'boundary_center_location',
+                              onPressed: () {
+                                if (controller.currentPosition.value != null) {
+                                  controller.mapController.move(
+                                    LatLng(
+                                      controller
+                                          .currentPosition.value!.latitude,
+                                      controller
+                                          .currentPosition.value!.longitude,
+                                    ),
+                                    14,
+                                  );
+                                }
+                              },
+                              backgroundColor: const Color(0xff548235),
+                              child: const Icon(Icons.my_location,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        left: 16,
+                        bottom: 16,
+                        child: Card(
+                          elevation: 4,
+                          child: Column(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                onPressed: () {
+                                  final currentZoom =
+                                      controller.mapController.camera.zoom;
+                                  final newZoom =
+                                      (currentZoom + 1).clamp(5.0, 18.0);
+                                  if (newZoom != currentZoom) {
+                                    controller.mapController.move(
+                                      controller.mapController.camera.center,
+                                      newZoom,
+                                    );
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.remove),
+                                onPressed: () {
+                                  final currentZoom =
+                                      controller.mapController.camera.zoom;
+                                  final newZoom =
+                                      (currentZoom - 1).clamp(5.0, 18.0);
+                                  if (newZoom != currentZoom) {
+                                    controller.mapController.move(
+                                      controller.mapController.camera.center,
+                                      newZoom,
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],

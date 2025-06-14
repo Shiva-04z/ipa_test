@@ -10,7 +10,6 @@ import 'package:geocoding/geocoding.dart';
 import 'dart:math';
 import '../../core/globals.dart' as glb;
 import '../../models/consignment_model.dart';
-
 import '../../core/global_role_loader.dart' as gld;
 import '../grower/grower_controller.dart';
 
@@ -25,176 +24,259 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
 
   int _currentStep = 0;
 
-  // Step 1 Controllers
+  // Step 1: Driver Selection
+  String? _selectedDriverOption; // 'Self', 'My Drivers', 'Request Support'
+  DrivingProfile? _selectedDriver;
+  bool _isDriverSupportRequested = false;
+  DrivingProfile? _resolvedDriverDetails;
+
+  // Step 2: Packhouse Selection
+  String?
+      _selectedPackhouseOption; // 'Self', 'My Packhouses', 'Request Support'
+  PackHouse? _selectedPackhouse;
+  bool _isPackhouseSupportRequested = false;
+  PackHouse? _resolvedPackhouseDetails;
+
+  // Step 3: Bilty Creation
+  String? _selectedPackingType; // 'Gunny Bags' or 'Detailed Bilty'
+  String? _selectedHpmcDepot;
+  final TextEditingController _boxesController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+
+  // Government data for bilty details
+  final List<Map<String, dynamic>> _biltyData = [
+    {
+      'quality': 'AAA',
+      'category': 'Extra Large',
+      'size': '>80mm',
+      'avgWeight': '250g',
+      'piecesInBox': 80,
+    },
+    {
+      'quality': 'AAA',
+      'category': 'Large',
+      'size': '>75mm-<80mm',
+      'avgWeight': '200g',
+      'piecesInBox': 100,
+    },
+    {
+      'quality': 'AAA',
+      'category': 'Medium',
+      'size': '>70mm-<75mm',
+      'avgWeight': '160g',
+      'piecesInBox': 125,
+    },
+    {
+      'quality': 'AAA',
+      'category': 'Small',
+      'size': '>65mm-<70mm',
+      'avgWeight': '133g',
+      'piecesInBox': 150,
+    },
+    {
+      'quality': 'AAA',
+      'category': 'Extra Small',
+      'size': '>60mm-<65mm',
+      'avgWeight': '116g',
+      'piecesInBox': 175,
+    },
+    {
+      'quality': 'AAA',
+      'category': 'E Extra Small',
+      'size': '>55mm-<60mm',
+      'avgWeight': '98g',
+      'piecesInBox': 200,
+    },
+    {
+      'quality': 'AAA',
+      'category': '240 Count',
+      'size': '>50mm-<55mm',
+      'avgWeight': '75g',
+      'piecesInBox': 240,
+    },
+    {
+      'quality': 'AAA',
+      'category': 'Pittu',
+      'size': '>45mm-<50mm',
+      'avgWeight': '70g',
+      'piecesInBox': 270,
+    },
+    {
+      'quality': 'AAA',
+      'category': 'Seprator',
+      'size': '>40mm-<45mm',
+      'avgWeight': '65g',
+      'piecesInBox': 300,
+    },
+    {
+      'quality': 'GP',
+      'category': 'Large',
+      'size': '>75mm-<80mm',
+      'avgWeight': '200g',
+      'piecesInBox': 40,
+    },
+    {
+      'quality': 'GP',
+      'category': 'Medium',
+      'size': '>70mm-<75mm',
+      'avgWeight': '160g',
+      'piecesInBox': 50,
+    },
+    {
+      'quality': 'GP',
+      'category': 'Small',
+      'size': '>65mm-<70mm',
+      'avgWeight': '133g',
+      'piecesInBox': 60,
+    },
+    {
+      'quality': 'GP',
+      'category': 'Extra Small',
+      'size': '>60mm-<65mm',
+      'avgWeight': '116g',
+      'piecesInBox': 70,
+    },
+    {
+      'quality': 'AA',
+      'category': 'Extra Large',
+      'size': '>80mm',
+      'avgWeight': '250g',
+      'piecesInBox': 80,
+    },
+    {
+      'quality': 'AA',
+      'category': 'Large',
+      'size': '>75mm-<80mm',
+      'avgWeight': '200g',
+      'piecesInBox': 100,
+    },
+    {
+      'quality': 'AA',
+      'category': 'Medium',
+      'size': '>70mm-<75mm',
+      'avgWeight': '160g',
+      'piecesInBox': 125,
+    },
+    {
+      'quality': 'AA',
+      'category': 'Small',
+      'size': '>65mm-<70mm',
+      'avgWeight': '133g',
+      'piecesInBox': 150,
+    },
+    {
+      'quality': 'AA',
+      'category': 'Extra Small',
+      'size': '>60mm-<65mm',
+      'avgWeight': '116g',
+      'piecesInBox': 175,
+    },
+  ];
+
   String? _selectedQuality;
   String? _selectedCategory;
-  final TextEditingController _boxesController = TextEditingController();
-  int? _piecesInBox;
+  final TextEditingController _boxCountController = TextEditingController();
+  final List<Map<String, dynamic>> _biltyItems = [];
 
-  // Step 2 Controllers
-  String? _selectedPickupOption;
-  final TextEditingController _shippingFromController = TextEditingController();
-  final TextEditingController _shippingToController = TextEditingController();
-  final TextEditingController _driverNameController = TextEditingController();
-  final TextEditingController _driverContactController =
-      TextEditingController();
-  RxBool _requestDriverSupportPending = false.obs;
- DrivingProfile? _resolvedDriverDetails;
+  // Add dummy bilty data structure
+  final List<Map<String, dynamic>> _dummyBiltyItems = [
+    {
+      'quality': 'AAA',
+      'category': 'Large',
+      'size': '>75mm-<80mm',
+      'avgWeight': '200g',
+      'piecesInBox': 100,
+      'weightPerBox': 20.0,
+      'boxCount': 10,
+      'totalWeight': 200.0,
+      'totalPieces': 1000,
+    }
+  ];
 
-  // Step 3 Controllers
-  final TextEditingController _packhouseNameController =
-      TextEditingController();
-  final TextEditingController _packhouseContactController =
-      TextEditingController();
-  bool _hasOwnCrates = false;
-
-  // Step 4 Controllers
-  String? _selectedStatus;
-
-  // Step 5 Controllers (only shown if status is "Release for Bid")
-  String? _selectedAdhaniOption;
-  String? _selectedLadhaniOption;
-  final TextEditingController _adhaniNameController = TextEditingController();
-  final TextEditingController _adhaniContactController =
-      TextEditingController();
-  final TextEditingController _adhaniApmcController = TextEditingController();
-  final TextEditingController _ladhaniNameController = TextEditingController();
-  final TextEditingController _ladhaniContactController =
-      TextEditingController();
-  final TextEditingController _ladhaniCompanyController =
-      TextEditingController();
-  RxBool _requestAdhaniSupportPending = false.obs;
-  RxBool _requestLadhaniSupportPending = false.obs;
-  Map<String, dynamic>? _resolvedAdhaniDetails;
-  Map<String, dynamic>? _resolvedLadhaniDetails;
-
-  // Add these variables at the top with other state variables
-  String? _selectedPartnerType; // 'Adhani' or 'Ladhani'
-  Aadhati? _selectedAdhani;
- Ladani? _selectedLadhani;
-  PackHouse? _selectedPackhouse;
+  // Add new state variables for Aadhati pricing
+  bool _isPerKgMode = true;
+  final List<Map<String, dynamic>> _pricedBiltyItems = [];
+  bool _isAadhatiSubmitted = false;
+  // Track which field was last edited for each row
+  final Map<int, String> _lastEditedField = {};
 
   @override
   void dispose() {
     _boxesController.dispose();
-    _shippingFromController.dispose();
-    _shippingToController.dispose();
-    _driverNameController.dispose();
-    _driverContactController.dispose();
-    _packhouseNameController.dispose();
-    _packhouseContactController.dispose();
-    _adhaniNameController.dispose();
-    _adhaniContactController.dispose();
-    _adhaniApmcController.dispose();
-    _ladhaniNameController.dispose();
-    _ladhaniContactController.dispose();
-    _ladhaniCompanyController.dispose();
+    _priceController.dispose();
+    _boxCountController.dispose();
     super.dispose();
   }
 
   List<String> get _availableQualities =>
-      glb.consignmentTableData
-          .map((e) => e['quality'] as String)
-          .toSet()
-          .toList();
+      _biltyData.map((e) => e['quality'] as String).toSet().toList();
 
   List<String> get _availableCategories {
     if (_selectedQuality == null) return [];
-    return glb.consignmentTableData
+    return _biltyData
         .where((e) => e['quality'] == _selectedQuality)
         .map((e) => e['category'] as String)
         .toList();
   }
 
-  void _updatePiecesInBox() {
-    if (_selectedQuality != null && _selectedCategory != null) {
-      final data = glb.consignmentTableData.firstWhereOrNull(
-        (e) =>
-            e['quality'] == _selectedQuality &&
-            e['category'] == _selectedCategory,
-      );
-      _piecesInBox = data?['piecesInBox'] as int?;
-    } else {
-      _piecesInBox = null;
-    }
+  Map<String, dynamic>? _getBiltyDetails({String? quality, String? category}) {
+    if (quality == null || category == null) return null;
+    final details = _biltyData.firstWhereOrNull(
+      (e) => e['quality'] == quality && e['category'] == category,
+    );
+    if (details == null) return null;
+
+    // Create a new map to avoid reference issues
+    return {
+      'quality': details['quality'],
+      'category': details['category'],
+      'size': details['size'],
+      'avgWeight': details['avgWeight'],
+      'piecesInBox': details['piecesInBox'],
+    };
+  }
+
+  double _parseWeight(String weightStr) {
+    return double.parse(weightStr.replaceAll('g', ''));
   }
 
   Future<void> _requestDriverSupport() async {
-    _requestDriverSupportPending.value = true;
+    _isDriverSupportRequested = true;
     await Future.delayed(Duration(seconds: 2));
-    final randomDriver = (glb.availableDrivingProfiles.toList()..shuffle()).first;
-    _resolvedDriverDetails = randomDriver;
-    _requestDriverSupportPending.value = false;
+    final randomDriver =
+        (glb.availableDrivingProfiles.toList()..shuffle()).first;
+    setState(() {
+      _resolvedDriverDetails = randomDriver;
+      _isDriverSupportRequested = false;
+    });
     Get.snackbar(
       'Success',
-      'Driver details fetched.',
+      'Driver support requested successfully',
       backgroundColor: Colors.green,
       colorText: Colors.white,
     );
   }
-  Future<void> _showMapLocationPicker(
-    BuildContext context,
-    TextEditingController locationController,
-  ) async {
-    try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        Get.snackbar('Error', 'Location services are disabled.');
-        return;
-      }
 
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          Get.snackbar('Error', 'Location permissions are denied');
-          return;
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        Get.snackbar('Error', 'Location permissions are permanently denied');
-        return;
-      }
-
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-
-      String address =
-          placemarks.isNotEmpty
-              ? '${placemarks.first.street}, ${placemarks.first.locality}, ${placemarks.first.postalCode}'
-              : 'Unknown Location';
-
-      locationController.text = address;
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to get location: ${e.toString()}');
-    }
-  }
-
-  InputDecoration _getLocationDecoration(String label, VoidCallback onMapTap) {
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(Icons.location_on),
-      suffixIcon: IconButton(icon: Icon(Icons.map), onPressed: onMapTap),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+  Future<void> _requestPackhouseSupport() async {
+    _isPackhouseSupportRequested = true;
+    await Future.delayed(Duration(seconds: 2));
+    final randomPackhouse = (glb.availablePackHouses.toList()..shuffle()).first;
+    setState(() {
+      _resolvedPackhouseDetails = randomPackhouse;
+      _isPackhouseSupportRequested = false;
+    });
+    Get.snackbar(
+      'Success',
+      'Packhouse support requested successfully',
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
     );
   }
 
-  InputDecoration _getInputDecoration(
-    String label, {
-    IconData? prefixIcon,
-    Widget? suffixIcon,
-  }) {
+  InputDecoration _getInputDecoration(String label, {IconData? prefixIcon}) {
     return InputDecoration(
       labelText: label,
       prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
-      suffixIcon: suffixIcon,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey[300]!),
@@ -213,720 +295,1160 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
     );
   }
 
-  // Add this method to get a random partner
-  T _getRandomPartner<T>(List<T> partners) {
-    if (partners.isEmpty) return null as T;
-    final random = Random();
-    return partners[random.nextInt(partners.length)];
-  }
-
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final newConsignment = Consignment(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        quality: _selectedQuality!,
-        category: _selectedCategory!,
-        numberOfBoxes: int.parse(_boxesController.text),
-        numberOfPiecesInBox: _piecesInBox!,
-        pickupOption: _selectedPickupOption!,
-        shippingFrom:
-            _selectedPickupOption == 'Request Driver Support'
-                ? _shippingFromController.text
-                : null,
-        shippingTo:
-            _selectedPickupOption == 'Request Driver Support'
-                ? _shippingToController.text
-                : null,
-        packingHouse: _selectedPackhouse!,
-        commissionAgent:
-            _selectedPartnerType == 'Adhani' ? _selectedAdhani : null,
-        corporateCompany:
-            _selectedPartnerType == 'Ladhani' ? _selectedLadhani : null,
-        hasOwnCrates: _hasOwnCrates,
-        status: _selectedStatus ?? 'Keep',
-        driver: _resolvedDriverDetails ,
-
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      gld.globalGrower.value.consignments.add(newConsignment);
-      gld.globalGrower.refresh();
-      Get.back();
-      Get.snackbar(
-        'Success',
-        'Consignment added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
-  }
-
-  Widget _buildStep1() {
+  Widget _buildDriverSelectionCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Consignment Details',
+          'Select Driver:',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Color(0xff548235),
           ),
         ),
-        SizedBox(height: 24),
-        DropdownButtonFormField<String>(
-          decoration: _getInputDecoration(
-            'Quality',
-            prefixIcon: Icons.category,
+        SizedBox(height: 16),
+        ListTile(
+          title: const Text('Self'),
+          subtitle: Text('You will handle the driving yourself'),
+          leading: Radio<String>(
+            value: 'Self',
+            groupValue: _selectedDriverOption,
+            onChanged: (value) {
+              setState(() {
+                _selectedDriverOption = value;
+                _selectedDriver = null;
+                _resolvedDriverDetails = null;
+              });
+            },
           ),
-          value: _selectedQuality,
-          items:
-              _availableQualities.map((String quality) {
-                return DropdownMenuItem<String>(
-                  value: quality,
-                  child: Text(quality),
-                );
-              }).toList(),
-          onChanged: (newValue) {
-            setState(() {
-              _selectedQuality = newValue;
-              _selectedCategory = null;
-              _updatePiecesInBox();
-            });
-          },
-          validator: (value) => value == null ? 'Please select Quality' : null,
+        ),
+        ListTile(
+          title: const Text('My Drivers'),
+          subtitle: Text('Select from your saved drivers'),
+          leading: Radio<String>(
+            value: 'My Drivers',
+            groupValue: _selectedDriverOption,
+            onChanged: (value) {
+              setState(() {
+                _selectedDriverOption = value;
+                _resolvedDriverDetails = null;
+              });
+            },
+          ),
+        ),
+        ListTile(
+          title: const Text('Request Support'),
+          subtitle: Text('FAS will assign a driver before dispatch'),
+          leading: Radio<String>(
+            value: 'Request Support',
+            groupValue: _selectedDriverOption,
+            onChanged: (value) {
+              setState(() {
+                _selectedDriverOption = value;
+                _selectedDriver = null;
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDriverDetailsCard() {
+    if (_selectedDriverOption == null) return SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_selectedDriverOption == 'My Drivers') ...[
+          DropdownButtonFormField<DrivingProfile>(
+            decoration:
+                _getInputDecoration('Select Driver', prefixIcon: Icons.person),
+            value: _selectedDriver,
+            items: glb.availableDrivingProfiles.map((DrivingProfile driver) {
+              return DropdownMenuItem<DrivingProfile>(
+                value: driver,
+                child: Text(driver.name ?? 'Unknown Driver'),
+              );
+            }).toList(),
+            onChanged: (DrivingProfile? newValue) {
+              setState(() {
+                _selectedDriver = newValue;
+              });
+            },
+            validator: (value) =>
+                value == null ? 'Please select a driver' : null,
+          ),
+        ] else if (_selectedDriverOption == 'Request Support') ...[
+          ElevatedButton.icon(
+            onPressed: _isDriverSupportRequested ? null : _requestDriverSupport,
+            icon: Icon(Icons.support_agent),
+            label: Text('Request Driver Support'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xff548235),
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+          if (_isDriverSupportRequested)
+            Center(
+              child: Column(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 8),
+                  Text('Requesting driver support...'),
+                ],
+              ),
+            )
+          else if (_resolvedDriverDetails != null)
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Assigned Driver:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                      'Name: ${_resolvedDriverDetails!.name ?? 'Unknown Driver'}'),
+                  Text('Contact: ${_resolvedDriverDetails!.contact ?? 'N/A'}'),
+                  if (_resolvedDriverDetails!.vehicleRegistrationNo != null)
+                    Text(
+                        'Vehicle: ${_resolvedDriverDetails!.vehicleRegistrationNo}'),
+                ],
+              ),
+            ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildPackhouseSelectionCard() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Select Packhouse:',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xff548235),
+          ),
+        ),
+        SizedBox(height: 16),
+        ListTile(
+          title: const Text('Self'),
+          subtitle: Text('You will handle the packing yourself'),
+          leading: Radio<String>(
+            value: 'Self',
+            groupValue: _selectedPackhouseOption,
+            onChanged: (value) {
+              setState(() {
+                _selectedPackhouseOption = value;
+                _selectedPackhouse = null;
+                _resolvedPackhouseDetails = null;
+              });
+            },
+          ),
+        ),
+        ListTile(
+          title: const Text('My Packhouses'),
+          subtitle: Text('Select from your saved packhouses'),
+          leading: Radio<String>(
+            value: 'My Packhouses',
+            groupValue: _selectedPackhouseOption,
+            onChanged: (value) {
+              setState(() {
+                _selectedPackhouseOption = value;
+                _resolvedPackhouseDetails = null;
+              });
+            },
+          ),
+        ),
+        ListTile(
+          title: const Text('Request Support'),
+          subtitle: Text('FAS will assign a packhouse near your farm'),
+          leading: Radio<String>(
+            value: 'Request Support',
+            groupValue: _selectedPackhouseOption,
+            onChanged: (value) {
+              setState(() {
+                _selectedPackhouseOption = value;
+                _selectedPackhouse = null;
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPackhouseDetailsCard() {
+    if (_selectedPackhouseOption == null) return SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_selectedPackhouseOption == 'My Packhouses') ...[
+          DropdownButtonFormField<PackHouse>(
+            decoration: _getInputDecoration('Select Packhouse',
+                prefixIcon: Icons.business),
+            value: _selectedPackhouse,
+            items: glb.availablePackHouses.map((PackHouse packhouse) {
+              return DropdownMenuItem<PackHouse>(
+                value: packhouse,
+                child: Text(packhouse.name),
+              );
+            }).toList(),
+            onChanged: (PackHouse? newValue) {
+              setState(() {
+                _selectedPackhouse = newValue;
+              });
+            },
+            validator: (value) =>
+                value == null ? 'Please select a packhouse' : null,
+          ),
+        ] else if (_selectedPackhouseOption == 'Request Support') ...[
+          ElevatedButton.icon(
+            onPressed:
+                _isPackhouseSupportRequested ? null : _requestPackhouseSupport,
+            icon: Icon(Icons.support_agent),
+            label: Text('Request Packhouse Support'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xff548235),
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+          if (_isPackhouseSupportRequested)
+            Center(
+              child: Column(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 8),
+                  Text('Requesting packhouse support...'),
+                ],
+              ),
+            )
+          else if (_resolvedPackhouseDetails != null)
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Assigned Packhouse:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text('Name: ${_resolvedPackhouseDetails!.name}'),
+                  Text('Contact: ${_resolvedPackhouseDetails!.phoneNumber}'),
+                  if (_resolvedPackhouseDetails!.address != null)
+                    Text('Address: ${_resolvedPackhouseDetails!.address}'),
+                ],
+              ),
+            ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildPackingTypeSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Select Packing Type:',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xff548235),
+          ),
+        ),
+        SizedBox(height: 16),
+        ListTile(
+          title: const Text('Gunny Bags'),
+          subtitle: Text('For HPMC depots'),
+          leading: Radio<String>(
+            value: 'Gunny Bags',
+            groupValue: _selectedPackingType,
+            onChanged: (value) {
+              setState(() {
+                _selectedPackingType = value;
+                _selectedHpmcDepot = null;
+                _boxesController.clear();
+                _priceController.clear();
+              });
+            },
+          ),
+        ),
+        ListTile(
+          title: const Text('Detailed Bilty'),
+          subtitle: Text('Manual entry with quality details'),
+          leading: Radio<String>(
+            value: 'Detailed Bilty',
+            groupValue: _selectedPackingType,
+            onChanged: (value) {
+              setState(() {
+                _selectedPackingType = value;
+                _selectedQuality = null;
+                _selectedCategory = null;
+                _boxCountController.clear();
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGunnyBagsForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Gunny Bags Details:',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xff548235),
+          ),
         ),
         SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          value: _selectedCategory,
-          items:
-              _availableCategories.map((String category) {
-                return DropdownMenuItem<String>(
-                  value: category,
-                  child: Text(category),
-                );
-              }).toList(),
-          onChanged: (newValue) {
+          decoration: _getInputDecoration('Select HPMC Depot',
+              prefixIcon: Icons.warehouse),
+          value: _selectedHpmcDepot,
+          items: ['Depot 1', 'Depot 2', 'Depot 3'].map((String depot) {
+            return DropdownMenuItem<String>(
+              value: depot,
+              child: Text(depot),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
             setState(() {
-              _selectedCategory = newValue;
-              _updatePiecesInBox();
+              _selectedHpmcDepot = newValue;
             });
           },
-          validator: (value) => value == null ? 'Please select Category' : null,
-          disabledHint: Text('Select Quality first'),
-          decoration: _getInputDecoration('Category', prefixIcon: Icons.list),
+          validator: (value) =>
+              value == null ? 'Please select HPMC Depot' : null,
         ),
         SizedBox(height: 16),
         TextFormField(
           controller: _boxesController,
-          decoration: _getInputDecoration(
-            'Number of Boxes',
-            prefixIcon: Icons.inventory,
-          ),
+          decoration: _getInputDecoration('Number of Boxes',
+              prefixIcon: Icons.inventory),
           keyboardType: TextInputType.number,
-          validator:
-              (value) =>
-                  value?.isEmpty ?? true
-                      ? 'Please enter number of boxes'
-                      : null,
+          validator: (value) =>
+              value?.isEmpty ?? true ? 'Please enter number of boxes' : null,
         ),
         SizedBox(height: 16),
-        InputDecorator(
-          decoration: _getInputDecoration(
-            'Pieces in Box',
-            prefixIcon: Icons.calculate,
-          ),
-          child: Text(
-            _piecesInBox != null
-                ? _piecesInBox.toString()
-                : 'Select Quality and Category',
-            style: TextStyle(fontSize: 16),
-          ),
+        TextFormField(
+          controller: _priceController,
+          decoration: _getInputDecoration('Price per Box (Optional)',
+              prefixIcon: Icons.attach_money),
+          keyboardType: TextInputType.number,
         ),
       ],
     );
   }
 
-  Widget _buildStep2() {
+  Widget _buildDetailedBiltyForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Pickup Details',
+          'Detailed Bilty Entry:',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Color(0xff548235),
           ),
         ),
-        SizedBox(height: 24),
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Pickup Option:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                ListTile(
-                  title: const Text('Own'),
-                  leading: Radio<String>(
-                    value: 'Own',
-                    groupValue: _selectedPickupOption,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedPickupOption = value;
-                        _resolvedDriverDetails = null;
-                      });
-                    },
-                  ),
-                ),
-                ListTile(
-                  title: const Text('Request Driver Support'),
-                  leading: Radio<String>(
-                    value: 'Request Driver Support',
-                    groupValue: _selectedPickupOption,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedPickupOption = value;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+        SizedBox(height: 16),
+        DropdownButtonFormField<String>(
+          decoration:
+              _getInputDecoration('Quality', prefixIcon: Icons.category),
+          value: _selectedQuality,
+          items: _availableQualities.map((String quality) {
+            return DropdownMenuItem<String>(
+              value: quality,
+              child: Text(quality),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedQuality = newValue;
+              _selectedCategory = null;
+            });
+          },
         ),
-        if (_selectedPickupOption == 'Own') ...[
+        SizedBox(height: 16),
+        DropdownButtonFormField<String>(
+          decoration: _getInputDecoration('Category', prefixIcon: Icons.list),
+          value: _selectedCategory,
+          items: _availableCategories.map((String category) {
+            return DropdownMenuItem<String>(
+              value: category,
+              child: Text(category),
+            );
+          }).toList(),
+          onChanged: _selectedQuality == null
+              ? null
+              : (String? newValue) {
+                  setState(() {
+                    _selectedCategory = newValue;
+                  });
+                },
+        ),
+        if (_selectedQuality != null && _selectedCategory != null) ...[
           SizedBox(height: 16),
-          TextFormField(
-            controller: _driverNameController,
-            decoration: _getInputDecoration(
-              'Driver Name',
-              prefixIcon: Icons.person,
-            ),
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true ? 'Please enter driver name' : null,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: _driverContactController,
-            decoration: _getInputDecoration(
-              'Driver Contact',
-              prefixIcon: Icons.phone,
-            ),
-            keyboardType: TextInputType.phone,
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true
-                        ? 'Please enter driver contact'
-                        : null,
-          ),
-        ],
-        if (_selectedPickupOption == 'Request Driver Support') ...[
-          SizedBox(height: 16),
-          TextFormField(
-            controller: _shippingFromController,
-            decoration: _getLocationDecoration(
-              'Shipping From',
-              () => _showMapLocationPicker(context, _shippingFromController),
-            ),
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true
-                        ? 'Please enter shipping origin'
-                        : null,
-            readOnly: true,
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: _shippingToController,
-            decoration: _getLocationDecoration(
-              'Shipping To',
-              () => _showMapLocationPicker(context, _shippingToController),
-            ),
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true
-                        ? 'Please enter shipping destination'
-                        : null,
-            readOnly: true,
-          ),
-          SizedBox(height: 16),
-          Obx(
-            () =>
-                _requestDriverSupportPending.value
-                    ? Center(child: CircularProgressIndicator())
-                    : (_resolvedDriverDetails == null)
-                    ? ElevatedButton.icon(
-                      onPressed: _requestDriverSupport,
-                      icon: Icon(Icons.directions_car),
-                      label: Text('Request Driver'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xff548235),
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 24,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    )
-                    : Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Assigned Driver:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text('Name: ${_resolvedDriverDetails!.name}'),
-                            Text(
-                              'Contact: ${_resolvedDriverDetails!.contact}',
-                            ),
-                          ],
-                        ),
-                      ),
+          Builder(
+            builder: (context) {
+              final biltyDetails = _getBiltyDetails(
+                quality: _selectedQuality,
+                category: _selectedCategory,
+              );
+              if (biltyDetails == null) return SizedBox.shrink();
+
+              return Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Box Details:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    SizedBox(height: 8),
+                    Text('Size: ${biltyDetails['size']}'),
+                    Text('Average Weight: ${biltyDetails['avgWeight']}'),
+                    Text('Pieces per box: ${biltyDetails['piecesInBox']}'),
+                  ],
+                ),
+              );
+            },
           ),
         ],
-      ],
-    );
-  }
-
-  Widget _buildStep3() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Packhouse Details',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xff548235),
-          ),
+        SizedBox(height: 16),
+        TextFormField(
+          controller: _boxCountController,
+          decoration: _getInputDecoration('Number of Boxes',
+              prefixIcon: Icons.inventory),
+          keyboardType: TextInputType.number,
         ),
-        SizedBox(height: 24),
-        DropdownButtonFormField<PackHouse>(
-          decoration: _getInputDecoration(
-            'Packhouse',
-            prefixIcon: Icons.business,
+        if (_selectedQuality != null &&
+            _selectedCategory != null &&
+            _boxCountController.text.isNotEmpty) ...[
+          SizedBox(height: 16),
+          Builder(
+            builder: (context) {
+              final biltyDetails = _getBiltyDetails(
+                quality: _selectedQuality,
+                category: _selectedCategory,
+              );
+              if (biltyDetails == null) return SizedBox.shrink();
+
+              final weightPerPiece = _parseWeight(biltyDetails['avgWeight']);
+              final boxCount = int.parse(_boxCountController.text);
+              final piecesInBox = biltyDetails['piecesInBox'] as int;
+              final weightPerBox =
+                  (weightPerPiece * piecesInBox) / 1000; // Convert to Kg
+              final totalWeight = weightPerBox * boxCount;
+              final totalPieces = piecesInBox * boxCount;
+
+              return Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Calculated Details:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                        'Weight per box: ${weightPerBox.toStringAsFixed(2)} Kg'),
+                    Text('Total weight: ${totalWeight.toStringAsFixed(2)} Kg'),
+                    Text('Total pieces: $totalPieces'),
+                  ],
+                ),
+              );
+            },
           ),
-          value: _selectedPackhouse,
-          items:
-              gld.globalGrower.value.packingHouses.map((
-                PackHouse house,
-              ) {
-                return DropdownMenuItem<PackHouse>(
-                  value: house,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.house),
-                      Text(house.name),
-                    ],
-                  ),
-                );
-              }).toList(),
-          onChanged: (PackHouse? newValue) {
-            if (newValue != null) {
+        ],
+        SizedBox(height: 16),
+        ElevatedButton.icon(
+          onPressed: () {
+            if (_selectedQuality != null &&
+                _selectedCategory != null &&
+                _boxCountController.text.isNotEmpty) {
+              final biltyDetails = _getBiltyDetails(
+                quality: _selectedQuality,
+                category: _selectedCategory,
+              );
+              if (biltyDetails == null) return;
+
               setState(() {
-                _selectedPackhouse = newValue;
-                _packhouseNameController.text = newValue.id;
-                _packhouseContactController.text =
-                    newValue.phoneNumber ?? '';
+                final weightPerPiece = _parseWeight(biltyDetails['avgWeight']);
+                final boxCount = int.parse(_boxCountController.text);
+                final piecesInBox = biltyDetails['piecesInBox'] as int;
+                final weightPerBox =
+                    (weightPerPiece * piecesInBox) / 1000; // Convert to Kg
+                final totalWeight = weightPerBox * boxCount;
+                final totalPieces = piecesInBox * boxCount;
+
+                _biltyItems.add({
+                  'quality': _selectedQuality,
+                  'category': _selectedCategory,
+                  'size': biltyDetails['size'],
+                  'avgWeight': biltyDetails['avgWeight'],
+                  'piecesInBox': piecesInBox,
+                  'weightPerPiece': weightPerPiece,
+                  'weightPerBox': weightPerBox,
+                  'boxCount': boxCount,
+                  'totalWeight': totalWeight,
+                  'totalPieces': totalPieces,
+                });
+
+                _selectedQuality = null;
+                _selectedCategory = null;
+                _boxCountController.clear();
               });
             }
           },
-          validator:
-              (value) => value == null ? 'Please select a packhouse' : null,
+          icon: Icon(Icons.add),
+          label: Text('Add to Bilty'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xff548235),
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDummyBiltyCard() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.blue),
+            SizedBox(width: 8),
+            Text(
+              'Data filled by selected packhouse',
+              style: TextStyle(
+                color: Colors.blue,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         SizedBox(height: 16),
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          child: CheckboxListTile(
-            title: Text('Do you have your own crates?'),
-            value: _hasOwnCrates,
-            onChanged: (bool? newValue) {
-              setState(() {
-                _hasOwnCrates = newValue ?? false;
-              });
-            },
-            activeColor: Color(0xff548235),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: [
+              DataColumn(label: Text('Quality')),
+              DataColumn(label: Text('Category')),
+              DataColumn(label: Text('Size')),
+              DataColumn(label: Text('Avg Weight')),
+              DataColumn(label: Text('Pieces/Box')),
+              DataColumn(label: Text('Weight/Box (Kg)')),
+              DataColumn(label: Text('Boxes')),
+              DataColumn(label: Text('Total Pieces')),
+              DataColumn(label: Text('Total Weight (Kg)')),
+            ],
+            rows: _dummyBiltyItems.map((item) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(item['quality'] ?? '')),
+                  DataCell(Text(item['category'] ?? '')),
+                  DataCell(Text(item['size'] ?? '')),
+                  DataCell(Text(item['avgWeight'] ?? '')),
+                  DataCell(Text(item['piecesInBox']?.toString() ?? '')),
+                  DataCell(
+                      Text(item['weightPerBox']?.toStringAsFixed(2) ?? '')),
+                  DataCell(Text(item['boxCount']?.toString() ?? '')),
+                  DataCell(Text(item['totalPieces']?.toString() ?? '')),
+                  DataCell(Text(item['totalWeight']?.toStringAsFixed(2) ?? '')),
+                ],
+              );
+            }).toList(),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildStep4() {
+  Widget _buildReviewBiltySection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Final Action',
+          'Review Bilty',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Color(0xff548235),
           ),
         ),
-        SizedBox(height: 24),
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Consignment Status:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                ListTile(
-                  title: const Text('Keep'),
-                  leading: Radio<String>(
-                    value: 'Keep',
-                    groupValue: _selectedStatus,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedStatus = value;
-                      });
-                    },
-                    activeColor: Color(0xff548235),
-                  ),
-                ),
-                ListTile(
-                  title: const Text('Release for Bid'),
-                  leading: Radio<String>(
-                    value: 'Release for Bid',
-                    groupValue: _selectedStatus,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedStatus = value;
-                      });
-                    },
-                    activeColor: Color(0xff548235),
-                  ),
-                ),
-              ],
+        SizedBox(height: 16),
+        if (_selectedPackhouseOption != 'Self')
+          _buildDummyBiltyCard()
+        else
+          _buildBiltyItemsTable(),
+        SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Total Items: ${_selectedPackhouseOption == 'Self' ? _biltyItems.length : _dummyBiltyItems.length}',
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-          ),
+            if (_selectedPackhouseOption == 'Self' &&
+                _biltyItems.isNotEmpty) ...[
+              Text(
+                'Total Weight: ${_calculateTotalWeight().toStringAsFixed(2)} Kg',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Total Pieces: ${_calculateTotalPieces()}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ] else if (_selectedPackhouseOption != 'Self') ...[
+              Text(
+                'Total Weight: ${_dummyBiltyItems.first['totalWeight']?.toStringAsFixed(2)} Kg',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Total Pieces: ${_dummyBiltyItems.first['totalPieces']}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ],
         ),
+        SizedBox(height: 24),
       ],
     );
   }
 
-  Widget _buildStep5() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Bidding Partners',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xff548235),
-          ),
-        ),
-        SizedBox(height: 24),
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Select Partner Type:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                Row(
+  double _calculateTotalWeight() {
+    return _biltyItems.fold(
+      0.0,
+      (sum, item) => sum + (item['totalWeight'] as double),
+    );
+  }
+
+  int _calculateTotalPieces() {
+    return _biltyItems.fold(
+      0,
+      (sum, item) => sum + (item['totalPieces'] as int),
+    );
+  }
+
+  Widget _buildBiltyItemsTable() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        columns: [
+          DataColumn(label: Text('Quality')),
+          DataColumn(label: Text('Category')),
+          DataColumn(label: Text('Size')),
+          DataColumn(label: Text('Avg Weight')),
+          DataColumn(label: Text('Pieces/Box')),
+          DataColumn(label: Text('Weight/Box (Kg)')),
+          DataColumn(label: Text('Boxes')),
+          DataColumn(label: Text('Total Pieces')),
+          DataColumn(label: Text('Total Weight (Kg)')),
+          if (_selectedPackhouseOption == 'Self')
+            DataColumn(label: Text('Actions')),
+        ],
+        rows: _biltyItems.map((item) {
+          return DataRow(
+            cells: [
+              DataCell(Text(item['quality'] ?? '')),
+              DataCell(Text(item['category'] ?? '')),
+              DataCell(Text(item['size'] ?? '')),
+              DataCell(Text(item['avgWeight'] ?? '')),
+              DataCell(Text(item['piecesInBox']?.toString() ?? '')),
+              DataCell(Text(item['weightPerBox']?.toStringAsFixed(2) ?? '')),
+              DataCell(Text(item['boxCount']?.toString() ?? '')),
+              DataCell(Text(item['totalPieces']?.toString() ?? '')),
+              DataCell(Text(item['totalWeight']?.toStringAsFixed(2) ?? '')),
+              if (_selectedPackhouseOption == 'Self')
+                DataCell(Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: RadioListTile<String>(
-                        title: Text('Adhani'),
-                        value: 'Adhani',
-                        groupValue: _selectedPartnerType,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedPartnerType = value;
-                            _selectedLadhaniOption = null;
-                            _selectedLadhani = null;
-                            _ladhaniNameController.clear();
-                            _ladhaniContactController.clear();
-                            _ladhaniCompanyController.clear();
-                            _resolvedLadhaniDetails = null;
-                          });
-                        },
-                      ),
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        // TODO: Implement edit functionality
+                      },
                     ),
-                    Expanded(
-                      child: RadioListTile<String>(
-                        title: Text('Ladhani'),
-                        value: 'Ladhani',
-                        groupValue: _selectedPartnerType,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedPartnerType = value;
-                            _selectedAdhaniOption = null;
-                            _selectedAdhani = null;
-                            _adhaniNameController.clear();
-                            _adhaniContactController.clear();
-                            _adhaniApmcController.clear();
-                            _resolvedAdhaniDetails = null;
-                          });
-                        },
-                      ),
+                    IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          _biltyItems.remove(item);
+                        });
+                      },
                     ),
                   ],
+                )),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  // Add new methods for price calculations
+  void _updatePrices(
+      Map<String, dynamic> item, int index, String field, String value) {
+    final double? newValue = double.tryParse(value);
+    if (newValue == null) return;
+
+    setState(() {
+      _lastEditedField[index] = field;
+
+      if (field == 'pricePerKg') {
+        item['pricePerKg'] = newValue;
+        // Calculate price per box
+        final totalWeight = item['totalWeight'] as double;
+        final boxCount = item['boxCount'] as int;
+        if (totalWeight > 0 && boxCount > 0) {
+          item['pricePerBox'] = (totalWeight * newValue) / boxCount;
+        }
+      } else if (field == 'pricePerBox') {
+        item['pricePerBox'] = newValue;
+        // Calculate price per kg
+        final totalWeight = item['totalWeight'] as double;
+        final boxCount = item['boxCount'] as int;
+        if (totalWeight > 0 && boxCount > 0) {
+          item['pricePerKg'] = (boxCount * newValue) / totalWeight;
+        }
+      }
+    });
+  }
+
+  double _calculateRowTotal(Map<String, dynamic> item, int index) {
+    final lastEdited = _lastEditedField[index];
+    if (lastEdited == 'pricePerKg') {
+      return item['totalWeight'] * (item['pricePerKg'] as double? ?? 0.0);
+    } else {
+      return item['boxCount'] * (item['pricePerBox'] as double? ?? 0.0);
+    }
+  }
+
+  double _calculateGrandTotal() {
+    return _pricedBiltyItems.asMap().entries.fold(
+          0.0,
+          (sum, entry) => sum + _calculateRowTotal(entry.value, entry.key),
+        );
+  }
+
+  bool _areAllPricesFilled() {
+    return _pricedBiltyItems.every(
+        (item) => item['pricePerKg'] != null && item['pricePerBox'] != null);
+  }
+
+  // Add new state variables for pricing summary
+  String _getPricingTypeForRow(Map<String, dynamic> item, int index) {
+    final lastEdited = _lastEditedField[index];
+    return lastEdited == 'pricePerKg' ? 'Per Kg' : 'Per Box';
+  }
+
+  String _getOverallPricingType() {
+    if (_pricedBiltyItems.isEmpty) return 'Not Set';
+    final firstType = _getPricingTypeForRow(_pricedBiltyItems[0], 0);
+    final allSameType = _pricedBiltyItems.asMap().entries.every(
+          (entry) => _getPricingTypeForRow(entry.value, entry.key) == firstType,
+        );
+    return allSameType ? firstType : 'Mixed';
+  }
+
+  Map<String, dynamic> _calculateSummary() {
+    int totalBoxes = 0;
+    double totalWeight = 0.0;
+    double grandTotal = 0.0;
+
+    for (var entry in _pricedBiltyItems.asMap().entries) {
+      final item = entry.value;
+      final index = entry.key;
+      totalBoxes += item['boxCount'] as int;
+      totalWeight += item['totalWeight'] as double;
+      grandTotal += _calculateRowTotal(item, index);
+    }
+
+    return {
+      'totalBoxes': totalBoxes,
+      'totalWeight': totalWeight,
+      'grandTotal': grandTotal,
+      'pricingType': _getOverallPricingType(),
+    };
+  }
+
+  Widget _buildPricingSummary() {
+    final summary = _calculateSummary();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Final Bilty Summary',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xff548235),
+          ),
+        ),
+        SizedBox(height: 16),
+        // Summary Cards
+        Row(
+          children: [
+            Expanded(
+              child: _buildSummaryCard(
+                'Total Boxes',
+                summary['totalBoxes'].toString(),
+                Icons.inventory,
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: _buildSummaryCard(
+                'Total Weight',
+                '${summary['totalWeight'].toStringAsFixed(2)} Kg',
+                Icons.scale,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildSummaryCard(
+                'Grand Total',
+                '₹ ${summary['grandTotal'].toStringAsFixed(2)}',
+                Icons.attach_money,
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: _buildSummaryCard(
+                'Pricing Type',
+                summary['pricingType'],
+                Icons.price_change,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 24),
+        // Bilty Table
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: [
+              DataColumn(label: Text('Quality')),
+              DataColumn(label: Text('Category')),
+              DataColumn(label: Text('Size (mm)')),
+              DataColumn(label: Text('Boxes')),
+              DataColumn(label: Text('Avg Weight/Piece (g)')),
+              DataColumn(label: Text('Total Pieces')),
+              DataColumn(label: Text('Total Weight (Kg)')),
+              DataColumn(label: Text('Price/Kg (₹)')),
+              DataColumn(label: Text('Price/Box (₹)')),
+              DataColumn(label: Text('Row Total (₹)')),
+            ],
+            rows: _pricedBiltyItems.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              return DataRow(
+                cells: [
+                  DataCell(Text(item['quality'] ?? '')),
+                  DataCell(Text(item['category'] ?? '')),
+                  DataCell(Text(item['size']?.toString() ?? '')),
+                  DataCell(Text(item['boxCount']?.toString() ?? '')),
+                  DataCell(Text(item['avgWeight']?.toString() ?? '')),
+                  DataCell(Text(item['totalPieces']?.toString() ?? '')),
+                  DataCell(Text(item['totalWeight']?.toStringAsFixed(2) ?? '')),
+                  DataCell(Text(item['pricePerKg']?.toStringAsFixed(2) ?? '')),
+                  DataCell(Text(item['pricePerBox']?.toStringAsFixed(2) ?? '')),
+                  DataCell(Text(
+                    _calculateRowTotal(item, index).toStringAsFixed(2),
+                  )),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+        SizedBox(height: 32),
+        // Action Buttons
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Implement save for later functionality
+                Get.snackbar(
+                  'Saved',
+                  'Consignment saved for later',
+                  backgroundColor: Colors.blue,
+                  colorText: Colors.white,
+                );
+              },
+              icon: Icon(Icons.save),
+              label: Text('Keep for Later'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Implement release for bid functionality
+                Get.snackbar(
+                  'Released',
+                  'Consignment released for bidding',
+                  backgroundColor: Color(0xff548235),
+                  colorText: Colors.white,
+                );
+              },
+              icon: Icon(Icons.gavel),
+              label: Text('Release for Bid'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff548235),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryCard(String title, String value, IconData icon) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20, color: Color(0xff548235)),
+              SizedBox(width: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xff548235),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAadhatiPricingSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Aadhati Pricing',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xff548235),
+          ),
+        ),
+        SizedBox(height: 16),
+        if (!_isAadhatiSubmitted) ...[
+          // Bilty Table with Pricing
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: [
+                DataColumn(label: Text('Quality')),
+                DataColumn(label: Text('Category')),
+                DataColumn(label: Text('Boxes')),
+                DataColumn(label: Text('Total Weight (Kg)')),
+                DataColumn(label: Text('Price/Kg (₹)')),
+                DataColumn(label: Text('Price/Box (₹)')),
+                DataColumn(label: Text('Row Total (₹)')),
+              ],
+              rows: _pricedBiltyItems.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                return DataRow(
+                  cells: [
+                    DataCell(Text(item['quality'] ?? '')),
+                    DataCell(Text(item['category'] ?? '')),
+                    DataCell(Text(item['boxCount']?.toString() ?? '')),
+                    DataCell(
+                        Text(item['totalWeight']?.toStringAsFixed(2) ?? '')),
+                    DataCell(
+                      TextFormField(
+                        keyboardType: TextInputType.number,
+                        initialValue: item['pricePerKg']?.toString() ?? '',
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 8,
+                          ),
+                        ),
+                        onChanged: (value) => _updatePrices(
+                          item,
+                          index,
+                          'pricePerKg',
+                          value,
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      TextFormField(
+                        keyboardType: TextInputType.number,
+                        initialValue: item['pricePerBox']?.toString() ?? '',
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 8,
+                          ),
+                        ),
+                        onChanged: (value) => _updatePrices(
+                          item,
+                          index,
+                          'pricePerBox',
+                          value,
+                        ),
+                      ),
+                    ),
+                    DataCell(Text(
+                      _calculateRowTotal(item, index).toStringAsFixed(2),
+                    )),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+          SizedBox(height: 16),
+          // Grand Total
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Grand Total:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  '₹ ${_calculateGrandTotal().toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xff548235),
+                  ),
                 ),
               ],
             ),
           ),
-        ),
-        SizedBox(height: 24),
-        if (_selectedPartnerType == 'Adhani') ...[
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Adhani Details:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  ListTile(
-                    title: const Text('Own'),
-                    leading: Radio<String>(
-                      value: 'Own',
-                      groupValue: _selectedAdhaniOption,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedAdhaniOption = value;
-                          _selectedAdhani = null;
-                          _resolvedAdhaniDetails = null;
-                        });
-                      },
-                    ),
-                  ),
-                  ListTile(
-                    title: const Text('Request Support'),
-                    leading: Radio<String>(
-                      value: 'Request Support',
-                      groupValue: _selectedAdhaniOption,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedAdhaniOption = value;
-                          _selectedAdhani = _getRandomPartner(
-                            gld.globalGrower.value.commissionAgents,
-                          );
-                          if (_selectedAdhani != null) {
-                            _adhaniNameController.text = _selectedAdhani!.id!;
-                            _adhaniContactController.text =
-                                _selectedAdhani!.contact!;
-                            _adhaniApmcController.text =
-                                _selectedAdhani!.apmc!;
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                  if (_selectedAdhaniOption == 'Own') ...[
-                    SizedBox(height: 16),
-                    DropdownButtonFormField<Aadhati>(
-                      decoration: _getInputDecoration(
-                        'Select Adhani',
-                        prefixIcon: Icons.person,
-                      ),
-                      value: _selectedAdhani,
-                      items:
-                          gld.globalGrower.value.commissionAgents.map((
-                            Aadhati agent,
-                          ) {
-                            return DropdownMenuItem<Aadhati>(
-                              value: agent,
-                              child: Text('${agent.name}'),
-                            );
-                          }).toList(),
-                      onChanged: (Aadhati? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _selectedAdhani = newValue;
-                            _adhaniNameController.text = newValue.id!;
-                            _adhaniContactController.text =
-                                newValue.contact!;
-                            _adhaniApmcController.text = newValue.apmc!;
-                          });
-                        }
-                      },
-                      validator:
-                          (value) =>
-                              value == null ? 'Please select an Adhani' : null,
-                    ),
-                  ] else if (_selectedAdhaniOption == 'Request Support' &&
-                      _selectedAdhani != null) ...[
-                    SizedBox(height: 16),
-                    Card(
-                      color: Colors.orange.shade50,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Assigned Adhani:',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 8),
-                            Text('Name: ${_selectedAdhani!.name}'),
-                            Text('Phone: ${_selectedAdhani!.contact!}'),
-                            Text('APMC: ${_selectedAdhani!.apmc!}'),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
+          SizedBox(height: 24),
+          // Submit Button
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: _pricedBiltyItems.isNotEmpty
+                  ? () {
+                      setState(() {
+                        _isAadhatiSubmitted = true;
+                      });
+                      Get.snackbar(
+                        'Success',
+                        'Pricing submitted successfully',
+                        backgroundColor: Colors.green,
+                        colorText: Colors.white,
+                      );
+                    }
+                  : null,
+              icon: Icon(Icons.check),
+              label: Text('Submit Pricing'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff548235),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
           ),
-        ] else if (_selectedPartnerType == 'Ladhani') ...[
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Ladhani Details:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  ListTile(
-                    title: const Text('Own'),
-                    leading: Radio<String>(
-                      value: 'Own',
-                      groupValue: _selectedLadhaniOption,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedLadhaniOption = value;
-                          _selectedLadhani = null;
-                          _resolvedLadhaniDetails = null;
-                        });
-                      },
-                    ),
-                  ),
-                  ListTile(
-                    title: const Text('Request Support'),
-                    leading: Radio<String>(
-                      value: 'Request Support',
-                      groupValue: _selectedLadhaniOption,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedLadhaniOption = value;
-                          _selectedLadhani = _getRandomPartner(
-                            gld.globalGrower.value.corporateCompanies,
-                          );
-                          if (_selectedLadhani != null) {
-                            _ladhaniNameController.text = _selectedLadhani!.id!;
-                            _ladhaniContactController.text =
-                                _selectedLadhani!.contact!;
-                            _ladhaniCompanyController.text =
-                                _selectedLadhani!.firmType!;
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                  if (_selectedLadhaniOption == 'Own') ...[
-                    SizedBox(height: 16),
-                    DropdownButtonFormField<Ladani>(
-                      decoration: _getInputDecoration(
-                        'Select Ladhani',
-                        prefixIcon: Icons.business,
-                      ),
-                      value: _selectedLadhani,
-                      items:
-                          gld.globalGrower.value.corporateCompanies.map((
-                           Ladani company,
-                          ) {
-                            return DropdownMenuItem<Ladani>(
-                              value: company,
-                              child: Text("${company.name}"),
-                            );
-                          }).toList(),
-                      onChanged: (Ladani? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _selectedLadhani = newValue;
-                            _ladhaniNameController.text = newValue.id!;
-                            _ladhaniContactController.text =
-                                newValue.contact!;
-                            _ladhaniCompanyController.text =
-                                newValue.firmType!;
-                          });
-                        }
-                      },
-                      validator:
-                          (value) =>
-                              value == null ? 'Please select a Ladhani' : null,
-                    ),
-                  ] else if (_selectedLadhaniOption == 'Request Support' &&
-                      _selectedLadhani != null) ...[
-                    SizedBox(height: 16),
-                    Card(
-                      color: Colors.orange.shade50,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Assigned Ladhani:',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 8),
-                            Text('Name: ${_selectedLadhani!.name}'),
-                            Text('Phone: ${_selectedLadhani!.contact!}'),
-                            Text('Type: ${_selectedLadhani!.firmType!}'),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
+        ] else ...[
+          _buildPricingSummary(),
         ],
       ],
     );
@@ -934,67 +1456,35 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
 
   bool _isStepValid(int step) {
     switch (step) {
-      case 0:
-        return _selectedQuality != null &&
-            _selectedCategory != null &&
-            _boxesController.text.isNotEmpty &&
-            _piecesInBox != null;
-      case 1:
-        if (_selectedPickupOption == null) return false;
-        if (_selectedPickupOption == 'Own') {
-          return _driverNameController.text.isNotEmpty &&
-              _driverContactController.text.isNotEmpty;
-        } else {
-          return !_requestDriverSupportPending.value &&
-              _resolvedDriverDetails != null &&
-              _shippingFromController.text.isNotEmpty &&
-              _shippingToController.text.isNotEmpty;
-        }
-      case 2:
-        return _packhouseNameController.text.isNotEmpty &&
-            _packhouseContactController.text.isNotEmpty;
-      case 3:
-        return _selectedStatus != null;
-      case 4:
-        if (_selectedStatus != 'Release for Bid') return true;
-
-        // Validate Adhani details
-        if (_selectedPartnerType == null) return false;
-        bool adhaniValid =
-            _selectedPartnerType == 'Adhani'
-                ? (_selectedAdhaniOption == 'Own' &&
-                    _adhaniNameController.text.isNotEmpty &&
-                    _adhaniContactController.text.isNotEmpty &&
-                    _adhaniApmcController.text.isNotEmpty)
-                : (!_requestAdhaniSupportPending.value &&
-                    _resolvedAdhaniDetails != null);
-
-        // Validate Ladhani details
-        if (_selectedPartnerType == null) return false;
-        bool ladhaniValid =
-            _selectedPartnerType == 'Ladhani'
-                ? (_selectedLadhaniOption == 'Own' &&
-                    _ladhaniNameController.text.isNotEmpty &&
-                    _ladhaniContactController.text.isNotEmpty &&
-                    _ladhaniCompanyController.text.isNotEmpty)
-                : (!_requestLadhaniSupportPending.value &&
-                    _resolvedLadhaniDetails != null);
-
-        return adhaniValid && ladhaniValid;
-      case 5:
-        if (_selectedPartnerType == null) return false;
-        if (_selectedPartnerType == 'Adhani') {
-          if (_selectedAdhaniOption == null) return false;
-          if (_selectedAdhaniOption == 'Own' &&
-              _adhaniNameController.text.isEmpty)
-            return false;
-        } else if (_selectedPartnerType == 'Ladhani') {
-          if (_selectedLadhaniOption == null) return false;
-          if (_selectedLadhaniOption == 'Own' &&
-              _ladhaniNameController.text.isEmpty)
-            return false;
-        }
+      case 0: // Driver Selection
+        if (_selectedDriverOption == null) return false;
+        if (_selectedDriverOption == 'My Drivers' && _selectedDriver == null)
+          return false;
+        if (_selectedDriverOption == 'Request Support' &&
+            _resolvedDriverDetails == null) return false;
         return true;
+      case 1: // Packhouse Selection
+        if (_selectedPackhouseOption == null) return false;
+        if (_selectedPackhouseOption == 'My Packhouses' &&
+            _selectedPackhouse == null) return false;
+        if (_selectedPackhouseOption == 'Request Support' &&
+            _resolvedPackhouseDetails == null) return false;
+        return true;
+      case 2: // Bilty Creation
+        if (_selectedPackhouseOption == 'Self') {
+          if (_selectedPackingType == null) return false;
+          return true;
+        }
+        return true; // For non-self packhouse, always valid
+      case 3: // Review Bilty
+        if (_selectedPackhouseOption == 'Self' && _biltyItems.isEmpty)
+          return false;
+        return true;
+      case 4: // Aadhati Pricing
+        // Check if bilty items exist and have prices
+        if (_pricedBiltyItems.isEmpty) return false;
+        return _pricedBiltyItems.every((item) =>
+            item['pricePerKg'] != null && item['pricePerBox'] != null);
       default:
         return true;
     }
@@ -1003,51 +1493,90 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
   List<Step> _buildSteps() {
     return [
       Step(
-        title: const Text('Consignment Details'),
-        content: _buildStep1(),
+        title: Text('Driver Selection'),
+        content: Column(
+          children: [
+            _buildDriverSelectionCard(),
+            SizedBox(height: 16),
+            _buildDriverDetailsCard(),
+          ],
+        ),
         isActive: _currentStep >= 0,
-        state:
-            _currentStep > 0 && !_isStepValid(0)
-                ? StepState.error
-                : (_currentStep > 0 ? StepState.complete : StepState.indexed),
+        state: _currentStep > 0 ? StepState.complete : StepState.indexed,
       ),
       Step(
-        title: const Text('Pickup Details'),
-        content: _buildStep2(),
+        title: Text('Packhouse Selection'),
+        content: Column(
+          children: [
+            _buildPackhouseSelectionCard(),
+            SizedBox(height: 16),
+            _buildPackhouseDetailsCard(),
+          ],
+        ),
         isActive: _currentStep >= 1,
-        state:
-            _currentStep > 1 && !_isStepValid(1)
-                ? StepState.error
-                : (_currentStep > 1 ? StepState.complete : StepState.indexed),
+        state: _currentStep > 1 ? StepState.complete : StepState.indexed,
       ),
       Step(
-        title: const Text('Packhouse Details'),
-        content: _buildStep3(),
+        title: Text('Bilty Creation'),
+        content: _selectedPackhouseOption == 'Self'
+            ? Column(
+                children: [
+                  _buildPackingTypeSelection(),
+                  SizedBox(height: 16),
+                  _selectedPackingType == 'Gunny Bags'
+                      ? _buildGunnyBagsForm()
+                      : _buildDetailedBiltyForm(),
+                  SizedBox(height: 16),
+                  _buildBiltyItemsTable(),
+                ],
+              )
+            : _buildDummyBiltyCard(),
         isActive: _currentStep >= 2,
-        state:
-            _currentStep > 2 && !_isStepValid(2)
-                ? StepState.error
-                : (_currentStep > 2 ? StepState.complete : StepState.indexed),
+        state: _currentStep > 2 ? StepState.complete : StepState.indexed,
       ),
       Step(
-        title: const Text('Final Action'),
-        content: _buildStep4(),
+        title: Text('Review Bilty'),
+        content: _buildReviewBiltySection(),
         isActive: _currentStep >= 3,
-        state:
-            _currentStep > 3 && !_isStepValid(3)
-                ? StepState.error
-                : (_currentStep > 3 ? StepState.complete : StepState.indexed),
+        state: _currentStep > 3 ? StepState.complete : StepState.indexed,
       ),
       Step(
-        title: const Text('Bidding Partners'),
-        content: _buildStep5(),
-        isActive: _currentStep >= 4 && _selectedStatus == 'Release for Bid',
-        state:
-            _currentStep > 4 && !_isStepValid(4)
-                ? StepState.error
-                : (_currentStep > 4 ? StepState.complete : StepState.indexed),
+        title: Text('Aadhati Pricing'),
+        content: _buildAadhatiPricingSection(),
+        isActive: _currentStep >= 4,
+        state: _currentStep > 4 ? StepState.complete : StepState.indexed,
       ),
     ];
+  }
+
+  void _onStepContinue() {
+    if (_isStepValid(_currentStep)) {
+      if (_currentStep == 3) {
+        // When moving from Review Bilty to Aadhati Pricing
+        setState(() {
+          _pricedBiltyItems.clear();
+          if (_selectedPackhouseOption == 'Self') {
+            _pricedBiltyItems.addAll(_biltyItems);
+          } else {
+            _pricedBiltyItems.addAll(_dummyBiltyItems);
+          }
+        });
+      }
+      if (_currentStep < _buildSteps().length - 1) {
+        setState(() {
+          _currentStep += 1;
+        });
+      } else {
+        // TODO: Implement form submission
+      }
+    } else {
+      Get.snackbar(
+        'Incomplete',
+        'Please fill all required fields and resolve any pending requests.',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    }
   }
 
   @override
@@ -1076,24 +1605,7 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                 child: Stepper(
                   type: StepperType.vertical,
                   currentStep: _currentStep,
-                  onStepContinue: () {
-                    if (_isStepValid(_currentStep)) {
-                      if (_currentStep < _buildSteps().length - 1) {
-                        setState(() {
-                          _currentStep += 1;
-                        });
-                      } else {
-                        _submitForm();
-                      }
-                    } else {
-                      Get.snackbar(
-                        'Incomplete',
-                        'Please fill all required fields and resolve any pending requests.',
-                        backgroundColor: Colors.redAccent,
-                        colorText: Colors.white,
-                      );
-                    }
-                  },
+                  onStepContinue: _onStepContinue,
                   onStepCancel: () {
                     if (_currentStep > 0) {
                       setState(() {
@@ -1102,15 +1614,6 @@ class _ConsignmentFormPageState extends State<ConsignmentFormPage> {
                     }
                   },
                   onStepTapped: (step) {
-                    if (step == 4 && _selectedStatus != 'Release for Bid') {
-                      Get.snackbar(
-                        'Not Available',
-                        'Please select "Release for Bid" status first.',
-                        backgroundColor: Colors.orange,
-                        colorText: Colors.white,
-                      );
-                      return;
-                    }
                     setState(() {
                       _currentStep = step;
                     });

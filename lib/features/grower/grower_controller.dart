@@ -258,8 +258,6 @@ class GrowerController extends GetxController {
     freightForwarders.add(forwarder);
   }
 
-
-
   void updateFreightForwarder(FreightForwarder forwarder) {
     final index = freightForwarders.indexWhere((f) => f.id == forwarder.id);
     if (index != -1) {
@@ -270,7 +268,6 @@ class GrowerController extends GetxController {
   void removeFreightForwarder(String id) {
     freightForwarders.removeWhere((f) => f.id == id);
   }
-
 
   void addHpmc(HpmcCollectionCenter hpmc) {
     hpmcDepots.add(hpmc);

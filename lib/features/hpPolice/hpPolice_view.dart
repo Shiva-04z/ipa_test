@@ -11,11 +11,14 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../forms/police_officer_form_page.dart';
 import '../forms/driver_form_page.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 class HpPoliceView extends GetView<HpPoliceController> {
   final RxString selectedSection = 'Traffic Control'.obs;
   final RxBool isTrackingMode = false.obs;
+  final RxBool isSatelliteMode = false.obs;
   final Rx<DrivingProfile?> selectedVehicle = Rx<DrivingProfile?>(null);
+  final mapController = MapController();
 
   @override
   Widget build(BuildContext context) {
@@ -247,9 +250,12 @@ class HpPoliceView extends GetView<HpPoliceController> {
       return Stack(
         children: [
           FlutterMap(
+            mapController: mapController,
             options: MapOptions(
               center: controller.currentLocation.value,
               zoom: controller.currentZoom.value,
+              minZoom: 5.0,
+              maxZoom: 18.0,
               onPositionChanged: (position, hasGesture) {
                 if (!hasGesture) {
                   controller.updateMapPosition(
@@ -266,7 +272,9 @@ class HpPoliceView extends GetView<HpPoliceController> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: isSatelliteMode.value
+                    ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                    : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.app',
               ),
               MarkerLayer(
@@ -351,36 +359,57 @@ class HpPoliceView extends GetView<HpPoliceController> {
           Positioned(
             right: 16,
             bottom: 16,
-            child: FloatingActionButton(
-              heroTag: 'markArea',
-              onPressed: () {
-                Get.dialog(
-                  AlertDialog(
-                    title: Text('Mark Restricted Area'),
-                    content: Text(
-                        'Do you want to mark a restricted area on the map?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Get.back(),
-                        child: Text('Cancel'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Get.back();
-                          isTrackingMode.value = true;
-                          Get.snackbar(
-                            'Marking Mode Active',
-                            'Tap on map to mark restricted area',
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
-                        },
-                        child: Text('Start Marking'),
-                      ),
-                    ],
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  heroTag: 'viewMode',
+                  onPressed: () {
+                    isSatelliteMode.value = !isSatelliteMode.value;
+                    Get.snackbar(
+                      'Map View Changed',
+                      isSatelliteMode.value
+                          ? 'Satellite View'
+                          : 'Standard View',
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                  },
+                  child: Icon(
+                    isSatelliteMode.value ? Icons.map : Icons.satellite,
                   ),
-                );
-              },
-              child: Icon(Icons.add_location),
+                ),
+                SizedBox(height: 8),
+                FloatingActionButton(
+                  heroTag: 'markArea',
+                  onPressed: () {
+                    Get.dialog(
+                      AlertDialog(
+                        title: Text('Mark Restricted Area'),
+                        content: Text(
+                            'Do you want to mark a restricted area on the map?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(),
+                            child: Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Get.back();
+                              isTrackingMode.value = true;
+                              Get.snackbar(
+                                'Marking Mode Active',
+                                'Tap on map to mark restricted area',
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                            },
+                            child: Text('Start Marking'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: Icon(Icons.add_location),
+                ),
+              ],
             ),
           ),
           Positioned(
@@ -393,15 +422,29 @@ class HpPoliceView extends GetView<HpPoliceController> {
                   IconButton(
                     icon: Icon(Icons.add),
                     onPressed: () {
-                      controller.currentZoom.value =
-                          (controller.currentZoom.value + 1).clamp(5.0, 18.0);
+                      final currentZoom = controller.currentZoom.value;
+                      final newZoom = (currentZoom + 1).clamp(5.0, 18.0);
+                      if (newZoom != currentZoom) {
+                        controller.currentZoom.value = newZoom;
+                        mapController.move(
+                          mapController.camera.center,
+                          newZoom,
+                        );
+                      }
                     },
                   ),
                   IconButton(
                     icon: Icon(Icons.remove),
                     onPressed: () {
-                      controller.currentZoom.value =
-                          (controller.currentZoom.value - 1).clamp(5.0, 18.0);
+                      final currentZoom = controller.currentZoom.value;
+                      final newZoom = (currentZoom - 1).clamp(5.0, 18.0);
+                      if (newZoom != currentZoom) {
+                        controller.currentZoom.value = newZoom;
+                        mapController.move(
+                          mapController.camera.center,
+                          newZoom,
+                        );
+                      }
                     },
                   ),
                 ],
