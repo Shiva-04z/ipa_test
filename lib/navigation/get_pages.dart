@@ -100,8 +100,8 @@ List<GetPage> getPages = [
   ),
   GetPage(
     name: RoutesConstant.hpPolice,
-    page: () => HPPoliceView(),
-    binding: HPPoliceBinding(),
+    page: () => HpPoliceView(),
+    binding: HpPoliceBinding(),
     transition: Transition.fadeIn,
     transitionDuration: Duration(microseconds: 300),
   ),

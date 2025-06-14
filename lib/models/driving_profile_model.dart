@@ -1,5 +1,7 @@
 import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:apple_grower/models/complaint_model.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'aadhati.dart';
 import 'grower_model.dart';
@@ -9,6 +11,7 @@ class DrivingProfile {
   String? id;
   String? name;
   String? contact;
+  LatLng? currentLocation;
   String? drivingLicenseNo;
   String? vehicleRegistrationNo;
   String? chassiNoOfVehicle;
@@ -30,6 +33,7 @@ class DrivingProfile {
     this.id,
     this.name,
     this.contact,
+    this.currentLocation,
     this.drivingLicenseNo,
     this.vehicleRegistrationNo,
     this.chassiNoOfVehicle,
@@ -49,10 +53,20 @@ class DrivingProfile {
   });
 
   factory DrivingProfile.fromJson(Map<String, dynamic> json) {
+    LatLng? location;
+    if (json['currentLocation'] != null) {
+      final loc = json['currentLocation'] as Map<String, dynamic>;
+      location = LatLng(
+        loc['latitude'] as double,
+        loc['longitude'] as double,
+      );
+    }
+
     return DrivingProfile(
       id: json['id'] as String?,
       name: json['name'] as String?,
       contact: json['contact'] as String?,
+      currentLocation: location,
       drivingLicenseNo: json['drivingLicenseNo'] as String?,
       vehicleRegistrationNo: json['vehicleRegistrationNo'] as String?,
       chassiNoOfVehicle: json['chassiNoOfVehicle'] as String?,
@@ -87,6 +101,12 @@ class DrivingProfile {
       'id': id,
       'name': name,
       'contact': contact,
+      'currentLocation': currentLocation != null
+          ? {
+              'latitude': currentLocation!.latitude,
+              'longitude': currentLocation!.longitude,
+            }
+          : null,
       'drivingLicenseNo': drivingLicenseNo,
       'vehicleRegistrationNo': vehicleRegistrationNo,
       'chassiNoOfVehicle': chassiNoOfVehicle,
@@ -110,6 +130,9 @@ class DrivingProfile {
     return {
       'Name': name,
       'Contact': contact,
+      'Current Location': currentLocation != null
+          ? '${currentLocation!.latitude.toStringAsFixed(6)}, ${currentLocation!.longitude.toStringAsFixed(6)}'
+          : 'Not Available',
       'Driving License No': drivingLicenseNo,
       'Vehicle Reg. No': vehicleRegistrationNo,
       'Chassis No.': chassiNoOfVehicle,
@@ -129,6 +152,7 @@ class DrivingProfile {
     String? id,
     String? name,
     String? contact,
+    LatLng? currentLocation,
     String? drivingLicenseNo,
     String? vehicleRegistrationNo,
     String? chassiNoOfVehicle,
@@ -150,6 +174,7 @@ class DrivingProfile {
       id: id ?? this.id,
       name: name ?? this.name,
       contact: contact ?? this.contact,
+      currentLocation: currentLocation ?? this.currentLocation,
       drivingLicenseNo: drivingLicenseNo ?? this.drivingLicenseNo,
       vehicleRegistrationNo:
           vehicleRegistrationNo ?? this.vehicleRegistrationNo,

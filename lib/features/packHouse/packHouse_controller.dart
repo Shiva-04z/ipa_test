@@ -1,5 +1,7 @@
 import 'package:apple_grower/models/employee_model.dart';
 import 'package:get/get.dart';
+import '../../core/globals.dart' as glb;
+import '../../models/hpmc_collection_center_model.dart';
 import '../../models/pack_house_model.dart';
 import '../../models/grower_model.dart';
 import '../../models/aadhati.dart';
@@ -20,6 +22,7 @@ class PackHouseController extends GetxController {
   final RxList<dynamic> associatedTransportUnions = <dynamic>[].obs;
   final RxList<Consignment> consignments = <Consignment>[].obs;
   final RxList<String> galleryImages = <String>[].obs;
+  RxList<HpmcCollectionCenter> hpmcDepots = <HpmcCollectionCenter>[].obs;
   String name = gld.packHouse.value.name;
   final Map details = {
     'Grading Machine': '${gld.packHouse.value.gradingMachineCapacity}',
@@ -123,10 +126,17 @@ class PackHouseController extends GetxController {
     galleryImages.remove(imageUrl);
   }
 
+  void addHpmc(HpmcCollectionCenter hpmc) {
+    hpmcDepots.add(hpmc);
+  }
+
+  void removeHpmc(String id) {
+    hpmcDepots.removeWhere((f) => f.id == id);
+  }
   // Method to load initial data
   @override
   void onInit() {
     super.onInit();
-    // Load initial data if needed
+    glb.roleType.value="PackHouse";
   }
 }

@@ -11,12 +11,14 @@ import '../../models/aadhati.dart';
 import '../../models/consignment_model.dart';
 import '../../models/freightForwarder.dart';
 import '../../models/ladani_model.dart';
+import '../../models/transport_model.dart';
 import '../driver/driver_form_page.dart';
 import '../aadhati/aadhati_edit_info_form_page.dart';
 import '../forms/driver_form_page.dart';
 import '../forms/freightForwarder_form_page.dart';
 import '../forms/grower_form_page.dart';
 import '../forms/corporate_company_form_page.dart';
+import '../forms/transport_union_form_page.dart';
 import '../grower/grower_dialogs.dart';
 import '../packHouse/consignment_form2_page.dart';
 
@@ -50,6 +52,8 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
                   return _buildAssociatedDriversContainer(context);
                 case 'Associated Buyers/Ladanis':
                   return _buildAssociatedLadanisContainer(context);
+                case 'Associated Transport Union':
+                  return _buildAssociatedTransportUnionsContainer(context);
                 case 'Gallery':
                   return _buildGalleryContainer(context);
                 default:
@@ -80,6 +84,8 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
             _buildSectionChip('Associated Drivers'),
             SizedBox(width: 8),
             _buildSectionChip('Associated Buyers/Ladanis'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated Transport Union'),
             SizedBox(width: 8),
             _buildSectionChip('Gallery'),
           ],
@@ -1007,6 +1013,159 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
       ),
     );
   }
+
+
+
+  Widget _buildAssociatedTransportUnionsContainer(BuildContext context) {
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Obx(
+                    () => GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                    MediaQuery.of(context).size.width > 800 ? 5 : 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.associatedTransportUnions.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0)
+                      return _buildAddNewTransportUnionCard(context);
+                    return _buildTransportUnionCard(
+                        controller.associatedTransportUnions[index - 1]);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "Associated Transport Unions",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTransportUnionCard(Transport union) {
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
+    return InkWell(
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: union,
+        title: 'Transport Union Details',
+        details: [
+          _buildDetailRow('Name', union.name),
+          _buildDetailRow('Contact', union.contact),
+          _buildDetailRow(
+              'Registration', union.transportUnionRegistrationNo ?? 'N/A'),
+          _buildDetailRow('Address', union.address),
+          _buildDetailRow('Vehicles', '${union.noOfVehiclesRegistered ?? 0}'),
+        ],
+        onEdit: () {},
+        onDelete: () =>
+            controller.removeAssociatedTransportUnion(union.id ?? ''),
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.local_shipping,
+                size: isSmallScreen ? 32 : 40,
+                color: Colors.indigo,
+              ),
+              Text(
+                union.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text(
+                  union.contact,
+                  style: TextStyle(fontSize: 12),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  union.transportUnionRegistrationNo ?? 'N/A',
+                  style: TextStyle(fontSize: 12, color: Colors.indigo),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewTransportUnionCard(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    return InkWell(
+      onTap: () => Get.to(() => TransportUnionFormPage()),
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle,
+              size: isSmallScreen ? 32 : 40,
+              color: Colors.red,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "ADD NEW",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
 
   Widget _buildGalleryContainer(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;

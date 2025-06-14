@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:apple_grower/core/globalsWidgets.dart' as glbw;
 import 'package:intl/intl.dart';
 import '../../models/aadhati.dart';
+import '../../models/hpmc_collection_center_model.dart';
 import '../../models/pack_house_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/transport_model.dart';
@@ -15,12 +16,12 @@ import '../forms/commission_agent_form_page.dart';
 import '../forms/consignment_form_page.dart';
 import '../forms/orchard_form_page.dart';
 import '../forms/packing_house_form_page.dart';
-import '../driver/driver_form_page.dart';
 import 'grower_dialogs.dart';
 import '../../models/orchard_model.dart';
 import '../../models/consignment_model.dart';
 import '../forms/transport_union_form_page.dart';
 import 'dart:io';
+import '../forms/hpmc_depot_form_page.dart';
 
 class GrowerView extends GetView<GrowerController> {
   final RxString selectedSection = 'Orchards'.obs;
@@ -58,6 +59,8 @@ class GrowerView extends GetView<GrowerController> {
                     _buildDriversContainer(context),
                   if (selectedSection.value == 'Transport Union')
                     _buildTransportUnionContainer(context),
+                  if (selectedSection.value == 'HPMC')
+                    _buildHpmcContainer(context),
                   if (selectedSection.value == 'Gallery')
                     _buildGalleryContainer(context),
                 ],
@@ -77,6 +80,7 @@ class GrowerView extends GetView<GrowerController> {
       'Freight Forwarders',
       'Drivers',
       'Transport Union',
+      'HPMC',
       'Consignments',
       'Gallery',
     ];
@@ -673,7 +677,8 @@ class GrowerView extends GetView<GrowerController> {
           _buildDetailRow('APMC Mandi', '${agent.apmc}'),
           _buildDetailRow('Address', '${agent.address}'),
         ],
-        onEdit: () {}, // Empty callback since we don't want edit functionality
+        onEdit: () {},
+        // Empty callback since we don't want edit functionality
         onDelete: () => controller.removeCommissionAgent('${agent.id}'),
       ),
       child: Card(
@@ -970,7 +975,8 @@ class GrowerView extends GetView<GrowerController> {
           _buildDetailRow('Phone', house.phoneNumber),
           _buildDetailRow('Address', house.address),
         ],
-        onEdit: () {}, // Empty callback since we don't want edit functionality
+        onEdit: () {},
+        // Empty callback since we don't want edit functionality
         onDelete: () => controller.removePackingHouse(house.id),
       ),
       child: Card(
@@ -1590,6 +1596,158 @@ class GrowerView extends GetView<GrowerController> {
     final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
       onTap: () => Get.to(() => TransportUnionFormPage()),
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle,
+              size: isSmallScreen ? 32 : 40,
+              color: Colors.red,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "ADD NEW",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHpmcContainer(BuildContext context) {
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Obx(
+                () => GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 800 ? 5 : 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.hpmcDepots.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) return _buildAddNewHpmcCard(context);
+                    return _buildHpmcCard(controller.hpmcDepots[index - 1]);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "HPMC Depots",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHpmcCard(HpmcCollectionCenter depot) {
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
+    return InkWell(
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: depot,
+        title: 'HPMC Depot Details',
+        details: [
+          _buildDetailRow('Contact Name', depot.contactName),
+          _buildDetailRow('Operator', depot.operatorName),
+          _buildDetailRow('Phone', depot.cellNo),
+          _buildDetailRow('Location', depot.location),
+          _buildDetailRow('License No', depot.licenseNo),
+          _buildDetailRow('Operating Since', depot.operatingSince),
+          _buildDetailRow('Boxes 2023', '${depot.boxesTransported2023}'),
+          _buildDetailRow('Boxes 2024', '${depot.boxesTransported2024}'),
+          _buildDetailRow('Target 2025', '${depot.target2025}'),
+        ],
+        onEdit: () {},
+        onDelete: () => controller.removeHpmc(depot.id),
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.business,
+                size: isSmallScreen ? 32 : 40,
+                color: Color(0xff548235),
+              ),
+              SizedBox(height: 8),
+              Text(
+                depot.operatorName,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text(
+                  depot.contactName,
+                  style: TextStyle(fontSize: 12),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  depot.location,
+                  style: TextStyle(fontSize: 12, color: Color(0xff548235)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewHpmcCard(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    return InkWell(
+      onTap: () => Get.to(() => HpmcDepotFormPage()),
       child: Card(
         color: Colors.white,
         elevation: 0,

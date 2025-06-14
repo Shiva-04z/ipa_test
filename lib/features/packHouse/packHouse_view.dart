@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'dart:io';
 import '../../core/global_role_loader.dart' as gld;
 import '../../core/globalsWidgets.dart' as glbw;
+import '../../models/hpmc_collection_center_model.dart';
 import '../../models/pack_house_model.dart';
 import '../../models/grower_model.dart';
 import '../../models/aadhati.dart';
@@ -19,6 +20,7 @@ import '../driver/driver_form_page.dart';
 import '../forms/commission_agent_form_page.dart';
 import '../forms/corporate_company_form_page.dart';
 import '../forms/grower_form_page.dart';
+import '../forms/hpmc_depot_form_page.dart';
 import '../forms/packing_house_form_page.dart';
 import '../forms/transport_union_form_page.dart';
 
@@ -59,6 +61,8 @@ class PackHouseView extends GetView<PackHouseController> {
                   return _buildAssociatedPackersContainer(context);
                 case 'Associated Drivers':
                   return _buildAssociatedDriversContainer(context);
+                case 'Associated HPMC':
+                  return _buildHpmcContainer(context);
                 case 'Consignments':
                   return _buildConsignmentsContainer(context);
                 case 'Gallery':
@@ -106,6 +110,12 @@ class PackHouseView extends GetView<PackHouseController> {
                 'Associated Freight Forwarders',
                 controller.associatedFreightForwarders.length.toString(),
                 Colors.amber,
+                Icons.local_shipping,
+              ),
+              _buildSummaryCard(
+                'Associated HPMC',
+                controller.hpmcDepots.length.toString(),
+                Colors.pinkAccent,
                 Icons.local_shipping,
               ),
               _buildSummaryCard(
@@ -214,6 +224,8 @@ class PackHouseView extends GetView<PackHouseController> {
             _buildSectionChip('Associated Buyers'),
             SizedBox(width: 8),
             _buildSectionChip('Associated Freight Forwarders'),
+            SizedBox(width: 8),
+            _buildSectionChip('Associated HPMC'),
             SizedBox(width: 8),
             _buildSectionChip('Associated Transport Unions'),
             SizedBox(width: 8),
@@ -1706,6 +1718,158 @@ class PackHouseView extends GetView<PackHouseController> {
           ),
           Expanded(child: Text(value)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHpmcContainer(BuildContext context) {
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black26, width: 1),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width > 800 ? 325 : 200,
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Obx(
+                    () => GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                    MediaQuery.of(context).size.width > 800 ? 5 : 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.hpmcDepots.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) return _buildAddNewHpmcCard(context);
+                    return _buildHpmcCard(controller.hpmcDepots[index - 1]);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8),
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color(0xff548235),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          constraints: BoxConstraints(maxWidth: 225),
+          child: Text(
+            "HPMC Depots",
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHpmcCard(HpmcCollectionCenter depot) {
+    final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
+    return InkWell(
+      onTap: () => GrowerDialogs.showItemDetailsDialog(
+        context: Get.context!,
+        item: depot,
+        title: 'HPMC Depot Details',
+        details: [
+          _buildDetailRow('Contact Name', depot.contactName),
+          _buildDetailRow('Operator', depot.operatorName),
+          _buildDetailRow('Phone', depot.cellNo),
+          _buildDetailRow('Location', depot.location),
+          _buildDetailRow('License No', depot.licenseNo),
+          _buildDetailRow('Operating Since', depot.operatingSince),
+          _buildDetailRow('Boxes 2023', '${depot.boxesTransported2023}'),
+          _buildDetailRow('Boxes 2024', '${depot.boxesTransported2024}'),
+          _buildDetailRow('Target 2025', '${depot.target2025}'),
+        ],
+        onEdit: () {},
+        onDelete: () => controller.removeHpmc(depot.id),
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.business,
+                size: isSmallScreen ? 32 : 40,
+                color: Color(0xff548235),
+              ),
+              SizedBox(height: 8),
+              Text(
+                depot.operatorName,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 12 : 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (!isSmallScreen) ...[
+                SizedBox(height: 4),
+                Text(
+                  depot.contactName,
+                  style: TextStyle(fontSize: 12),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  depot.location,
+                  style: TextStyle(fontSize: 12, color: Color(0xff548235)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewHpmcCard(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
+    return InkWell(
+      onTap: () => Get.to(() => HpmcDepotFormPage()),
+      child: Card(
+        color: Colors.white,
+        elevation: 0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle,
+              size: isSmallScreen ? 32 : 40,
+              color: Colors.red,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "ADD NEW",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

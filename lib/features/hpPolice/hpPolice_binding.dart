@@ -1,9 +1,11 @@
-import 'package:apple_grower/features/hpPolice/hpPolice_controller.dart';
 import 'package:get/get.dart';
+import 'hpPolice_controller.dart';
 
-class HPPoliceBinding extends Bindings {
+class HpPoliceBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => HPPoliceController());
+    Get.lazyPut<HpPoliceController>(
+      () => HpPoliceController(),
+    );
   }
 }

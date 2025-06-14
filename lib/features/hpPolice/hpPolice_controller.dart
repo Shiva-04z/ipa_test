@@ -1,86 +1,129 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../models/consignment_model.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../core/globals.dart' as glb;
+import '../../models/hp_police_model.dart';
+import '../../models/driving_profile_model.dart';
 
-class HPPoliceController extends GetxController {
-  // Police Station Info
-  final RxString stationName = 'Shimla Police Station'.obs;
-  final RxString stationAddress = 'Shimla, Himachal Pradesh'.obs;
-  final RxString stationContact = '9876543210'.obs;
-  final RxString stationEmail = 'shimla.police@hp.gov.in'.obs;
-  final RxString stationCode = 'PS123456'.obs;
+class HpPoliceController extends GetxController {
+  final RxList<HpPolice> policePersonnel = <HpPolice>[].obs;
+  final RxList<RestrictedArea> restrictedAreas = <RestrictedArea>[].obs;
+  final RxList<DrivingProfile> vehicles = <DrivingProfile>[].obs;
+  final Rx<LatLng> currentLocation =
+      const LatLng(31.1048, 77.1734).obs; // Shimla coordinates
+  final RxDouble currentZoom = 13.0.obs;
+  final RxBool isLoading = false.obs;
+  final RxString selectedSection = 'Traffic Management'.obs;
 
-  // Posts
-  final RxList<Map<String, dynamic>> posts = <Map<String, dynamic>>[].obs;
-
-  // Consignments
-  final RxList<Consignment> consignments = <Consignment>[].obs;
+  // Form controllers
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void onInit() {
+    glb.roleType.value = "HP Police";
     super.onInit();
-    loadData();
   }
 
-  void loadData() {
-    // TODO: Load data from API
-    // For now, using sample data
-    posts.addAll([
-      {
-        'id': 'POST001',
-        'title': 'Check Post - Shimla',
-        'location': 'Shimla Bypass',
-        'officerInCharge': 'Inspector Rajesh Kumar',
-        'contact': '9876543211',
-        'status': 'Active',
-        'createdAt': DateTime.now().subtract(Duration(days: 5)),
-      },
-      {
-        'id': 'POST002',
-        'title': 'Check Post - Kullu',
-        'location': 'Kullu Valley Road',
-        'officerInCharge': 'Inspector Suresh Kumar',
-        'contact': '9876543212',
-        'status': 'Active',
-        'createdAt': DateTime.now().subtract(Duration(days: 3)),
-      },
-    ]);
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
+  }
 
-    consignments.addAll([
-      Consignment(
-        id: 'CONS001',
-        quality: 'Premium',
-        category: 'A',
-        numberOfBoxes: 100,
-        numberOfPiecesInBox: 20,
-        pickupOption: 'Own',
-        shippingFrom: 'Kotkhai',
-        shippingTo: 'Delhi',
-        commissionAgent: null,
-        corporateCompany: null,
-        packingHouse: null,
-        hasOwnCrates: true,
-        status: 'In Transit',
-        driver: null,
-        createdAt: DateTime.now().subtract(Duration(days: 2)),
+  void setSelectedSection(String section) {
+    selectedSection.value = section;
+  }
+
+  void addVehicle(DrivingProfile driver) {
+    vehicles.add(driver);
+  }
+
+  Future<void> addPolicePersonnel(officer) async {
+    // TODO: Implement API call to save data
+    policePersonnel.add(officer);
+    Get.back();
+  }
+
+  Future<void> addRestrictedArea(
+      String type, List<LatLng> coordinates, String description) async {
+    try {
+      final newArea = RestrictedArea(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        name: '${type.toUpperCase()} Area',
+        type: type,
+        coordinates: coordinates,
+        description: description,
+        startTime: DateTime.now(),
+        createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
-      ),
-    ]);
+      );
+
+      // TODO: Implement API call to save data
+      restrictedAreas.add(newArea);
+      Get.snackbar(
+        'Success',
+        'Restricted area added successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to add restricted area: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
-  void addPost(Map<String, dynamic> post) {
-    posts.add(post);
+  Future<void> updateVehicleStatus(String vehicleId, String status) async {
+    try {
+      final index = vehicles.indexWhere((v) => v.id == vehicleId);
+      if (index != -1) {
+        final vehicle = vehicles[index];
+        final updatedVehicle = DrivingProfile(
+          id: vehicle.id,
+          name: vehicle.name,
+          contact: vehicle.contact,
+          currentLocation: vehicle.currentLocation,
+          vehicleRegistrationNo: vehicle.vehicleRegistrationNo,
+        );
+
+        // TODO: Implement API call to update data
+        vehicles[index] = updatedVehicle;
+        Get.snackbar(
+          'Success',
+          'Vehicle status updated successfully',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to update vehicle status: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
-  void removePost(String id) {
-    posts.removeWhere((post) => post['id'] == id);
+  Future<void> callDriver(String phoneNumber) async {
+    try {
+      final url = 'tel:$phoneNumber';
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to make call: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
-  void addConsignment(Consignment consignment) {
-    consignments.add(consignment);
-  }
-
-  void removeConsignment(String id) {
-    consignments.removeWhere((consignment) => consignment.id == id);
+  void updateMapPosition(LatLng position, double zoom) {
+    currentLocation.value = position;
+    currentZoom.value = zoom;
   }
 }

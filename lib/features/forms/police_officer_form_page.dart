@@ -1,19 +1,23 @@
-import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
-import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../core/globals.dart' as glb;
-import '../../models/employee_model.dart';
+import '../../models/hp_police_model.dart';
 import '../../core/globalsWidgets.dart' as glbw;
+import '../hpPolice/hpPolice_controller.dart';
 
-class EmployeeFormPage extends StatelessWidget {
+class PoliceOfficerFormPage extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _designationController = TextEditingController();
+  final _adharIdController = TextEditingController();
+  final _beltNoController = TextEditingController();
+  final _rankController = TextEditingController();
+  final _reportingOfficerController = TextEditingController();
+  final _dutyLocationController = TextEditingController();
 
   Future<void> _pickContact() async {
     if (kIsWeb) {
@@ -35,10 +39,8 @@ class EmployeeFormPage extends StatelessWidget {
         if (contact != null) {
           _nameController.text = contact.displayName;
           if (contact.phones.isNotEmpty) {
-            // Get the first phone number and remove any non-digit characters
             String phoneNumber =
                 contact.phones.first.number.replaceAll(RegExp(r'[^\d]'), '');
-            // Ensure it's 10 digits
             if (phoneNumber.length > 10) {
               phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
             }
@@ -78,7 +80,7 @@ class EmployeeFormPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Add New Staff Member',
+                  'Add New Police Officer',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -137,15 +139,75 @@ class EmployeeFormPage extends StatelessWidget {
               },
             ),
             SizedBox(height: 16),
-            if (glb.roleType.value =="HP Police") TextFormField(
-              controller: _nameController,
+            TextFormField(
+              controller: _rankController,
               decoration: InputDecoration(
-                labelText: 'Designation',
+                labelText: 'Rank',
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter the Designation';
+                  return 'Please enter the rank';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: _beltNoController,
+              decoration: InputDecoration(
+                labelText: 'Belt Number',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the belt number';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: _adharIdController,
+              decoration: InputDecoration(
+                labelText: 'Aadhar ID',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the Aadhar ID';
+                }
+                if (value.length != 12) {
+                  return 'Aadhar ID must be 12 digits';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: _reportingOfficerController,
+              decoration: InputDecoration(
+                labelText: 'Reporting Officer',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the reporting officer';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: _dutyLocationController,
+              decoration: InputDecoration(
+                labelText: 'Duty Location',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the duty location';
                 }
                 return null;
               },
@@ -191,17 +253,22 @@ class EmployeeFormPage extends StatelessWidget {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      final employee = Employee(
+      final officer = HpPolice(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text,
-        phoneNumber: _phoneController.text,
-        designation: _designationController.text
+        cellNo: _phoneController.text,
+        adharId: _adharIdController.text,
+        beltNo: _beltNoController.text,
+        rank: _rankController.text,
+        reportingOfficer: _reportingOfficerController.text,
+        dutyLocation: _dutyLocationController.text,
+        location: LatLng(31.1048, 77.1734), // Default location (Shimla)
+        isActive: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
-      (glb.roleType.value == "PackHouse")
-          ? Get.find<PackHouseController>().addAssociatedPacker(employee)
-          : Get.find<AadhatiController>().addStaff(employee);
-
+      Get.find<HpPoliceController>().addPolicePersonnel(officer);
       Get.back();
     }
   }

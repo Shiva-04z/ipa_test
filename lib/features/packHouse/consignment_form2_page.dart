@@ -81,9 +81,10 @@ class ConsignmentForm2Controller extends GetxController {
                                         .consignments
                                         .any((existingDriver) =>
                                             existingDriver.id == consignment.id)
-                                    : Get.find<HPPoliceController>()
-                                        .consignments
-                                        .any((existingDriver) => existingDriver.id == consignment.id);
+                                    :Get.find<HPAgriBoardController>()
+        .consignments
+        .any((existingDriver) =>
+    existingDriver.id == consignment.id);
 
     if (exists) {
       Get.snackbar(
@@ -117,8 +118,8 @@ class ConsignmentForm2Controller extends GetxController {
                                 : (glb.roleType.value == "HPMC DEPOT")
                                     ? Get.find<HPAgriBoardController>()
                                         .addConsignment(consignment)
-                                    : Get.find<HPPoliceController>()
-                                        .addConsignment(consignment);
+                                    : Get.find<HPAgriBoardController>()
+        .addConsignment(consignment);
     Get.back();
   }
 
@@ -278,9 +279,10 @@ class ConsignmentForm2Page extends StatelessWidget {
                   .consignments
                   .any((existingDriver) =>
               existingDriver.id == consignment.id)
-                  : Get.find<HPPoliceController>()
+                  :  Get.find<HPAgriBoardController>()
                   .consignments
-                  .any((existingDriver) => existingDriver.id == consignment.id);
+                  .any((existingDriver) =>
+              existingDriver.id == consignment.id);
 
 
               return Stack(

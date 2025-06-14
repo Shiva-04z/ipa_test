@@ -1,104 +1,133 @@
-import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
-import 'package:apple_grower/features/freightForwarder/freightForwarder_controller.dart';
 import 'package:apple_grower/features/grower/grower_controller.dart';
 import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
-import 'package:apple_grower/features/hpPolice/hpPolice_controller.dart';
-import 'package:apple_grower/features/ladaniBuyers/ladaniBuyers_controller.dart';
-import 'package:apple_grower/features/transportUnion/transportUnion_controller.dart';
-
+import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../models/driving_profile_model.dart';
-import '../../core/globals.dart' as glb;
-import '../packHouse/packHouse_controller.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-class DriverFormController extends GetxController {
+import '../../core/global_role_loader.dart' as gld;
+import '../../core/globals.dart' as glb;
+import '../../models/hpmc_collection_center_model.dart';
+
+class HpmcDepotFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
-  final nameController = TextEditingController();
-  final phoneController = TextEditingController();
-  final licenseController = TextEditingController();
-  final vehicleTypeController = TextEditingController();
-  final vehicleNumberController = TextEditingController();
+  final contactNameController = TextEditingController();
+  final operatorNameController = TextEditingController();
+  final cellNoController = TextEditingController();
+  final adharNoController = TextEditingController();
+  final licenseNoController = TextEditingController();
+  final operatingSinceController = TextEditingController();
+  final locationController = TextEditingController();
+  final boxes2023Controller = TextEditingController();
+  final boxes2024Controller = TextEditingController();
+  final target2025Controller = TextEditingController();
   final searchController = TextEditingController();
   final isLoading = false.obs;
   final isSearching = true.obs;
-  final searchResults = <DrivingProfile>[].obs;
-  var exists;
+  final searchResults = <HpmcCollectionCenter>[].obs;
+
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = glb.availableDrivingProfiles;
+    searchResults.value = glb.availableHpmcDepots;
   }
 
   @override
   void onClose() {
-    nameController.dispose();
-    phoneController.dispose();
-    licenseController.dispose();
-    vehicleTypeController.dispose();
-    vehicleNumberController.dispose();
+    contactNameController.dispose();
+    operatorNameController.dispose();
+    cellNoController.dispose();
+    adharNoController.dispose();
+    licenseNoController.dispose();
+    operatingSinceController.dispose();
+    locationController.dispose();
+    boxes2023Controller.dispose();
+    boxes2024Controller.dispose();
+    target2025Controller.dispose();
     searchController.dispose();
     super.onClose();
   }
 
   void onSearchChanged(String query) {
     if (query.isEmpty) {
-      searchResults.value = glb.availableDrivingProfiles;
+      searchResults.value = glb.availableHpmcDepots;
     } else {
-      searchResults.value = glb.availableDrivingProfiles.where((driver) {
-        final name = driver.name!.toLowerCase();
-        final phone = driver.contact!.toLowerCase();
-        final license = driver.drivingLicenseNo!.toLowerCase();
-        final vehicle = driver.vehicleRegistrationNo!.toLowerCase();
+      searchResults.value = glb.availableHpmcDepots.where((depot) {
+        final contactName = depot.contactName.toLowerCase();
+        final operatorName = depot.operatorName.toLowerCase();
+        final location = depot.location.toLowerCase();
         final searchLower = query.toLowerCase();
 
-        return name.contains(searchLower) ||
-            phone.contains(searchLower) ||
-            license.contains(searchLower) ||
-            vehicle.contains(searchLower);
+        return contactName.contains(searchLower) ||
+            operatorName.contains(searchLower) ||
+            location.contains(searchLower);
       }).toList();
     }
   }
 
-  void selectDriver(DrivingProfile driver) {
-    exists = (glb.roleType.value == "PackHouse")
-        ? Get.find<PackHouseController>()
-            .associatedDrivers
-            .any((existingDriver) => existingDriver.id == driver.id)
-        : (glb.roleType.value == "Grower")
-            ? Get.find<GrowerController>()
-                .drivers
-                .any((existingDriver) => existingDriver.id == driver.id)
-            : (glb.roleType.value == "Aadhati")
-                ? Get.find<AadhatiController>()
-                    .associatedDrivers
-                    .any((existingDriver) => existingDriver.id == driver.id)
-                : (glb.roleType.value == "Ladani/Buyers")
-                    ? Get.find<LadaniBuyersController>()
-                        .associatedDrivers
-                        .any((existingDriver) => existingDriver.id == driver.id)
-                    : (glb.roleType.value == "Freight Forwarder")
-                        ? Get.find<FreightForwarderController>()
-                            .associatedDrivers
-                            .any((existingDriver) =>
-                                existingDriver.id == driver.id)
-                        : (glb.roleType.value == "HPMC DEPOT")
-                            ? Get.find<HPAgriBoardController>()
-                                .associatedDrivers
-                                .any((existingDriver) =>
-                                    existingDriver.id == driver.id)
-                            : (glb.roleType.value == "HP Police")
-        ? Get.find<HpPoliceController>().vehicles.any((existingDriver) =>
-    existingDriver.id == driver.id)
-        :Get.find<TransportUnionController>()
-                                .associatedDrivers
-                                .any((existingDriver) =>
-                                    existingDriver.id == driver.id);
+  Future<void> pickContact() async {
+    if (kIsWeb) {
+      Get.snackbar(
+        'Not Available',
+        'Contact picker is not available on web due to security restrictions. Please use the mobile app.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: Duration(seconds: 5),
+      );
+      return;
+    }
+
+    try {
+      final status = await Permission.contacts.request();
+      if (status.isGranted) {
+        final contact = await FlutterContacts.openExternalPick();
+        if (contact != null) {
+          contactNameController.text = contact.displayName;
+          if (contact.phones.isNotEmpty) {
+            String phoneNumber =
+                contact.phones.first.number.replaceAll(RegExp(r'[^\d]'), '');
+            if (phoneNumber.length > 10) {
+              phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
+            }
+            cellNoController.text = phoneNumber;
+          }
+        }
+      } else {
+        Get.snackbar(
+          'Permission Denied',
+          'Please grant contacts permission to use this feature',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick contact: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  void selectDepot(HpmcCollectionCenter depot) {
+    final exists = (glb.roleType.value == "Grower")
+        ? Get.find<GrowerController>().hpmcDepots.any(
+              (existingDepot) => existingDepot.id == depot.id,
+            )
+        : Get.find<PackHouseController>().hpmcDepots.any(
+              (existingDepot) => existingDepot.id == depot.id,
+            );
 
     if (exists) {
       Get.snackbar(
-        'Driver Already Added',
-        'This driver is already in your list',
+        'Depot Already Added',
+        'This HPMC depot is already in your list',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -106,25 +135,10 @@ class DriverFormController extends GetxController {
       return;
     }
 
-    (glb.roleType.value == "PackHouse")
-        ? Get.find<PackHouseController>().addAssociatedDriver(driver)
-        : (glb.roleType.value == "Grower")
-            ? Get.find<GrowerController>().addDriver(driver)
-            : (glb.roleType.value == "Aadhati")
-                ? Get.find<AadhatiController>().addAssociatedDriver(driver)
-                : (glb.roleType.value == "Ladani/Buyers")
-                    ? Get.find<LadaniBuyersController>()
-                        .addAssociatedDrivers(driver)
-                    : (glb.roleType.value == "Freight Forwarder")
-                        ? Get.find<FreightForwarderController>()
-                            .addAssociatedDrivers(driver)
-                        : (glb.roleType.value == "HPMC DEPOT")
-                            ? Get.find<HPAgriBoardController>()
-                                .addAssociatedDriver(driver)
-                            :(glb.roleType.value == "HP Police")
-        ? Get.find<HpPoliceController>().addVehicle(driver)
-        : Get.find<TransportUnionController>()
-                                .addAssociatedDrivers(driver);
+    (glb.roleType.value == "Grower")
+        ? Get.find<GrowerController>().addHpmc(depot)
+        : Get.find<PackHouseController>().addHpmc(depot);
+
     Get.back();
   }
 
@@ -134,60 +148,49 @@ class DriverFormController extends GetxController {
     isLoading.value = true;
 
     try {
-      final driver = DrivingProfile(
-        id: 'D${DateTime.now().millisecondsSinceEpoch}',
-        name: nameController.text,
-        contact: phoneController.text,
-        drivingLicenseNo: licenseController.text,
-        vehicleRegistrationNo: vehicleNumberController.text,
+      final depot = HpmcCollectionCenter(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        contactName: contactNameController.text,
+        operatorName: operatorNameController.text,
+        cellNo: cellNoController.text,
+        adharNo: adharNoController.text,
+        licenseNo: licenseNoController.text,
+        operatingSince: operatingSinceController.text,
+        location: locationController.text,
+        boxesTransported2023: int.tryParse(boxes2023Controller.text) ?? 0,
+        boxesTransported2024: int.tryParse(boxes2024Controller.text) ?? 0,
+        target2025: double.tryParse(target2025Controller.text) ?? 0.0,
       );
 
-      (glb.roleType.value == "PackHouse")
-          ? Get.find<PackHouseController>().addAssociatedDriver(driver)
-          : (glb.roleType.value == "Grower")
-              ? Get.find<GrowerController>().addDriver(driver)
-              : (glb.roleType.value == "Aadhati")
-                  ? Get.find<AadhatiController>().addAssociatedDriver(driver)
-                  : (glb.roleType.value == "Ladani/Buyers")
-                      ? Get.find<LadaniBuyersController>()
-                          .addAssociatedDrivers(driver)
-                      : (glb.roleType.value == "Freight Forwarder")
-                          ? Get.find<FreightForwarderController>()
-                              .addAssociatedDrivers(driver)
-                          : (glb.roleType.value == "HPMC DEPOT")
-          ? Get.find<HPAgriBoardController>()
-                                  .addAssociatedDriver(driver)
-                              :(glb.roleType.value == "HP Police")
-          ? Get.find<HpPoliceController>().addVehicle(driver)
-          : Get.find<TransportUnionController>()
-                                  .addAssociatedDrivers(driver);
+      (glb.roleType.value == "Grower")
+          ? Get.find<GrowerController>().addHpmc(depot)
+          : Get.find<PackHouseController>().addHpmc(depot);
 
       Get.back();
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Error adding driver: $e',
+        'Error adding HPMC depot: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } finally {
-      Get.back();
       isLoading.value = false;
     }
   }
 }
 
-class DriverFormPageView extends StatelessWidget {
-  DriverFormPageView({super.key});
+class HpmcDepotFormPage extends StatelessWidget {
+  HpmcDepotFormPage({super.key});
 
-  final controller = Get.put(DriverFormController());
+  final controller = Get.put(HpmcDepotFormController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Driver'),
+        title: const Text('Add HPMC Depot'),
         backgroundColor: const Color(0xff548235),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -230,7 +233,7 @@ class DriverFormPageView extends StatelessWidget {
                 const SizedBox(height: 24),
                 Obx(() => controller.isSearching.value
                     ? _buildSearchResults()
-                    : _buildNewDriverForm()),
+                    : _buildNewDepotForm()),
               ],
             ),
           ),
@@ -252,7 +255,7 @@ class DriverFormPageView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Select or Create Driver',
+                  'Select or Create Depot',
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
                     fontWeight: FontWeight.bold,
@@ -280,7 +283,7 @@ class DriverFormPageView extends StatelessWidget {
                 ? TextField(
                     controller: controller.searchController,
                     decoration: _getInputDecoration(
-                      'Search drivers...',
+                      'Search depots...',
                       prefixIcon: Icons.search,
                     ),
                     onChanged: controller.onSearchChanged,
@@ -298,7 +301,7 @@ class DriverFormPageView extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'No drivers found',
+                'No depots found',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
@@ -311,40 +314,14 @@ class DriverFormPageView extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: controller.searchResults.length,
             itemBuilder: (context, index) {
-              final driver = controller.searchResults[index];
-              final exists = (glb.roleType.value == "PackHouse")
-                  ? Get.find<PackHouseController>()
-                      .associatedDrivers
-                      .any((existingDriver) => existingDriver.id == driver.id)
-                  : (glb.roleType.value == "Grower")
-                      ? Get.find<GrowerController>().drivers.any(
-                          (existingDriver) => existingDriver.id == driver.id)
-                      : (glb.roleType.value == "Aadhati")
-                          ? Get.find<AadhatiController>().associatedDrivers.any(
-                              (existingDriver) =>
-                                  existingDriver.id == driver.id)
-                          : (glb.roleType.value == "Ladani/Buyers")
-                              ? Get.find<LadaniBuyersController>()
-                                  .associatedDrivers
-                                  .any((existingDriver) =>
-                                      existingDriver.id == driver.id)
-                              : (glb.roleType.value == "Freight Forwarder")
-                                  ? Get.find<FreightForwarderController>()
-                                      .associatedDrivers
-                                      .any((existingDriver) =>
-                                          existingDriver.id == driver.id)
-                                  : (glb.roleType.value == "HPMC DEPOT")
-                                      ? Get.find<HPAgriBoardController>()
-                                          .associatedDrivers
-                                          .any((existingDriver) =>
-                                              existingDriver.id == driver.id)
-                                      : (glb.roleType.value == "HP Police")
-                                          ? Get.find<HpPoliceController>().vehicles.any((existingDriver) =>
-                                              existingDriver.id == driver.id)
-                                          : Get.find<TransportUnionController>()
-                                              .associatedDrivers
-                                              .any((existingDriver) => existingDriver.id == driver.id);
-
+              final depot = controller.searchResults[index];
+              final exists = (glb.roleType.value == "Grower")
+                  ? Get.find<GrowerController>().hpmcDepots.any(
+                        (existingDepot) => existingDepot.id == depot.id,
+                      )
+                  : Get.find<PackHouseController>().hpmcDepots.any(
+                        (existingDepot) => existingDepot.id == depot.id,
+                      );
               return Stack(
                 children: [
                   Card(
@@ -355,7 +332,7 @@ class DriverFormPageView extends StatelessWidget {
                     ),
                     child: InkWell(
                       onTap:
-                          exists ? null : () => controller.selectDriver(driver),
+                          exists ? null : () => controller.selectDepot(depot),
                       borderRadius: BorderRadius.circular(12),
                       child: Opacity(
                         opacity: exists ? 0.7 : 1.0,
@@ -367,7 +344,7 @@ class DriverFormPageView extends StatelessWidget {
                               Row(
                                 children: [
                                   const Icon(
-                                    Icons.person,
+                                    Icons.business,
                                     color: Color(0xff548235),
                                     size: 24,
                                   ),
@@ -378,16 +355,16 @@ class DriverFormPageView extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${driver.name}',
+                                          depot.contactName,
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          'Phone: ${driver.contact}',
+                                          'Operator: ${depot.operatorName}',
                                           style: TextStyle(
-                                            fontSize: 14,
+                                            fontSize: 12,
                                             color: Colors.grey[600],
                                           ),
                                         ),
@@ -398,13 +375,18 @@ class DriverFormPageView extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               _buildInfoRow(
-                                Icons.badge,
-                                'License: ${driver.drivingLicenseNo}',
+                                Icons.phone,
+                                'Phone: ${depot.cellNo}',
                               ),
                               const SizedBox(height: 8),
                               _buildInfoRow(
-                                Icons.directions_car,
-                                'Vehicle: ${driver.vehicleRegistrationNo}',
+                                Icons.location_on,
+                                'Location: ${depot.location}',
+                              ),
+                              const SizedBox(height: 8),
+                              _buildInfoRow(
+                                Icons.assignment,
+                                'License: ${depot.licenseNo}',
                               ),
                             ],
                           ),
@@ -462,7 +444,7 @@ class DriverFormPageView extends StatelessWidget {
     );
   }
 
-  Widget _buildNewDriverForm() {
+  Widget _buildNewDepotForm() {
     return Form(
       key: controller.formKey,
       child: Column(
@@ -470,7 +452,7 @@ class DriverFormPageView extends StatelessWidget {
         children: [
           _buildBasicDetails(),
           const SizedBox(height: 24),
-          _buildVehicleDetails(),
+          _buildBusinessDetails(),
           const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
@@ -497,32 +479,97 @@ class DriverFormPageView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.nameController,
+              controller: controller.contactNameController,
               decoration: _getInputDecoration(
-                'Name',
+                'Contact Name',
                 prefixIcon: Icons.person,
               ),
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter name' : null,
+                  value?.isEmpty ?? true ? 'Please enter contact name' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.phoneController,
+              controller: controller.operatorNameController,
               decoration: _getInputDecoration(
-                'Phone Number',
-                prefixIcon: Icons.phone,
+                'Operator Name',
+                prefixIcon: Icons.person_outline,
               ),
-              keyboardType: TextInputType.phone,
-              maxLength: 10,
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter phone number';
-                }
-                if (value!.length != 10) {
-                  return 'Phone number must be 10 digits';
-                }
-                return null;
-              },
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter operator name' : null,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: controller.cellNoController,
+                    decoration: _getInputDecoration(
+                      'Phone Number',
+                      prefixIcon: Icons.phone,
+                    ),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter phone number';
+                      }
+                      if (value!.length != 10) {
+                        return 'Phone number must be 10 digits';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: controller.pickContact,
+                  icon: const Icon(Icons.contacts),
+                  color: const Color(0xff548235),
+                  tooltip: kIsWeb
+                      ? 'Use mobile app to pick contacts'
+                      : 'Pick from contacts',
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.adharNoController,
+              decoration: _getInputDecoration(
+                'Aadhar Number',
+                prefixIcon: Icons.badge,
+              ),
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter Aadhar number' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.licenseNoController,
+              decoration: _getInputDecoration(
+                'License Number',
+                prefixIcon: Icons.assignment,
+              ),
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter license number' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.operatingSinceController,
+              decoration: _getInputDecoration(
+                'Operating Since',
+                prefixIcon: Icons.calendar_today,
+              ),
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter operating since'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.locationController,
+              decoration: _getInputDecoration(
+                'Location',
+                prefixIcon: Icons.location_on,
+              ),
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter location' : null,
             ),
           ],
         ),
@@ -530,7 +577,7 @@ class DriverFormPageView extends StatelessWidget {
     );
   }
 
-  Widget _buildVehicleDetails() {
+  Widget _buildBusinessDetails() {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -540,7 +587,7 @@ class DriverFormPageView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Vehicle Details',
+              'Business Details',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -549,23 +596,39 @@ class DriverFormPageView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.licenseController,
+              controller: controller.boxes2023Controller,
               decoration: _getInputDecoration(
-                'Driving License Number',
-                prefixIcon: Icons.badge,
+                'Boxes Transported in 2023',
+                prefixIcon: Icons.inventory,
               ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter license number' : null,
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter boxes transported in 2023'
+                  : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.vehicleNumberController,
+              controller: controller.boxes2024Controller,
               decoration: _getInputDecoration(
-                'Vehicle Registration Number',
-                prefixIcon: Icons.directions_car,
+                'Boxes Transported in 2024',
+                prefixIcon: Icons.inventory,
               ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter vehicle number' : null,
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter boxes transported in 2024'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: controller.target2025Controller,
+              decoration: _getInputDecoration(
+                'Target for 2025',
+                prefixIcon: Icons.trending_up,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter target for 2025'
+                  : null,
             ),
           ],
         ),
@@ -587,7 +650,7 @@ class DriverFormPageView extends StatelessWidget {
           ),
         ),
         child: const Text(
-          'Add Driver',
+          'Add HPMC Depot',
           style: TextStyle(fontSize: 16),
         ),
       ),

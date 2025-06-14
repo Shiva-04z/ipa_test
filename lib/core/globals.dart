@@ -1,6 +1,7 @@
 import 'package:apple_grower/models/employee_model.dart';
 import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:get/get.dart';
+import 'package:latlong2/latlong.dart';
 import '../models/aadhati.dart';
 import '../models/apmc_model.dart';
 import '../models/auth_signatory_post_model.dart';
@@ -14,6 +15,7 @@ import '../models/post_model.dart';
 import '../models/transport_model.dart';
 import 'dictionary.dart';
 import '../models/user_model.dart';
+import '../models/hpmc_collection_center_model.dart';
 
 import '../models/complaint_model.dart';
 
@@ -202,6 +204,7 @@ RxList<DrivingProfile> availableDrivingProfiles = [
     appleBoxesTransported2024: 6000,
     estimatedTarget2025: 7000.0,
     statesDrivenThrough: 'Himachal Pradesh, Delhi, Maharashtra',
+    currentLocation: LatLng(31.1048, 77.1734),
   ),
   DrivingProfile(
     id: 'DP002',
@@ -219,6 +222,7 @@ RxList<DrivingProfile> availableDrivingProfiles = [
     appleBoxesTransported2024: 5500,
     estimatedTarget2025: 6500.0,
     statesDrivenThrough: 'Himachal Pradesh, Punjab, Haryana',
+    currentLocation: LatLng(31.1148, 77.1834),
   ),
 ].obs;
 
@@ -590,3 +594,41 @@ String getTranslatedText(String englishText) {
 }
 
 // Asynchronous version - uses Google Translate for new translations
+RxList<HpmcCollectionCenter> availableHpmcDepots = [
+  HpmcCollectionCenter(
+    id: 'HPMC001',
+    contactName: 'Rajesh Kumar',
+    operatorName: 'Himachal Collection Center',
+    cellNo: '9876543210',
+    adharNo: '123456789012',
+    licenseNo: 'HPMC123456',
+    operatingSince: '2015',
+    location: 'Kotkhai, Shimla, Himachal Pradesh',
+    boxesTransported2023: 25000,
+    boxesTransported2024: 30000,
+    target2025: 35000.0,
+    associatedGrowers: [],
+    myComplaints: [],
+    associatedPackHouses: [],
+    associatedDrivers: [],
+    associatedTransportUnions: [],
+  ),
+  HpmcCollectionCenter(
+    id: 'HPMC002',
+    contactName: 'Suresh Singh',
+    operatorName: 'Kullu Valley Collection Center',
+    cellNo: '9876543211',
+    adharNo: '987654321098',
+    licenseNo: 'HPMC789012',
+    operatingSince: '2018',
+    location: 'Kullu, Himachal Pradesh',
+    boxesTransported2023: 20000,
+    boxesTransported2024: 25000,
+    target2025: 30000.0,
+    associatedGrowers: [],
+    myComplaints: [],
+    associatedPackHouses: [],
+    associatedDrivers: [],
+    associatedTransportUnions: [],
+  ),
+].obs;

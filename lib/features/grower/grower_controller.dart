@@ -1,3 +1,5 @@
+import 'package:apple_grower/models/hpmc_collection_center_model.dart';
+
 import '../../core/global_role_loader.dart';
 import 'package:apple_grower/models/ladani_model.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
@@ -42,6 +44,7 @@ class GrowerController extends GetxController {
   RxList<PackHouse> get packingHouses => grower.packingHouses.obs;
   RxList<Consignment> get consignments => grower.consignments.obs;
   RxList<DrivingProfile> drivers = <DrivingProfile>[].obs;
+  RxList<HpmcCollectionCenter> hpmcDepots = <HpmcCollectionCenter>[].obs;
   final RxList<String> galleryImages = <String>[].obs;
   final transportUnions = <Transport>[].obs;
   final freightForwarders = <FreightForwarder>[].obs;
@@ -255,6 +258,8 @@ class GrowerController extends GetxController {
     freightForwarders.add(forwarder);
   }
 
+
+
   void updateFreightForwarder(FreightForwarder forwarder) {
     final index = freightForwarders.indexWhere((f) => f.id == forwarder.id);
     if (index != -1) {
@@ -264,6 +269,15 @@ class GrowerController extends GetxController {
 
   void removeFreightForwarder(String id) {
     freightForwarders.removeWhere((f) => f.id == id);
+  }
+
+
+  void addHpmc(HpmcCollectionCenter hpmc) {
+    hpmcDepots.add(hpmc);
+  }
+
+  void removeHpmc(String id) {
+    hpmcDepots.removeWhere((f) => f.id == id);
   }
 
   @override

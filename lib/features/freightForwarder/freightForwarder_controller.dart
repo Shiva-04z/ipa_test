@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../core/globals.dart' as glb;
 import '../../models/freightForwarder.dart';
 import '../../models/grower_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/aadhati.dart';
 import '../../models/consignment_model.dart';
 import '../../models/ladani_model.dart';
+import '../../models/transport_model.dart';
 
 class FreightForwarderController extends GetxController {
   // Add freightForwarder-specific properties and methods here
   RxString companyName = ''.obs;
   RxString licenseNumber = ''.obs;
   final galleryImages = <String>[].obs;
+  final RxList<Transport> associatedTransportUnions = <Transport>[].obs;
   final details = Rx<FreightForwarder>(FreightForwarder(
     id: '',
     name: '',
@@ -36,7 +39,7 @@ class FreightForwarderController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Initialize with sample data
+    glb.roleType.value ="Freight Forwarder";
     details.value = FreightForwarder(
       id: 'FF1',
       name: 'Sample Freight Forwarder Agency',
@@ -103,6 +106,14 @@ class FreightForwarderController extends GetxController {
 
   void removeAssociatedLadani(String id) {
     associatedLadanis.removeWhere((ladani) => ladani.id == id);
+  }
+
+  void addAssociatedTransportUnion(Transport union) {
+    associatedTransportUnions.add(union);
+  }
+
+  void removeAssociatedTransportUnion(String id) {
+    associatedTransportUnions.removeWhere((union) => union.id == id);
   }
 
   Future<void> pickAndUploadImage() async {
