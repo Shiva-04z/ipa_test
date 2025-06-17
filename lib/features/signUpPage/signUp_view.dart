@@ -30,15 +30,16 @@ class SignUpView extends GetView<SignUpController> {
             decoration: BoxDecoration(
               color: Colors.black.withOpacity(0.3),
             ),
-            child: Center(
-              child: Container(
-                constraints: BoxConstraints(maxWidth: 400),
-                child: SingleChildScrollView(
+            child: SingleChildScrollView(
+              child: Center(
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: 400),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
                         height:
-                            MediaQuery.of(context).size.height > 600 ? 10 : 80,
+                            MediaQuery.of(context).size.width > 600 ? 30 : 100,
                       ),
                       _buildLogo(context),
                       SizedBox(height: 20),
@@ -58,7 +59,7 @@ class SignUpView extends GetView<SignUpController> {
 
   Widget _buildLogo(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width > 600 ? 400 : 200,
+      width: MediaQuery.of(context).size.width > 600 ? 250 : 200,
       child: Center(
         child: Image(
           image: AssetImage('assets/images/logo.png'),
@@ -103,6 +104,7 @@ class SignUpView extends GetView<SignUpController> {
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.all(16),
+
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -115,7 +117,7 @@ class SignUpView extends GetView<SignUpController> {
         ],
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildFormField(

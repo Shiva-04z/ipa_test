@@ -6,14 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:apple_grower/core/globalsWidgets.dart' as glbw;
 import 'package:intl/intl.dart';
+import '../../core/globals.dart' as glb;
 import '../../models/aadhati.dart';
 import '../../models/hpmc_collection_center_model.dart';
 import '../../models/pack_house_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/transport_model.dart';
+import'package:flutter/foundation.dart' show kIsWeb;
 import '../../models/freightForwarder.dart';
 import '../forms/commission_agent_form_page.dart';
-import '../forms/consignment_form_page.dart';
+import '../forms/consignmentForm/consignment_form_page.dart';
 import '../forms/orchard_form_page.dart';
 import '../forms/packing_house_form_page.dart';
 import 'grower_dialogs.dart';
@@ -104,7 +106,7 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildSectionChip(String label) {
     return Obx(() => FilterChip(
           label: Text(
-            label,
+            glb.getTranslatedText(label),
             style: TextStyle(
               color: selectedSection.value == label
                   ? Colors.white
@@ -171,7 +173,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "My Orchards",
+            glb.getTranslatedText("My Orchards"),
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -225,7 +227,7 @@ class GrowerView extends GetView<GrowerController> {
                 color: iconColor,
               ),
               Text(
-                orchard.name,
+                glb.getTranslatedText(orchard.name),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -237,14 +239,15 @@ class GrowerView extends GetView<GrowerController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  '${orchard.numberOfFruitingTrees} trees',
+                  glb.getTranslatedText(
+                      '${orchard.numberOfFruitingTrees} trees'),
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  DateFormat(
+                  glb.getTranslatedText(DateFormat(
                     'MMM dd, yyyy',
-                  ).format(orchard.expectedHarvestDate),
+                  ).format(orchard.expectedHarvestDate)),
                   style: TextStyle(fontSize: 12, color: iconColor),
                 ),
                 SizedBox(height: 4),
@@ -266,14 +269,14 @@ class GrowerView extends GetView<GrowerController> {
           SizedBox(
             width: 120,
             child: Text(
-              label,
+              glb.getTranslatedText(label),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Color(0xff548235),
               ),
             ),
           ),
-          Expanded(child: Text(value)),
+          Expanded(child: Text(glb.getTranslatedText(value))),
         ],
       ),
     );
@@ -319,7 +322,8 @@ class GrowerView extends GetView<GrowerController> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color),
       ),
-      child: Text(text, style: TextStyle(color: color, fontSize: 10)),
+      child: Text(glb.getTranslatedText(text),
+          style: TextStyle(color: color, fontSize: 10)),
     );
   }
 
@@ -340,7 +344,7 @@ class GrowerView extends GetView<GrowerController> {
             ),
             SizedBox(height: 8),
             Text(
-              "ADD NEW",
+              glb.getTranslatedText("ADD NEW"),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: isSmallScreen ? 12 : 14,
@@ -391,7 +395,7 @@ class GrowerView extends GetView<GrowerController> {
         padding: EdgeInsets.symmetric(vertical: 12),
         alignment: Alignment.center,
         child: Text(
-          text,
+          glb.getTranslatedText(text),
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
@@ -428,7 +432,7 @@ class GrowerView extends GetView<GrowerController> {
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         alignment: Alignment.center,
         child: Text(
-          text,
+          glb.getTranslatedText(text),
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 12),
         ),
@@ -439,19 +443,19 @@ class GrowerView extends GetView<GrowerController> {
   String _getHarvestStatusText(CropStage stage) {
     switch (stage) {
       case CropStage.walnutSize:
-        return 'Walnut Size';
+        return glb.getTranslatedText('Walnut Size');
       case CropStage.fruitDevelopment:
-        return 'Fruit Development';
+        return glb.getTranslatedText('Fruit Development');
       case CropStage.colourInitiation:
-        return 'Colour Initiation';
+        return glb.getTranslatedText('Colour Initiation');
       case CropStage.fiftyPercentColour:
-        return '50% Colour';
+        return glb.getTranslatedText('50% Colour');
       case CropStage.eightyPercentColour:
-        return '80% Colour';
+        return glb.getTranslatedText('80% Colour');
       case CropStage.harvest:
-        return 'Harvest';
+        return glb.getTranslatedText('Harvest');
       case CropStage.packing:
-        return 'Packing';
+        return glb.getTranslatedText('Packing');
     }
   }
 
@@ -504,7 +508,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "My Consignments",
+            glb.getTranslatedText("My Consignments"),
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -537,7 +541,7 @@ class GrowerView extends GetView<GrowerController> {
               ),
               SizedBox(height: 8),
               Text(
-                "ADD NEW",
+                glb.getTranslatedText("ADD NEW"),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -571,7 +575,8 @@ class GrowerView extends GetView<GrowerController> {
               ),
               SizedBox(height: 8),
               Text(
-                'Consignment ${consignment.id.substring(0, 4)}...',
+                glb.getTranslatedText(
+                    'Consignment ${consignment.id.substring(0, 4)}...'),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -583,17 +588,17 @@ class GrowerView extends GetView<GrowerController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  '${consignment.numberOfBoxes} Boxes',
+                  glb.getTranslatedText('${consignment.numberOfBoxes} Boxes'),
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  consignment.quality,
+                  glb.getTranslatedText(consignment.quality),
                   style: TextStyle(fontSize: 12, color: Colors.blue),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Status: ${consignment.status}',
+                  glb.getTranslatedText('Status: ${consignment.status}'),
                   style: TextStyle(fontSize: 12),
                 ),
               ],
@@ -651,7 +656,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Commission Agents",
+            glb.getTranslatedText("Commission Agents"),
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -693,7 +698,7 @@ class GrowerView extends GetView<GrowerController> {
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
-                '${agent.name}',
+                glb.getTranslatedText('${agent.name}'),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -704,10 +709,13 @@ class GrowerView extends GetView<GrowerController> {
               ),
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
-                Text('${agent.apmc}', style: TextStyle(fontSize: 12)),
+                Text(
+                  glb.getTranslatedText('${agent.apmc}'),
+                  style: TextStyle(fontSize: 12),
+                ),
                 SizedBox(height: 4),
                 Text(
-                  '${agent.contact}',
+                  glb.getTranslatedText('${agent.contact}'),
                   style: TextStyle(fontSize: 12, color: Colors.blue),
                 ),
               ],
@@ -735,7 +743,7 @@ class GrowerView extends GetView<GrowerController> {
             ),
             SizedBox(height: 8),
             Text(
-              "ADD NEW",
+              glb.getTranslatedText("ADD NEW"),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: isSmallScreen ? 12 : 14,
@@ -795,7 +803,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Freight Forwarders",
+            glb.getTranslatedText("Freight Forwarders"),
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -844,7 +852,7 @@ class GrowerView extends GetView<GrowerController> {
               ),
               SizedBox(height: 8),
               Text(
-                forwarder.name,
+                glb.getTranslatedText(forwarder.name),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -856,12 +864,13 @@ class GrowerView extends GetView<GrowerController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  forwarder.contact,
+                  glb.getTranslatedText(forwarder.contact),
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'License: ${forwarder.licenseNo ?? 'N/A'}',
+                  glb.getTranslatedText(
+                      'License: ${forwarder.licenseNo ?? 'N/A'}'),
                   style: TextStyle(fontSize: 12, color: Colors.purple),
                 ),
               ],
@@ -889,7 +898,7 @@ class GrowerView extends GetView<GrowerController> {
             ),
             SizedBox(height: 8),
             Text(
-              "ADD NEW",
+              glb.getTranslatedText("ADD NEW"),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: isSmallScreen ? 12 : 14,
@@ -949,7 +958,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Packing Houses",
+            glb.getTranslatedText("Packing Houses"),
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -991,7 +1000,7 @@ class GrowerView extends GetView<GrowerController> {
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
-                house.name ?? "Packhouse",
+                glb.getTranslatedText(house.name ?? "Packhouse"),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -1003,12 +1012,12 @@ class GrowerView extends GetView<GrowerController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  "Type: ${house.trayType}",
+                  glb.getTranslatedText("Type: ${house.trayType}"),
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  house.address,
+                  glb.getTranslatedText(house.address),
                   style: TextStyle(fontSize: 12, color: Colors.orange),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1038,7 +1047,7 @@ class GrowerView extends GetView<GrowerController> {
             ),
             SizedBox(height: 8),
             Text(
-              "ADD NEW",
+              glb.getTranslatedText("ADD NEW"),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: isSmallScreen ? 12 : 14,
@@ -1095,7 +1104,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Associated Drivers",
+            glb.getTranslatedText("Associated Drivers"),
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -1139,7 +1148,7 @@ class GrowerView extends GetView<GrowerController> {
               ),
               SizedBox(height: 8),
               Text(
-                '${driver.name}',
+                glb.getTranslatedText('${driver.name}'),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -1151,12 +1160,12 @@ class GrowerView extends GetView<GrowerController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  '${driver.contact}',
+                  glb.getTranslatedText('${driver.contact}'),
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  '${driver.drivingLicenseNo}',
+                  glb.getTranslatedText('${driver.drivingLicenseNo}'),
                   style: TextStyle(fontSize: 12, color: Colors.blue),
                 ),
               ],
@@ -1184,7 +1193,7 @@ class GrowerView extends GetView<GrowerController> {
             ),
             SizedBox(height: 8),
             Text(
-              "ADD NEW",
+              glb.getTranslatedText("ADD NEW"),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: isSmallScreen ? 12 : 14,
@@ -1197,13 +1206,15 @@ class GrowerView extends GetView<GrowerController> {
   }
 
   Widget _buildSummarySection() {
-    bool isSmallScreen = MediaQuery.of(Get.context!).size.width > 840;
+    bool isSmallScreen = MediaQuery.of(Get.context!).size.width > 950;
+    bool isMediumScreen = MediaQuery.of(Get.context!).size.width > 750;
+    bool isextraSmallScreen = MediaQuery.of(Get.context!).size.width > 396;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Obx(() => GridView.count(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            crossAxisCount: isSmallScreen ? 7 : 3,
+            crossAxisCount: isSmallScreen ? 7 : isMediumScreen? 4 : isextraSmallScreen? 3: 2,
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
             children: [
@@ -1286,7 +1297,7 @@ class GrowerView extends GetView<GrowerController> {
               ),
               SizedBox(height: 8),
               Text(
-                count,
+                glb.getTranslatedText(count),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: isSmallScreen ? 24 : 14,
@@ -1295,7 +1306,7 @@ class GrowerView extends GetView<GrowerController> {
               ),
               SizedBox(height: 4),
               Text(
-                title,
+                glb.getTranslatedText(title),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -1365,7 +1376,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Gallery",
+            glb.getTranslatedText("Gallery"),
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -1393,7 +1404,7 @@ class GrowerView extends GetView<GrowerController> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image(
-            image: imageUrl.startsWith('http')
+            image: kIsWeb
                 ? NetworkImage(imageUrl) as ImageProvider
                 : FileImage(File(imageUrl)) as ImageProvider,
             fit: BoxFit.cover,
@@ -1411,7 +1422,7 @@ class GrowerView extends GetView<GrowerController> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Failed to load image',
+                        glb.getTranslatedText('Failed to load image'),
                         style: TextStyle(
                           color: Colors.red,
                           fontSize: 12,
@@ -1459,7 +1470,7 @@ class GrowerView extends GetView<GrowerController> {
               ),
               SizedBox(height: 12),
               Text(
-                "UPLOAD NEW",
+                glb.getTranslatedText("UPLOAD NEW"),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isLargeScreen ? 16 : 20,
@@ -1520,7 +1531,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "Transport Union",
+            glb.getTranslatedText("Transport Union"),
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -1564,7 +1575,7 @@ class GrowerView extends GetView<GrowerController> {
               ),
               SizedBox(height: 8),
               Text(
-                '${union.name}',
+                glb.getTranslatedText('${union.name}'),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -1576,12 +1587,13 @@ class GrowerView extends GetView<GrowerController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  '${union.contact}',
+                  glb.getTranslatedText('${union.contact}'),
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  '${union.transportUnionRegistrationNo}',
+                  glb.getTranslatedText(
+                      '${union.transportUnionRegistrationNo}'),
                   style: TextStyle(fontSize: 12, color: Colors.indigo),
                 ),
               ],
@@ -1609,7 +1621,7 @@ class GrowerView extends GetView<GrowerController> {
             ),
             SizedBox(height: 8),
             Text(
-              "ADD NEW",
+              glb.getTranslatedText("ADD NEW"),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: isSmallScreen ? 12 : 14,
@@ -1666,7 +1678,7 @@ class GrowerView extends GetView<GrowerController> {
           ),
           constraints: BoxConstraints(maxWidth: 225),
           child: Text(
-            "HPMC Depots",
+            glb.getTranslatedText("HPMC Depots"),
             style: TextStyle(
               color: Colors.white,
               overflow: TextOverflow.ellipsis,
@@ -1714,7 +1726,7 @@ class GrowerView extends GetView<GrowerController> {
               ),
               SizedBox(height: 8),
               Text(
-                depot.operatorName,
+                glb.getTranslatedText('${depot.operatorName}'),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -1726,12 +1738,12 @@ class GrowerView extends GetView<GrowerController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  depot.contactName,
+                  glb.getTranslatedText('${depot.contactName}'),
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  depot.location,
+                  glb.getTranslatedText('${depot.location}'),
                   style: TextStyle(fontSize: 12, color: Color(0xff548235)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1761,7 +1773,7 @@ class GrowerView extends GetView<GrowerController> {
             ),
             SizedBox(height: 8),
             Text(
-              "ADD NEW",
+              glb.getTranslatedText("ADD NEW"),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: isSmallScreen ? 12 : 14,
