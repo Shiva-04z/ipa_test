@@ -238,8 +238,6 @@ Color getQualityColor(String quality) {
   }
 }
 
-
-
 Widget buildBiltyStepMobile(ConsignmentFormController controller) {
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -367,29 +365,30 @@ Widget buildBiltyStepMobile(ConsignmentFormController controller) {
                 onPressed: controller.isDownloading.value
                     ? null
                     : () async {
-                  controller.isDownloading.value = true;
-                  try {
-                    await BiltyDownloadService.downloadBiltyAsCSV(
-                        controller);
-                  } finally {
-                    controller.isDownloading.value = false;
-                  }
-                },
+                        controller.isDownloading.value = true;
+                        try {
+                          await BiltyDownloadService.downloadBiltyAsCSV(
+                              controller);
+                        } finally {
+                          controller.isDownloading.value = false;
+                        }
+                      },
                 icon: controller.isDownloading.value
                     ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor:
-                    AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
                     : Icon(Icons.download),
                 label: Text(controller.isDownloading.value
                     ? 'Downloading...'
                     : 'Download Bilty'),
-                style: ElevatedButton.styleFrom( shape: ContinuousRectangleBorder(),
+                style: ElevatedButton.styleFrom(
+                  shape: ContinuousRectangleBorder(),
                   backgroundColor: Color(0xff548235),
                   foregroundColor: Colors.white,
                 ),
@@ -587,29 +586,30 @@ Widget buildBiltyStepDesktop(ConsignmentFormController controller) {
                     onPressed: controller.isDownloading.value
                         ? null
                         : () async {
-                      controller.isDownloading.value = true;
-                      try {
-                        await BiltyDownloadService.downloadBiltyAsCSV(
-                            controller);
-                      } finally {
-                        controller.isDownloading.value = false;
-                      }
-                    },
+                            controller.isDownloading.value = true;
+                            try {
+                              await BiltyDownloadService.downloadBiltyAsCSV(
+                                  controller);
+                            } finally {
+                              controller.isDownloading.value = false;
+                            }
+                          },
                     icon: controller.isDownloading.value
                         ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
                         : Icon(Icons.download),
                     label: Text(controller.isDownloading.value
                         ? 'Downloading...'
                         : 'Download CSV'),
-                    style: ElevatedButton.styleFrom( shape: ContinuousRectangleBorder(),
+                    style: ElevatedButton.styleFrom(
+                      shape: ContinuousRectangleBorder(),
                       backgroundColor: Color(0xff548235),
                       foregroundColor: Colors.white,
                     ),

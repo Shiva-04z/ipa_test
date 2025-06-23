@@ -1214,7 +1214,7 @@ class GrowerView extends GetView<GrowerController> {
       child: Obx(() => GridView.count(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            crossAxisCount: isSmallScreen ? 7 : isMediumScreen? 4 : isextraSmallScreen? 3: 2,
+            crossAxisCount: isSmallScreen ? 7 : isMediumScreen? 4 : 3,
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
             children: [

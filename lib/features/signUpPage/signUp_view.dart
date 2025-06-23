@@ -1,4 +1,5 @@
 import 'package:apple_grower/features/signUpPage/signUp_controller.dart';
+import 'package:apple_grower/navigation/routes_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
@@ -42,10 +43,11 @@ class SignUpView extends GetView<SignUpController> {
                             MediaQuery.of(context).size.width > 600 ? 30 : 100,
                       ),
                       _buildLogo(context),
-                      SizedBox(height: 20),
+                      SizedBox(height: 10),
                       _buildLoginHeader(),
-                      SizedBox(height: 30),
+
                       _buildFormContainer(context),
+
                     ],
                   ),
                 ),
@@ -72,7 +74,6 @@ class SignUpView extends GetView<SignUpController> {
   Widget _buildLoginHeader() {
     return Container(
       padding: EdgeInsets.all(12.0),
-      margin: EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
@@ -103,8 +104,7 @@ class SignUpView extends GetView<SignUpController> {
   Widget _buildFormContainer(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(16),
-      margin: EdgeInsets.all(16),
-
+      margin: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -142,6 +142,40 @@ class SignUpView extends GetView<SignUpController> {
           _buildRoleDropdown(),
           SizedBox(height: 30),
           _buildSubmitButton(),
+          _buildRegisterButton()
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRegisterButton() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.all(12),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 50,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Colors.transparent, width: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () => Get.toNamed(RoutesConstant.register),
+                child: Text(
+                  "Create New Account",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -242,7 +276,7 @@ class SignUpView extends GetView<SignUpController> {
               ),
               onPressed: () => controller.navigateToRolePage(),
               child: Text(
-                glb.getTranslatedText("SUBMIT"),
+                glb.getTranslatedText("Sign In"),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,

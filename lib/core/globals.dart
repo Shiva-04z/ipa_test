@@ -28,6 +28,9 @@ RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
 
+
+RxString id = "6854f85374826ab460c836e0".obs;
+
 RxList<Complaint> myComplaint = <Complaint>[].obs;
 // Demo lists for all models
 RxList<Aadhati> availableAadhatis = [

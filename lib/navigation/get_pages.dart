@@ -2,6 +2,8 @@ import 'package:apple_grower/features/profile_page/profile_page_bindings.dart';
 import 'package:apple_grower/features/profile_page/profile_page_view.dart';
 import 'package:apple_grower/features/signUpPage/signUP_binidng.dart';
 import 'package:apple_grower/features/signUpPage/signUp_view.dart';
+import 'package:apple_grower/features/register/register_binding.dart';
+import 'package:apple_grower/features/register/register_view.dart';
 import 'package:apple_grower/features/splash_screen/splash_screen_bindings.dart';
 import 'package:apple_grower/features/splash_screen/splash_screen_view.dart';
 import 'package:apple_grower/features/grower/grower_binding.dart';
@@ -39,6 +41,13 @@ List<GetPage> getPages = [
     name: RoutesConstant.signUp,
     page: () => SignUpView(),
     binding: SignUpBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),
+  GetPage(
+    name: RoutesConstant.register,
+    page: () => RegisterView(),
+    binding: RegisterBinding(),
     transition: Transition.fadeIn,
     transitionDuration: Duration(microseconds: 300),
   ),

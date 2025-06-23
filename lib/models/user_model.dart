@@ -2,8 +2,10 @@ class User {
   String? id;
   String? name;
   String? contact;
+  String? Aadhar;
   String? email;
   String? role;
+  String? roledocID;
   String? address;
   String? profileImage;
   DateTime? createdAt;

@@ -1,4 +1,5 @@
 import 'package:apple_grower/models/consignment_model.dart';
+import 'package:apple_grower/models/hpmc_collection_center_model.dart';
 import 'package:apple_grower/models/ladani_model.dart';
 import 'aadhati.dart';
 import 'orchard_model.dart';
@@ -18,6 +19,8 @@ class Grower {
   final List<Consignment> consignments;
   final List<PackHouse> packingHouses;
   final List<Complaint> myComplaints;
+  final List<String> galleryImages;
+  final List<HpmcCollectionCenter> collectionCenter;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -32,8 +35,10 @@ class Grower {
     this.commissionAgents = const [],
     this.corporateCompanies = const [],
     this.consignments = const [],
+    this.collectionCenter = const [],
     required this.packingHouses,
     this.myComplaints = const [],
+    this.galleryImages = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -66,8 +71,16 @@ class Grower {
               ?.map((e) => Consignment.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      collectionCenter: (json['collectionCenter'] as List<dynamic>?)
+              ?.map((e) => HpmcCollectionCenter.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       myComplaints: (json['myComplaints'] as List<dynamic>?)
               ?.map((e) => Complaint.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      galleryImages: (json['galleryImages'] as List<dynamic>?)
+              ?.map((e) => e as String)
               .toList() ??
           [],
       createdAt: json['createdAt'] ?? DateTime.now().toIso8601String(),
@@ -89,6 +102,8 @@ class Grower {
       'packingHouses': packingHouses.map((e) => e.toJson()).toList(),
       'consignments': consignments.map((e) => e.toJson()).toList(),
       'myComplaints': myComplaints.map((e) => e.toJson()).toList(),
+      'galleryImages': galleryImages,
+      'collectionCenter': collectionCenter,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -107,6 +122,8 @@ class Grower {
     List<Consignment>? consignments,
     List<PackHouse>? packingHouses,
     List<Complaint>? myComplaints,
+    List<String>? galleryImages,
+    List<HpmcCollectionCenter>? collectionCenter,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -123,6 +140,8 @@ class Grower {
       consignments: consignments ?? this.consignments,
       packingHouses: packingHouses ?? this.packingHouses,
       myComplaints: myComplaints ?? this.myComplaints,
+      collectionCenter: collectionCenter?? this.collectionCenter,
+      galleryImages: galleryImages ?? this.galleryImages,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
