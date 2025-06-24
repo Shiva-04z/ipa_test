@@ -51,7 +51,7 @@ class DriverFormController extends GetxController {
     isLoading.value = true;
     try {
       final response =
-          await http.get(Uri.parse(glb.url + '/api/driver/nearby10'));
+          await http.get(Uri.parse(glb.url + '/api/drivers/nearby10'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         availableDrivers.value = data
@@ -84,7 +84,7 @@ class DriverFormController extends GetxController {
     isLoading.value = true;
     try {
       final response = await http.get(Uri.parse(
-          glb.url + '/api/driver/${Uri.encodeComponent(query)}/searchbyName'));
+          glb.url + '/api/drivers/${Uri.encodeComponent(query)}/searchbyName'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         searchResults.value = data
@@ -232,11 +232,10 @@ class DriverFormController extends GetxController {
 
     try {
       final driver = DrivingProfile(
-        id: 'D${DateTime.now().millisecondsSinceEpoch}',
+
         name: nameController.text,
         contact: phoneController.text,
-        drivingLicenseNo: licenseController.text,
-        vehicleRegistrationNo: vehicleNumberController.text,
+
       );
 
       (glb.roleType.value == "PackHouse")
@@ -260,7 +259,6 @@ class DriverFormController extends GetxController {
                                   : Get.find<TransportUnionController>()
                                       .addAssociatedDrivers(driver);
 
-      Get.back();
     } catch (e) {
       Get.snackbar(
         'Error',

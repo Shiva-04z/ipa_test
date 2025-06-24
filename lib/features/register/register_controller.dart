@@ -26,7 +26,7 @@ class RegisterController extends GetxController {
 
   // API endpoint
   final String apiUrl =
-      "https://bml-m3ps.onrender.com/api/growers";
+      glb.url +"/api/growers";
 
   // Available roles
   final List<String> availableRoles = [

@@ -82,8 +82,8 @@ class GrowerController extends GetxController {
   }
 
   Future<void> createAgent(Aadhati agent) async {
-    const String apiUrl =
-        'https://61b4-2401-4900-1c09-5a60-d5dd-d31b-b6fb-b89e.ngrok-free.app/api/agents'; // Use the correct endpoint for agents
+     String apiUrl =
+        glb.url + '/api/agents'; // Use the correct endpoint for agents
     try {
       final Map<String, dynamic> body = {
         'name': agent.name,
@@ -115,7 +115,7 @@ class GrowerController extends GetxController {
 
   updateGrowerAgent(String agentID) async {
     final String apiUrl =
-        'https://61b4-2401-4900-1c09-5a60-d5dd-d31b-b6fb-b89e.ngrok-free.app/api/growers/${glb.id.value}/add-commission-agent';
+       glb.url +'/api/growers/${glb.id.value}/add-commission-agent';
     print(apiUrl);
     // Replace with actual endpoint
     final Map<String, dynamic> updatePayload = {'commissionAgentId': agentID};
@@ -360,70 +360,7 @@ class GrowerController extends GetxController {
   }
 
   Future<void> loadGrowerData() async {
-    String apiUrl = 'https://bml-m3ps.onrender.com/api/growers/${glb.id.value}';
-
-    try {
-      final uri = Uri.parse(apiUrl);
-      final response = await http
-          .get(uri)
-          .timeout(const Duration(seconds: 10)) // Add timeout
-          .catchError((e) {
-        print("HTTP request error: $e");
-        throw Exception("HTTP request failed: $e");
-      });
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print(data);
-        orchards.clear();
-        commissionAgents.clear();
-        packingHouses.clear();
-        consignments.clear();
-        freightForwarders.clear();
-        drivers.clear();
-        transportUnions.clear();
-
-        if (data['orchard_IDs'] != null) {
-          final orchardFutures = (data['orchard_IDs'] as List)
-              .map((id) => fetchOrchardById(id as String));
-          orchards.addAll(await Future.wait(orchardFutures));
-        }
-        if (data['aadhati_IDs'] != null) {
-          final agentFutures = (data['aadhati_IDs'] as List)
-              .map((id) => fetchAadhatiById(id as String));
-          commissionAgents.addAll(await Future.wait(agentFutures));
-        }
-        // Fetch and add packing houses
-        if (data['packhouse_IDs'] != null) {
-          final houseFutures = (data['packhouse_IDs'] as List)
-              .map((id) => fetchPackHouseById(id as String));
-          packingHouses.addAll(await Future.wait(houseFutures));
-        }
-        if (data['consignment_IDs'] != null) {
-          final consignmentFutures = (data['consignment_IDs'] as List)
-              .map((id) => fetchConsignmentById(id as String));
-          consignments.addAll(await Future.wait(consignmentFutures));
-        }
-        if (data['freightForwarder_IDs'] != null) {
-          final ffFutures = (data['freightForwarder_IDs'] as List)
-              .map((id) => fetchFreightForwarderById(id as String));
-          freightForwarders.addAll(await Future.wait(ffFutures));
-        }
-
-        if (data['driver_IDs'] != null) {
-          final driverFutures = (data['driver_IDs'] as List)
-              .map((id) => fetchDriverById(id as String));
-          drivers.addAll(await Future.wait(driverFutures));
-        }
-        if (data['transportUnion_IDs'] != null) {
-          final tuFutures = (data['transportUnion_IDs'] as List)
-              .map((id) => fetchTransportUnionById(id as String));
-          transportUnions.addAll(await Future.wait(tuFutures));
-        }
-      } else {}
-    } catch (e) {
-      rethrow; // Or handle it appropriately
-    } finally {}
+    print("Hello grower");
   }
 
   // Helper methods for fetching by ID
