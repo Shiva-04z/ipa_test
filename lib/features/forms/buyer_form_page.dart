@@ -68,10 +68,9 @@ class BuyerFormController extends GetxController {
                     ? Get.find<GrowerController>()
                         .freightForwarders
                         .any((existingDriver) => existingDriver.id == buyer.id)
-                        : Get.find<PackHouseController>()
-                            .associatedFreightForwarders
-                            .any((existingDriver) =>
-                                existingDriver.id == buyer.id);
+                    : Get.find<PackHouseController>()
+                        .associatedFreightForwarders
+                        .any((existingDriver) => existingDriver.id == buyer.id);
 
     if (exists) {
       Get.snackbar(
@@ -287,14 +286,15 @@ class BuyerFormPage extends StatelessWidget {
                               .associatedFreightForwarders
                               .any((existingDriver) =>
                                   existingDriver.id == buyer.id)
-                          :  (glb.roleType.value == "Grower")
-                  ? Get.find<GrowerController>()
-                  .freightForwarders
-                  .any((existingDriver) => existingDriver.id == buyer.id)
-                  : Get.find<PackHouseController>()
-                  .associatedFreightForwarders
-                  .any((existingDriver) =>
-              existingDriver.id == buyer.id);
+                          : (glb.roleType.value == "Grower")
+                              ? Get.find<GrowerController>()
+                                  .freightForwarders
+                                  .any((existingDriver) =>
+                                      existingDriver.id == buyer.id)
+                              : Get.find<PackHouseController>()
+                                  .associatedFreightForwarders
+                                  .any((existingDriver) =>
+                                      existingDriver.id == buyer.id);
 
               return Stack(
                 children: [

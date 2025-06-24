@@ -14,6 +14,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../../core/global_role_loader.dart' as gld;
 import '../../models/orchard_model.dart';
+import '../grower/grower_controller.dart';
 import '../grower/grower_dialogs.dart';
 
 class OrchardFormController extends GetxController {
@@ -439,11 +440,7 @@ class OrchardFormController extends GetxController {
         updatedAt: DateTime.now(),
       );
 
-      final updatedOrchards = [...gld.globalGrower.value.orchards, newOrchard];
-      gld.globalGrower.value = gld.globalGrower.value.copyWith(
-        orchards: updatedOrchards,
-        updatedAt: DateTime.now(),
-      );
+    Get.find<GrowerController>().addOrchard(newOrchard);
 
       Get.back();
     } catch (e) {

@@ -137,21 +137,20 @@ class Orchard {
       'id': id,
       'name': name,
       'location': location,
-      'numberOfFruitingTrees': numberOfFruitingTrees,
-      'expectedHarvestDate': expectedHarvestDate.toIso8601String(),
-      'boundaryPoints': boundaryPoints.map((e) => e.toJson()).toList(),
+      'fruitingTrees': numberOfFruitingTrees,
+      'expectedHarvestDate': expectedHarvestDate?.toIso8601String(),
+      'boundaryPoints': boundaryPoints?.map((e) => e.toJson())?.toList(),
       'area': area,
       'boundaryImagePath': boundaryImagePath,
-      'cropStage': cropStage.toString().split('.').last,
-      'quality': quality.toJson(),
+      'cropStage': cropStage?.toString()?.split('.')?.last,
+      'quality': quality?.toJson(),
       'harvestDelayReason': harvestDelayReason,
       'estimatedBoxes': estimatedBoxes,
       'actualHarvestDate': actualHarvestDate?.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
-
   Orchard copyWith({
     String? id,
     String? name,

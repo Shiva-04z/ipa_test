@@ -51,8 +51,10 @@ class GrowerController extends GetxController {
   final RxList<FreightForwarder> freightForwarders = <FreightForwarder>[].obs;
 
   // Methods for managing orchards
-  void addOrchard(Orchard orchard) {
+  void addOrchard(Orchard orchard) async {
     orchards.add(orchard);
+    await createOrchard(orchard);
+
     _updateGrower();
   }
 
@@ -71,8 +73,70 @@ class GrowerController extends GetxController {
 
   // Methods for managing commission agents
   void addCommissionAgent(Aadhati agent) {
-    commissionAgents.add(agent);
-    _updateGrower();
+    if (agent.id == null) {
+      createAgent(agent);
+    } else {
+      commissionAgents.add(agent);
+      updateGrowerAgent(agent.id!);
+    }
+  }
+
+  Future<void> createAgent(Aadhati agent) async {
+    const String apiUrl =
+        'https://61b4-2401-4900-1c09-5a60-d5dd-d31b-b6fb-b89e.ngrok-free.app/api/agents'; // Use the correct endpoint for agents
+    try {
+      final Map<String, dynamic> body = {
+        'name': agent.name,
+        'contact': agent.contact,
+        'apmc_ID': agent.apmc,
+      };
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        commissionAgents.add(agent);
+        print(data["_id"]);
+        await Future.delayed(Duration(seconds: 3));
+        updateGrowerAgent(data["_id"]);
+        Get.snackbar('Success', 'Agent created successfully!',
+            snackPosition: SnackPosition.BOTTOM);
+      } else {
+        Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to create agent: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  updateGrowerAgent(String agentID) async {
+    final String apiUrl =
+        'https://61b4-2401-4900-1c09-5a60-d5dd-d31b-b6fb-b89e.ngrok-free.app/api/growers/${glb.id.value}/add-commission-agent';
+    print(apiUrl);
+    // Replace with actual endpoint
+    final Map<String, dynamic> updatePayload = {'commissionAgentId': agentID};
+    try {
+      final response = await http.patch(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updatePayload),
+      );
+      if (response.statusCode == 200) {
+        print("Sucess");
+        Get.snackbar('Success', 'Grower updated successfully!',
+            snackPosition: SnackPosition.BOTTOM);
+      } else {
+        Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update grower: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
   }
 
   void updateCommissionAgent(Aadhati agent) {
@@ -85,7 +149,6 @@ class GrowerController extends GetxController {
 
   void removeCommissionAgent(String agentId) {
     commissionAgents.removeWhere((a) => a.id == agentId);
-    _updateGrower();
   }
 
   // Methods for managing corporate companies
@@ -109,26 +172,55 @@ class GrowerController extends GetxController {
 
   // Methods for managing packing houses
   void addPackingHouse(PackHouse house) {
-    packingHouses.add(house);
-    _updateGrower();
+    if (house.id == null) {
+      packingHouses.add(house);
+      updateGrowerPackHouse(house.id!);
+    } else {
+      createPackhouse(house);
+    }
+  }
+
+  updateGrowerPackHouse(String houseId) async {
+    final String apiUrl =
+        glb.url + '/api/growers/${glb.id.value}/add-packhouse';
+    print(apiUrl);
+    // Replace with actual endpoint
+    final Map<String, dynamic> updatePayload = {'packhouseId': houseId};
+    try {
+      final response = await http.patch(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updatePayload),
+      );
+      if (response.statusCode == 200) {
+        print("Sucess");
+        Get.snackbar('Success', 'Grower updated successfully!',
+            snackPosition: SnackPosition.BOTTOM);
+      } else {
+        Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update grower: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
   }
 
   void updatePackingHouse(PackHouse house) {
     final index = packingHouses.indexWhere((h) => h.id == house.id);
     if (index != -1) {
       packingHouses[index] = house;
-      _updateGrower();
     }
   }
 
   void removePackingHouse(String houseId) {
     packingHouses.removeWhere((h) => h.id == houseId);
-    _updateGrower();
   }
 
   // Methods for managing consignments
   void addConsignment(Consignment consignment) {
     consignments.add(consignment);
+
     _updateGrower();
   }
 
@@ -146,7 +238,59 @@ class GrowerController extends GetxController {
   }
 
   void addDriver(DrivingProfile driver) {
-    drivers.add(driver);
+    if (driver.id == null) {
+      createDriver(driver);
+      ;
+    } else {
+      updateGrowerDriver(driver.id!);
+    }
+  }
+
+  Future<void> createDriver(DrivingProfile driver) async {
+    String apiUrl = glb.url +
+        '/api/drivers/create'; // Replace with your actual endpoint if different
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({"name": driver.name, "contact": driver.contact}),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body)['data'];
+        Future.delayed(Duration(seconds: 3));
+        print(data['_id']);
+        updateGrowerDriver(data['_id']);
+        drivers.add(driver);
+      } else {}
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to create Driver: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  updateGrowerDriver(String driverID) async {
+    final String apiUrl = glb.url + '/api/growers/${glb.id.value}/add-driver';
+    print(apiUrl);
+    // Replace with actual endpoint
+    final Map<String, dynamic> updatePayload = {'driverId': driverID};
+    try {
+      final response = await http.patch(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updatePayload),
+      );
+      if (response.statusCode == 200) {
+        print("Sucess");
+        Get.snackbar('Success', 'Grower updated successfully!',
+            snackPosition: SnackPosition.BOTTOM);
+      } else {
+        Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update grower: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
   }
 
   void removeDriver(String id) {
@@ -216,12 +360,9 @@ class GrowerController extends GetxController {
   }
 
   Future<void> loadGrowerData() async {
-
-    String apiUrl =
-        'https://bml-m3ps.onrender.com/api/growers/${glb.id.value}';
+    String apiUrl = 'https://bml-m3ps.onrender.com/api/growers/${glb.id.value}';
 
     try {
-
       final uri = Uri.parse(apiUrl);
       final response = await http
           .get(uri)
@@ -366,29 +507,31 @@ class GrowerController extends GetxController {
         consignments: consignments,
       );
     }
+    updateGrowerToApi();
   }
 
   Future<void> updateGrowerToApi() async {
-    if (grower.value == null) return;
     final String apiUrl =
-        'https://bml-m3ps.onrender.com/api/growers/${grower.value!.id}'; // Replace with actual endpoint
+        'https://bml-m3ps.onrender.com/api/growers/${glb.id.value}';
+    print(apiUrl);
+    // Replace with actual endpoint
     final Map<String, dynamic> updatePayload = {
       'orchard_IDs': orchards.map((o) => o.id).toList(),
-      'aadhati_IDs': commissionAgents.map((a) => a.id).toList(),
+      'aadhati_IDs': commissionAgents.map((c) => c.id).toList(),
       'packhouse_IDs': packingHouses.map((p) => p.id).toList(),
       'consignment_IDs': consignments.map((c) => c.id).toList(),
       'freightForwarder_IDs': freightForwarders.map((f) => f.id).toList(),
       'driver_IDs': drivers.map((d) => d.id).toList(),
       'transportUnion_IDs': transportUnions.map((t) => t.id).toList(),
-      // Add other fields as needed
     };
     try {
-      final response = await http.patch(
+      final response = await http.put(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(updatePayload),
       );
       if (response.statusCode == 200) {
+        print("Sucess");
         Get.snackbar('Success', 'Grower updated successfully!',
             snackPosition: SnackPosition.BOTTOM);
       } else {
@@ -397,6 +540,58 @@ class GrowerController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to update grower: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> createOrchard(Orchard orchard) async {
+    const String apiUrl =
+        'https://bml-m3ps.onrender.com/api/orchards'; // Replace with your actual endpoint if different
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(orchard.toJson()),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final newOrchard = Orchard.fromJson(data);
+        _updateGrower();
+        Get.snackbar('Success', 'Orchard created successfully!',
+            snackPosition: SnackPosition.BOTTOM);
+      } else {
+        Get.snackbar('Error', 'Failed to create orchard: \\n${response.body}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to create orchard: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> createPackhouse(PackHouse packhouse) async {
+    String apiUrl = glb.url +
+        '/api/packhouse'; // Replace with your actual endpoint if different
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(packhouse.toJson()),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        Future.delayed(Duration(seconds: 3));
+        updateGrowerPackHouse(data['_id']);
+        packingHouses.add(packhouse);
+
+        Get.snackbar('Success', 'Orchard created successfully!',
+            snackPosition: SnackPosition.BOTTOM);
+      } else {
+        Get.snackbar('Error', 'Failed to create orchard: \\n${response.body}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to create orchard: $e',
           snackPosition: SnackPosition.BOTTOM);
     }
   }

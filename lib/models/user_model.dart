@@ -18,6 +18,7 @@ class User {
     this.contact,
     this.email,
     this.role,
+    this.roledocID,
     this.address,
     this.profileImage,
     this.createdAt,
@@ -32,6 +33,7 @@ class User {
       contact: json['contact'] as String?,
       email: json['email'] as String?,
       role: json['role'] as String?,
+      roledocID: json['roledocID'],
       address: json['address'] as String?,
       profileImage: json['profileImage'] as String?,
       createdAt: json['createdAt'] != null
@@ -52,6 +54,7 @@ class User {
       'email': email,
       'role': role,
       'address': address,
+      'roledocID': roledocID,
       'profileImage': profileImage,
       'createdAt': createdAt?.toIso8601String(),
       'lastLogin': lastLogin?.toIso8601String(),
@@ -70,6 +73,7 @@ class User {
     DateTime? createdAt,
     DateTime? lastLogin,
     bool? isActive,
+    String? roleDocID
   }) {
     return User(
       id: id ?? this.id,
@@ -82,6 +86,7 @@ class User {
       createdAt: createdAt ?? this.createdAt,
       lastLogin: lastLogin ?? this.lastLogin,
       isActive: isActive ?? this.isActive,
+      roledocID: roleDocID
     );
   }
 }

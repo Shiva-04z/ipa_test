@@ -94,11 +94,9 @@ class CorporateCompanyFormController extends GetxController {
                         .any(
                             (existingDriver) => existingDriver.id == company.id)
                     : (glb.roleType.value == "Driver")
-        ? Get.find<DriverController>()
-        .associatedBuyers
-        .any(
-            (existingDriver) => existingDriver.id == company.id)
-        : Get.find<ApmcOfficeController>().flag.value
+                        ? Get.find<DriverController>().associatedBuyers.any(
+                            (existingDriver) => existingDriver.id == company.id)
+                        : Get.find<ApmcOfficeController>().flag.value
                             ? Get.find<ApmcOfficeController>()
                                 .approvedLadanis
                                 .any((existingDriver) =>
@@ -129,8 +127,9 @@ class CorporateCompanyFormController extends GetxController {
                     ? Get.find<FreightForwarderController>()
                         .addAssociatedLadani(company)
                     : (glb.roleType.value == "Driver")
-        ? Get.find<DriverController>().addAssociatedBuyer(company)
-        :Get.find<ApmcOfficeController>().addLadani(company);
+                        ? Get.find<DriverController>()
+                            .addAssociatedBuyer(company)
+                        : Get.find<ApmcOfficeController>().addLadani(company);
     Get.back();
   }
 
@@ -141,22 +140,10 @@ class CorporateCompanyFormController extends GetxController {
 
     try {
       final newCompany = Ladani(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: nameController.text,
         contact: phoneController.text,
         address: addressController.text,
         nameOfTradingFirm: tradingFirmController.text,
-        tradingSinceYears: int.tryParse(tradingYearsController.text),
-        firmType: firmTypeController.text,
-        licenseNo: licenseNoController.text,
-        purchaseLocationAddress: purchaseLocationController.text,
-        licensesIssuingAPMC: apmcController.text,
-        locationOnGoogle: googleLocationController.text,
-        appleBoxesPurchased2023: int.tryParse(boxes2023Controller.text),
-        appleBoxesPurchased2024: int.tryParse(boxes2024Controller.text),
-        estimatedTarget2025: double.tryParse(target2025Controller.text),
-        perBoxExpensesAfterBidding:
-            double.tryParse(perBoxExpensesController.text),
       );
 
       (glb.roleType.value == "PackHouse")
@@ -166,11 +153,13 @@ class CorporateCompanyFormController extends GetxController {
               : (glb.roleType.value == "Grower")
                   ? Get.find<GrowerController>().addCorporateCompany(newCompany)
                   : (glb.roleType.value == "Freight Forwarder")
-          ? Get.find<FreightForwarderController>()
-          .addAssociatedLadani(newCompany)
-          :  (glb.roleType.value == "Driver")
-    ? Get.find<DriverController>().addAssociatedBuyer(newCompany)
-        : Get.find<ApmcOfficeController>().addLadani(newCompany);
+                      ? Get.find<FreightForwarderController>()
+                          .addAssociatedLadani(newCompany)
+                      : (glb.roleType.value == "Driver")
+                          ? Get.find<DriverController>()
+                              .addAssociatedBuyer(newCompany)
+                          : Get.find<ApmcOfficeController>()
+                              .addLadani(newCompany);
 
       Get.back();
     } catch (e) {
@@ -339,11 +328,11 @@ class CorporateCompanyFormPage extends StatelessWidget {
                                   .any((existingDriver) =>
                                       existingDriver.id == company.id)
                               : (glb.roleType.value == "Driver")
-                  ? Get.find<DriverController>()
-                  .associatedBuyers
-                  .any(
-                      (existingDriver) => existingDriver.id == company.id)
-                  : Get.find<ApmcOfficeController>().flag.value
+                                  ? Get.find<DriverController>()
+                                      .associatedBuyers
+                                      .any((existingDriver) =>
+                                          existingDriver.id == company.id)
+                                  : Get.find<ApmcOfficeController>().flag.value
                                       ? Get.find<ApmcOfficeController>()
                                           .approvedLadanis
                                           .any((existingDriver) =>
@@ -486,238 +475,74 @@ class CorporateCompanyFormPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildBasicDetails(),
-          const SizedBox(height: 24),
-          _buildTradingDetails(),
-          const SizedBox(height: 24),
-          _buildBusinessDetails(),
+          Card(
+            elevation: 2,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Basic Details',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff548235),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: controller.nameController,
+                    decoration: _getInputDecoration(
+                      'Company Name',
+                      prefixIcon: Icons.business,
+                    ),
+                    validator: (value) => value?.isEmpty ?? true
+                        ? 'Please enter company name'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: controller.phoneController,
+                    decoration: _getInputDecoration(
+                      'Phone Number',
+                      prefixIcon: Icons.phone,
+                    ),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) => value?.isEmpty ?? true
+                        ? 'Please enter phone number'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: controller.tradingFirmController,
+                    decoration: _getInputDecoration(
+                      'Name of Firm',
+                      prefixIcon: Icons.business_center,
+                    ),
+                    validator: (value) => value?.isEmpty ?? true
+                        ? 'Please enter name of firm'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: controller.addressController,
+                    decoration: _getInputDecoration(
+                      'Location',
+                      prefixIcon: Icons.location_on,
+                    ),
+                    validator: (value) =>
+                        value?.isEmpty ?? true ? 'Please enter location' : null,
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBasicDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Basic Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.nameController,
-              decoration: _getInputDecoration(
-                'Company Name',
-                prefixIcon: Icons.business,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter company name' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.phoneController,
-              decoration: _getInputDecoration(
-                'Phone Number',
-                prefixIcon: Icons.phone,
-              ),
-              keyboardType: TextInputType.phone,
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter phone number' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.addressController,
-              decoration: _getInputDecoration(
-                'Address',
-                prefixIcon: Icons.location_on,
-              ),
-              maxLines: 2,
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter address' : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTradingDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Trading Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.tradingFirmController,
-              decoration: _getInputDecoration(
-                'Trading Firm Name',
-                prefixIcon: Icons.business,
-              ),
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter trading firm name'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.tradingYearsController,
-              decoration: _getInputDecoration(
-                'Years in Trading',
-                prefixIcon: Icons.calendar_today,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter years in trading'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.firmTypeController,
-              decoration: _getInputDecoration(
-                'Firm Type (Prop./Partnership/HUF/PL/LLP/OPC)',
-                prefixIcon: Icons.business_center,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter firm type' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.licenseNoController,
-              decoration: _getInputDecoration(
-                'License Number',
-                prefixIcon: Icons.assignment,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter license number' : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBusinessDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Business Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.purchaseLocationController,
-              decoration: _getInputDecoration(
-                'Purchase Location Address',
-                prefixIcon: Icons.location_city,
-              ),
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter purchase location'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.apmcController,
-              decoration: _getInputDecoration(
-                'APMC License Issuing Authority',
-                prefixIcon: Icons.store,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter APMC authority' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.googleLocationController,
-              decoration: _getInputDecoration(
-                'Google Location',
-                prefixIcon: Icons.map,
-              ),
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter Google location'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.boxes2023Controller,
-              decoration: _getInputDecoration(
-                'Apple Boxes Purchased in 2023',
-                prefixIcon: Icons.inventory,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter boxes purchased in 2023'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.boxes2024Controller,
-              decoration: _getInputDecoration(
-                'Apple Boxes Purchased in 2024',
-                prefixIcon: Icons.inventory,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter boxes purchased in 2024'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.target2025Controller,
-              decoration: _getInputDecoration(
-                'Estimated Target for 2025',
-                prefixIcon: Icons.trending_up,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter estimated target for 2025'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.perBoxExpensesController,
-              decoration: _getInputDecoration(
-                'Per Box Expenses After Bidding',
-                prefixIcon: Icons.attach_money,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter per box expenses'
-                  : null,
-            ),
-          ],
-        ),
       ),
     );
   }

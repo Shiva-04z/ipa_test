@@ -3,6 +3,11 @@ import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import '../../core/globals.dart' as glb;
 import '../../core/global_role_loader.dart' as gld;
@@ -25,11 +30,12 @@ class PackingHouseFormController extends GetxController {
   final isLoading = false.obs;
   final isSearching = true.obs;
   final searchResults = <PackHouse>[].obs;
+  final availablePackHouses = <PackHouse>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = glb.availablePackHouses;
+    loadData();
   }
 
   @override
@@ -47,17 +53,124 @@ class PackingHouseFormController extends GetxController {
     super.onClose();
   }
 
-  void onSearchChanged(String query) {
-    if (query.isEmpty) {
-      searchResults.value = glb.availablePackHouses;
-    } else {
-      searchResults.value = glb.availablePackHouses.where((house) {
-        final name = house.name.toLowerCase();
-        final address = house.address.toLowerCase();
-        final searchLower = query.toLowerCase();
+  Future<void> pickContact() async {
+    if (kIsWeb) {
+      Get.snackbar(
+        'Not Available',
+        'Contact picker is not available on web due to security restrictions. Please use the mobile app.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: Duration(seconds: 5),
+      );
+      return;
+    }
 
-        return name.contains(searchLower) || address.contains(searchLower);
-      }).toList();
+    try {
+      final status = await Permission.contacts.request();
+      if (status.isGranted) {
+        final contact = await FlutterContacts.openExternalPick();
+        if (contact != null) {
+          nameController.text = contact.displayName;
+          if (contact.phones.isNotEmpty) {
+            String phoneNumber =
+                contact.phones.first.number.replaceAll(RegExp(r'[^\d]'), '');
+            if (phoneNumber.length > 10) {
+              phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
+            }
+            phoneController.text = phoneNumber;
+          }
+        }
+      } else {
+        Get.snackbar(
+          'Permission Denied',
+          'Please grant contacts permission to use this feature',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick contact: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> loadData() async {
+    isLoading.value = true;
+    try {
+      final response =
+          await http.get(Uri.parse(glb.url + '/api/packhouse/nearby10'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        availablePackHouses.value = data
+            .map((e) => PackHouse(
+                  id: e['id']?.toString() ?? '',
+                  name: e['name'] ?? '',
+                  phoneNumber: e['phoneNumber'] ?? '',
+                  address: e['address'] ?? '',
+                  gradingMachine: e['gradingMachine'] ?? '',
+                  sortingMachine: e['sortingMachine'] ?? '',
+                  numberOfCrates: e['numberOfCrates'] ?? 0,
+                  boxesPacked2023: e['boxesPacked2023'] ?? 0,
+                  boxesPacked2024: e['boxesPacked2024'] ?? 0,
+                  estimatedBoxes2025: e['estimatedBoxes2025'] ?? 0,
+                  trayType: TrayType.bothSide, // Adjust if API provides this
+                ))
+            .toList()
+            .cast<PackHouse>();
+        searchResults.value = availablePackHouses;
+      } else {
+        Get.snackbar(
+            'Error', 'Failed to load packing houses: \\${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load packing houses: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> onSearchChanged(String query) async {
+    if (query.isEmpty) {
+      searchResults.value = availablePackHouses;
+      return;
+    }
+    isLoading.value = true;
+    try {
+      final response = await http.get(Uri.parse(glb.url +
+          '/api/packhouse/${Uri.encodeComponent(query)}/searchbyName'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        searchResults.value = data
+            .map((e) => PackHouse(
+                  id: e['id']?.toString() ?? '',
+                  name: e['name'] ?? '',
+                  phoneNumber: e['phoneNumber'] ?? '',
+                  address: e['address'] ?? '',
+                  gradingMachine: e['gradingMachine'] ?? '',
+                  sortingMachine: e['sortingMachine'] ?? '',
+                  numberOfCrates: e['numberOfCrates'] ?? 0,
+                  boxesPacked2023: e['boxesPacked2023'] ?? 0,
+                  boxesPacked2024: e['boxesPacked2024'] ?? 0,
+                  estimatedBoxes2025: e['estimatedBoxes2025'] ?? 0,
+                  trayType: TrayType.bothSide, // Adjust if API provides this
+                ))
+            .toList()
+            .cast<PackHouse>();
+      } else {
+        Get.snackbar('Error',
+            'Failed to search packing houses: \\${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to search packing houses: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -108,17 +221,16 @@ class PackingHouseFormController extends GetxController {
 
     try {
       final house = PackHouse(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: "null",
         name: nameController.text,
         phoneNumber: phoneController.text,
         address: addressController.text,
-        gradingMachine: gradingMachineController.text,
-        sortingMachine: sortingMachineController.text,
-        numberOfCrates: int.parse(numberOfCratesController.text),
-        boxesPacked2023: int.parse(boxesPacked2023Controller.text),
-        boxesPacked2024: int.parse(boxesPacked2024Controller.text),
-        estimatedBoxes2025: int.parse(estimatedBoxes2025Controller.text),
-        trayType: selectedTrayType.value,
+        gradingMachine: '',
+        sortingMachine: '',
+        numberOfCrates: 0,
+        boxesPacked2023: 0,
+        boxesPacked2024: 0,
+        estimatedBoxes2025: 0,
       );
 
       (glb.roleType.value == "Grower")
@@ -225,28 +337,33 @@ class PackingHouseFormPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Select or Create Packing House',
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xff548235),
+                Expanded(
+                  child: Text(
+                    'Select or Create Packing House',
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
+                      color: const Color(0xff548235),
+                    ),
                   ),
                 ),
-                Obx(() => TextButton.icon(
-                      onPressed: () => controller.isSearching.value =
-                          !controller.isSearching.value,
-                      icon: Icon(
-                        controller.isSearching.value ? Icons.add : Icons.search,
-                        color: const Color(0xff548235),
-                      ),
-                      label: Text(
-                        controller.isSearching.value
-                            ? 'Create New'
-                            : 'Search Existing',
-                        style: const TextStyle(color: Color(0xff548235)),
-                      ),
-                    )),
+                Expanded(
+                  child: Obx(() => TextButton.icon(
+                        onPressed: () => controller.isSearching.value =
+                            !controller.isSearching.value,
+                        icon: Icon(
+                          controller.isSearching.value ? Icons.add : Icons.search,
+                          color: const Color(0xff548235),
+                        ),
+                        label: Text(
+                          controller.isSearching.value
+                              ? 'Create New'
+                              : 'Search Existing',
+                          style: const TextStyle(color: Color(0xff548235)),
+                        ),
+                      )),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -294,11 +411,14 @@ class PackingHouseFormPage extends StatelessWidget {
                       ? Get.find<AadhatiController>().associatedPackHouses.any(
                           (existingDriver) => existingDriver.id == house.id)
                       : (glb.roleType.value == "HPMC DEPOT")
-                  ? Get.find<HPAgriBoardController>()
-                  .associatedPackHouses
-                  .any((existingDriver) => existingDriver.id == house.id)
-                  : Get.find<DriverController>().associatedPackhouses.any(
-                          (existingDriver) => existingDriver.id == house.id);
+                          ? Get.find<HPAgriBoardController>()
+                              .associatedPackHouses
+                              .any((existingDriver) =>
+                                  existingDriver.id == house.id)
+                          : Get.find<DriverController>()
+                              .associatedPackhouses
+                              .any((existingDriver) =>
+                                  existingDriver.id == house.id);
 
               return Stack(
                 children: [
@@ -429,242 +549,79 @@ class PackingHouseFormPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTrayTypeSelector(),
-          const SizedBox(height: 24),
-          _buildBasicDetails(),
-          const SizedBox(height: 24),
-          _buildMachineDetails(),
-          const SizedBox(height: 24),
-          _buildCapacityDetails(),
+          Card(
+            elevation: 2,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Basic Details',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff548235),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: controller.nameController,
+                    decoration: _getInputDecoration(
+                      'Packing House Name',
+                      prefixIcon: Icons.business,
+                    ),
+                    validator: (value) => value?.isEmpty ?? true
+                        ? 'Please enter packing house name'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: controller.phoneController,
+                          decoration: _getInputDecoration(
+                            'Phone Number',
+                            prefixIcon: Icons.phone,
+                          ),
+                          keyboardType: TextInputType.phone,
+                          validator: (value) => value?.isEmpty ?? true
+                              ? 'Please enter phone number'
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: controller.pickContact,
+                        icon: const Icon(Icons.contacts),
+                        color: const Color(0xff548235),
+                        tooltip: kIsWeb
+                            ? 'Use mobile app to pick contacts'
+                            : 'Pick from contacts',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: controller.addressController,
+                    decoration: _getInputDecoration(
+                      'Address',
+                      prefixIcon: Icons.location_on,
+                    ),
+                    maxLines: 2,
+                    validator: (value) =>
+                        value?.isEmpty ?? true ? 'Please enter address' : null,
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTrayTypeSelector() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Tray Type',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Obx(
-              () => SegmentedButton<TrayType>(
-                segments: [
-                  ButtonSegment(
-                    value: TrayType.singleSide,
-                    label: const Text('Single Side'),
-                    icon: const Icon(Icons.view_agenda),
-                  ),
-                  ButtonSegment(
-                    value: TrayType.bothSide,
-                    label: const Text('Both Side'),
-                    icon: const Icon(Icons.view_agenda_outlined),
-                  ),
-                ],
-                selected: {controller.selectedTrayType.value},
-                onSelectionChanged: (Set<TrayType> newSelection) {
-                  controller.selectedTrayType.value = newSelection.first;
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>((
-                    Set<MaterialState> states,
-                  ) {
-                    if (states.contains(MaterialState.selected)) {
-                      return const Color(0xff548235);
-                    }
-                    return Colors.grey.shade200;
-                  }),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBasicDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Basic Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.nameController,
-              decoration: _getInputDecoration(
-                'Packing House Name',
-                prefixIcon: Icons.business,
-              ),
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter packing house name'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.phoneController,
-              decoration: _getInputDecoration(
-                'Phone Number',
-                prefixIcon: Icons.phone,
-              ),
-              keyboardType: TextInputType.phone,
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter phone number' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.addressController,
-              decoration: _getInputDecoration(
-                'Address',
-                prefixIcon: Icons.location_on,
-              ),
-              maxLines: 2,
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter address' : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMachineDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Machine Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.gradingMachineController,
-              decoration: _getInputDecoration(
-                'Grading Machine',
-                prefixIcon: Icons.precision_manufacturing,
-              ),
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter grading machine details'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.sortingMachineController,
-              decoration: _getInputDecoration(
-                'Sorting Machine',
-                prefixIcon: Icons.precision_manufacturing,
-              ),
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter sorting machine details'
-                  : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCapacityDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Capacity Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.numberOfCratesController,
-              decoration: _getInputDecoration(
-                'Number of Crates',
-                prefixIcon: Icons.inventory,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter number of crates'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.boxesPacked2023Controller,
-              decoration: _getInputDecoration(
-                'Boxes Packed in 2023',
-                prefixIcon: Icons.calendar_today,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter boxes packed in 2023'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.boxesPacked2024Controller,
-              decoration: _getInputDecoration(
-                'Boxes Packed in 2024',
-                prefixIcon: Icons.calendar_today,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter boxes packed in 2024'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.estimatedBoxes2025Controller,
-              decoration: _getInputDecoration(
-                'Estimated Boxes for 2025',
-                prefixIcon: Icons.calendar_today,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter estimated boxes for 2025'
-                  : null,
-            ),
-          ],
-        ),
       ),
     );
   }

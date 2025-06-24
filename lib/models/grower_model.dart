@@ -72,7 +72,8 @@ class Grower {
               .toList() ??
           [],
       collectionCenter: (json['collectionCenter'] as List<dynamic>?)
-              ?.map((e) => HpmcCollectionCenter.fromJson(e as Map<String, dynamic>))
+              ?.map((e) =>
+                  HpmcCollectionCenter.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       myComplaints: (json['myComplaints'] as List<dynamic>?)
@@ -140,7 +141,7 @@ class Grower {
       consignments: consignments ?? this.consignments,
       packingHouses: packingHouses ?? this.packingHouses,
       myComplaints: myComplaints ?? this.myComplaints,
-      collectionCenter: collectionCenter?? this.collectionCenter,
+      collectionCenter: collectionCenter ?? this.collectionCenter,
       galleryImages: galleryImages ?? this.galleryImages,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

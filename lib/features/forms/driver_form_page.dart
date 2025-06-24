@@ -5,9 +5,13 @@ import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
 import 'package:apple_grower/features/hpPolice/hpPolice_controller.dart';
 import 'package:apple_grower/features/ladaniBuyers/ladaniBuyers_controller.dart';
 import 'package:apple_grower/features/transportUnion/transportUnion_controller.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../models/driving_profile_model.dart';
 import '../../core/globals.dart' as glb;
 import '../packHouse/packHouse_controller.dart';
@@ -23,11 +27,13 @@ class DriverFormController extends GetxController {
   final isLoading = false.obs;
   final isSearching = true.obs;
   final searchResults = <DrivingProfile>[].obs;
+  final availableDrivers = <DrivingProfile>[].obs;
   var exists;
+
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = glb.availableDrivingProfiles;
+    loadData();
   }
 
   @override
@@ -41,22 +47,111 @@ class DriverFormController extends GetxController {
     super.onClose();
   }
 
-  void onSearchChanged(String query) {
-    if (query.isEmpty) {
-      searchResults.value = glb.availableDrivingProfiles;
-    } else {
-      searchResults.value = glb.availableDrivingProfiles.where((driver) {
-        final name = driver.name!.toLowerCase();
-        final phone = driver.contact!.toLowerCase();
-        final license = driver.drivingLicenseNo!.toLowerCase();
-        final vehicle = driver.vehicleRegistrationNo!.toLowerCase();
-        final searchLower = query.toLowerCase();
+  Future<void> loadData() async {
+    isLoading.value = true;
+    try {
+      final response =
+          await http.get(Uri.parse(glb.url + '/api/driver/nearby10'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        availableDrivers.value = data
+            .map((e) => DrivingProfile(
+                  id: e['id']?.toString() ?? '',
+                  name: e['name'] ?? '',
+                  contact: e['contact'] ?? '',
+                  drivingLicenseNo: e['drivingLicenseNo'] ?? '',
+                  vehicleRegistrationNo: e['vehicleRegistrationNo'] ?? '',
+                ))
+            .toList()
+            .cast<DrivingProfile>();
+        searchResults.value = availableDrivers;
+      } else {
+        Get.snackbar(
+            'Error', 'Failed to load drivers: \\${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load drivers: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
-        return name.contains(searchLower) ||
-            phone.contains(searchLower) ||
-            license.contains(searchLower) ||
-            vehicle.contains(searchLower);
-      }).toList();
+  Future<void> onSearchChanged(String query) async {
+    if (query.isEmpty) {
+      searchResults.value = availableDrivers;
+      return;
+    }
+    isLoading.value = true;
+    try {
+      final response = await http.get(Uri.parse(
+          glb.url + '/api/driver/${Uri.encodeComponent(query)}/searchbyName'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        searchResults.value = data
+            .map((e) => DrivingProfile(
+                  id: e['id']?.toString() ?? '',
+                  name: e['name'] ?? '',
+                  contact: e['contact'] ?? '',
+                  drivingLicenseNo: e['drivingLicenseNo'] ?? '',
+                  vehicleRegistrationNo: e['vehicleRegistrationNo'] ?? '',
+                ))
+            .toList()
+            .cast<DrivingProfile>();
+      } else {
+        Get.snackbar(
+            'Error', 'Failed to search drivers: \\${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to search drivers: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> pickContact() async {
+    if (kIsWeb) {
+      Get.snackbar(
+        'Not Available',
+        'Contact picker is not available on web due to security restrictions. Please use the mobile app.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: Duration(seconds: 5),
+      );
+      return;
+    }
+    try {
+      final status = await Permission.contacts.request();
+      if (status.isGranted) {
+        final contact = await FlutterContacts.openExternalPick();
+        if (contact != null) {
+          nameController.text = contact.displayName;
+          if (contact.phones.isNotEmpty) {
+            String phoneNumber =
+                contact.phones.first.number.replaceAll(RegExp(r'[^\d]'), '');
+            if (phoneNumber.length > 10) {
+              phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
+            }
+            phoneController.text = phoneNumber;
+          }
+        }
+      } else {
+        Get.snackbar(
+          'Permission Denied',
+          'Please grant contacts permission to use this feature',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick contact: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
@@ -88,12 +183,13 @@ class DriverFormController extends GetxController {
                                 .any((existingDriver) =>
                                     existingDriver.id == driver.id)
                             : (glb.roleType.value == "HP Police")
-        ? Get.find<HpPoliceController>().vehicles.any((existingDriver) =>
-    existingDriver.id == driver.id)
-        :Get.find<TransportUnionController>()
-                                .associatedDrivers
-                                .any((existingDriver) =>
-                                    existingDriver.id == driver.id);
+                                ? Get.find<HpPoliceController>().vehicles.any(
+                                    (existingDriver) =>
+                                        existingDriver.id == driver.id)
+                                : Get.find<TransportUnionController>()
+                                    .associatedDrivers
+                                    .any((existingDriver) =>
+                                        existingDriver.id == driver.id);
 
     if (exists) {
       Get.snackbar(
@@ -121,10 +217,11 @@ class DriverFormController extends GetxController {
                         : (glb.roleType.value == "HPMC DEPOT")
                             ? Get.find<HPAgriBoardController>()
                                 .addAssociatedDriver(driver)
-                            :(glb.roleType.value == "HP Police")
-        ? Get.find<HpPoliceController>().addVehicle(driver)
-        : Get.find<TransportUnionController>()
-                                .addAssociatedDrivers(driver);
+                            : (glb.roleType.value == "HP Police")
+                                ? Get.find<HpPoliceController>()
+                                    .addVehicle(driver)
+                                : Get.find<TransportUnionController>()
+                                    .addAssociatedDrivers(driver);
     Get.back();
   }
 
@@ -155,12 +252,13 @@ class DriverFormController extends GetxController {
                           ? Get.find<FreightForwarderController>()
                               .addAssociatedDrivers(driver)
                           : (glb.roleType.value == "HPMC DEPOT")
-          ? Get.find<HPAgriBoardController>()
+                              ? Get.find<HPAgriBoardController>()
                                   .addAssociatedDriver(driver)
-                              :(glb.roleType.value == "HP Police")
-          ? Get.find<HpPoliceController>().addVehicle(driver)
-          : Get.find<TransportUnionController>()
-                                  .addAssociatedDrivers(driver);
+                              : (glb.roleType.value == "HP Police")
+                                  ? Get.find<HpPoliceController>()
+                                      .addVehicle(driver)
+                                  : Get.find<TransportUnionController>()
+                                      .addAssociatedDrivers(driver);
 
       Get.back();
     } catch (e) {
@@ -293,155 +391,154 @@ class DriverFormPageView extends StatelessWidget {
   }
 
   Widget _buildSearchResults() {
-    return Obx(() => controller.searchResults.isEmpty
-        ? const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'No drivers found',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return Container(
+          height: MediaQuery.of(Get.context!).size.height,
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+      if (controller.searchResults.isEmpty) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'No drivers found',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
               ),
             ),
-          )
-        : ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: controller.searchResults.length,
-            itemBuilder: (context, index) {
-              final driver = controller.searchResults[index];
-              final exists = (glb.roleType.value == "PackHouse")
-                  ? Get.find<PackHouseController>()
-                      .associatedDrivers
+          ),
+        );
+      }
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: controller.searchResults.length,
+        itemBuilder: (context, index) {
+          final driver = controller.searchResults[index];
+          final exists = (glb.roleType.value == "PackHouse")
+              ? Get.find<PackHouseController>()
+                  .associatedDrivers
+                  .any((existingDriver) => existingDriver.id == driver.id)
+              : (glb.roleType.value == "Grower")
+                  ? Get.find<GrowerController>()
+                      .drivers
                       .any((existingDriver) => existingDriver.id == driver.id)
-                  : (glb.roleType.value == "Grower")
-                      ? Get.find<GrowerController>().drivers.any(
+                  : (glb.roleType.value == "Aadhati")
+                      ? Get.find<AadhatiController>().associatedDrivers.any(
                           (existingDriver) => existingDriver.id == driver.id)
-                      : (glb.roleType.value == "Aadhati")
-                          ? Get.find<AadhatiController>().associatedDrivers.any(
-                              (existingDriver) =>
+                      : (glb.roleType.value == "Ladani/Buyers")
+                          ? Get.find<LadaniBuyersController>()
+                              .associatedDrivers
+                              .any((existingDriver) =>
                                   existingDriver.id == driver.id)
-                          : (glb.roleType.value == "Ladani/Buyers")
-                              ? Get.find<LadaniBuyersController>()
+                          : (glb.roleType.value == "Freight Forwarder")
+                              ? Get.find<FreightForwarderController>()
                                   .associatedDrivers
                                   .any((existingDriver) =>
                                       existingDriver.id == driver.id)
-                              : (glb.roleType.value == "Freight Forwarder")
-                                  ? Get.find<FreightForwarderController>()
+                              : (glb.roleType.value == "HPMC DEPOT")
+                                  ? Get.find<HPAgriBoardController>()
                                       .associatedDrivers
                                       .any((existingDriver) =>
                                           existingDriver.id == driver.id)
-                                  : (glb.roleType.value == "HPMC DEPOT")
-                                      ? Get.find<HPAgriBoardController>()
-                                          .associatedDrivers
+                                  : (glb.roleType.value == "HP Police")
+                                      ? Get.find<HpPoliceController>()
+                                          .vehicles
                                           .any((existingDriver) =>
                                               existingDriver.id == driver.id)
-                                      : (glb.roleType.value == "HP Police")
-                                          ? Get.find<HpPoliceController>().vehicles.any((existingDriver) =>
-                                              existingDriver.id == driver.id)
-                                          : Get.find<TransportUnionController>()
-                                              .associatedDrivers
-                                              .any((existingDriver) => existingDriver.id == driver.id);
+                                      : Get.find<TransportUnionController>()
+                                          .associatedDrivers
+                                          .any((existingDriver) => existingDriver.id == driver.id);
 
-              return Stack(
-                children: [
-                  Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: InkWell(
-                      onTap:
-                          exists ? null : () => controller.selectDriver(driver),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Opacity(
-                        opacity: exists ? 0.7 : 1.0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+          return Stack(
+            children: [
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: InkWell(
+                  onTap: exists ? null : () => controller.selectDriver(driver),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Opacity(
+                    opacity: exists ? 0.7 : 1.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.person,
-                                    color: Color(0xff548235),
-                                    size: 24,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '${driver.name}',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Phone: ${driver.contact}',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                      ],
+                              const Icon(
+                                Icons.person,
+                                color: Color(0xff548235),
+                                size: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${driver.name}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              _buildInfoRow(
-                                Icons.badge,
-                                'License: ${driver.drivingLicenseNo}',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildInfoRow(
-                                Icons.directions_car,
-                                'Vehicle: ${driver.vehicleRegistrationNo}',
+                                    Text(
+                                      'Phone: ${driver.contact}',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ),
-                  if (exists)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(12),
-                            bottomLeft: Radius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'Already Added',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                ),
+              ),
+              if (exists)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
                       ),
                     ),
-                ],
-              );
-            },
-          ));
+                    child: const Text(
+                      'Already Added',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
@@ -468,107 +565,74 @@ class DriverFormPageView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildBasicDetails(),
-          const SizedBox(height: 24),
-          _buildVehicleDetails(),
+          Card(
+            elevation: 2,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Basic Details',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff548235),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: controller.nameController,
+                    decoration: _getInputDecoration(
+                      'Name',
+                      prefixIcon: Icons.person,
+                    ),
+                    validator: (value) =>
+                        value?.isEmpty ?? true ? 'Please enter name' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: controller.phoneController,
+                          decoration: _getInputDecoration(
+                            'Phone Number',
+                            prefixIcon: Icons.phone,
+                          ),
+                          keyboardType: TextInputType.phone,
+                          maxLength: 10,
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return 'Please enter phone number';
+                            }
+                            if (value!.length != 10) {
+                              return 'Phone number must be 10 digits';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: controller.pickContact,
+                        icon: const Icon(Icons.contacts),
+                        color: const Color(0xff548235),
+                        tooltip: kIsWeb
+                            ? 'Use mobile app to pick contacts'
+                            : 'Pick from contacts',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBasicDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Basic Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.nameController,
-              decoration: _getInputDecoration(
-                'Name',
-                prefixIcon: Icons.person,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter name' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.phoneController,
-              decoration: _getInputDecoration(
-                'Phone Number',
-                prefixIcon: Icons.phone,
-              ),
-              keyboardType: TextInputType.phone,
-              maxLength: 10,
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter phone number';
-                }
-                if (value!.length != 10) {
-                  return 'Phone number must be 10 digits';
-                }
-                return null;
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVehicleDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Vehicle Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.licenseController,
-              decoration: _getInputDecoration(
-                'Driving License Number',
-                prefixIcon: Icons.badge,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter license number' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.vehicleNumberController,
-              decoration: _getInputDecoration(
-                'Vehicle Registration Number',
-                prefixIcon: Icons.directions_car,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter vehicle number' : null,
-            ),
-          ],
-        ),
       ),
     );
   }

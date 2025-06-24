@@ -27,16 +27,17 @@ RxString personPost = "247001".obs;
 RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
+RxString url="https://61b4-2401-4900-1c09-5a60-d5dd-d31b-b6fb-b89e.ngrok-free.app".obs;
 
 
-RxString id = "6854f85374826ab460c836e0".obs;
+RxString id = "685a4b98188724f04ee3abdb".obs;
 
 RxList<Complaint> myComplaint = <Complaint>[].obs;
 // Demo lists for all models
 RxList<Aadhati> availableAadhatis = [
   Aadhati(
-    id: 'AADHATI001',
-    name: 'Himachal Traders Pvt Ltd',
+    id: '685a3d04d4e21f9f6cb9979e',
+    name: 'Abhishek Jain',
     contact: '9876543212',
     nameOfTradingFirm: 'Himachal Traders',
     tradingSinceYears: 15,
@@ -51,8 +52,8 @@ RxList<Aadhati> availableAadhatis = [
     noOfAppleGrowersServed: 25,
   ),
   Aadhati(
-    id: 'AADHATI002',
-    name: 'Apple Valley Trading Co',
+    id: '685a3d77d4e21f9f6cb997a0',
+    name: 'Ram',
     contact: '9876543213',
     nameOfTradingFirm: 'Apple Valley Traders',
     tradingSinceYears: 10,

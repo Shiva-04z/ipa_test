@@ -3,6 +3,11 @@ import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
 import 'package:apple_grower/models/aadhati.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import '../../core/global_role_loader.dart' as gld;
 import '../../core/globals.dart' as glb;
@@ -33,12 +38,55 @@ class CommissionAgentFormController extends GetxController {
   final isLoading = false.obs;
   final isSearching = true.obs;
   final searchResults = <Aadhati>[].obs;
+  RxList<Aadhati> availableAadhatis = <Aadhati>[].obs;
   var exists;
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
-    searchResults.value = glb.availableAadhatis;
+
+    await loadData();
+  }
+
+  Future<void> loadData() async {
+    isLoading.value = true;
+    try {
+      final response =
+          await http.get(Uri.parse(glb.url + '/api/agents/nearby10'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        availableAadhatis.value = data
+            .map((e) => Aadhati(
+                  id: e['id']?.toString(),
+                  name: e['name'],
+                  contact: e['contact'],
+                  apmc: e['apmc'],
+                  address: e['address'],
+                  nameOfTradingFirm: e['nameOfTradingFirm'],
+                  tradingSinceYears: e['tradingSinceYears'],
+                  firmType: e['firmType'],
+                  licenseNo: e['licenseNo'],
+                  salesPurchaseLocationName: e['salesPurchaseLocationName'],
+                  locationOnGoogle: e['locationOnGoogle'],
+                  appleBoxesPurchased2023: e['appleBoxesPurchased2023'],
+                  appleBoxesPurchased2024: e['appleBoxesPurchased2024'],
+                  estimatedTarget2025: (e['estimatedTarget2025'] is int)
+                      ? (e['estimatedTarget2025'] as int).toDouble()
+                      : e['estimatedTarget2025'],
+                  needTradeFinance: e['needTradeFinance'],
+                  noOfAppleGrowersServed: e['noOfAppleGrowersServed'],
+                ))
+            .toList()
+            .cast<Aadhati>();
+        searchResults.value = availableAadhatis;
+      } else {
+        Get.snackbar('Error', 'Failed to load agents: ${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load agents: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   @override
@@ -61,20 +109,98 @@ class CommissionAgentFormController extends GetxController {
     super.onClose();
   }
 
-  void onSearchChanged(String query) {
-    if (query.isEmpty) {
-      searchResults.value = glb.availableAadhatis;
-    } else {
-      searchResults.value = glb.availableAadhatis.where((agent) {
-        final name = agent.name!.toLowerCase();
-        final apmc = agent.apmc!.toLowerCase();
-        final address = agent.address!.toLowerCase();
-        final searchLower = query.toLowerCase();
+  Future<void> pickContact() async {
+    if (kIsWeb) {
+      Get.snackbar(
+        'Not Available',
+        'Contact picker is not available on web due to security restrictions. Please use the mobile app.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: Duration(seconds: 5),
+      );
+      return;
+    }
 
-        return name.contains(searchLower) ||
-            apmc.contains(searchLower) ||
-            address.contains(searchLower);
-      }).toList();
+    try {
+      final status = await Permission.contacts.request();
+      if (status.isGranted) {
+        final contact = await FlutterContacts.openExternalPick();
+        if (contact != null) {
+          nameController.text = contact.displayName;
+          if (contact.phones.isNotEmpty) {
+            // Get the first phone number and remove any non-digit characters
+            String phoneNumber =
+                contact.phones.first.number.replaceAll(RegExp(r'[^\d]'), '');
+            // Ensure it's 10 digits
+            if (phoneNumber.length > 10) {
+              phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
+            }
+            phoneController.text = phoneNumber;
+          }
+        }
+      } else {
+        Get.snackbar(
+          'Permission Denied',
+          'Please grant contacts permission to use this feature',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick contact: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> onSearchChanged(String query) async {
+    if (query.isEmpty) {
+      searchResults.value = availableAadhatis;
+      return;
+    }
+    isLoading.value = true;
+    try {
+      final response = await http.get(Uri.parse(
+          glb.url + '/api/agents/${Uri.encodeComponent(query)}/searchbyName'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        searchResults.value = data
+            .map((e) => Aadhati(
+                  id: e['id']?.toString(),
+                  name: e['name'],
+                  contact: e['contact'],
+                  apmc: e['apmc'],
+                  address: e['address'],
+                  nameOfTradingFirm: e['nameOfTradingFirm'],
+                  tradingSinceYears: e['tradingSinceYears'],
+                  firmType: e['firmType'],
+                  licenseNo: e['licenseNo'],
+                  salesPurchaseLocationName: e['salesPurchaseLocationName'],
+                  locationOnGoogle: e['locationOnGoogle'],
+                  appleBoxesPurchased2023: e['appleBoxesPurchased2023'],
+                  appleBoxesPurchased2024: e['appleBoxesPurchased2024'],
+                  estimatedTarget2025: (e['estimatedTarget2025'] is int)
+                      ? (e['estimatedTarget2025'] as int).toDouble()
+                      : e['estimatedTarget2025'],
+                  needTradeFinance: e['needTradeFinance'],
+                  noOfAppleGrowersServed: e['noOfAppleGrowersServed'],
+                ))
+            .toList()
+            .cast<Aadhati>();
+      } else {
+        Get.snackbar(
+            'Error', 'Failed to search agents: ${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to search agents: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -101,13 +227,18 @@ class CommissionAgentFormController extends GetxController {
                             (existingDriver) => existingDriver.id == agent.id)
                         : (glb.roleType.value == "APMC Office")
                             ? Get.find<ApmcOfficeController>().flag.value
-                                ? Get.find<ApmcOfficeController>().approvedAadhatis.any((existingDriver) =>
-                                    existingDriver.id == agent.id)
+                                ? Get.find<ApmcOfficeController>()
+                                    .approvedAadhatis
+                                    .any((existingDriver) =>
+                                        existingDriver.id == agent.id)
                                 : Get.find<ApmcOfficeController>()
                                     .blacklistedAadhatis
                                     .any((existingDriver) =>
-                                        existingDriver.id == agent.id): Get.find<TransportUnionController>().associatedAadhatis.any(
-            (existingDriver) => existingDriver.id == agent.id);
+                                        existingDriver.id == agent.id)
+                            : Get.find<TransportUnionController>()
+                                .associatedAadhatis
+                                .any((existingDriver) =>
+                                    existingDriver.id == agent.id);
 
     if (exists) {
       Get.snackbar(
@@ -131,9 +262,9 @@ class CommissionAgentFormController extends GetxController {
                     ? Get.find<FreightForwarderController>()
                         .addAssociatedAadhatis(agent)
                     : (glb.roleType.value == "Transport Union")
-                        ? Get.find<TransportUnionController>().addAssociatedAadhatis(agent)
-                        :  Get.find<ApmcOfficeController>().addAdhati(agent);
-
+                        ? Get.find<TransportUnionController>()
+                            .addAssociatedAadhatis(agent)
+                        : Get.find<ApmcOfficeController>().addAdhati(agent);
 
     Get.back();
   }
@@ -145,38 +276,24 @@ class CommissionAgentFormController extends GetxController {
 
     try {
       final agent = Aadhati(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: nameController.text,
         contact: phoneController.text,
         apmc: apmcController.text,
-        address: addressController.text,
-        nameOfTradingFirm: tradingFirmController.text,
-        tradingSinceYears: int.tryParse(tradingYearsController.text),
-        firmType: firmTypeController.text,
-        licenseNo: licenseNoController.text,
-        salesPurchaseLocationName: salesLocationController.text,
-        locationOnGoogle: googleLocationController.text,
-        appleBoxesPurchased2023: int.tryParse(boxes2023Controller.text),
-        appleBoxesPurchased2024: int.tryParse(boxes2024Controller.text),
-        estimatedTarget2025: double.tryParse(target2025Controller.text),
-        needTradeFinance: needTradeFinance.value,
-        noOfAppleGrowersServed: int.tryParse(growersServedController.text),
       );
       (glb.roleType.value == "PackHouse")
           ? Get.find<PackHouseController>().addAssociatedAadhati(agent)
           : (glb.roleType.value == "Grower")
-          ? Get.find<GrowerController>().addCommissionAgent(agent)
-          : (glb.roleType.value == "Ladani/Buyers")
-          ? Get.find<LadaniBuyersController>()
-          .addAssociatedAadhatis(agent)
-          : (glb.roleType.value == "Freight Forwarder")
-          ? Get.find<FreightForwarderController>()
-          .addAssociatedAadhatis(agent)
-          : (glb.roleType.value == "Transport Union")
-          ? Get.find<TransportUnionController>().addAssociatedAadhatis(agent)
-          :  Get.find<ApmcOfficeController>().addAdhati(agent);
-
-      Get.back();
+              ? Get.find<GrowerController>().addCommissionAgent(agent)
+              : (glb.roleType.value == "Ladani/Buyers")
+                  ? Get.find<LadaniBuyersController>()
+                      .addAssociatedAadhatis(agent)
+                  : (glb.roleType.value == "Freight Forwarder")
+                      ? Get.find<FreightForwarderController>()
+                          .addAssociatedAadhatis(agent)
+                      : (glb.roleType.value == "Transport Union")
+                          ? Get.find<TransportUnionController>()
+                              .addAssociatedAadhatis(agent)
+                          : Get.find<ApmcOfficeController>().addAdhati(agent);
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -307,167 +424,175 @@ class CommissionAgentFormPage extends StatelessWidget {
   }
 
   Widget _buildSearchResults() {
-    return Obx(() => controller.searchResults.isEmpty
-        ? const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'No agents found',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return Container(
+        height: MediaQuery.of(Get.context!).size.height,
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      if (controller.searchResults.isEmpty) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'No agents found',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
               ),
             ),
-          )
-        : ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: controller.searchResults.length,
-            itemBuilder: (context, index) {
-              final agent = controller.searchResults[index];
-              final exists = (glb.roleType.value == "PackHouse")
-                  ? Get.find<PackHouseController>()
-                      .associatedAadhatis
+          ),
+        );
+      }
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: controller.searchResults.length,
+        itemBuilder: (context, index) {
+          final agent = controller.searchResults[index];
+          final exists = (glb.roleType.value == "PackHouse")
+              ? Get.find<PackHouseController>()
+                  .associatedAadhatis
+                  .any((existingDriver) => existingDriver.id == agent.id)
+              : (glb.roleType.value == "Grower")
+                  ? Get.find<GrowerController>()
+                      .commissionAgents
                       .any((existingDriver) => existingDriver.id == agent.id)
-                  : (glb.roleType.value == "Grower")
-                      ? Get.find<GrowerController>().commissionAgents.any(
-                          (existingDriver) => existingDriver.id == agent.id)
-                      : (glb.roleType.value == "Ladani/Buyers")
-                          ? Get.find<LadaniBuyersController>()
-                              .associatedAadhatis
-                              .any((existingDriver) =>
-                                  existingDriver.id == agent.id)
-                          : (glb.roleType.value == "Freight Forwarder")
-                              ? Get.find<FreightForwarderController>()
+                  : (glb.roleType.value == "Ladani/Buyers")
+                      ? Get.find<LadaniBuyersController>()
+                          .associatedAadhatis
+                          .any(
+                              (existingDriver) => existingDriver.id == agent.id)
+                      : (glb.roleType.value == "Freight Forwarder")
+                          ? Get.find<FreightForwarderController>().associatedAadhatis.any(
+                              (existingDriver) => existingDriver.id == agent.id)
+                          : (glb.roleType.value == "Transport Union")
+                              ? Get.find<TransportUnionController>()
                                   .associatedAadhatis
                                   .any((existingDriver) =>
                                       existingDriver.id == agent.id)
-                              : (glb.roleType.value == "Transport Union")
-                                  ? Get.find<TransportUnionController>()
-                                      .associatedAadhatis
-                                      .any((existingDriver) =>
-                                          existingDriver.id == agent.id)
-                                  : (glb.roleType.value == "APMC Office")
+                              : (glb.roleType.value == "APMC Office")
+                                  ? Get.find<ApmcOfficeController>().flag.value
                                       ? Get.find<ApmcOfficeController>()
-                                              .flag
-                                              .value
-                                          ? Get.find<ApmcOfficeController>()
-                                              .approvedAadhatis
-                                              .any((existingDriver) =>
-                                                  existingDriver.id == agent.id)
-                                          : Get.find<ApmcOfficeController>()
-                                              .blacklistedAadhatis
-                                              .any((existingDriver) => existingDriver.id == agent.id)
-                                      : Get.find<TransportUnionController>().associatedAadhatis.any(
-                      (existingDriver) => existingDriver.id == agent.id);
-              return Stack(
-                children: [
-                  Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: InkWell(
-                      onTap:
-                          exists ? null : () => controller.selectAgent(agent),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Opacity(
-                        opacity: exists ? 0.7 : 1.0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                                          .approvedAadhatis
+                                          .any((existingDriver) =>
+                                              existingDriver.id == agent.id)
+                                      : Get.find<ApmcOfficeController>()
+                                          .blacklistedAadhatis
+                                          .any((existingDriver) =>
+                                              existingDriver.id == agent.id)
+                                  : Get.find<TransportUnionController>()
+                                      .associatedAadhatis
+                                      .any((existingDriver) => existingDriver.id == agent.id);
+          return Stack(
+            children: [
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: InkWell(
+                  onTap: exists ? null : () => controller.selectAgent(agent),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Opacity(
+                    opacity: exists ? 0.7 : 1.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.person,
-                                    color: Color(0xff548235),
-                                    size: 24,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          agent.name ?? 'N/A',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Trading Firm: ${agent.nameOfTradingFirm ?? 'N/A'}',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                      ],
+                              const Icon(
+                                Icons.person,
+                                color: Color(0xff548235),
+                                size: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      agent.name ?? 'N/A',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              _buildInfoRow(
-                                Icons.store,
-                                'APMC: ${agent.apmc ?? 'N/A'}',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildInfoRow(
-                                Icons.phone,
-                                'Phone: ${agent.contact ?? 'N/A'}',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildInfoRow(
-                                Icons.location_on,
-                                'Address: ${agent.address ?? 'N/A'}',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildInfoRow(
-                                Icons.business,
-                                'Firm Type: ${agent.firmType ?? 'N/A'}',
+                                    Text(
+                                      'Trading Firm: ${agent.nameOfTradingFirm ?? 'N/A'}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          _buildInfoRow(
+                            Icons.store,
+                            'APMC: ${agent.apmc ?? 'N/A'}',
+                          ),
+                          const SizedBox(height: 8),
+                          _buildInfoRow(
+                            Icons.phone,
+                            'Phone: ${agent.contact ?? 'N/A'}',
+                          ),
+                          const SizedBox(height: 8),
+                          _buildInfoRow(
+                            Icons.location_on,
+                            'Address: ${agent.address ?? 'N/A'}',
+                          ),
+                          const SizedBox(height: 8),
+                          _buildInfoRow(
+                            Icons.business,
+                            'Firm Type: ${agent.firmType ?? 'N/A'}',
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  if (exists)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(12),
-                            bottomLeft: Radius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'Already Added',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                ),
+              ),
+              if (exists)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
                       ),
                     ),
-                ],
-              );
-            },
-          ));
+                    child: const Text(
+                      'Already Added',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
@@ -495,10 +620,6 @@ class CommissionAgentFormPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildBasicDetails(),
-          const SizedBox(height: 24),
-          _buildTradingDetails(),
-          const SizedBox(height: 24),
-          _buildBusinessDetails(),
           const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
@@ -534,15 +655,31 @@ class CommissionAgentFormPage extends StatelessWidget {
                   value?.isEmpty ?? true ? 'Please enter name' : null,
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.phoneController,
-              decoration: _getInputDecoration(
-                'Phone Number',
-                prefixIcon: Icons.phone,
-              ),
-              keyboardType: TextInputType.phone,
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter phone number' : null,
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: controller.phoneController,
+                    decoration: _getInputDecoration(
+                      'Phone Number',
+                      prefixIcon: Icons.phone,
+                    ),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) => value?.isEmpty ?? true
+                        ? 'Please enter phone number'
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: controller.pickContact,
+                  icon: const Icon(Icons.contacts),
+                  color: const Color(0xff548235),
+                  tooltip: kIsWeb
+                      ? 'Use mobile app to pick contacts'
+                      : 'Pick from contacts',
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -554,183 +691,6 @@ class CommissionAgentFormPage extends StatelessWidget {
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Please enter APMC Mandi' : null,
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.addressController,
-              decoration: _getInputDecoration(
-                'Address',
-                prefixIcon: Icons.location_on,
-              ),
-              maxLines: 2,
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter address' : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTradingDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Trading Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.tradingFirmController,
-              decoration: _getInputDecoration(
-                'Trading Firm Name',
-                prefixIcon: Icons.business,
-              ),
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter trading firm name'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.tradingYearsController,
-              decoration: _getInputDecoration(
-                'Years in Trading',
-                prefixIcon: Icons.calendar_today,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter years in trading'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.firmTypeController,
-              decoration: _getInputDecoration(
-                'Firm Type (Prop./Partnership/HUF/PL/LLP/OPC)',
-                prefixIcon: Icons.business_center,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter firm type' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.licenseNoController,
-              decoration: _getInputDecoration(
-                'License Number',
-                prefixIcon: Icons.assignment,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter license number' : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBusinessDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Business Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.salesLocationController,
-              decoration: _getInputDecoration(
-                'Sales/Purchase Location',
-                prefixIcon: Icons.location_city,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter sales location' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.googleLocationController,
-              decoration: _getInputDecoration(
-                'Google Location',
-                prefixIcon: Icons.map,
-              ),
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter Google location'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.boxes2023Controller,
-              decoration: _getInputDecoration(
-                'Apple Boxes Purchased in 2023',
-                prefixIcon: Icons.inventory,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter boxes purchased in 2023'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.boxes2024Controller,
-              decoration: _getInputDecoration(
-                'Apple Boxes Purchased in 2024',
-                prefixIcon: Icons.inventory,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter boxes purchased in 2024'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.target2025Controller,
-              decoration: _getInputDecoration(
-                'Estimated Target for 2025',
-                prefixIcon: Icons.trending_up,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter estimated target for 2025'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.growersServedController,
-              decoration: _getInputDecoration(
-                'Number of Apple Growers Served',
-                prefixIcon: Icons.people,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter number of growers served'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            Obx(() => SwitchListTile(
-                  title: const Text('Need Trade Finance'),
-                  value: controller.needTradeFinance.value,
-                  onChanged: (value) =>
-                      controller.needTradeFinance.value = value,
-                  activeColor: const Color(0xff548235),
-                )),
           ],
         ),
       ),
@@ -751,7 +711,7 @@ class CommissionAgentFormPage extends StatelessWidget {
           ),
         ),
         child: const Text(
-          'Add Commission Agent',
+          'Create Commission Agent',
           style: TextStyle(fontSize: 16),
         ),
       ),
