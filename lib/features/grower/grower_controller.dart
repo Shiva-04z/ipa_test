@@ -52,19 +52,64 @@ class GrowerController extends GetxController {
 
   // Methods for managing orchards
   void addOrchard(Orchard orchard) async {
-    orchards.add(orchard);
+
     await createOrchard(orchard);
 
-    _updateGrower();
   }
 
   void updateOrchard(Orchard orchard) {
+
     final index = orchards.indexWhere((o) => o.id == orchard.id);
     if (index != -1) {
       orchards[index] = orchard;
-      _updateGrower();
+      updateOrchardApi(orchard);
     }
   }
+
+  updateOrchardApi(Orchard orchard)
+  async {
+    final apiUrl = glb.url + "/api/orchards/${orchard.id!}";
+    final payload = <String, dynamic>{
+      'name': orchard.name,
+      'location': orchard.location,
+      'fruitingTrees': orchard.numberOfFruitingTrees,
+      'harvestDateExpected': orchard.expectedHarvestDate.toIso8601String(),
+      'boundaryPoints': orchard.boundaryPoints
+          .map((point) => {'lat': point.latitude, 'lng': point.longitude})
+          .toList(),
+      'area': orchard.area,
+      'boundaryImage': orchard.boundaryImagePath,
+      'harvestStatus': 'open', // or 'closed' if you have logic for it
+      if (orchard.estimatedBoxes != null)
+        'estimatedBoxes': orchard.estimatedBoxes,
+      if (orchard.actualHarvestDate != null)
+        'actualHarvestDate': orchard.actualHarvestDate!.toIso8601String(),
+      'cropstage': orchard.cropStage.toString().split('.').last,
+      'cropQuality': {
+        'antiHailNet':
+        orchard.quality.markers[QualityMarker.antiHailNet] != QualityStatus.poor,
+        'openFarm':
+        orchard.quality.markers[QualityMarker.openFarm] != QualityStatus.poor,
+        'HailingMarks':
+        orchard.quality.markers[QualityMarker.hailingMarks] != QualityStatus.poor,
+        'Russetting':
+        orchard.quality.markers[QualityMarker.russetting] != QualityStatus.poor,
+        'UnderSize':
+        orchard.quality.markers[QualityMarker.underSize] != QualityStatus.poor,
+      },
+    };
+
+    final response  = await http.put(Uri.parse(apiUrl),headers: {"Content-Type":"application-json"}
+        ,body: jsonEncode(payload)
+    );
+
+    if(response.statusCode ==200||response.statusCode==201)
+      {
+        print("Sucessful");
+      }
+
+  }
+
 
   void removeOrchard(String orchardId) {
     orchards.removeWhere((o) => o.id == orchardId);
@@ -82,7 +127,7 @@ class GrowerController extends GetxController {
   }
 
   Future<void> createAgent(Aadhati agent) async {
-     String apiUrl =
+    String apiUrl =
         glb.url + '/api/agents'; // Use the correct endpoint for agents
     try {
       final Map<String, dynamic> body = {
@@ -115,7 +160,7 @@ class GrowerController extends GetxController {
 
   updateGrowerAgent(String agentID) async {
     final String apiUrl =
-       glb.url +'/api/growers/${glb.id.value}/add-commission-agent';
+        glb.url + '/api/growers/${glb.id.value}/add-commission-agent';
     print(apiUrl);
     // Replace with actual endpoint
     final Map<String, dynamic> updatePayload = {'commissionAgentId': agentID};
@@ -363,77 +408,6 @@ class GrowerController extends GetxController {
     print("Hello grower");
   }
 
-  // Helper methods for fetching by ID
-  Future<Orchard> fetchOrchardById(String id) async {
-    final response = await http
-        .get(Uri.parse('https://bml-m3ps.onrender.com/api/orchards/$id'));
-    if (response.statusCode == 200) {
-      return Orchard.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load orchard $id');
-    }
-  }
-
-  Future<Aadhati> fetchAadhatiById(String id) async {
-    final response = await http
-        .get(Uri.parse('https://bml-m3ps.onrender.com/api/aadhatis/$id'));
-    if (response.statusCode == 200) {
-      return Aadhati.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load aadhati $id');
-    }
-  }
-
-  Future<PackHouse> fetchPackHouseById(String id) async {
-    final response = await http
-        .get(Uri.parse('https://bml-m3ps.onrender.com/api/packhouses/$id'));
-    if (response.statusCode == 200) {
-      return PackHouse.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load packhouse $id');
-    }
-  }
-
-  Future<Consignment> fetchConsignmentById(String id) async {
-    final response = await http
-        .get(Uri.parse('https://bml-m3ps.onrender.com/api/consignments/$id'));
-    if (response.statusCode == 200) {
-      return Consignment.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load consignment $id');
-    }
-  }
-
-  Future<FreightForwarder> fetchFreightForwarderById(String id) async {
-    final response = await http.get(
-        Uri.parse('https://bml-m3ps.onrender.com/api/freightForwarders/$id'));
-    if (response.statusCode == 200) {
-      return FreightForwarder.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load freight forwarder $id');
-    }
-  }
-
-  Future<DrivingProfile> fetchDriverById(String id) async {
-    final response = await http
-        .get(Uri.parse('https://bml-m3ps.onrender.com/api/drivers/$id'));
-    if (response.statusCode == 200) {
-      return DrivingProfile.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load driver $id');
-    }
-  }
-
-  Future<Transport> fetchTransportUnionById(String id) async {
-    final response = await http.get(
-        Uri.parse('https://bml-m3ps.onrender.com/api/transportUnions/$id'));
-    if (response.statusCode == 200) {
-      return Transport.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load transport union $id');
-    }
-  }
-
   void _updateGrower() {
     if (grower.value != null) {
       grower.value = grower.value!.copyWith(
@@ -482,18 +456,27 @@ class GrowerController extends GetxController {
   }
 
   Future<void> createOrchard(Orchard orchard) async {
-    const String apiUrl =
-        'https://bml-m3ps.onrender.com/api/orchards'; // Replace with your actual endpoint if different
+    String apiUrl = glb.url +
+        '/api/orchards'; // Replace with your actual endpoint if different
     try {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(orchard.toJson()),
+        body: jsonEncode({
+          'name': orchard.name,
+          'location': orchard.location,
+          'flutternumberOfFruitingTrees': orchard.numberOfFruitingTrees,
+          'harvestDateExpected': orchard.expectedHarvestDate.toIso8601String(),
+          'boundaryPoints': orchard.boundaryPoints,
+          'area': orchard.area
+        }),
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final newOrchard = Orchard.fromJson(data);
-        _updateGrower();
+        orchard = orchard.copyWith(id : data['_id']);
+        updateGrowerOrchard(data['_id']);
+        orchards.add(orchard);
+
         Get.snackbar('Success', 'Orchard created successfully!',
             snackPosition: SnackPosition.BOTTOM);
       } else {
@@ -543,5 +526,20 @@ class GrowerController extends GetxController {
     packHousePhone.dispose();
     packHouseAddress.dispose();
     super.onClose();
+  }
+
+  Future<void> updateGrowerOrchard(String id) async {
+    final apiurl = glb.url + '/api/growers/${glb.id.value}/add-orchard';
+    try {
+      final Map<String, dynamic> uploadPayload = {'orchardId': id};
+      final response = await http.patch(Uri.parse(apiurl),
+          body: jsonEncode(uploadPayload),
+          headers: {"Content-Type": "application/json"});
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Get.snackbar("Success", "Added to Grower");
+      }
+    } catch (e) {
+      Get.snackbar("Failure", e.toString());
+    }
   }
 }

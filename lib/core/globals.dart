@@ -33,7 +33,7 @@ RxString url="https://61b4-2401-4900-1c09-5a60-d5dd-d31b-b6fb-b89e.ngrok-free.ap
 RxString id = "685a4b98188724f04ee3abdb".obs;
 
 RxList<Complaint> myComplaint = <Complaint>[].obs;
-// Demo lists for all models
+
 RxList<Aadhati> availableAadhatis = [
   Aadhati(
     id: '685a3d04d4e21f9f6cb9979e',

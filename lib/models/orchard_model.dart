@@ -67,7 +67,7 @@ class OrchardQuality {
 }
 
 class Orchard {
-  final String id;
+ final String? id;
   final String name;
   final String location;
   final int numberOfFruitingTrees;
@@ -84,7 +84,7 @@ class Orchard {
   final DateTime updatedAt;
 
   const Orchard({
-    required this.id,
+  this.id,
     required this.name,
     required this.location,
     required this.numberOfFruitingTrees,

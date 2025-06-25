@@ -439,10 +439,10 @@ class OrchardFormController extends GetxController {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
-
-    Get.find<GrowerController>().addOrchard(newOrchard);
-
       Get.back();
+      Get.find<GrowerController>().addOrchard(newOrchard);
+
+
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -452,6 +452,7 @@ class OrchardFormController extends GetxController {
         colorText: Colors.white,
       );
     } finally {
+
       isLoading.value = false;
     }
   }
@@ -781,7 +782,6 @@ class OrchardFormPage extends StatelessWidget {
                       'Location',
                       prefixIcon: Icons.location_on,
                     ),
-                    readOnly: true,
                     validator: (value) => value?.isEmpty ?? true
                         ? 'Please select location'
                         : null,
