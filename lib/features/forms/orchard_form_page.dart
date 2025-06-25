@@ -86,23 +86,20 @@ class OrchardFormController extends GetxController {
   Widget savedImage() {
     return Center(
       child: Container(
-          height: MediaQuery.of(Get.context!).size.height / 2,
-          width: MediaQuery.of(Get.context!).size.width - 100,
-          child: Image.network("${boundaryImagePath.value}")),
+        height: MediaQuery.of(Get.context!).size.height / 2,
+        width: MediaQuery.of(Get.context!).size.width - 100,
+        child: Image.network("${boundaryImagePath.value}"),
+      ),
     );
   }
 
   Future<void> _handleWebLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      Get.snackbar(
-        'Location Services Disabled',
-        'Please enable location services in your browser settings.',
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-      );
-      _setDefaultLocation();
-      return;
+    bool serviceEnabled;
+    try {
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    } catch (e) {
+      // On web, isLocationServiceEnabled might throw an exception
+      serviceEnabled = true; // Assume enabled and proceed to permission check
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
@@ -274,7 +271,7 @@ class OrchardFormController extends GetxController {
         // If no address components were found, use coordinates
         if (address.isEmpty) {
           address =
-              'Lat: ${lat.toStringAsFixed(6)}, Lng: ${lng.toStringAsFixed(6)}';
+          'Lat: ${lat.toStringAsFixed(6)}, Lng: ${lng.toStringAsFixed(6)}';
         }
 
         // Remove trailing comma and space if present
@@ -295,7 +292,7 @@ class OrchardFormController extends GetxController {
 
   void _setFallbackLocation(double lat, double lng) {
     locationController.text =
-        'Lat: ${lat.toStringAsFixed(6)}, Lng: ${lng.toStringAsFixed(6)}';
+    'Lat: ${lat.toStringAsFixed(6)}, Lng: ${lng.toStringAsFixed(6)}';
     Get.snackbar(
       'Location Error',
       'Could not get detailed address. Using coordinates instead.',
@@ -365,10 +362,10 @@ class OrchardFormController extends GetxController {
   Future<void> captureMapScreenshot() async {
     try {
       final RenderRepaintBoundary boundary =
-          mapKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      mapKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
       final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
       final ByteData? byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
+      await image.toByteData(format: ui.ImageByteFormat.png);
 
       if (byteData != null) {
         final Uint8List pngBytes = byteData.buffer.asUint8List();
@@ -395,6 +392,7 @@ class OrchardFormController extends GetxController {
 
   void toggleDrawingBoundary() {
     isDrawingBoundary.value = !isDrawingBoundary.value;
+    isFreehandDrawing.value = false;
     selectedMarkerIndex.value = null;
   }
 
@@ -445,7 +443,7 @@ class OrchardFormController extends GetxController {
     if (boundaryPoints.length >= 3) {
       polygons.add(Polygon(
         points:
-            boundaryPoints.map((p) => LatLng(p.latitude, p.longitude)).toList(),
+        boundaryPoints.map((p) => LatLng(p.latitude, p.longitude)).toList(),
         color: Colors.red.withOpacity(0.2),
         borderColor: Colors.red,
         borderStrokeWidth: 2,
@@ -554,22 +552,29 @@ class OrchardFormController extends GetxController {
                             minZoom: 5.0,
                             maxZoom: 18.0,
                             onTap: (tapPosition, point) {
-                              markers.clear();
-                              markers.add(Marker(
-                                point: point,
-                                width: 40,
-                                height: 40,
-                                child: const Icon(
-                                  Icons.location_on,
-                                  color: Color(0xff548235),
-                                  size: 40,
-                                ),
-                              ));
-                              _updateLocationFromCoordinates(
-                                point.latitude,
-                                point.longitude,
-                              );
+                              if (isDrawingBoundary.value) {
+                                addOrMoveBoundaryPoint(point);
+                              } else {
+                                markers.clear();
+                                markers.add(Marker(
+                                  point: point,
+                                  width: 40,
+                                  height: 40,
+                                  child: const Icon(
+                                    Icons.location_on,
+                                    color: Color(0xff548235),
+                                    size: 40,
+                                  ),
+                                ));
+                                _updateLocationFromCoordinates(
+                                  point.latitude,
+                                  point.longitude,
+                                );
+                              }
                             },
+                            interactiveFlags: isDrawingBoundary.value
+                                ? InteractiveFlag.none
+                                : (InteractiveFlag.all & ~InteractiveFlag.rotate),
                           ),
                           children: [
                             TileLayer(
@@ -594,24 +599,7 @@ class OrchardFormController extends GetxController {
                                       size: 40,
                                     ),
                                   ),
-                                ...markers.map((marker) {
-                                  return Marker(
-                                    point: marker.point,
-                                    width: marker.width,
-                                    height: marker.height,
-                                    child: GestureDetector(
-                                      onTap: marker.child is GestureDetector
-                                          ? (marker.child as GestureDetector)
-                                              .onTap
-                                          : null,
-                                      child: Icon(
-                                        Icons.location_on,
-                                        color: Colors.red,
-                                        size: 40,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                                ...markers,
                               ],
                             ),
                             PolygonLayer(polygons: polygons),
@@ -625,8 +613,7 @@ class OrchardFormController extends GetxController {
                               FloatingActionButton(
                                 heroTag: 'viewMode',
                                 onPressed: () {
-                                  isSatelliteMode.value =
-                                      !isSatelliteMode.value;
+                                  isSatelliteMode.value = !isSatelliteMode.value;
                                   Get.snackbar(
                                     'Map View Changed',
                                     isSatelliteMode.value
@@ -677,7 +664,7 @@ class OrchardFormController extends GetxController {
                                     final currentZoom =
                                         mapController.camera.zoom;
                                     final newZoom =
-                                        (currentZoom + 1).clamp(5.0, 18.0);
+                                    (currentZoom + 1).clamp(5.0, 18.0);
                                     if (newZoom != currentZoom) {
                                       mapController.move(
                                         mapController.camera.center,
@@ -692,7 +679,7 @@ class OrchardFormController extends GetxController {
                                     final currentZoom =
                                         mapController.camera.zoom;
                                     final newZoom =
-                                        (currentZoom - 1).clamp(5.0, 18.0);
+                                    (currentZoom - 1).clamp(5.0, 18.0);
                                     if (newZoom != currentZoom) {
                                       mapController.move(
                                         mapController.camera.center,
@@ -749,7 +736,6 @@ class OrchardFormController extends GetxController {
 
   Future<void> searchAndGoToBoundaryLocation() async {
     final query = boundarySearchController.text.trim();
-    print('Searching for: $query');
     if (query.isEmpty) return;
     isBoundarySearching.value = true;
     try {
@@ -760,7 +746,6 @@ class OrchardFormController extends GetxController {
       });
       if (response.statusCode == 200) {
         final List results = json.decode(response.body);
-        print('OSM Results: $results');
         if (results.isNotEmpty) {
           final lat = double.tryParse(results[0]['lat'] ?? '');
           final lon = double.tryParse(results[0]['lon'] ?? '');
@@ -833,18 +818,18 @@ class OrchardFormPage extends StatelessWidget {
         actions: [
           Obx(() => controller.isLoading.value
               ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    ),
-                  ),
-                )
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+            ),
+          )
               : const SizedBox()),
         ],
       ),
@@ -908,7 +893,7 @@ class OrchardFormPage extends StatelessWidget {
                 prefixIcon: Icons.landscape,
               ),
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter orchard name' : null,
+              value?.isEmpty ?? true ? 'Please enter orchard name' : null,
             ),
             const SizedBox(height: 16),
             Row(
@@ -977,13 +962,13 @@ class OrchardFormPage extends StatelessWidget {
             ListTile(
               title: const Text('Expected Harvest Date'),
               subtitle: Obx(() => Text(
-                    controller.expectedHarvestDate.value != null
-                        ? DateFormat('MMM dd, yyyy')
-                            .format(controller.expectedHarvestDate.value!)
-                        : 'Select date',
-                  )),
+                controller.expectedHarvestDate.value != null
+                    ? DateFormat('MMM dd, yyyy')
+                    .format(controller.expectedHarvestDate.value!)
+                    : 'Select date',
+              )),
               leading:
-                  const Icon(Icons.calendar_today, color: Color(0xff548235)),
+              const Icon(Icons.calendar_today, color: Color(0xff548235)),
               onTap: () async {
                 final date = await showDatePicker(
                   context: Get.context!,
@@ -1041,37 +1026,37 @@ class OrchardFormPage extends StatelessWidget {
                 ),
                 const Spacer(),
                 Obx(() => ElevatedButton.icon(
-                      onPressed: controller.toggleDrawingBoundary,
-                      icon: Icon(controller.isDrawingBoundary.value
-                          ? Icons.edit_off
-                          : Icons.edit),
-                      label: Text(controller.isDrawingBoundary.value
-                          ? 'Stop Drawing'
-                          : 'Draw Boundary'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: controller.isDrawingBoundary.value
-                            ? Colors.red
-                            : const Color(0xff548235),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                      ),
-                    )),
+                  onPressed: controller.toggleDrawingBoundary,
+                  icon: Icon(controller.isDrawingBoundary.value
+                      ? Icons.edit_off
+                      : Icons.edit),
+                  label: Text(controller.isDrawingBoundary.value
+                      ? 'Stop Drawing'
+                      : 'Draw Boundary'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: controller.isDrawingBoundary.value
+                        ? Colors.red
+                        : const Color(0xff548235),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                  ),
+                )),
                 const SizedBox(width: 8),
                 Obx(() => IconButton(
-                      icon: const Icon(Icons.undo),
-                      tooltip: 'Remove Last Point',
-                      onPressed: controller.boundaryPoints.isNotEmpty
-                          ? controller.removeLastBoundaryPoint
-                          : null,
-                    )),
+                  icon: const Icon(Icons.undo),
+                  tooltip: 'Remove Last Point',
+                  onPressed: controller.boundaryPoints.isNotEmpty
+                      ? controller.removeLastBoundaryPoint
+                      : null,
+                )),
                 Obx(() => IconButton(
-                      icon: const Icon(Icons.clear),
-                      tooltip: 'Clear All',
-                      onPressed: controller.boundaryPoints.isNotEmpty
-                          ? controller.clearBoundary
-                          : null,
-                    )),
+                  icon: const Icon(Icons.clear),
+                  tooltip: 'Clear All',
+                  onPressed: controller.boundaryPoints.isNotEmpty
+                      ? controller.clearBoundary
+                      : null,
+                )),
               ],
             ),
             const SizedBox(height: 16),
@@ -1079,31 +1064,31 @@ class OrchardFormPage extends StatelessWidget {
               children: [
                 Expanded(
                     child: TextField(
-                  controller: controller.boundarySearchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search location... (e.g. Shimla, HP)',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  onSubmitted: (_) =>
-                      controller.searchAndGoToBoundaryLocation(),
-                )),
+                      controller: controller.boundarySearchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search location... (e.g. Shimla, HP)',
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                      onSubmitted: (_) =>
+                          controller.searchAndGoToBoundaryLocation(),
+                    )),
                 const SizedBox(width: 8),
                 Obx(() => controller.isBoundarySearching.value
                     ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
                     : IconButton(
-                        icon: const Icon(Icons.arrow_forward,
-                            color: Color(0xff548235)),
-                        onPressed: controller.searchAndGoToBoundaryLocation,
-                      )),
+                  icon: const Icon(Icons.arrow_forward,
+                      color: Color(0xff548235)),
+                  onPressed: controller.searchAndGoToBoundaryLocation,
+                )),
               ],
             ),
             const SizedBox(height: 16),
@@ -1120,13 +1105,13 @@ class OrchardFormPage extends StatelessWidget {
                   if (controller.boundaryImagePath.value != null) {
                     return kIsWeb
                         ? Image.network(
-                            controller.boundaryImagePath.value!,
-                            fit: BoxFit.cover,
-                          )
+                      controller.boundaryImagePath.value!,
+                      fit: BoxFit.cover,
+                    )
                         : Image.file(
-                            File(controller.boundaryImagePath.value!),
-                            fit: BoxFit.cover,
-                          );
+                      File(controller.boundaryImagePath.value!),
+                      fit: BoxFit.cover,
+                    );
                   }
 
                   if (controller.currentPosition.value == null) {
@@ -1188,7 +1173,7 @@ class OrchardFormPage extends StatelessWidget {
                             interactiveFlags: controller.isDrawingBoundary.value
                                 ? InteractiveFlag.none
                                 : (InteractiveFlag.all &
-                                    ~InteractiveFlag.rotate),
+                            ~InteractiveFlag.rotate),
                             onMapReady: () {
                               if (controller.currentPosition.value != null) {
                                 controller.mapController.move(
@@ -1198,6 +1183,11 @@ class OrchardFormPage extends StatelessWidget {
                                   ),
                                   14,
                                 );
+                              }
+                            },
+                            onTap: (tapPosition, point) {
+                              if (controller.isDrawingBoundary.value) {
+                                controller.addOrMoveBoundaryPoint(point);
                               }
                             },
                           ),
@@ -1226,24 +1216,7 @@ class OrchardFormPage extends StatelessWidget {
                                       size: 40,
                                     ),
                                   ),
-                                ...controller.markers.map((marker) {
-                                  return Marker(
-                                    point: marker.point,
-                                    width: marker.width,
-                                    height: marker.height,
-                                    child: GestureDetector(
-                                      onTap: marker.child is GestureDetector
-                                          ? (marker.child as GestureDetector)
-                                              .onTap
-                                          : null,
-                                      child: Icon(
-                                        Icons.location_on,
-                                        color: Colors.red,
-                                        size: 40,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                                ...controller.markers,
                               ],
                             ),
                             PolygonLayer(
@@ -1253,7 +1226,7 @@ class OrchardFormPage extends StatelessWidget {
                         ),
                         CustomPaint(
                           painter:
-                              _FreehandPainter(controller.drawnPath.toList()),
+                          _FreehandPainter(controller.drawnPath.toList()),
                           size: Size.infinite,
                         ),
                         Positioned(
@@ -1265,7 +1238,7 @@ class OrchardFormPage extends StatelessWidget {
                                 heroTag: 'boundary_viewMode',
                                 onPressed: () {
                                   controller.isSatelliteMode.value =
-                                      !controller.isSatelliteMode.value;
+                                  !controller.isSatelliteMode.value;
                                   Get.snackbar(
                                     'Map View Changed',
                                     controller.isSatelliteMode.value
@@ -1319,7 +1292,7 @@ class OrchardFormPage extends StatelessWidget {
                                     final currentZoom =
                                         controller.mapController.camera.zoom;
                                     final newZoom =
-                                        (currentZoom + 1).clamp(5.0, 18.0);
+                                    (currentZoom + 1).clamp(5.0, 18.0);
                                     if (newZoom != currentZoom) {
                                       controller.mapController.move(
                                         controller.mapController.camera.center,
@@ -1334,7 +1307,7 @@ class OrchardFormPage extends StatelessWidget {
                                     final currentZoom =
                                         controller.mapController.camera.zoom;
                                     final newZoom =
-                                        (currentZoom - 1).clamp(5.0, 18.0);
+                                    (currentZoom - 1).clamp(5.0, 18.0);
                                     if (newZoom != currentZoom) {
                                       controller.mapController.move(
                                         controller.mapController.camera.center,
@@ -1403,33 +1376,33 @@ class OrchardFormPage extends StatelessWidget {
                     children: [
                       Expanded(
                         child:
-                            Obx(() => controller.boundaryImagePath.value != null
-                                ? Row(
-                                    children: [
-                                      Icon(
-                                        Icons.image,
-                                        color: const Color(0xff548235),
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          controller.boundaryImagePath.value!,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : const Text(
-                                    'No image selected',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                  )),
+                        Obx(() => controller.boundaryImagePath.value != null
+                            ? Row(
+                          children: [
+                            Icon(
+                              Icons.image,
+                              color: const Color(0xff548235),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                controller.boundaryImagePath.value!,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        )
+                            : const Text(
+                          'No image selected',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        )),
                       ),
                       const SizedBox(width: 16),
                       ElevatedButton.icon(
@@ -1471,27 +1444,27 @@ class OrchardFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Obx(() => DropdownButtonFormField<CropStage>(
-                  value: controller.cropStage.value,
-                  decoration: _getInputDecoration(
-                    'Select Crop Stage',
-                    prefixIcon: Icons.grass,
+              value: controller.cropStage.value,
+              decoration: _getInputDecoration(
+                'Select Crop Stage',
+                prefixIcon: Icons.grass,
+              ),
+              items: CropStage.values.map((stage) {
+                return DropdownMenuItem<CropStage>(
+                  value: stage,
+                  child: Text(
+                    stage
+                        .toString()
+                        .split('.')
+                        .last
+                        .replaceAll(RegExp(r'(?=[A-Z])'), ' ')
+                        .trim(),
+                    style: TextStyle(fontSize: 14),
                   ),
-                  items: CropStage.values.map((stage) {
-                    return DropdownMenuItem<CropStage>(
-                      value: stage,
-                      child: Text(
-                        stage
-                            .toString()
-                            .split('.')
-                            .last
-                            .replaceAll(RegExp(r'(?=[A-Z])'), ' ')
-                            .trim(),
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) => controller.cropStage.value = value!,
-                )),
+                );
+              }).toList(),
+              onChanged: (value) => controller.cropStage.value = value!,
+            )),
             const SizedBox(height: 16),
             TextFormField(
               controller: controller.boxesController,

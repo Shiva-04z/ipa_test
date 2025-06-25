@@ -467,7 +467,7 @@ class AadhatiView extends GetView<AadhatiController> {
           _buildDetailRow('Address', buyer.address),
         ],
         onEdit: () {},
-        onDelete: () => controller.removeAssociatedBuyer(buyer.id),
+        onDelete: () => controller.removeAssociatedBuyer(buyer.id!),
       ),
       child: Card(
         elevation: 0,

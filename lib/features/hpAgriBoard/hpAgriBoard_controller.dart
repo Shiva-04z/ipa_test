@@ -24,10 +24,10 @@ class HPAgriBoardController extends GetxController {
   // Sample HPMC Collection Center data
  Rx<HpmcCollectionCenter> sampleCollectionCenter = HpmcCollectionCenter(
     id: 'HPMC001',
-    contactName: 'Rajesh Kumar',
+    HPMCname: 'Rajesh Kumar',
     operatorName: 'Vikram Singh',
     cellNo: '9876543210',
-    adharNo: '123456789012',
+    aadharNo: '123456789012',
     licenseNo: 'HPMC2024001',
     operatingSince: "2015",
     location: 'Kotkhai, Shimla',

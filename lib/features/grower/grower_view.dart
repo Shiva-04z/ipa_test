@@ -836,7 +836,7 @@ class GrowerView extends GetView<GrowerController> {
               'Boxes Forwarded 2024', '${forwarder.appleBoxesForwarded2024}'),
         ],
         onEdit: () {},
-        onDelete: () => controller.removeFreightForwarder(forwarder.id),
+        onDelete: () => controller.removeFreightForwarder(forwarder.id!),
       ),
       child: Card(
         elevation: 0,
@@ -1699,18 +1699,18 @@ class GrowerView extends GetView<GrowerController> {
         item: depot,
         title: 'HPMC Depot Details',
         details: [
-          _buildDetailRow('Contact Name', depot.contactName),
-          _buildDetailRow('Operator', depot.operatorName),
-          _buildDetailRow('Phone', depot.cellNo),
-          _buildDetailRow('Location', depot.location),
-          _buildDetailRow('License No', depot.licenseNo),
-          _buildDetailRow('Operating Since', depot.operatingSince),
+          _buildDetailRow('Contact Name', depot.HPMCname!),
+          _buildDetailRow('Operator', depot.operatorName!),
+          _buildDetailRow('Phone', depot.cellNo!),
+          _buildDetailRow('Location', depot.location!),
+          _buildDetailRow('License No', depot.licenseNo!),
+          _buildDetailRow('Operating Since', depot.operatingSince!),
           _buildDetailRow('Boxes 2023', '${depot.boxesTransported2023}'),
           _buildDetailRow('Boxes 2024', '${depot.boxesTransported2024}'),
           _buildDetailRow('Target 2025', '${depot.target2025}'),
         ],
         onEdit: () {},
-        onDelete: () => controller.removeHpmc(depot.id),
+        onDelete: () => controller.removeHpmc(depot.id!),
       ),
       child: Card(
         elevation: 0,
@@ -1738,7 +1738,7 @@ class GrowerView extends GetView<GrowerController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  glb.getTranslatedText('${depot.contactName}'),
+                  glb.getTranslatedText('${depot.HPMCname}'),
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),

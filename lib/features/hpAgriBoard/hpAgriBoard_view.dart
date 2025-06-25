@@ -297,7 +297,7 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
                   children: [
                     _buildInfoRow(
                         'Contact Name',
-                        controller.sampleCollectionCenter.value.contactName ??
+                        controller.sampleCollectionCenter.value.HPMCname ??
                             'N/A'),
                     _buildInfoRow(
                         'Operator Name',
@@ -309,7 +309,7 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
                             'N/A'),
                     _buildInfoRow(
                         'Aadhar No.',
-                        controller.sampleCollectionCenter.value.adharNo ??
+                        controller.sampleCollectionCenter.value.aadharNo ??
                             'N/A'),
                     _buildInfoRow(
                         'License No.',

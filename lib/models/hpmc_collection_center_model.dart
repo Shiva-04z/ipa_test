@@ -5,17 +5,17 @@ import 'package:apple_grower/models/driving_profile_model.dart';
 import 'package:apple_grower/models/transport_model.dart';
 
 class HpmcCollectionCenter {
-  final String id;
-  final String contactName;
-  final String operatorName;
-  final String cellNo;
-  final String adharNo;
-  final String licenseNo;
-  final String operatingSince;
-  final String location;
-  final int boxesTransported2023;
-  final int boxesTransported2024;
-  final double target2025;
+  final String? id;
+  final String? HPMCname;
+  final String? operatorName;
+  final String? cellNo;
+  final String? aadharNo;
+  final String? licenseNo;
+  final String? operatingSince;
+  final String?  location;
+  final int? boxesTransported2023;
+  final int?  boxesTransported2024;
+  final double? target2025;
   final List<Grower> associatedGrowers;
   final List<Complaint> myComplaints;
   final List<PackHouse> associatedPackHouses;
@@ -23,17 +23,17 @@ class HpmcCollectionCenter {
   final List<Transport> associatedTransportUnions;
 
   HpmcCollectionCenter({
-    required this.id,
-    required this.contactName,
-    required this.operatorName,
-    required this.cellNo,
-    required this.adharNo,
-    required this.licenseNo,
-    required this.operatingSince,
-    required this.location,
-    required this.boxesTransported2023,
-    required this.boxesTransported2024,
-    required this.target2025,
+  this.id,
+ this.HPMCname,
+ this.operatorName,
+ this.cellNo,
+ this.aadharNo,
+   this.licenseNo,
+  this.operatingSince,
+  this.location,
+ this.boxesTransported2023,
+ this.boxesTransported2024,
+ this.target2025,
     this.associatedGrowers = const [],
     this.myComplaints = const [],
     this.associatedPackHouses = const [],
@@ -44,10 +44,10 @@ class HpmcCollectionCenter {
   factory HpmcCollectionCenter.fromJson(Map<String, dynamic> json) {
     return HpmcCollectionCenter(
       id: json['id'] as String,
-      contactName: json['contactName'] as String,
+      HPMCname: json['HPMCname'] as String,
       operatorName: json['operatorName'] as String,
       cellNo: json['cellNo'] as String,
-      adharNo: json['adharNo'] as String,
+      aadharNo: json['adharNo'] as String,
       licenseNo: json['licenseNo'] as String,
       operatingSince: json['operatingSince'] as String,
       location: json['location'] as String,
@@ -81,10 +81,10 @@ class HpmcCollectionCenter {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'contactName': contactName,
+      'HPMCname': HPMCname,
       'operatorName': operatorName,
       'cellNo': cellNo,
-      'adharNo': adharNo,
+      'adharNo': aadharNo,
       'licenseNo': licenseNo,
       'operatingSince': operatingSince,
       'location': location,
@@ -103,7 +103,7 @@ class HpmcCollectionCenter {
 
   HpmcCollectionCenter copyWith({
     String? id,
-    String? contactName,
+    String? HPMCname,
     String? operatorName,
     String? cellNo,
     String? adharNo,
@@ -121,10 +121,10 @@ class HpmcCollectionCenter {
   }) {
     return HpmcCollectionCenter(
       id: id ?? this.id,
-      contactName: contactName ?? this.contactName,
+      HPMCname: HPMCname ?? this.HPMCname,
       operatorName: operatorName ?? this.operatorName,
       cellNo: cellNo ?? this.cellNo,
-      adharNo: adharNo ?? this.adharNo,
+      aadharNo: adharNo ?? this.aadharNo,
       licenseNo: licenseNo ?? this.licenseNo,
       operatingSince: operatingSince ?? this.operatingSince,
       location: location ?? this.location,

@@ -3,7 +3,7 @@ import 'package:apple_grower/models/grower_model.dart';
 import 'package:apple_grower/models/aadhati.dart';
 
 class FreightForwarder {
-  final String id;
+  final String? id;
   final String name;
   final String contact;
   final String address;
@@ -25,7 +25,7 @@ class FreightForwarder {
   final DateTime? updatedAt;
 
   FreightForwarder({
-    required this.id,
+    this.id,
     required this.name,
     required this.contact,
     required this.address,

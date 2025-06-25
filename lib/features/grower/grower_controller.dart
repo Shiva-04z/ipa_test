@@ -184,6 +184,31 @@ class GrowerController extends GetxController {
     }
   }
 
+  updateGrowerTransport(String agentID) async {
+    final String apiUrl =
+        glb.url + '/api/growers/${glb.id.value}/add-transport-union';
+    print(apiUrl);
+
+    final Map<String, dynamic> updatePayload = {'transportUnionId': agentID};
+    try {
+      final response = await http.patch(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updatePayload),
+      );
+      if (response.statusCode == 200) {
+        print("Sucess");
+
+      } else {
+        Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update grower: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
   void updateCommissionAgent(Aadhati agent) {
     final index = commissionAgents.indexWhere((a) => a.id == agent.id);
     if (index != -1) {
@@ -367,8 +392,45 @@ class GrowerController extends GetxController {
   }
 
   void addTransportUnion(Transport union) {
-    transportUnions.add(union);
+    if(union.id ==null) {
+      createTransportunion(union);
+      }
+      else{
+        transportUnions.add(union);
+        updateGrowerTransport(union.id!);
+    }
   }
+
+  Future<void> createTransportunion(Transport union) async {
+    String apiUrl =
+        glb.url + '/api/transportunion/create'; // Use the correct endpoint for agents
+    try {
+      final Map<String, dynamic> body = {
+        'name': union.name,
+        'contact': union.contact,
+        'address' : union.address,
+      };
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        transportUnions.add(union);
+        print(data["_id"]);
+        updateGrowerTransport(data["_id"]);
+
+      } else {
+        Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to create agent: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
 
   void removeTransportUnion(String id) {
     transportUnions.removeWhere((union) => union.id == id);
@@ -376,7 +438,69 @@ class GrowerController extends GetxController {
 
   // Methods for managing freight forwarders
   void addFreightForwarder(FreightForwarder forwarder) {
-    freightForwarders.add(forwarder);
+    if(forwarder.id == null) {
+      createForwarder(forwarder);
+    }else{
+      updateGrowerForwarder(forwarder.id!);
+      freightForwarders.add(forwarder);
+    }
+
+  }
+
+  createForwarder( FreightForwarder forwarder) async
+  {
+    String apiUrl =
+        glb.url + '/api/freightforwarders/create'; // Use the correct endpoint for agents
+    try {
+      final Map<String, dynamic> body = {
+        'name': forwarder.name,
+        'contact': forwarder.contact,
+        'address' :forwarder.address,
+      };
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        freightForwarders.add(forwarder);
+        print(data["_id"]);
+        updateGrowerForwarder(data["_id"]);
+
+      } else {
+        Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to create agent: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+  updateGrowerForwarder(String agentID)
+  async {
+    final String apiUrl =
+        glb.url + '/api/growers/${glb.id.value}/add-freight-forwarder';
+    print(apiUrl);
+
+    final Map<String, dynamic> updatePayload = {'freightForwarderId': agentID};
+    try {
+      final response = await http.patch(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updatePayload),
+      );
+      if (response.statusCode == 200) {
+        print("Sucess");
+
+      } else {
+        Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update grower: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
   }
 
   void updateFreightForwarder(FreightForwarder forwarder) {
@@ -391,7 +515,77 @@ class GrowerController extends GetxController {
   }
 
   void addHpmc(HpmcCollectionCenter hpmc) {
-    hpmcDepots.add(hpmc);
+   if(hpmc.id==null)
+     {
+       createHpmc(hpmc);
+     }
+   else
+     {
+       hpmcDepots.add(hpmc);
+       updateGrowerHPMC(hpmc.id!);
+     }
+  }
+
+  createHpmc(HpmcCollectionCenter hpmc) async {
+    String apiUrl =
+        glb.url + '/api/hpmcDepot/create'; // Use the correct endpoint for agents
+    try {
+      final Map<String, dynamic> body = {
+        'hpmcname': hpmc.HPMCname,
+        'operatorname': hpmc.operatorName,
+        'cellNo': hpmc.cellNo,
+        'location': hpmc.location,
+      };
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+     ;
+     hpmcDepots.add(hpmc);
+        print(data["_id"]);
+        updateGrowerHPMC(data['_id']);
+
+        Get.snackbar('Success', 'Agent created successfully!',
+            snackPosition: SnackPosition.BOTTOM);
+      } else {
+        Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to create agent: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+
+  }
+
+  updateGrowerHPMC(String agentID)
+  async {
+    final String apiUrl =
+        glb.url + '/api/growers/${glb.id.value}/add-hpmc-depot';
+    print(apiUrl);
+
+    final Map<String, dynamic> updatePayload = {'hpmcDepotId': agentID};
+    try {
+      final response = await http.patch(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updatePayload),
+      );
+      if (response.statusCode == 200) {
+        print("Sucess");
+
+      } else {
+        Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update grower: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+
   }
 
   void removeHpmc(String id) {
