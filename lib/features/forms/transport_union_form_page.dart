@@ -11,6 +11,11 @@ import '../../models/transport_model.dart';
 import '../driver/driver_controller.dart';
 import '../grower/grower_controller.dart';
 import '../ladaniBuyers/ladaniBuyers_controller.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class TransportUnionFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -21,11 +26,34 @@ class TransportUnionFormController extends GetxController {
   final isLoading = false.obs;
   final isSearching = true.obs;
   final searchResults = <Transport>[].obs;
+  final availableUnions = <Transport>[].obs;
+  var exists;
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
-    searchResults.value = glb.availableTransports;
+    await loadData();
+  }
+
+  Future<void> loadData() async {
+    isLoading.value = true;
+    try {
+      final response =
+          await http.get(Uri.parse(glb.url + '/api/transportunions/nearby10'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        availableUnions.value =
+            data.map((e) => Transport.fromJson(e)).toList().cast<Transport>();
+        searchResults.value = availableUnions;
+      } else {
+        Get.snackbar('Error',
+            'Failed to load transport unions: \\${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load transport unions: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   @override
@@ -37,19 +65,78 @@ class TransportUnionFormController extends GetxController {
     super.onClose();
   }
 
-  void onSearchChanged(String query) {
+  Future<void> pickContact() async {
+    if (kIsWeb) {
+      Get.snackbar(
+        'Not Available',
+        'Contact picker is not available on web due to security restrictions. Please use the mobile app.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: Duration(seconds: 5),
+      );
+      return;
+    }
+    try {
+      final status = await Permission.contacts.request();
+      if (status.isGranted) {
+        final contact = await FlutterContacts.openExternalPick();
+        if (contact != null) {
+          nameController.text = contact.displayName;
+          if (contact.phones.isNotEmpty) {
+            String phoneNumber =
+                contact.phones.first.number.replaceAll(RegExp(r'[^\\d]'), '');
+            if (phoneNumber.length > 10) {
+              phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
+            }
+            phoneController.text = phoneNumber;
+          }
+        }
+      } else {
+        Get.snackbar(
+          'Permission Denied',
+          'Please grant contacts permission to use this feature',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick contact: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> onSearchChanged(String query) async {
     if (query.isEmpty) {
-      searchResults.value = glb.availableTransports;
-    } else {
-      searchResults.value = (glb.availableTransports).where((union) {
-        final name = union.nameOfTheTransportUnion?.toLowerCase();
-        final contact = union.contact.toLowerCase();
-        final address = union.address.toLowerCase();
-        final searchLower = query.toLowerCase();
-        return name!.contains(searchLower) ||
-            contact.contains(searchLower) ||
-            address.contains(searchLower);
-      }).toList();
+      searchResults.value = availableUnions;
+      return;
+    }
+    isLoading.value = true;
+    try {
+      final response = await http.get(
+        Uri.parse(glb.url +
+            '/api/transportunions/' +
+            Uri.encodeComponent(query) +
+            '/searchbyName'),
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        searchResults.value =
+            data.map((e) => Transport.fromJson(e)).toList().cast<Transport>();
+      } else {
+        Get.snackbar(
+            'Error', 'Failed to search unions: \\${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to search unions: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -71,11 +158,14 @@ class TransportUnionFormController extends GetxController {
                         .associatedTransportUnions
                         .any((existingDriver) => existingDriver.id == union.id)
                     : (glb.roleType.value == "Freight Forwarder")
-        ? Get.find<FreightForwarderController>()
-        .associatedTransportUnions
-        .any((existingDriver) => existingDriver.id == union.id): Get.find<LadaniBuyersController>()
-                        .associatedTransportUnions
-                        .any((existingDriver) => existingDriver.id == union.id);
+                        ? Get.find<FreightForwarderController>()
+                            .associatedTransportUnions
+                            .any((existingDriver) =>
+                                existingDriver.id == union.id)
+                        : Get.find<LadaniBuyersController>()
+                            .associatedTransportUnions
+                            .any((existingDriver) =>
+                                existingDriver.id == union.id);
 
     if (exists) {
       Get.snackbar(
@@ -96,12 +186,13 @@ class TransportUnionFormController extends GetxController {
                 ? Get.find<PackHouseController>()
                     .addAssociatedTransportUnion(union)
                 : (glb.roleType.value == "HPMC DEPOT")
-        ? Get.find<HPAgriBoardController>()
-        .addAssociatedTransportUnion(union)
-        :  (glb.roleType.value == "Freight Forwarder")
-        ? Get.find<FreightForwarderController>()
-        .addAssociatedTransportUnion(union): Get.find<LadaniBuyersController>()
-                    .addAssociatedTransportUnion(union);
+                    ? Get.find<HPAgriBoardController>()
+                        .addAssociatedTransportUnion(union)
+                    : (glb.roleType.value == "Freight Forwarder")
+                        ? Get.find<FreightForwarderController>()
+                            .addAssociatedTransportUnion(union)
+                        : Get.find<LadaniBuyersController>()
+                            .addAssociatedTransportUnion(union);
     Get.back();
   }
 
@@ -125,12 +216,14 @@ class TransportUnionFormController extends GetxController {
               : (glb.roleType.value == "PackHouse")
                   ? Get.find<PackHouseController>()
                       .addAssociatedTransportUnion(union)
-                  :(glb.roleType.value == "HPMC DEPOT")
-          ? Get.find<HPAgriBoardController>()
-          .addAssociatedTransportUnion(union): (glb.roleType.value == "Freight Forwarder")
-          ? Get.find<FreightForwarderController>()
-          .addAssociatedTransportUnion(union): Get.find<LadaniBuyersController>()
-                      .addAssociatedTransportUnion(union);
+                  : (glb.roleType.value == "HPMC DEPOT")
+                      ? Get.find<HPAgriBoardController>()
+                          .addAssociatedTransportUnion(union)
+                      : (glb.roleType.value == "Freight Forwarder")
+                          ? Get.find<FreightForwarderController>()
+                              .addAssociatedTransportUnion(union)
+                          : Get.find<LadaniBuyersController>()
+                              .addAssociatedTransportUnion(union);
       Get.back();
     } catch (e) {
       Get.snackbar(
@@ -261,143 +354,154 @@ class TransportUnionFormPage extends StatelessWidget {
   }
 
   Widget _buildSearchResults() {
-    return Obx(() => controller.searchResults.isEmpty
-        ? const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'No unions found',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return Container(
+          height: MediaQuery.of(Get.context!).size.height,
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      if (controller.searchResults.isEmpty) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'No unions found',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
               ),
             ),
-          )
-        : ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: controller.searchResults.length,
-            itemBuilder: (context, index) {
-              final union = controller.searchResults[index];
-              final exists = (glb.roleType.value == "Grower")
-                  ? Get.find<GrowerController>()
-                      .transportUnions
+          ),
+        );
+      }
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: controller.searchResults.length,
+        itemBuilder: (context, index) {
+          final union = controller.searchResults[index];
+          final exists = (glb.roleType.value == "Grower")
+              ? Get.find<GrowerController>()
+                  .transportUnions
+                  .any((existingDriver) => existingDriver.id == union.id)
+              : (glb.roleType.value == "Driver")
+                  ? Get.find<DriverController>()
+                      .associatedTransportUnions
                       .any((existingDriver) => existingDriver.id == union.id)
-                  : (glb.roleType.value == "Driver")
-                      ? Get.find<DriverController>()
+                  : (glb.roleType.value == "PackHouse")
+                      ? Get.find<PackHouseController>()
                           .associatedTransportUnions
                           .any(
                               (existingDriver) => existingDriver.id == union.id)
-                      : (glb.roleType.value == "PackHouse")
-                          ? Get.find<PackHouseController>()
+                      : (glb.roleType.value == "HPMC DEPOT")
+                          ? Get.find<HPAgriBoardController>()
                               .associatedTransportUnions
                               .any((existingDriver) =>
                                   existingDriver.id == union.id)
-                          :(glb.roleType.value == "HPMC DEPOT")
-                  ? Get.find<HPAgriBoardController>()
-                  .associatedTransportUnions
-                  .any((existingDriver) => existingDriver.id == union.id)
-                  : (glb.roleType.value == "Freight Forwarder")
-                  ? Get.find<FreightForwarderController>()
-                  .associatedTransportUnions
-                  .any((existingDriver) => existingDriver.id == union.id):  Get.find<LadaniBuyersController>()
-                              .associatedTransportUnions
-                              .any((existingDriver) =>
-                                  existingDriver.id == union.id);
+                          : (glb.roleType.value == "Freight Forwarder")
+                              ? Get.find<FreightForwarderController>()
+                                  .associatedTransportUnions
+                                  .any((existingDriver) =>
+                                      existingDriver.id == union.id)
+                              : Get.find<LadaniBuyersController>()
+                                  .associatedTransportUnions
+                                  .any((existingDriver) =>
+                                      existingDriver.id == union.id);
 
-              return Stack(
-                children: [
-                  Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: InkWell(
-                      onTap:
-                          exists ? null : () => controller.selectUnion(union),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Opacity(
-                        opacity: exists ? 0.7 : 1.0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+          return Stack(
+            children: [
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: InkWell(
+                  onTap: exists ? null : () => controller.selectUnion(union),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Opacity(
+                    opacity: exists ? 0.7 : 1.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.business,
-                                    color: Color(0xff548235),
-                                    size: 24,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          union.name,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Contact: ${union.contact}',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                              const Icon(
+                                Icons.business,
+                                color: Color(0xff548235),
+                                size: 24,
                               ),
-                              const SizedBox(height: 12),
-                              _buildInfoRow(
-                                Icons.location_on,
-                                'Address: ${union.address}',
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      union.name,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Contact: ${union.contact}',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          _buildInfoRow(
+                            Icons.location_on,
+                            'Address: ${union.address}',
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  if (exists)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(12),
-                            bottomLeft: Radius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'Already Added',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                ),
+              ),
+              if (exists)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
                       ),
                     ),
-                ],
-              );
-            },
-          ));
+                    child: const Text(
+                      'Already Added',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
@@ -460,23 +564,38 @@ class TransportUnionFormPage extends StatelessWidget {
                   value?.isEmpty ?? true ? 'Please enter union name' : null,
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.phoneController,
-              decoration: _getInputDecoration(
-                'Contact Number',
-                prefixIcon: Icons.phone,
-              ),
-              keyboardType: TextInputType.phone,
-              maxLength: 10,
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter contact number';
-                }
-                if (value!.length != 10) {
-                  return 'Contact number must be 10 digits';
-                }
-                return null;
-              },
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: controller.phoneController,
+                    decoration: _getInputDecoration(
+                      'Contact Number',
+                      prefixIcon: Icons.phone,
+                    ),
+                    keyboardType: TextInputType.phone,
+                    maxLength: 10,
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter contact number';
+                      }
+                      if (value!.length != 10) {
+                        return 'Contact number must be 10 digits';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: controller.pickContact,
+                  icon: const Icon(Icons.contacts),
+                  color: const Color(0xff548235),
+                  tooltip: kIsWeb
+                      ? 'Use mobile app to pick contacts'
+                      : 'Pick from contacts',
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             TextFormField(

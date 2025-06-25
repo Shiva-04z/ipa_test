@@ -145,7 +145,7 @@ class Bilty {
         category: 'Large',
         size: '>75mm-<80mm',
         piecesPerBox: 100,
-        avgWeight: 150,
+        avgWeight: 200,
         avgBoxWeight: 15,
         boxCount: 0,
         totalWeight: 0,

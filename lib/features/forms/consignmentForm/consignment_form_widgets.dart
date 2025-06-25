@@ -9,6 +9,17 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'bilty_download_service.dart';
 import 'dart:convert';
 
+class EditModeController extends GetxController {
+  final isEditing = false.obs;
+  void toggleEdit() => isEditing.value = !isEditing.value;
+  void setEditing(bool value) => isEditing.value = value;
+}
+
+class DetailsVisibilityController extends GetxController {
+  final showDetails = true.obs;
+  void toggle() => showDetails.value = !showDetails.value;
+}
+
 InputDecoration getInputDecoration(String label, {IconData? prefixIcon}) {
   return InputDecoration(
     labelText: label,
@@ -239,271 +250,356 @@ Color getQualityColor(String quality) {
 }
 
 Widget buildBiltyStepMobile(ConsignmentFormController controller) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      SizedBox(
-        height: 450,
-        child: SingleChildScrollView(
+  final editModeController = Get.put(EditModeController());
+  final detailsVisibilityController = Get.put(DetailsVisibilityController());
+  return SingleChildScrollView(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Obx(() => ElevatedButton.icon(
+                  icon: Icon(editModeController.isEditing.value
+                      ? Icons.save
+                      : Icons.edit),
+                  label: Text(
+                      editModeController.isEditing.value ? 'Save' : 'Edit'),
+                  onPressed: () {
+                    if (editModeController.isEditing.value) {
+                      // Save logic here if needed
+                      editModeController.setEditing(false);
+                    } else {
+                      editModeController.setEditing(true);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff548235),
+                    foregroundColor: Colors.white,
+                  ),
+                )),
+            const SizedBox(width: 12),
+            Obx(() => ElevatedButton.icon(
+                  icon: Icon(detailsVisibilityController.showDetails.value
+                      ? Icons.visibility_off
+                      : Icons.visibility),
+                  label: Text(detailsVisibilityController.showDetails.value
+                      ? 'Hide Details'
+                      : 'Show Details'),
+                  onPressed: detailsVisibilityController.toggle,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff548235),
+                    foregroundColor: Colors.white,
+                  ),
+                )),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Row(
-            children: controller.bilty.value?.categories.map((category) {
+          child: Obx(() {
+            final showDetails = detailsVisibilityController.showDetails.value;
+            final columns = [
+              DataColumn(
+                  label: Text('Quality',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Category',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              if (showDetails)
+                DataColumn(
+                    label: Text('Size',
+                        style: TextStyle(fontWeight: FontWeight.bold))),
+              if (showDetails)
+                DataColumn(
+                    label: Text('Pieces/Box',
+                        style: TextStyle(fontWeight: FontWeight.bold))),
+              if (showDetails)
+                DataColumn(
+                    label: Text('Avg Weight pp(g)',
+                        style: TextStyle(fontWeight: FontWeight.bold))),
+              if (showDetails)
+                DataColumn(
+                    label: Text('Box Weight (kg)',
+                        style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Box Count',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Total Weight (Kg)',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(
+                  label: Text('Image',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+            ];
+            final rows = controller.bilty.value?.categories.map((category) {
                   final key = controller.getUniqueKey(
                       category.quality, category.category);
                   final qualityColor = getQualityColor(category.quality);
                   final isPearCategory = category.quality == 'Mix/Pear' &&
                       category.category == 'Pear';
-
-                  return Container(
-                    width: 300,
-                    margin: EdgeInsets.symmetric(vertical: 8),
-                    child: Card(
-                      elevation: 4,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: qualityColor,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${category.quality} - ${category.category}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 16),
-                              _buildInfoRow('Size', category.size),
-                              _buildInfoRow(
-                                'Pieces/Box',
-                                isPearCategory
-                                    ? _buildEditableField(
-                                        controller,
-                                        category.quality,
-                                        category.category,
-                                        'piecesPerBox',
-                                        category.piecesPerBox.toString(),
-                                      )
-                                    : category.piecesPerBox.toString(),
-                              ),
-                              _buildInfoRow(
-                                'Avg Weight (g)',
-                                _buildEditableField(
-                                  controller,
-                                  category.quality,
-                                  category.category,
-                                  'avgWeight',
-                                  controller.avgWeightControllers[key]?.text ??
-                                      '0',
-                                ),
-                              ),
-                              _buildInfoRow(
-                                'Box Count',
-                                _buildEditableField(
-                                  controller,
-                                  category.quality,
-                                  category.category,
-                                  'boxCount',
-                                  controller.boxCountControllers[key]?.text ??
-                                      '0',
-                                ),
-                              ),
-                              _buildInfoRow(
-                                'Box Weight (kg)',
-                                controller.avgBoxWeights[key]?.value
-                                        .toStringAsFixed(2) ??
-                                    '0.00',
-                              ),
-                              _buildInfoRow(
-                                'Total Weight (kg)',
-                                controller.totalWeights[key]?.value
-                                        .toStringAsFixed(2) ??
-                                    '0.00',
-                              ),
-                              SizedBox(height: 16),
-                              _buildImagePreview(
+                  return DataRow(
+                    color: MaterialStateProperty.all(qualityColor),
+                    cells: [
+                      DataCell(Text(category.quality,
+                          style: TextStyle(color: Colors.white))),
+                      DataCell(Text(category.category,
+                          style: TextStyle(color: Colors.white))),
+                      if (showDetails)
+                        DataCell(Text(category.size,
+                            style: TextStyle(color: Colors.white))),
+                      if (showDetails)
+                        DataCell(isPearCategory
+                            ? _buildEditableCell(
                                 controller,
                                 category.quality,
                                 category.category,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                                'piecesPerBox',
+                                category.piecesPerBox.toString())
+                            : Text(category.piecesPerBox.toString(),
+                                style: TextStyle(color: Colors.white))),
+                      if (showDetails)
+                        DataCell(Text(
+                            controller.avgWeightControllers[key]?.text ?? '0',
+                            style: TextStyle(color: Colors.white))),
+                      if (showDetails)
+                        DataCell(Text(
+                            controller.avgBoxWeights[key]?.value
+                                    .toStringAsFixed(2) ??
+                                '0.00',
+                            style: TextStyle(color: Colors.white))),
+                      DataCell(_buildEditableCell(
+                          controller,
+                          category.quality,
+                          category.category,
+                          'boxCount',
+                          controller.boxCountControllers[key]?.text ?? '0')),
+                      DataCell(Text(
+                        ((int.tryParse(controller
+                                            .boxCountControllers[key]?.text ??
+                                        '0') ??
+                                    0) *
+                                (controller.avgBoxWeights[key]?.value ?? 0))
+                            .toStringAsFixed(2),
+                        style: TextStyle(color: Colors.white),
+                      )),
+                      DataCell(_buildImageCell(
+                          controller, category.quality, category.category)),
+                    ],
                   );
                 }).toList() ??
-                [],
+                [];
+            return DataTable(
+              columnSpacing: 16,
+              horizontalMargin: 16,
+              headingRowColor: MaterialStateProperty.all(Colors.grey.shade200),
+              columns: columns,
+              rows: rows,
+            );
+          }),
+        ),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton.icon(
+                  onPressed: controller.isDownloading.value
+                      ? null
+                      : () async {
+                          controller.isDownloading.value = true;
+                          try {
+                            await BiltyDownloadService.downloadBiltyAsCSV(
+                                controller);
+                          } finally {
+                            controller.isDownloading.value = false;
+                          }
+                        },
+                  icon: controller.isDownloading.value
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Icon(Icons.download),
+                  label: Text(controller.isDownloading.value
+                      ? 'Downloading...'
+                      : 'Download Bilty'),
+                  style: ElevatedButton.styleFrom(
+                    shape: ContinuousRectangleBorder(),
+                    backgroundColor: Color(0xff548235),
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              Text(
+                'Summary',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff548235),
+                ),
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Total Boxes',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          controller.totalTableBoxes.value.toString(),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Total Weight',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          '${controller.totalTableWeight.value.toStringAsFixed(2)} kg',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-      ),
-      Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton.icon(
-                onPressed: controller.isDownloading.value
-                    ? null
-                    : () async {
-                        controller.isDownloading.value = true;
-                        try {
-                          await BiltyDownloadService.downloadBiltyAsCSV(
-                              controller);
-                        } finally {
-                          controller.isDownloading.value = false;
-                        }
-                      },
-                icon: controller.isDownloading.value
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : Icon(Icons.download),
-                label: Text(controller.isDownloading.value
-                    ? 'Downloading...'
-                    : 'Download Bilty'),
-                style: ElevatedButton.styleFrom(
-                  shape: ContinuousRectangleBorder(),
-                  backgroundColor: Color(0xff548235),
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ),
-            Text(
-              'Summary',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Total Boxes',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        controller.totalTableBoxes.value.toString(),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Total Weight',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '${controller.totalTableWeight.value.toStringAsFixed(2)} kg',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 
 Widget buildBiltyStepDesktop(ConsignmentFormController controller) {
+  final editModeController = Get.put(EditModeController());
+  final detailsVisibilityController = Get.put(DetailsVisibilityController());
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
+      Row(
+        children: [
+          Obx(() => ElevatedButton.icon(
+                icon: Icon(editModeController.isEditing.value
+                    ? Icons.save
+                    : Icons.edit),
+                label:
+                    Text(editModeController.isEditing.value ? 'Save' : 'Edit'),
+                onPressed: () {
+                  if (editModeController.isEditing.value) {
+                    // Save logic here if needed
+                    editModeController.setEditing(false);
+                  } else {
+                    editModeController.setEditing(true);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xff548235),
+                  foregroundColor: Colors.white,
+                ),
+              )),
+          const SizedBox(width: 12),
+          Obx(() => ElevatedButton.icon(
+                icon: Icon(detailsVisibilityController.showDetails.value
+                    ? Icons.visibility_off
+                    : Icons.visibility),
+                label: Text(detailsVisibilityController.showDetails.value
+                    ? 'Hide Details'
+                    : 'Show Details'),
+                onPressed: detailsVisibilityController.toggle,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xff548235),
+                  foregroundColor: Colors.white,
+                ),
+              )),
+        ],
+      ),
       SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columnSpacing: 16,
-          horizontalMargin: 16,
-          headingRowColor: MaterialStateProperty.all(Colors.grey.shade200),
-          columns: [
+        child: Obx(() {
+          final showDetails = detailsVisibilityController.showDetails.value;
+          final columns = [
             DataColumn(
                 label: Text('Quality',
                     style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(
                 label: Text('Category',
                     style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Size',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Pieces/Box',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Avg Weight (g)',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
+            if (showDetails)
+              DataColumn(
+                  label: Text('Size',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+            if (showDetails)
+              DataColumn(
+                  label: Text('Pieces/Box',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+            if (showDetails)
+              DataColumn(
+                  label: Text('Avg Weight pp(g)',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+            if (showDetails)
+              DataColumn(
+                  label: Text('Box Weight (kg)',
+                      style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(
                 label: Text('Box Count',
                     style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(
-                label: Text('Box Weight (kg)',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Total Weight (kg)',
+                label: Text('Total Weight (Kg)',
                     style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(
                 label: Text('Image',
                     style: TextStyle(fontWeight: FontWeight.bold))),
-          ],
-          rows: controller.bilty.value?.categories.map((category) {
+          ];
+          final rows = controller.bilty.value?.categories.map((category) {
                 final key = controller.getUniqueKey(
                     category.quality, category.category);
                 final qualityColor = getQualityColor(category.quality);
                 final isPearCategory = category.quality == 'Mix/Pear' &&
                     category.category == 'Pear';
-
                 return DataRow(
                   color: MaterialStateProperty.all(qualityColor),
                   cells: [
@@ -511,54 +607,58 @@ Widget buildBiltyStepDesktop(ConsignmentFormController controller) {
                         style: TextStyle(color: Colors.white))),
                     DataCell(Text(category.category,
                         style: TextStyle(color: Colors.white))),
-                    DataCell(Text(category.size,
-                        style: TextStyle(color: Colors.white))),
-                    DataCell(
-                      isPearCategory
+                    if (showDetails)
+                      DataCell(Text(category.size,
+                          style: TextStyle(color: Colors.white))),
+                    if (showDetails)
+                      DataCell(isPearCategory
                           ? _buildEditableCell(
                               controller,
                               category.quality,
                               category.category,
                               'piecesPerBox',
-                              category.piecesPerBox.toString(),
-                            )
+                              category.piecesPerBox.toString())
                           : Text(category.piecesPerBox.toString(),
-                              style: TextStyle(color: Colors.white)),
-                    ),
+                              style: TextStyle(color: Colors.white))),
+                    if (showDetails)
+                      DataCell(Text(
+                          controller.avgWeightControllers[key]?.text ?? '0',
+                          style: TextStyle(color: Colors.white))),
+                    if (showDetails)
+                      DataCell(Text(
+                          controller.avgBoxWeights[key]?.value
+                                  .toStringAsFixed(2) ??
+                              '0.00',
+                          style: TextStyle(color: Colors.white))),
                     DataCell(_buildEditableCell(
-                      controller,
-                      category.quality,
-                      category.category,
-                      'avgWeight',
-                      controller.avgWeightControllers[key]?.text ?? '0',
-                    )),
-                    DataCell(_buildEditableCell(
-                      controller,
-                      category.quality,
-                      category.category,
-                      'boxCount',
-                      controller.boxCountControllers[key]?.text ?? '0',
-                    )),
+                        controller,
+                        category.quality,
+                        category.category,
+                        'boxCount',
+                        controller.boxCountControllers[key]?.text ?? '0')),
                     DataCell(Text(
-                      controller.avgBoxWeights[key]?.value.toStringAsFixed(2) ??
-                          '0.00',
-                      style: TextStyle(color: Colors.white),
-                    )),
-                    DataCell(Text(
-                      controller.totalWeights[key]?.value.toStringAsFixed(2) ??
-                          '0.00',
+                      ((int.tryParse(controller
+                                          .boxCountControllers[key]?.text ??
+                                      '0') ??
+                                  0) *
+                              (controller.avgBoxWeights[key]?.value ?? 0))
+                          .toStringAsFixed(2),
                       style: TextStyle(color: Colors.white),
                     )),
                     DataCell(_buildImageCell(
-                      controller,
-                      category.quality,
-                      category.category,
-                    )),
+                        controller, category.quality, category.category)),
                   ],
                 );
               }).toList() ??
-              [],
-        ),
+              [];
+          return DataTable(
+            columnSpacing: 16,
+            horizontalMargin: 16,
+            headingRowColor: MaterialStateProperty.all(Colors.grey.shade200),
+            columns: columns,
+            rows: rows,
+          );
+        }),
       ),
       Padding(
         padding: const EdgeInsets.all(8.0),
@@ -717,69 +817,33 @@ Widget _buildEditableField(
   String fieldType,
   String value,
 ) {
-  final isEditing = controller.isFieldEditing(quality, category, fieldType);
   final key = controller.getUniqueKey(quality, category);
-
+  final isEditing = Get.find<EditModeController>().isEditing.value;
+  final isBoxCount = fieldType == 'boxCount';
   return Container(
     width: 100,
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Expanded(
-          child: isEditing
-              ? TextField(
-                  controller: fieldType == 'avgWeight'
-                      ? controller.avgWeightControllers[key]
-                      : fieldType == 'boxCount'
-                          ? controller.boxCountControllers[key]
-                          : controller.piecesPerBoxControllers[key],
-                  keyboardType: fieldType == 'avgWeight'
-                      ? TextInputType.numberWithOptions(decimal: true)
-                      : TextInputType.number,
-                  maxLength: fieldType == 'boxCount' ? 3 : null,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8),
-                    border: InputBorder.none,
-                    counterText: '',
-                    hintText: 'Enter value',
-                    hintStyle: TextStyle(color: Colors.white70),
-                  ),
-                  onChanged: (value) {
-                    if (fieldType == 'avgWeight') {
-                      controller.updateAvgWeight(quality, category, value);
-                    } else if (fieldType == 'boxCount') {
-                      controller.updateBoxCount(quality, category, value);
-                    } else if (fieldType == 'piecesPerBox') {
-                      controller.updatePiecesPerBox(quality, category, value);
-                    }
-                  },
-                  onSubmitted: (_) {
-                    controller.clearEditingField();
-                  },
-                )
-              : Text(
-                  value,
-                  style: TextStyle(color: Colors.white),
-                ),
-        ),
-        IconButton(
-          icon: Icon(
-            isEditing ? Icons.check : Icons.edit,
-            size: 20,
-            color: Colors.white70,
+    child: isBoxCount && isEditing
+        ? TextField(
+            controller: controller.boxCountControllers[key],
+            keyboardType: TextInputType.number,
+            maxLength: 3,
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: EdgeInsets.symmetric(vertical: 8),
+              border: InputBorder.none,
+              counterText: '',
+              hintText: 'Enter value',
+              hintStyle: TextStyle(color: Colors.white70),
+            ),
+            onChanged: (value) {
+              controller.updateBoxCount(quality, category, value);
+            },
+          )
+        : Text(
+            value,
+            style: TextStyle(color: Colors.white),
           ),
-          onPressed: () {
-            if (isEditing) {
-              controller.clearEditingField();
-            } else {
-              controller.setEditingField(quality, category, fieldType);
-            }
-          },
-        ),
-      ],
-    ),
   );
 }
 
@@ -919,87 +983,39 @@ Widget _buildEditableCell(
   String fieldType,
   String value,
 ) {
-  final isEditing = controller.isFieldEditing(quality, category, fieldType);
   final key = controller.getUniqueKey(quality, category);
+  final isEditing = Get.find<EditModeController>().isEditing.value;
+  final isBoxCount = fieldType == 'boxCount';
   final qualityColor = getQualityColor(quality);
-
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 8),
     decoration: BoxDecoration(
       border: Border.all(
-        color: isEditing ? Colors.white : Colors.grey.shade300,
-        width: isEditing ? 2 : 1,
+        color: isBoxCount && isEditing ? Colors.white : Colors.grey.shade300,
+        width: isBoxCount && isEditing ? 2 : 1,
       ),
       borderRadius: BorderRadius.circular(4),
     ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Expanded(
-          child: isEditing
-              ? TextField(
-                  controller: fieldType == 'avgWeight'
-                      ? controller.avgWeightControllers[key]
-                      : fieldType == 'boxCount'
-                          ? controller.boxCountControllers[key]
-                          : controller.piecesPerBoxControllers[key],
-                  keyboardType: fieldType == 'avgWeight'
-                      ? TextInputType.numberWithOptions(decimal: true)
-                      : TextInputType.number,
-                  maxLength: fieldType == 'boxCount' ? 3 : null,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8),
-                    border: InputBorder.none,
-                    counterText: '',
-                  ),
-                  onChanged: (value) {
-                    if (fieldType == 'avgWeight') {
-                      controller.updateAvgWeight(quality, category, value);
-                    } else if (fieldType == 'boxCount') {
-                      controller.updateBoxCount(quality, category, value);
-                    } else if (fieldType == 'piecesPerBox') {
-                      controller.updatePiecesPerBox(quality, category, value);
-                    }
-                  },
-                  enableInteractiveSelection: false,
-                  enableIMEPersonalizedLearning: false,
-                  onTap: () {
-                    final textController = fieldType == 'avgWeight'
-                        ? controller.avgWeightControllers[key]
-                        : fieldType == 'boxCount'
-                            ? controller.boxCountControllers[key]
-                            : controller.piecesPerBoxControllers[key];
-                    if (textController != null) {
-                      textController.selection = TextSelection.fromPosition(
-                        TextPosition(offset: textController.text.length),
-                      );
-                    }
-                  },
-                )
-              : Text(
-                  value,
-                  style: TextStyle(color: Colors.white),
-                  selectionColor: Colors.transparent,
-                ),
-        ),
-        IconButton(
-          icon: Icon(
-            isEditing ? Icons.check : Icons.edit,
-            size: 20,
-            color: isEditing ? Colors.white : Colors.white70,
+    child: isBoxCount && isEditing
+        ? TextField(
+            controller: controller.boxCountControllers[key],
+            keyboardType: TextInputType.number,
+            maxLength: 3,
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: EdgeInsets.symmetric(vertical: 8),
+              border: InputBorder.none,
+              counterText: '',
+            ),
+            onChanged: (value) {
+              controller.updateBoxCount(quality, category, value);
+            },
+          )
+        : Text(
+            value,
+            style: TextStyle(color: Colors.white),
           ),
-          onPressed: () {
-            if (isEditing) {
-              controller.clearEditingField();
-            } else {
-              controller.setEditingField(quality, category, fieldType);
-            }
-          },
-        ),
-      ],
-    ),
   );
 }
 
