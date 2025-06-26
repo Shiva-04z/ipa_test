@@ -12,7 +12,7 @@ import '../../models/hpmc_collection_center_model.dart';
 import '../../models/pack_house_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/transport_model.dart';
-import'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../models/freightForwarder.dart';
 import '../forms/commission_agent_form_page.dart';
 import '../forms/consignmentForm/consignment_form_page.dart';
@@ -1214,7 +1214,11 @@ class GrowerView extends GetView<GrowerController> {
       child: Obx(() => GridView.count(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            crossAxisCount: isSmallScreen ? 7 : isMediumScreen? 4 : 3,
+            crossAxisCount: isSmallScreen
+                ? 7
+                : isMediumScreen
+                    ? 4
+                    : 3,
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
             children: [

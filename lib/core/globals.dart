@@ -27,7 +27,7 @@ RxString personPost = "247001".obs;
 RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
-RxString url="https://9cc6-2401-4900-1ca3-a510-dd24-3168-83fc-70ad.ngrok-free.app".obs;
+RxString url="https://14b3-2401-4900-1ca3-a510-dd24-3168-83fc-70ad.ngrok-free.app".obs;
 
 
 RxString id = "685a4b98188724f04ee3abdb".obs;

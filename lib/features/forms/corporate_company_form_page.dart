@@ -82,14 +82,18 @@ class CorporateCompanyFormController extends GetxController {
       if (status.isGranted) {
         final contact = await FlutterContacts.openExternalPick();
         if (contact != null) {
+          print('Picked contact: ' + contact.toString());
+          print('Contact phones: ' + contact.phones.toString());
           nameController.text = contact.displayName;
           if (contact.phones.isNotEmpty) {
             String phoneNumber =
-                contact.phones.first.number.replaceAll(RegExp(r'[^\\d]'), '');
+                contact.phones.first.number.replaceAll(RegExp(r'[^\d]'), '');
             if (phoneNumber.length > 10) {
               phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
             }
             phoneController.text = phoneNumber;
+          } else {
+            print('No phone numbers found for this contact.');
           }
         }
       } else {
@@ -336,28 +340,36 @@ class CorporateCompanyFormPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Select or Create Ladani/Buyers',
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff548235),
+                Expanded(
+                  child: Text(
+                    'Select or Create Ladani/Buyers',
+                    style: TextStyle(
+                      fontSize:
+                          MediaQuery.of(context).size.width > 400 ? 20 : 14,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
+                      color: Color(0xff548235),
+                    ),
                   ),
                 ),
-                Obx(() => TextButton.icon(
-                      onPressed: () => controller.isSearching.value =
-                          !controller.isSearching.value,
-                      icon: Icon(
-                        controller.isSearching.value ? Icons.add : Icons.search,
-                        color: const Color(0xff548235),
-                      ),
-                      label: Text(
-                        controller.isSearching.value
-                            ? 'Create New'
-                            : 'Search Existing',
-                        style: const TextStyle(color: Color(0xff548235)),
-                      ),
-                    )),
+                Expanded(
+                  child: Obx(() => TextButton.icon(
+                        onPressed: () => controller.isSearching.value =
+                            !controller.isSearching.value,
+                        icon: Icon(
+                          controller.isSearching.value
+                              ? Icons.add
+                              : Icons.search,
+                          color: const Color(0xff548235),
+                        ),
+                        label: Text(
+                          controller.isSearching.value
+                              ? 'Create New'
+                              : 'Search Existing',
+                          style: const TextStyle(color: Color(0xff548235)),
+                        ),
+                      )),
+                ),
               ],
             ),
             const SizedBox(height: 16),

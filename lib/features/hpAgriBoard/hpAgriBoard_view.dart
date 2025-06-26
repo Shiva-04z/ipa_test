@@ -446,11 +446,11 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
         details: [
           _buildDetailRow('Name', grower.name),
           _buildDetailRow('Phone', grower.phoneNumber),
-          _buildDetailRow('Address', grower.address),
+          _buildDetailRow('Address', grower.address!),
           _buildDetailRow('Orchards', grower.orchards.length.toString()),
         ],
         onEdit: () {},
-        onDelete: () => controller.removeAssociatedGrower(grower.id),
+        onDelete: () => controller.removeAssociatedGrower(grower.id!),
       ),
       child: Card(
         elevation: 0,
@@ -481,7 +481,7 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  grower.address,
+                  grower.address!,
                   style: TextStyle(fontSize: 12, color: Colors.blue),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
