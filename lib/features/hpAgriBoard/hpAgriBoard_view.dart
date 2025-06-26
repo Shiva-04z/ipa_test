@@ -923,7 +923,7 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
               'Number of Crates', packHouse.numberOfCrates.toString()),
         ],
         onEdit: () {},
-        onDelete: () => controller.removeAssociatedPackHouse(packHouse.id),
+        onDelete: () => controller.removeAssociatedPackHouse(packHouse.id!),
       ),
       child: Card(
         elevation: 0,

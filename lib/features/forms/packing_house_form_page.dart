@@ -110,7 +110,7 @@ class PackingHouseFormController extends GetxController {
         final List<dynamic> data = json.decode(response.body);
         availablePackHouses.value = data
             .map((e) => PackHouse(
-                  id: e['id']?.toString() ?? '',
+                  id: e['_id']?.toString() ?? '',
                   name: e['name'] ?? '',
                   phoneNumber: e['phoneNumber'] ?? '',
                   address: e['address'] ?? '',
@@ -149,7 +149,7 @@ class PackingHouseFormController extends GetxController {
         final List<dynamic> data = json.decode(response.body);
         searchResults.value = data
             .map((e) => PackHouse(
-                  id: e['id']?.toString() ?? '',
+                  id: e['_id']?.toString() ?? '',
                   name: e['name'] ?? '',
                   phoneNumber: e['phoneNumber'] ?? '',
                   address: e['address'] ?? '',
@@ -221,7 +221,6 @@ class PackingHouseFormController extends GetxController {
 
     try {
       final house = PackHouse(
-        id: "null",
         name: nameController.text,
         phoneNumber: phoneController.text,
         address: addressController.text,

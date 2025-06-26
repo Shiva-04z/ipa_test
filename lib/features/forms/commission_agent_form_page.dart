@@ -57,7 +57,7 @@ class CommissionAgentFormController extends GetxController {
         final List<dynamic> data = json.decode(response.body);
         availableAadhatis.value = data
             .map((e) => Aadhati(
-                  id: e['id']?.toString(),
+                  id: e['_id']?.toString(),
                   name: e['name'],
                   contact: e['contact'],
                   apmc: e['apmc'],
@@ -172,7 +172,7 @@ class CommissionAgentFormController extends GetxController {
         final List<dynamic> data = json.decode(response.body);
         searchResults.value = data
             .map((e) => Aadhati(
-                  id: e['id']?.toString(),
+                  id: e['_id']?.toString(),
                   name: e['name'],
                   contact: e['contact'],
                   apmc: e['apmc'],

@@ -1186,7 +1186,7 @@ class PackHouseView extends GetView<PackHouseController> {
           _buildDetailRow('Phone', packer.phoneNumber ?? 'N/A'),
         ],
         onEdit: () {},
-        onDelete: () => controller.removeAssociatedPacker(packer.id),
+        onDelete: () => controller.removeAssociatedPacker(packer.id!),
       ),
       child: Card(
         elevation: 0,
