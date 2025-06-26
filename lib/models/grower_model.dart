@@ -9,12 +9,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Grower {
-  final String id;
+  final String? id;
   final String name;
-  final String aadharNumber;
+  final String? aadharNumber;
   final String phoneNumber;
-  final String address;
-  final String pinCode;
+  final String? address;
+  final String? pinCode;
   final List<Orchard> orchards;
   final List<Aadhati> commissionAgents;
   final List<Ladani> corporateCompanies;
@@ -23,26 +23,26 @@ class Grower {
   final List<Complaint> myComplaints;
   final List<String> galleryImages;
   final List<HpmcCollectionCenter> collectionCenter;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   const Grower({
-    required this.id,
-    required this.aadharNumber,
+ this.id,
+this.aadharNumber,
     required this.name,
     required this.phoneNumber,
-    required this.address,
-    required this.pinCode,
+this.address,
+ this.pinCode,
     this.orchards = const [],
     this.commissionAgents = const [],
     this.corporateCompanies = const [],
     this.consignments = const [],
     this.collectionCenter = const [],
-    required this.packingHouses,
+     this.packingHouses =const [],
     this.myComplaints = const [],
     this.galleryImages = const [],
-    required this.createdAt,
-    required this.updatedAt,
+ this.createdAt,
+     this.updatedAt,
   });
 
   factory Grower.fromJson(Map<String, dynamic> json) {
@@ -107,8 +107,8 @@ class Grower {
       'myComplaints': myComplaints.map((e) => e.toJson()).toList(),
       'galleryImages': galleryImages,
       'collectionCenter': collectionCenter,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 

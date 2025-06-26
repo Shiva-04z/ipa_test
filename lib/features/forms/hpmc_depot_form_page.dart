@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../../core/global_role_loader.dart' as gld;
 import '../../core/globals.dart' as glb;
@@ -27,11 +29,12 @@ class HpmcDepotFormController extends GetxController {
   final isLoading = false.obs;
   final isSearching = true.obs;
   final searchResults = <HpmcCollectionCenter>[].obs;
+  final availableHpmcDepots = <HpmcCollectionCenter>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = glb.availableHpmcDepots;
+    loadData();
   }
 
   @override
@@ -50,20 +53,64 @@ class HpmcDepotFormController extends GetxController {
     super.onClose();
   }
 
-  void onSearchChanged(String query) {
-    if (query.isEmpty) {
-      searchResults.value = glb.availableHpmcDepots;
-    } else {
-      searchResults.value = glb.availableHpmcDepots.where((depot) {
-        final contactName = depot.contactName.toLowerCase();
-        final operatorName = depot.operatorName.toLowerCase();
-        final location = depot.location.toLowerCase();
-        final searchLower = query.toLowerCase();
+  Future<void> loadData() async {
+    isLoading.value = true;
+    try {
+      final response =
+          await http.get(Uri.parse('${glb.url}/api/hpmcdepot/nearby10'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        availableHpmcDepots.value = data
+            .map((e) => HpmcCollectionCenter(
+          id: e['id']?.toString() ?? '',
+          location: e['location'],
+          HPMCname: e['hpmcName'] ?? '',
+          operatorName: e['operatorName'] ?? '',
+          cellNo: e['cellNo'] ?? '',
+        ))
+            .toList()
+            .cast<HpmcCollectionCenter>();
+        searchResults.value = availableHpmcDepots;
+      } else {
+        Get.snackbar(
+            'Error', 'Failed to load HPMC depots: \\${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load HPMC depots: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
-        return contactName.contains(searchLower) ||
-            operatorName.contains(searchLower) ||
-            location.contains(searchLower);
-      }).toList();
+  Future<void> onSearchChanged(String query) async {
+    if (query.isEmpty) {
+      searchResults.value = availableHpmcDepots;
+      return;
+    }
+    isLoading.value = true;
+    try {
+      final response = await http.get(Uri.parse(
+          '${glb.url}/api/hpmcdepot/${Uri.encodeComponent(query)}/searchbyName'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        searchResults.value = data
+            .map((e) => HpmcCollectionCenter(
+                  id: e['id']?.toString() ?? '',
+                  location: e['location'],
+                  HPMCname: e['hpmcName'] ?? '',
+                  operatorName: e['operatorName'] ?? '',
+                  cellNo: e['cellNo'] ?? '',
+                ))
+            .toList()
+            .cast<HpmcCollectionCenter>();
+      } else {
+        Get.snackbar(
+            'Error', 'Failed to search HPMC depots: \\${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to search HPMC depots: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -85,7 +132,7 @@ class HpmcDepotFormController extends GetxController {
       if (status.isGranted) {
         final contact = await FlutterContacts.openExternalPick();
         if (contact != null) {
-          contactNameController.text = contact.displayName;
+          operatorNameController.text = contact.displayName;
           if (contact.phones.isNotEmpty) {
             String phoneNumber =
                 contact.phones.first.number.replaceAll(RegExp(r'[^\d]'), '');
@@ -116,14 +163,7 @@ class HpmcDepotFormController extends GetxController {
   }
 
   void selectDepot(HpmcCollectionCenter depot) {
-    final exists = (glb.roleType.value == "Grower")
-        ? Get.find<GrowerController>().hpmcDepots.any(
-              (existingDepot) => existingDepot.id == depot.id,
-            )
-        : Get.find<PackHouseController>().hpmcDepots.any(
-              (existingDepot) => existingDepot.id == depot.id,
-            );
-
+    final exists = _checkDepotExists(depot);
     if (exists) {
       Get.snackbar(
         'Depot Already Added',
@@ -134,12 +174,31 @@ class HpmcDepotFormController extends GetxController {
       );
       return;
     }
-
-    (glb.roleType.value == "Grower")
-        ? Get.find<GrowerController>().addHpmc(depot)
-        : Get.find<PackHouseController>().addHpmc(depot);
-
+    _addDepotBasedOnRole(depot);
     Get.back();
+  }
+
+  bool _checkDepotExists(HpmcCollectionCenter depot) {
+    switch (glb.roleType.value) {
+      case "Grower":
+        return Get.find<GrowerController>()
+            .hpmcDepots
+            .any((d) => d.id == depot.id);
+      default:
+        return Get.find<PackHouseController>()
+            .hpmcDepots
+            .any((d) => d.id == depot.id);
+    }
+  }
+
+  void _addDepotBasedOnRole(HpmcCollectionCenter depot) {
+    switch (glb.roleType.value) {
+      case "Grower":
+        Get.find<GrowerController>().addHpmc(depot);
+        break;
+      default:
+        Get.find<PackHouseController>().addHpmc(depot);
+    }
   }
 
   void submitForm() {
@@ -149,23 +208,13 @@ class HpmcDepotFormController extends GetxController {
 
     try {
       final depot = HpmcCollectionCenter(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        contactName: contactNameController.text,
+
+        HPMCname: contactNameController.text,
         operatorName: operatorNameController.text,
         cellNo: cellNoController.text,
-        adharNo: adharNoController.text,
-        licenseNo: licenseNoController.text,
-        operatingSince: operatingSinceController.text,
         location: locationController.text,
-        boxesTransported2023: int.tryParse(boxes2023Controller.text) ?? 0,
-        boxesTransported2024: int.tryParse(boxes2024Controller.text) ?? 0,
-        target2025: double.tryParse(target2025Controller.text) ?? 0.0,
       );
-
-      (glb.roleType.value == "Grower")
-          ? Get.find<GrowerController>().addHpmc(depot)
-          : Get.find<PackHouseController>().addHpmc(depot);
-
+      _addDepotBasedOnRole(depot);
       Get.back();
     } catch (e) {
       Get.snackbar(
@@ -286,7 +335,7 @@ class HpmcDepotFormPage extends StatelessWidget {
                       'Search depots...',
                       prefixIcon: Icons.search,
                     ),
-                    onChanged: controller.onSearchChanged,
+                    onChanged: (q) => controller.onSearchChanged(q),
                   )
                 : const SizedBox()),
           ],
@@ -355,7 +404,7 @@ class HpmcDepotFormPage extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          depot.contactName,
+                                          depot.HPMCname!,
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -452,8 +501,6 @@ class HpmcDepotFormPage extends StatelessWidget {
         children: [
           _buildBasicDetails(),
           const SizedBox(height: 24),
-          _buildBusinessDetails(),
-          const SizedBox(height: 24),
           _buildSubmitButton(),
         ],
       ),
@@ -481,42 +528,20 @@ class HpmcDepotFormPage extends StatelessWidget {
             TextFormField(
               controller: controller.contactNameController,
               decoration: _getInputDecoration(
-                'Contact Name',
+                'HPMC Name',
                 prefixIcon: Icons.person,
               ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter contact name' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.operatorNameController,
-              decoration: _getInputDecoration(
-                'Operator Name',
-                prefixIcon: Icons.person_outline,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter operator name' : null,
             ),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: TextFormField(
-                    controller: controller.cellNoController,
+                    controller: controller.operatorNameController,
                     decoration: _getInputDecoration(
-                      'Phone Number',
-                      prefixIcon: Icons.phone,
+                      'Operator Name',
+                      prefixIcon: Icons.person_outline,
                     ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter phone number';
-                      }
-                      if (value!.length != 10) {
-                        return 'Phone number must be 10 digits';
-                      }
-                      return null;
-                    },
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -532,104 +557,20 @@ class HpmcDepotFormPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: controller.adharNoController,
+              controller: controller.cellNoController,
               decoration: _getInputDecoration(
-                'Aadhar Number',
-                prefixIcon: Icons.badge,
+                'Phone Number',
+                prefixIcon: Icons.phone,
               ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter Aadhar number' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.licenseNoController,
-              decoration: _getInputDecoration(
-                'License Number',
-                prefixIcon: Icons.assignment,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter license number' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.operatingSinceController,
-              decoration: _getInputDecoration(
-                'Operating Since',
-                prefixIcon: Icons.calendar_today,
-              ),
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter operating since'
-                  : null,
-            ),
-            const SizedBox(height: 16),
+              keyboardType: TextInputType.phone, ),
+            const SizedBox(height: 16,),
             TextFormField(
               controller: controller.locationController,
               decoration: _getInputDecoration(
-                'Location',
+                'Address',
                 prefixIcon: Icons.location_on,
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter location' : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+              ),)
 
-  Widget _buildBusinessDetails() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Business Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff548235),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.boxes2023Controller,
-              decoration: _getInputDecoration(
-                'Boxes Transported in 2023',
-                prefixIcon: Icons.inventory,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter boxes transported in 2023'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.boxes2024Controller,
-              decoration: _getInputDecoration(
-                'Boxes Transported in 2024',
-                prefixIcon: Icons.inventory,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter boxes transported in 2024'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.target2025Controller,
-              decoration: _getInputDecoration(
-                'Target for 2025',
-                prefixIcon: Icons.trending_up,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) => value?.isEmpty ?? true
-                  ? 'Please enter target for 2025'
-                  : null,
-            ),
           ],
         ),
       ),

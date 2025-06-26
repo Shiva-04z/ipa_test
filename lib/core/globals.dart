@@ -27,7 +27,7 @@ RxString personPost = "247001".obs;
 RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
-RxString url="https://61b4-2401-4900-1c09-5a60-d5dd-d31b-b6fb-b89e.ngrok-free.app".obs;
+RxString url="https://14b3-2401-4900-1ca3-a510-dd24-3168-83fc-70ad.ngrok-free.app".obs;
 
 
 RxString id = "685a4b98188724f04ee3abdb".obs;
@@ -601,10 +601,10 @@ String getTranslatedText(String englishText) {
 RxList<HpmcCollectionCenter> availableHpmcDepots = [
   HpmcCollectionCenter(
     id: 'HPMC001',
-    contactName: 'Rajesh Kumar',
+   HPMCname: 'Rajesh Kumar',
     operatorName: 'Himachal Collection Center',
     cellNo: '9876543210',
-    adharNo: '123456789012',
+    aadharNo: '123456789012',
     licenseNo: 'HPMC123456',
     operatingSince: '2015',
     location: 'Kotkhai, Shimla, Himachal Pradesh',
@@ -619,10 +619,10 @@ RxList<HpmcCollectionCenter> availableHpmcDepots = [
   ),
   HpmcCollectionCenter(
     id: 'HPMC002',
-    contactName: 'Suresh Singh',
+    HPMCname: 'Suresh Singh',
     operatorName: 'Kullu Valley Collection Center',
     cellNo: '9876543211',
-    adharNo: '987654321098',
+    aadharNo: '987654321098',
     licenseNo: 'HPMC789012',
     operatingSince: '2018',
     location: 'Kullu, Himachal Pradesh',

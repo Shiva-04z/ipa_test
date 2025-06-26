@@ -8,6 +8,11 @@ import '../../models/freightForwarder.dart';
 import '../aadhati/aadhati_controller.dart';
 import '../ladaniBuyers/ladaniBuyers_controller.dart';
 import '../transportUnion/transportUnion_controller.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class BuyerFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -18,11 +23,163 @@ class BuyerFormController extends GetxController {
   final isLoading = false.obs;
   final isSearching = true.obs;
   final searchResults = <FreightForwarder>[].obs;
+  final availableBuyers = <FreightForwarder>[].obs;
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
-    searchResults.value = glb.availableBuyers;
+    await loadData();
+  }
+
+  Future<void> loadData() async {
+    isLoading.value = true;
+    try {
+      final response = await http.get(Uri.parse('${glb.url}/api/freightforwarders/nearby10'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        availableBuyers.value = data.map((e) => FreightForwarder(
+          id: e['_id']?.toString(),
+          name: e['name'] ?? '',
+          contact: e['contact'] ?? '',
+          address: e['address'] ?? '',
+          licenseNo: e['licenseNo'],
+          forwardingSinceYears: e['forwadingExperience'],
+          licensesIssuingAuthority: e['issuingAuthority'],
+          appleBoxesForwarded2023: e['appleBoxesT1'],
+          appleBoxesForwarded2024: e['appleBoxesT2'],
+          estimatedForwardingTarget2025: e['appleBoxesT0'],
+          createdAt: DateTime.tryParse(e['createdAt'] ?? '') ?? DateTime.now(),
+          updatedAt: DateTime.tryParse(e['updatedAt'] ?? '') ?? DateTime.now(),
+
+          // Optional: handle references or galleries if populated
+          associatedAadhatis: [], // map if API includes
+          associatedGrowers: [],
+          associatedPickupProviders: [],
+          associatedTruckServiceProviders: [],
+          locationOnGoogle: null, // set if API has it
+          tradeLicenseOfAadhatiAttached: null,
+        )).toList().cast<FreightForwarder>();
+        searchResults.value = availableBuyers;
+      } else {
+        Get.snackbar(
+          'Error',
+          'Failed to load FreightForwardes: ${response.statusCode}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to load FreightForwardes: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> pickContact() async {
+    if (kIsWeb) {
+      Get.snackbar(
+        'Not Available',
+        'Contact picker is not available on web due to security restrictions. Please use the mobile app.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 5),
+      );
+      return;
+    }
+
+    try {
+      final status = await Permission.contacts.request();
+      if (!status.isGranted) {
+        if (status.isPermanentlyDenied) {
+          await openAppSettings();
+        }
+        throw Exception('Contacts permission denied');
+      }
+
+      final contact = await FlutterContacts.openExternalPick();
+      if (contact != null) {
+        nameController.text = contact.displayName;
+        if (contact.phones.isNotEmpty) {
+          String phoneNumber = contact.phones.first.number.replaceAll(RegExp(r'[^0-9]'), '');
+          if (phoneNumber.length > 10) {
+            phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
+          }
+          phoneController.text = phoneNumber;
+        }
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString().replaceAll('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> onSearchChanged(String query) async {
+    if (query.isEmpty) {
+      searchResults.value = availableBuyers;
+      return;
+    }
+    isLoading.value = true;
+    try {
+      final response = await http.get(
+        Uri.parse('${glb.url}/api/freightforwarders/${Uri.encodeComponent(query)}/searchbyName'),
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        searchResults.value = data.map((e) => FreightForwarder(
+          id: e['_id']?.toString(),
+          name: e['name'] ?? '',
+          contact: e['contact'] ?? '',
+          address: e['address'] ?? '',
+          licenseNo: e['licenseNo'],
+          forwardingSinceYears: e['forwadingExperience'],
+          licensesIssuingAuthority: e['issuingAuthority'],
+          appleBoxesForwarded2023: e['appleBoxesT1'],
+          appleBoxesForwarded2024: e['appleBoxesT2'],
+          estimatedForwardingTarget2025: e['appleBoxesT0'],
+          createdAt: DateTime.tryParse(e['createdAt'] ?? '') ?? DateTime.now(),
+          updatedAt: DateTime.tryParse(e['updatedAt'] ?? '') ?? DateTime.now(),
+
+          // Optional: handle references or galleries if populated
+          associatedAadhatis: [], // map if API includes
+          associatedGrowers: [],
+          associatedPickupProviders: [],
+          associatedTruckServiceProviders: [],
+          locationOnGoogle: null, // set if API has it
+          tradeLicenseOfAadhatiAttached: null,
+        )).toList().cast<FreightForwarder>();
+      } else {
+        Get.snackbar(
+          'Error',
+          'Failed to search FreightForwardes: ${response.statusCode}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to search FreightForwardes: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   @override
@@ -34,48 +191,12 @@ class BuyerFormController extends GetxController {
     super.onClose();
   }
 
-  void onSearchChanged(String query) {
-    if (query.isEmpty) {
-      searchResults.value = glb.availableBuyers;
-    } else {
-      searchResults.value = glb.availableBuyers.where((buyer) {
-        final name = buyer.name.toLowerCase();
-        final phone = buyer.contact.toLowerCase();
-        final address = buyer.address.toLowerCase();
-        final searchLower = query.toLowerCase();
-
-        return name.contains(searchLower) ||
-            phone.contains(searchLower) ||
-            address.contains(searchLower);
-      }).toList();
-    }
-  }
-
   void selectBuyer(FreightForwarder buyer) {
-    final exists = (glb.roleType.value == "Aadhati")
-        ? Get.find<AadhatiController>()
-            .associatedBuyers
-            .any((existingDriver) => existingDriver.id == buyer.id)
-        : (glb.roleType.value == "Ladani/Buyers")
-            ? Get.find<LadaniBuyersController>()
-                .associatedBuyers
-                .any((existingDriver) => existingDriver.id == buyer.id)
-            : (glb.roleType.value == "Transport Union")
-                ? Get.find<TransportUnionController>()
-                    .associatedFreightForwarders
-                    .any((existingDriver) => existingDriver.id == buyer.id)
-                : (glb.roleType.value == "Grower")
-                    ? Get.find<GrowerController>()
-                        .freightForwarders
-                        .any((existingDriver) => existingDriver.id == buyer.id)
-                    : Get.find<PackHouseController>()
-                        .associatedFreightForwarders
-                        .any((existingDriver) => existingDriver.id == buyer.id);
-
+    final exists = _checkBuyerExists(buyer);
     if (exists) {
       Get.snackbar(
-        'Buyer Already Added',
-        'This buyer is already in your list',
+        'Freight Forwarders Already Added',
+        'This Freight Forwarders is already in your list',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -83,18 +204,42 @@ class BuyerFormController extends GetxController {
       return;
     }
 
-    (glb.roleType.value == "Aadhati")
-        ? Get.find<AadhatiController>().addAssociatedBuyer(buyer)
-        : (glb.roleType.value == "Ladani/Buyers")
-            ? Get.find<LadaniBuyersController>().addAssociatedBuyers(buyer)
-            : (glb.roleType.value == "Transport Union")
-                ? Get.find<TransportUnionController>()
-                    .addAssociatedBuyers(buyer)
-                : (glb.roleType.value == "Grower")
-                    ? Get.find<GrowerController>().addFreightForwarder(buyer)
-                    : Get.find<PackHouseController>()
-                        .addAssociatedFreightForwarder(buyer);
+    _addBuyerBasedOnRole(buyer);
     Get.back();
+  }
+
+  bool _checkBuyerExists(FreightForwarder buyer) {
+    switch (glb.roleType.value) {
+      case "Aadhati":
+        return Get.find<AadhatiController>().associatedBuyers.any((b) => b.id == buyer.id);
+      case "Ladani/FreightForwardes":
+        return Get.find<LadaniBuyersController>().associatedBuyers.any((b) => b.id == buyer.id);
+      case "Transport Union":
+        return Get.find<TransportUnionController>().associatedFreightForwarders.any((b) => b.id == buyer.id);
+      case "Grower":
+        return Get.find<GrowerController>().freightForwarders.any((b) => b.id == buyer.id);
+      default:
+        return Get.find<PackHouseController>().associatedFreightForwarders.any((b) => b.id == buyer.id);
+    }
+  }
+
+  void _addBuyerBasedOnRole(FreightForwarder buyer) {
+    switch (glb.roleType.value) {
+      case "Aadhati":
+        Get.find<AadhatiController>().addAssociatedBuyer(buyer);
+        break;
+      case "Ladani/FreightForwardes":
+        Get.find<LadaniBuyersController>().addAssociatedBuyers(buyer);
+        break;
+      case "Transport Union":
+        Get.find<TransportUnionController>().addAssociatedBuyers(buyer);
+        break;
+      case "Grower":
+        Get.find<GrowerController>().addFreightForwarder(buyer);
+        break;
+      default:
+        Get.find<PackHouseController>().addAssociatedFreightForwarder(buyer);
+    }
   }
 
   void submitForm() {
@@ -105,7 +250,6 @@ class BuyerFormController extends GetxController {
     try {
       final now = DateTime.now();
       final buyer = FreightForwarder(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: nameController.text,
         contact: phoneController.text,
         address: addressController.text,
@@ -113,28 +257,17 @@ class BuyerFormController extends GetxController {
         updatedAt: now,
       );
 
-      (glb.roleType.value == "Aadhati")
-          ? Get.find<AadhatiController>().addAssociatedBuyer(buyer)
-          : (glb.roleType.value == "Ladani/Buyers")
-              ? Get.find<LadaniBuyersController>().addAssociatedBuyers(buyer)
-              : (glb.roleType.value == "Transport Union")
-                  ? Get.find<TransportUnionController>()
-                      .addAssociatedBuyers(buyer)
-                  : (glb.roleType.value == "Grower")
-                      ? Get.find<GrowerController>().addFreightForwarder(buyer)
-                      : Get.find<PackHouseController>()
-                          .addAssociatedFreightForwarder(buyer);
+      _addBuyerBasedOnRole(buyer);
       Get.back();
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Error adding buyer: $e',
+        'Error adding Freight Forwarders: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } finally {
-      Get.back();
       isLoading.value = false;
     }
   }
@@ -149,25 +282,23 @@ class BuyerFormPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Buyer'),
+        title: const Text('Add New Freight Forwarders'),
         backgroundColor: const Color(0xff548235),
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
           Obx(() => controller.isLoading.value
-              ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    ),
-                  ),
-                )
+              ? const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+          )
               : const SizedBox()),
         ],
       ),
@@ -214,39 +345,36 @@ class BuyerFormPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Select or Create Buyer',
+                  'Select or Create Freight Forwarders',
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xff548235),
+                    color: const Color(0xff548235),
                   ),
                 ),
                 Obx(() => TextButton.icon(
-                      onPressed: () => controller.isSearching.value =
-                          !controller.isSearching.value,
-                      icon: Icon(
-                        controller.isSearching.value ? Icons.add : Icons.search,
-                        color: const Color(0xff548235),
-                      ),
-                      label: Text(
-                        controller.isSearching.value
-                            ? 'Create New'
-                            : 'Search Existing',
-                        style: const TextStyle(color: Color(0xff548235)),
-                      ),
-                    )),
+                  onPressed: () => controller.isSearching.toggle(),
+                  icon: Icon(
+                    controller.isSearching.value ? Icons.add : Icons.search,
+                    color: const Color(0xff548235),
+                  ),
+                  label: Text(
+                    controller.isSearching.value ? 'Create New' : 'Search Existing',
+                    style: const TextStyle(color: Color(0xff548235)),
+                  ),
+                )),
               ],
             ),
             const SizedBox(height: 16),
             Obx(() => controller.isSearching.value
                 ? TextField(
-                    controller: controller.searchController,
-                    decoration: _getInputDecoration(
-                      'Search buyers...',
-                      prefixIcon: Icons.search,
-                    ),
-                    onChanged: controller.onSearchChanged,
-                  )
+              controller: controller.searchController,
+              decoration: _getInputDecoration(
+                'Search FreightForwardes...',
+                prefixIcon: Icons.search,
+              ),
+              onChanged: controller.onSearchChanged,
+            )
                 : const SizedBox()),
           ],
         ),
@@ -255,139 +383,128 @@ class BuyerFormPage extends StatelessWidget {
   }
 
   Widget _buildSearchResults() {
-    return Obx(() => controller.searchResults.isEmpty
-        ? const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'No buyers found',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      if (controller.searchResults.isEmpty) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'No FreightForwardes found',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
               ),
             ),
-          )
-        : ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: controller.searchResults.length,
-            itemBuilder: (context, index) {
-              final buyer = controller.searchResults[index];
-              final exists = (glb.roleType.value == "Aadhati")
-                  ? Get.find<AadhatiController>()
-                      .associatedBuyers
-                      .any((existingDriver) => existingDriver.id == buyer.id)
-                  : (glb.roleType.value == "Ladani/Buyers")
-                      ? Get.find<LadaniBuyersController>().associatedBuyers.any(
-                          (existingDriver) => existingDriver.id == buyer.id)
-                      : (glb.roleType.value == "Transport Union")
-                          ? Get.find<TransportUnionController>()
-                              .associatedFreightForwarders
-                              .any((existingDriver) =>
-                                  existingDriver.id == buyer.id)
-                          : (glb.roleType.value == "Grower")
-                              ? Get.find<GrowerController>()
-                                  .freightForwarders
-                                  .any((existingDriver) =>
-                                      existingDriver.id == buyer.id)
-                              : Get.find<PackHouseController>()
-                                  .associatedFreightForwarders
-                                  .any((existingDriver) =>
-                                      existingDriver.id == buyer.id);
+          ),
+        );
+      }
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: controller.searchResults.length,
+        itemBuilder: (context, index) {
+          final buyer = controller.searchResults[index];
+          final exists = controller._checkBuyerExists(buyer);
 
-              return Stack(
-                children: [
-                  Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: InkWell(
-                      onTap:
-                          exists ? null : () => controller.selectBuyer(buyer),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Opacity(
-                        opacity: exists ? 0.7 : 1.0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+          return Stack(
+            children: [
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: InkWell(
+                  onTap: exists ? null : () => controller.selectBuyer(buyer),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Opacity(
+                    opacity: exists ? 0.7 : 1.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.person,
-                                    color: Color(0xff548235),
-                                    size: 24,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          buyer.name,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Phone: ${buyer.contact}',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                              const Icon(
+                                Icons.person,
+                                color: Color(0xff548235),
+                                size: 24,
                               ),
-                              const SizedBox(height: 12),
-                              _buildInfoRow(
-                                Icons.location_on,
-                                'Address: ${buyer.address}',
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      buyer.name,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Phone: ${buyer.contact}',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          _buildInfoRow(
+                            Icons.location_on,
+                            'Address: ${buyer.address}',
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  if (exists)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(12),
-                            bottomLeft: Radius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'Already Added',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                ),
+              ),
+              if (exists)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
                       ),
                     ),
-                ],
-              );
-            },
-          ));
+                    child: const Text(
+                      'Already Added',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
@@ -447,26 +564,32 @@ class BuyerFormPage extends StatelessWidget {
                 prefixIcon: Icons.person,
               ),
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter name' : null,
+              value?.isEmpty ?? true ? 'Please enter name' : null,
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: controller.phoneController,
-              decoration: _getInputDecoration(
-                'Phone Number',
-                prefixIcon: Icons.phone,
-              ),
-              keyboardType: TextInputType.phone,
-              maxLength: 10,
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter phone number';
-                }
-                if (value!.length != 10) {
-                  return 'Phone number must be 10 digits';
-                }
-                return null;
-              },
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: controller.phoneController,
+                    decoration: _getInputDecoration(
+                      'Phone Number',
+                      prefixIcon: Icons.phone,
+                    ),
+                    keyboardType: TextInputType.phone,
+
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: controller.pickContact,
+                  icon: const Icon(Icons.contacts),
+                  color: const Color(0xff548235),
+                  tooltip: kIsWeb
+                      ? 'Use mobile app to pick contacts'
+                      : 'Pick from contacts',
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -475,9 +598,6 @@ class BuyerFormPage extends StatelessWidget {
                 'Address',
                 prefixIcon: Icons.location_on,
               ),
-              maxLines: 3,
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter address' : null,
             ),
           ],
         ),
@@ -499,7 +619,7 @@ class BuyerFormPage extends StatelessWidget {
           ),
         ),
         child: const Text(
-          'Add Buyer',
+          'Add Freight Forwarders',
           style: TextStyle(fontSize: 16),
         ),
       ),

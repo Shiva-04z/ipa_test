@@ -71,41 +71,23 @@ Widget buildInfo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              glb.personName.value,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
+            Obx(
+            () =>Text(
+                glb.personName.value,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            Text(
-              glb.personPhone.value,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(
-          height: 15,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Village - ${glb.personVillage}",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
-            ),
-            Text(
-              "Post - ${glb.personPost}",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
+            Obx(
+            ()=>Text(
+                glb.personPhone.value,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
             ),
           ],
@@ -116,18 +98,48 @@ Widget buildInfo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "Bank Account - ${glb.personBank}",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
+            Obx(
+            ()=>Text(
+                "Village - ${glb.personVillage}",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
             ),
-            Text(
-              "IFSC - ${glb.personIFSC}",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
+            Obx(
+            ()=> Text(
+                "Post - ${glb.personPost}",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 15,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+           Obx(
+              ()=> Text(
+                "Bank Account - ${glb.personBank}",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            Obx(
+              ()=> Text(
+                "IFSC - ${glb.personIFSC}",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
             ),
           ],

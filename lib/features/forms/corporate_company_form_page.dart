@@ -9,6 +9,11 @@ import '../freightForwarder/freightForwarder_controller.dart';
 import '../grower/grower_controller.dart';
 import '../hpAgriBoard/hpAgriBoard_controller.dart';
 import '../packHouse/packHouse_controller.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class CorporateCompanyFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -30,11 +35,113 @@ class CorporateCompanyFormController extends GetxController {
   final isLoading = false.obs;
   final isSearching = true.obs;
   final searchResults = <Ladani>[].obs;
+  final availableCompanies = <Ladani>[].obs;
+  var exists;
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
-    searchResults.value = glb.availableLadanis;
+    await loadData();
+  }
+
+  Future<void> loadData() async {
+    isLoading.value = true;
+    try {
+      final response =
+          await http.get(Uri.parse(glb.url + '/api/ladanis/nearby10'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        availableCompanies.value =
+            data.map((e) => Ladani.fromJson(e)).toList().cast<Ladani>();
+        searchResults.value = availableCompanies;
+      } else {
+        Get.snackbar(
+            'Error', 'Failed to load companies: \\${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load companies: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> pickContact() async {
+    if (kIsWeb) {
+      Get.snackbar(
+        'Not Available',
+        'Contact picker is not available on web due to security restrictions. Please use the mobile app.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: Duration(seconds: 5),
+      );
+      return;
+    }
+    try {
+      final status = await Permission.contacts.request();
+      if (status.isGranted) {
+        final contact = await FlutterContacts.openExternalPick();
+        if (contact != null) {
+          print('Picked contact: ' + contact.toString());
+          print('Contact phones: ' + contact.phones.toString());
+          nameController.text = contact.displayName;
+          if (contact.phones.isNotEmpty) {
+            String phoneNumber =
+                contact.phones.first.number.replaceAll(RegExp(r'[^\d]'), '');
+            if (phoneNumber.length > 10) {
+              phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
+            }
+            phoneController.text = phoneNumber;
+          } else {
+            print('No phone numbers found for this contact.');
+          }
+        }
+      } else {
+        Get.snackbar(
+          'Permission Denied',
+          'Please grant contacts permission to use this feature',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick contact: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> onSearchChanged(String query) async {
+    if (query.isEmpty) {
+      searchResults.value = availableCompanies;
+      return;
+    }
+    isLoading.value = true;
+    try {
+      final response = await http.get(
+        Uri.parse(glb.url +
+            '/api/ladanis/' +
+            Uri.encodeComponent(query) +
+            '/searchbyName'),
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        searchResults.value =
+            data.map((e) => Ladani.fromJson(e)).toList().cast<Ladani>();
+      } else {
+        Get.snackbar(
+            'Error', 'Failed to search Ladani: \\${response.statusCode}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to search Ladani: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   @override
@@ -55,23 +162,6 @@ class CorporateCompanyFormController extends GetxController {
     perBoxExpensesController.dispose();
     searchController.dispose();
     super.onClose();
-  }
-
-  void onSearchChanged(String query) {
-    if (query.isEmpty) {
-      searchResults.value = glb.availableLadanis;
-    } else {
-      searchResults.value = glb.availableLadanis.where((company) {
-        final name = company.name!.toLowerCase();
-        final type = company.firmType!.toLowerCase();
-        final address = company.address!.toLowerCase();
-        final searchLower = query.toLowerCase();
-
-        return name.contains(searchLower) ||
-            type.contains(searchLower) ||
-            address.contains(searchLower);
-      }).toList();
-    }
   }
 
   void selectCompany(Ladani company) {
@@ -165,7 +255,7 @@ class CorporateCompanyFormController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Error adding corporate company: $e',
+        'Error adding Ladani: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -186,7 +276,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Corporate Company'),
+        title: const Text('Add Ladani/Buyer'),
         backgroundColor: const Color(0xff548235),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -250,28 +340,36 @@ class CorporateCompanyFormPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Select or Create Company',
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff548235),
+                Expanded(
+                  child: Text(
+                    'Select or Create Ladani/Buyers',
+                    style: TextStyle(
+                      fontSize:
+                          MediaQuery.of(context).size.width > 400 ? 20 : 14,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
+                      color: Color(0xff548235),
+                    ),
                   ),
                 ),
-                Obx(() => TextButton.icon(
-                      onPressed: () => controller.isSearching.value =
-                          !controller.isSearching.value,
-                      icon: Icon(
-                        controller.isSearching.value ? Icons.add : Icons.search,
-                        color: const Color(0xff548235),
-                      ),
-                      label: Text(
-                        controller.isSearching.value
-                            ? 'Create New'
-                            : 'Search Existing',
-                        style: const TextStyle(color: Color(0xff548235)),
-                      ),
-                    )),
+                Expanded(
+                  child: Obx(() => TextButton.icon(
+                        onPressed: () => controller.isSearching.value =
+                            !controller.isSearching.value,
+                        icon: Icon(
+                          controller.isSearching.value
+                              ? Icons.add
+                              : Icons.search,
+                          color: const Color(0xff548235),
+                        ),
+                        label: Text(
+                          controller.isSearching.value
+                              ? 'Create New'
+                              : 'Search Existing',
+                          style: const TextStyle(color: Color(0xff548235)),
+                        ),
+                      )),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -279,7 +377,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
                 ? TextField(
                     controller: controller.searchController,
                     decoration: _getInputDecoration(
-                      'Search companies...',
+                      'Search Ladanis...',
                       prefixIcon: Icons.search,
                     ),
                     onChanged: controller.onSearchChanged,
@@ -297,7 +395,7 @@ class CorporateCompanyFormPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'No companies found',
+                'No Ladani found',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
@@ -504,16 +602,31 @@ class CorporateCompanyFormPage extends StatelessWidget {
                         : null,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: controller.phoneController,
-                    decoration: _getInputDecoration(
-                      'Phone Number',
-                      prefixIcon: Icons.phone,
-                    ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) => value?.isEmpty ?? true
-                        ? 'Please enter phone number'
-                        : null,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: controller.phoneController,
+                          decoration: _getInputDecoration(
+                            'Phone Number',
+                            prefixIcon: Icons.phone,
+                          ),
+                          keyboardType: TextInputType.phone,
+                          validator: (value) => value?.isEmpty ?? true
+                              ? 'Please enter phone number'
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: controller.pickContact,
+                        icon: const Icon(Icons.contacts),
+                        color: const Color(0xff548235),
+                        tooltip: kIsWeb
+                            ? 'Use mobile app to pick contacts'
+                            : 'Pick from contacts',
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   TextFormField(

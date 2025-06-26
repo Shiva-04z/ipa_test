@@ -462,11 +462,11 @@ class PackHouseView extends GetView<PackHouseController> {
         details: [
           _buildDetailRow('Name', grower.name),
           _buildDetailRow('Phone', grower.phoneNumber),
-          _buildDetailRow('Address', grower.address),
+          _buildDetailRow('Address', grower.address!),
           _buildDetailRow('Orchards', grower.orchards.length.toString()),
         ],
         onEdit: () {},
-        onDelete: () => controller.removeAssociatedGrower(grower.id),
+        onDelete: () => controller.removeAssociatedGrower(grower.id!),
       ),
       child: Card(
         elevation: 0,
@@ -497,7 +497,7 @@ class PackHouseView extends GetView<PackHouseController> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  grower.address,
+                  grower.address!,
                   style: TextStyle(fontSize: 12, color: Colors.blue),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1788,18 +1788,18 @@ class PackHouseView extends GetView<PackHouseController> {
         item: depot,
         title: 'HPMC Depot Details',
         details: [
-          _buildDetailRow('Contact Name', depot.contactName),
-          _buildDetailRow('Operator', depot.operatorName),
-          _buildDetailRow('Phone', depot.cellNo),
-          _buildDetailRow('Location', depot.location),
-          _buildDetailRow('License No', depot.licenseNo),
-          _buildDetailRow('Operating Since', depot.operatingSince),
+          _buildDetailRow('Contact Name', depot.HPMCname!),
+          _buildDetailRow('Operator', depot.operatorName!),
+          _buildDetailRow('Phone', depot.cellNo!),
+          _buildDetailRow('Location', depot.location!),
+          _buildDetailRow('License No', depot.licenseNo!),
+          _buildDetailRow('Operating Since', depot.operatingSince!),
           _buildDetailRow('Boxes 2023', '${depot.boxesTransported2023}'),
           _buildDetailRow('Boxes 2024', '${depot.boxesTransported2024}'),
           _buildDetailRow('Target 2025', '${depot.target2025}'),
         ],
         onEdit: () {},
-        onDelete: () => controller.removeHpmc(depot.id),
+        onDelete: () => controller.removeHpmc(depot.id!),
       ),
       child: Card(
         elevation: 0,
@@ -1815,7 +1815,7 @@ class PackHouseView extends GetView<PackHouseController> {
               ),
               SizedBox(height: 8),
               Text(
-                depot.operatorName,
+                depot.operatorName!,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -1827,12 +1827,12 @@ class PackHouseView extends GetView<PackHouseController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  depot.contactName,
+                  depot.HPMCname!,
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  depot.location,
+                  depot.location!,
                   style: TextStyle(fontSize: 12, color: Color(0xff548235)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

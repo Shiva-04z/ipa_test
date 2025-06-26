@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/globalsWidgets.dart' as glbw;
 import '../../core/globals.dart' as glb;
-// Use a prefix for the model import
 import '../../models/transport_model.dart';
 import '../driver/driver_controller.dart';
 import '../grower/grower_controller.dart';
@@ -27,7 +26,6 @@ class TransportUnionFormController extends GetxController {
   final isSearching = true.obs;
   final searchResults = <Transport>[].obs;
   final availableUnions = <Transport>[].obs;
-  var exists;
 
   @override
   Future<void> onInit() async {
@@ -39,18 +37,48 @@ class TransportUnionFormController extends GetxController {
     isLoading.value = true;
     try {
       final response =
-          await http.get(Uri.parse(glb.url + '/api/transportunions/nearby10'));
+          await http.get(Uri.parse('${glb.url}/api/transportunion/nearby10'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        availableUnions.value =
-            data.map((e) => Transport.fromJson(e)).toList().cast<Transport>();
+        availableUnions.value = data.map((e) => Transport(
+          id: e['_id']?.toString(), // MongoDB usually returns `_id`
+          name: e['name'],
+          contact: e['contact'],
+          address: e['address'],
+          noOfLightCommercialVehicles: e['LCVs'],
+          noOfMediumCommercialVehicles: e['MCVs'],
+          noOfHeavyCommercialVehicles: e['HCVs'],
+          appleBoxesTransported2023: e['boxesTransportedT3'], // Update if wrong
+          appleBoxesTransported2024: e['boxesTransportedT2'], // Update if wrong
+          estimatedTarget2025: (e['estimatedTarget2025'] is int)
+              ? (e['estimatedTarget2025'] as int).toDouble()
+              : e['estimatedTarget2025'],
+          statesDrivenThrough: (e['statesDrivenThrough'] as List<dynamic>?)
+              ?.join(', '),
+          appleGrowers: [], // or use actual parsing if data present
+          aadhatis: [],
+          buyers: [],
+          associatedDrivers: [],
+        )).toList().cast<Transport>();
+
         searchResults.value = availableUnions;
       } else {
-        Get.snackbar('Error',
-            'Failed to load transport unions: \\${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'Failed to load transport unions: ${response.statusCode}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load transport unions: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to load transport unions: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -73,38 +101,36 @@ class TransportUnionFormController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
-        duration: Duration(seconds: 5),
+        duration: const Duration(seconds: 5),
       );
       return;
     }
+
     try {
       final status = await Permission.contacts.request();
-      if (status.isGranted) {
-        final contact = await FlutterContacts.openExternalPick();
-        if (contact != null) {
-          nameController.text = contact.displayName;
-          if (contact.phones.isNotEmpty) {
-            String phoneNumber =
-                contact.phones.first.number.replaceAll(RegExp(r'[^\\d]'), '');
-            if (phoneNumber.length > 10) {
-              phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
-            }
-            phoneController.text = phoneNumber;
-          }
+      if (!status.isGranted) {
+        if (status.isPermanentlyDenied) {
+          await openAppSettings();
         }
-      } else {
-        Get.snackbar(
-          'Permission Denied',
-          'Please grant contacts permission to use this feature',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+        throw Exception('Contacts permission denied');
+      }
+
+      final contact = await FlutterContacts.openExternalPick();
+      if (contact != null) {
+        nameController.text = contact.displayName;
+        if (contact.phones.isNotEmpty) {
+          String phoneNumber =
+              contact.phones.first.number.replaceAll(RegExp(r'[^0-9]'), '');
+          if (phoneNumber.length > 10) {
+            phoneNumber = phoneNumber.substring(phoneNumber.length - 10);
+          }
+          phoneController.text = phoneNumber;
+        }
       }
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Failed to pick contact: $e',
+        e.toString().replaceAll('Exception: ', ''),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -120,53 +146,56 @@ class TransportUnionFormController extends GetxController {
     isLoading.value = true;
     try {
       final response = await http.get(
-        Uri.parse(glb.url +
-            '/api/transportunions/' +
-            Uri.encodeComponent(query) +
-            '/searchbyName'),
+        Uri.parse(
+            '${glb.url}/api/transportunion/${Uri.encodeComponent(query)}/searchbyName'),
       );
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         searchResults.value =
-            data.map((e) => Transport.fromJson(e)).toList().cast<Transport>();
+            data.map((e) => Transport(
+              id: e['_id']?.toString(), // MongoDB usually returns `_id`
+              name: e['name'],
+              contact: e['contact'],
+              address: e['address'],
+              noOfLightCommercialVehicles: e['LCVs'],
+              noOfMediumCommercialVehicles: e['MCVs'],
+              noOfHeavyCommercialVehicles: e['HCVs'],
+              appleBoxesTransported2023: e['boxesTransportedT3'], // Update if wrong
+              appleBoxesTransported2024: e['boxesTransportedT2'], // Update if wrong
+              estimatedTarget2025: (e['estimatedTarget2025'] is int)
+                  ? (e['estimatedTarget2025'] as int).toDouble()
+                  : e['estimatedTarget2025'],
+              statesDrivenThrough: (e['statesDrivenThrough'] as List<dynamic>?)
+                  ?.join(', '),
+              appleGrowers: [], // or use actual parsing if data present
+              aadhatis: [],
+              buyers: [],
+              associatedDrivers: [],
+            )).toList().cast<Transport>();
       } else {
         Get.snackbar(
-            'Error', 'Failed to search unions: \\${response.statusCode}');
+          'Error',
+          'Failed to search unions: ${response.statusCode}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to search unions: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to search unions: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }
   }
 
   void selectUnion(Transport union) {
-    final exists = (glb.roleType.value == "Grower")
-        ? Get.find<GrowerController>()
-            .transportUnions
-            .any((existingDriver) => existingDriver.id == union.id)
-        : (glb.roleType.value == "Driver")
-            ? Get.find<DriverController>()
-                .associatedTransportUnions
-                .any((existingDriver) => existingDriver.id == union.id)
-            : (glb.roleType.value == "PackHouse")
-                ? Get.find<PackHouseController>()
-                    .associatedTransportUnions
-                    .any((existingDriver) => existingDriver.id == union.id)
-                : (glb.roleType.value == "HPMC DEPOT")
-                    ? Get.find<HPAgriBoardController>()
-                        .associatedTransportUnions
-                        .any((existingDriver) => existingDriver.id == union.id)
-                    : (glb.roleType.value == "Freight Forwarder")
-                        ? Get.find<FreightForwarderController>()
-                            .associatedTransportUnions
-                            .any((existingDriver) =>
-                                existingDriver.id == union.id)
-                        : Get.find<LadaniBuyersController>()
-                            .associatedTransportUnions
-                            .any((existingDriver) =>
-                                existingDriver.id == union.id);
-
+    final exists = _checkUnionExists(union);
     if (exists) {
       Get.snackbar(
         'Union Already Added',
@@ -178,22 +207,60 @@ class TransportUnionFormController extends GetxController {
       return;
     }
 
-    (glb.roleType.value == "Grower")
-        ? Get.find<GrowerController>().addTransportUnion(union)
-        : (glb.roleType.value == "Driver")
-            ? Get.find<DriverController>().addTransportUnion(union)
-            : (glb.roleType.value == "PackHouse")
-                ? Get.find<PackHouseController>()
-                    .addAssociatedTransportUnion(union)
-                : (glb.roleType.value == "HPMC DEPOT")
-                    ? Get.find<HPAgriBoardController>()
-                        .addAssociatedTransportUnion(union)
-                    : (glb.roleType.value == "Freight Forwarder")
-                        ? Get.find<FreightForwarderController>()
-                            .addAssociatedTransportUnion(union)
-                        : Get.find<LadaniBuyersController>()
-                            .addAssociatedTransportUnion(union);
+    _addUnionBasedOnRole(union);
     Get.back();
+  }
+
+  bool _checkUnionExists(Transport union) {
+    switch (glb.roleType.value) {
+      case "Grower":
+        return Get.find<GrowerController>()
+            .transportUnions
+            .any((u) => u.id == union.id);
+      case "Driver":
+        return Get.find<DriverController>()
+            .associatedTransportUnions
+            .any((u) => u.id == union.id);
+      case "PackHouse":
+        return Get.find<PackHouseController>()
+            .associatedTransportUnions
+            .any((u) => u.id == union.id);
+      case "HPMC DEPOT":
+        return Get.find<HPAgriBoardController>()
+            .associatedTransportUnions
+            .any((u) => u.id == union.id);
+      case "Freight Forwarder":
+        return Get.find<FreightForwarderController>()
+            .associatedTransportUnions
+            .any((u) => u.id == union.id);
+      default:
+        return Get.find<LadaniBuyersController>()
+            .associatedTransportUnions
+            .any((u) => u.id == union.id);
+    }
+  }
+
+  void _addUnionBasedOnRole(Transport union) {
+    switch (glb.roleType.value) {
+      case "Grower":
+        Get.find<GrowerController>().addTransportUnion(union);
+        break;
+      case "Driver":
+        Get.find<DriverController>().addTransportUnion(union);
+        break;
+      case "PackHouse":
+        Get.find<PackHouseController>().addAssociatedTransportUnion(union);
+        break;
+      case "HPMC DEPOT":
+        Get.find<HPAgriBoardController>().addAssociatedTransportUnion(union);
+        break;
+      case "Freight Forwarder":
+        Get.find<FreightForwarderController>()
+            .addAssociatedTransportUnion(union);
+        break;
+      default:
+        Get.find<LadaniBuyersController>().addAssociatedTransportUnion(union);
+    }
   }
 
   void submitForm() {
@@ -203,32 +270,17 @@ class TransportUnionFormController extends GetxController {
 
     try {
       final union = Transport(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: nameController.text,
         contact: phoneController.text,
         address: addressController.text,
       );
 
-      (glb.roleType.value == "Grower")
-          ? Get.find<GrowerController>().addTransportUnion(union)
-          : (glb.roleType.value == "Driver")
-              ? Get.find<DriverController>().addTransportUnion(union)
-              : (glb.roleType.value == "PackHouse")
-                  ? Get.find<PackHouseController>()
-                      .addAssociatedTransportUnion(union)
-                  : (glb.roleType.value == "HPMC DEPOT")
-                      ? Get.find<HPAgriBoardController>()
-                          .addAssociatedTransportUnion(union)
-                      : (glb.roleType.value == "Freight Forwarder")
-                          ? Get.find<FreightForwarderController>()
-                              .addAssociatedTransportUnion(union)
-                          : Get.find<LadaniBuyersController>()
-                              .addAssociatedTransportUnion(union);
+      _addUnionBasedOnRole(union);
       Get.back();
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Error adding transport union: \$e',
+        'Error adding transport union: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -254,16 +306,14 @@ class TransportUnionFormPage extends StatelessWidget {
         elevation: 0,
         actions: [
           Obx(() => controller.isLoading.value
-              ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   ),
                 )
@@ -317,12 +367,11 @@ class TransportUnionFormPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xff548235),
+                    color: const Color(0xff548235),
                   ),
                 ),
                 Obx(() => TextButton.icon(
-                      onPressed: () => controller.isSearching.value =
-                          !controller.isSearching.value,
+                      onPressed: () => controller.isSearching.toggle(),
                       icon: Icon(
                         controller.isSearching.value ? Icons.add : Icons.search,
                         color: const Color(0xff548235),
@@ -356,9 +405,9 @@ class TransportUnionFormPage extends StatelessWidget {
   Widget _buildSearchResults() {
     return Obx(() {
       if (controller.isLoading.value) {
-        return Container(
-          height: MediaQuery.of(Get.context!).size.height,
-          child: Center(
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
             child: CircularProgressIndicator(),
           ),
         );
@@ -383,33 +432,7 @@ class TransportUnionFormPage extends StatelessWidget {
         itemCount: controller.searchResults.length,
         itemBuilder: (context, index) {
           final union = controller.searchResults[index];
-          final exists = (glb.roleType.value == "Grower")
-              ? Get.find<GrowerController>()
-                  .transportUnions
-                  .any((existingDriver) => existingDriver.id == union.id)
-              : (glb.roleType.value == "Driver")
-                  ? Get.find<DriverController>()
-                      .associatedTransportUnions
-                      .any((existingDriver) => existingDriver.id == union.id)
-                  : (glb.roleType.value == "PackHouse")
-                      ? Get.find<PackHouseController>()
-                          .associatedTransportUnions
-                          .any(
-                              (existingDriver) => existingDriver.id == union.id)
-                      : (glb.roleType.value == "HPMC DEPOT")
-                          ? Get.find<HPAgriBoardController>()
-                              .associatedTransportUnions
-                              .any((existingDriver) =>
-                                  existingDriver.id == union.id)
-                          : (glb.roleType.value == "Freight Forwarder")
-                              ? Get.find<FreightForwarderController>()
-                                  .associatedTransportUnions
-                                  .any((existingDriver) =>
-                                      existingDriver.id == union.id)
-                              : Get.find<LadaniBuyersController>()
-                                  .associatedTransportUnions
-                                  .any((existingDriver) =>
-                                      existingDriver.id == union.id);
+          final exists = controller._checkUnionExists(union);
 
           return Stack(
             children: [
@@ -570,20 +593,13 @@ class TransportUnionFormPage extends StatelessWidget {
                   child: TextFormField(
                     controller: controller.phoneController,
                     decoration: _getInputDecoration(
-                      'Contact Number',
+                      'Phone Number',
                       prefixIcon: Icons.phone,
                     ),
                     keyboardType: TextInputType.phone,
-                    maxLength: 10,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter contact number';
-                      }
-                      if (value!.length != 10) {
-                        return 'Contact number must be 10 digits';
-                      }
-                      return null;
-                    },
+                    validator: (value) => value?.isEmpty ?? true
+                        ? 'Please enter phone number'
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -601,12 +617,10 @@ class TransportUnionFormPage extends StatelessWidget {
             TextFormField(
               controller: controller.addressController,
               decoration: _getInputDecoration(
-                'Address',
+                'Address (Optional)',
                 prefixIcon: Icons.location_on,
               ),
-              maxLines: 3,
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter address' : null,
+              maxLines: 2,
             ),
           ],
         ),
