@@ -71,12 +71,14 @@ List<Grower> createGrowerListFromApi(List<dynamic> apiData) {
 
 List<Aadhati> createAadhatiListFromApi(List<dynamic> apiData) {
   return apiData.map((json) {
+    print(json);
     return Aadhati(
         id: json['_id']?.toString(),
         name: json['name'] ?? 'Unnamed',
         contact: json['contact'],
         apmc: json['apmc']);
   }).toList();
+
 }
 
 List<Employee> createEmployeeListFromApi(List<dynamic> apiData) {
@@ -103,8 +105,8 @@ List<HpmcCollectionCenter> createHPMCListFromApi(List<dynamic> apiData) {
   return apiData.map((json) {
     return HpmcCollectionCenter(
       id: json['_id']?.toString(),
-      HPMCname: json['hpmcname'] ?? 'Unnamed',
-      operatorName: json[' operatorName'],
+      HPMCname: json['hpmcName'] ?? 'Unnamed',
+      operatorName: json['operatorName'],
       cellNo: json['cellNo'],
       location: json['location'] ?? 'Unknown',
     );
@@ -118,7 +120,7 @@ List<FreightForwarder> createFreightListFromApi(List<dynamic> apiData) {
       name: json['name'] ?? 'Unnamed',
       contact: json['contact'],
       address: json['address'],
-      createdAt: json["createdAt"],
+      createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
   }).toList();

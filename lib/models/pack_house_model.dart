@@ -10,7 +10,7 @@ enum TrayType {
 }
 
 class PackHouse {
-  final String id;
+  final String? id;
   final String name;
   final String phoneNumber;
   final String address;
@@ -35,7 +35,7 @@ class PackHouse {
   final List<Complaint> myComplaints;
 
   PackHouse({
-   required this.id,
+      this.id,
     required this.name,
     required this.phoneNumber,
     required this.address,

@@ -344,25 +344,30 @@ class BuyerFormPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Select or Create Freight Forwarders',
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xff548235),
+                Expanded(
+                  child: Text(
+                    'Select or Create Freight Forwarders',
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xff548235),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
-                Obx(() => TextButton.icon(
-                  onPressed: () => controller.isSearching.toggle(),
-                  icon: Icon(
-                    controller.isSearching.value ? Icons.add : Icons.search,
-                    color: const Color(0xff548235),
-                  ),
-                  label: Text(
-                    controller.isSearching.value ? 'Create New' : 'Search Existing',
-                    style: const TextStyle(color: Color(0xff548235)),
-                  ),
-                )),
+                Expanded(
+                  child: Obx(() => TextButton.icon(
+                    onPressed: () => controller.isSearching.toggle(),
+                    icon: Icon(
+                      controller.isSearching.value ? Icons.add : Icons.search,
+                      color: const Color(0xff548235),
+                    ),
+                    label: Text(
+                      controller.isSearching.value ? 'Create New' : 'Search Existing',
+                      style: const TextStyle(color: Color(0xff548235)),
+                    ),
+                  )),
+                ),
               ],
             ),
             const SizedBox(height: 16),

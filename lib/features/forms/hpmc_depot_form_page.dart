@@ -62,7 +62,7 @@ class HpmcDepotFormController extends GetxController {
         final List<dynamic> data = json.decode(response.body);
         availableHpmcDepots.value = data
             .map((e) => HpmcCollectionCenter(
-          id: e['id']?.toString() ?? '',
+          id: e['_id']?.toString() ?? '',
           location: e['location'],
           HPMCname: e['hpmcName'] ?? '',
           operatorName: e['operatorName'] ?? '',
@@ -95,7 +95,7 @@ class HpmcDepotFormController extends GetxController {
         final List<dynamic> data = json.decode(response.body);
         searchResults.value = data
             .map((e) => HpmcCollectionCenter(
-                  id: e['id']?.toString() ?? '',
+                  id: e['_id']?.toString() ?? '',
                   location: e['location'],
                   HPMCname: e['hpmcName'] ?? '',
                   operatorName: e['operatorName'] ?? '',

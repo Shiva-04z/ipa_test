@@ -986,7 +986,7 @@ class GrowerView extends GetView<GrowerController> {
         ],
         onEdit: () {},
         // Empty callback since we don't want edit functionality
-        onDelete: () => controller.removePackingHouse(house.id),
+        onDelete: () => controller.removePackingHouse(house.id!),
       ),
       child: Card(
         elevation: 0,

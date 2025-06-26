@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class Employee extends Equatable {
-  final String id;
+  final String? id;
   final String name;
   final String? phoneNumber;
   final String? designation;
@@ -10,7 +10,7 @@ class Employee extends Equatable {
   final String? salary;
 
   const Employee({
-    required this.id,
+ this.id,
     required this.name,
     this.phoneNumber,
     this.designation,

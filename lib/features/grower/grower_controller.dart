@@ -70,6 +70,7 @@ class GrowerController extends GetxController {
 
   // ==================== DATA LOADING METHODS ====================
   Future<void> loadGrowerData() async {
+    print("loading");
     String apiurl = glb.url + "/api/growers/${glb.id.value}";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {

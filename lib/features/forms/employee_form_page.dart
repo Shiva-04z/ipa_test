@@ -192,7 +192,6 @@ class EmployeeFormPage extends StatelessWidget {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       final employee = Employee(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text,
         phoneNumber: _phoneController.text,
         designation: _designationController.text
