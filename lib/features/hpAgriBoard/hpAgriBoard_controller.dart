@@ -169,7 +169,7 @@ class HPAgriBoardController extends GetxController {
 
   // ==================== PACKHOUSE MANAGEMENT METHODS ====================
   void addAssociatedPackHouse(PackHouse house) {
-    if (house.id == null) {
+    if (house.id != null) {
       associatedPackHouses.add(house);
       uploadPackHouse(house.id!);
     } else {
@@ -215,7 +215,7 @@ class HPAgriBoardController extends GetxController {
         body: jsonEncode(updatePayload),
       );
       if (response.statusCode == 200) {
-        print("Sucess");
+        print("Success");
         Get.snackbar('Success', 'Grower updated successfully!',
             snackPosition: SnackPosition.BOTTOM);
       } else {

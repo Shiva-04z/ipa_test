@@ -61,6 +61,7 @@ class FreightForwarderController extends GetxController {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
+    loadData();
   }
 
   Future<void> loadData()
@@ -68,7 +69,7 @@ class FreightForwarderController extends GetxController {
     String apiurl = glb.url + "/api/freightforwarders/${glb.id.value}";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
+      final Map<String, dynamic> data = jsonDecode(response.body)["data"];
       glb.personName.value = data['name'];
       glb.personPhone.value = "+91" + data['contact'];
       details.value = FreightForwarder(
@@ -77,21 +78,21 @@ class FreightForwarderController extends GetxController {
         contact: data['contact'],
         address: data['address'],
         licenseNo: data['licenseNo'],
-        forwardingSinceYears: data['forwardingSinceYears'],
-        licensesIssuingAuthority: data['licensesIssuingAuthority'],
-        locationOnGoogle: data[' locationOnGoogle'],
-        appleBoxesForwarded2023:data['appleBoxesForwardedT2'],
-        appleBoxesForwarded2024: data['appleBoxesForwardedT1'],
-        estimatedForwardingTarget2025:data['appleBoxesForwardedT'],
+        forwardingSinceYears: data['forwadingExperience'],
+        licensesIssuingAuthority: data['issuingAuthority'],
+        locationOnGoogle: data['locationOnGoogle'],
+        appleBoxesForwarded2023:data['appleBoxesT2'],
+        appleBoxesForwarded2024: data['appleBoxesT1'],
+        estimatedForwardingTarget2025:data['appleBoxesT0'],
         tradeLicenseOfAadhatiAttached: data['tradeLicenseOfAadhatiAttached'],
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
       associatedGrowers.value = glbm.createGrowerListFromApi(data['grower_IDs']);
       associatedDrivers.value =glbm.createDriverListFromApi(data['driver_IDs']);
-      associatedAadhatis.value =glbm.createAadhatiListFromApi(data['aadhati_IDs']);
       associatedTransportUnions.value =glbm.createTransportListFromApi(data['transportUnion_IDs']);
-      associatedLadanis.value =glbm.createLadaniListFromApi(data['aadhati_IDs']);
+      associatedAadhatis.value =glbm.createAadhatiListFromApi(data['aadhati_IDs']);
+      associatedLadanis.value =glbm.createLadaniListFromApi(data['buyer_IDs']);
 
 
 

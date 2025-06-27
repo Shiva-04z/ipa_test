@@ -212,7 +212,7 @@ class BuyerFormController extends GetxController {
     switch (glb.roleType.value) {
       case "Aadhati":
         return Get.find<AadhatiController>().associatedBuyers.any((b) => b.id == buyer.id);
-      case "Ladani/FreightForwardes":
+      case "Ladani/Buyers":
         return Get.find<LadaniBuyersController>().associatedBuyers.any((b) => b.id == buyer.id);
       case "Transport Union":
         return Get.find<TransportUnionController>().associatedFreightForwarders.any((b) => b.id == buyer.id);
@@ -228,7 +228,7 @@ class BuyerFormController extends GetxController {
       case "Aadhati":
         Get.find<AadhatiController>().addAssociatedBuyer(buyer);
         break;
-      case "Ladani/FreightForwardes":
+      case "Ladani/Buyers":
         Get.find<LadaniBuyersController>().addAssociatedBuyers(buyer);
         break;
       case "Transport Union":
