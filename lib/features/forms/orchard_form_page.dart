@@ -18,7 +18,6 @@ import 'package:flutter/gestures.dart';
 import '../../core/global_role_loader.dart' as gld;
 import '../../models/orchard_model.dart';
 import '../grower/grower_controller.dart';
-import '../grower/grower_dialogs.dart';
 
 class OrchardFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -1063,58 +1062,135 @@ class OrchardFormPage extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Text(
-                      'Orchard Boundary',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff548235),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      '(Optional)',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const Spacer(),
-                    Obx(() => ElevatedButton.icon(
-                          onPressed: controller.toggleDrawingBoundary,
-                          icon: Icon(controller.isDrawingBoundary.value
-                              ? Icons.edit_off
-                              : Icons.edit),
-                          label: Text(controller.isDrawingBoundary.value
-                              ? 'Stop Drawing'
-                              : 'Draw Boundary'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: controller.isDrawingBoundary.value
-                                ? Colors.red
-                                : const Color(0xff548235),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxWidth > 500) {
+                      // Wide screen: everything in a row
+                      return Row(
+                        children: [
+                          const Text(
+                            'Orchard Boundary',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff548235),
+                            ),
                           ),
-                        )),
-                    const SizedBox(width: 8),
-                    Obx(() => IconButton(
-                          icon: const Icon(Icons.undo),
-                          tooltip: 'Remove Last Point',
-                          onPressed: controller.boundaryPoints.isNotEmpty
-                              ? controller.removeLastBoundaryPoint
-                              : null,
-                        )),
-                    Obx(() => IconButton(
-                          icon: const Icon(Icons.clear),
-                          tooltip: 'Clear All',
-                          onPressed: controller.boundaryPoints.isNotEmpty
-                              ? controller.clearBoundary
-                              : null,
-                        )),
-                  ],
+                          const SizedBox(width: 8),
+                          const Text(
+                            '(Optional)',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const Spacer(),
+                          Obx(() => ElevatedButton.icon(
+                                onPressed: controller.toggleDrawingBoundary,
+                                icon: Icon(controller.isDrawingBoundary.value
+                                    ? Icons.edit_off
+                                    : Icons.edit),
+                                label: Text(controller.isDrawingBoundary.value
+                                    ? 'Stop Drawing'
+                                    : 'Draw Boundary'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: controller.isDrawingBoundary.value
+                                      ? Colors.red
+                                      : const Color(0xff548235),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                ),
+                              )),
+                          const SizedBox(width: 8),
+                          Obx(() => IconButton(
+                                icon: const Icon(Icons.undo),
+                                tooltip: 'Remove Last Point',
+                                onPressed: controller.boundaryPoints.isNotEmpty
+                                    ? controller.removeLastBoundaryPoint
+                                    : null,
+                              )),
+                          Obx(() => IconButton(
+                                icon: const Icon(Icons.clear),
+                                tooltip: 'Clear All',
+                                onPressed: controller.boundaryPoints.isNotEmpty
+                                    ? controller.clearBoundary
+                                    : null,
+                              )),
+                        ],
+                      );
+                    } else {
+                      // Small screen: stacked layout
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Orchard Boundary',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xff548235),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                '(Optional)',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Spacer(),
+                          Column(
+                            children: [
+                              Obx(() => ElevatedButton.icon(
+                                onPressed: controller.toggleDrawingBoundary,
+                                icon: Icon(controller.isDrawingBoundary.value
+                                    ? Icons.edit_off
+                                    : Icons.edit),
+                                label: Text(controller.isDrawingBoundary.value
+                                    ? 'Stop Drawing'
+                                    : 'Draw Boundary'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: controller.isDrawingBoundary.value
+                                      ? Colors.red
+                                      : const Color(0xff548235),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                ),
+                              )),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Obx(() => IconButton(
+                                    icon: const Icon(Icons.undo),
+                                    tooltip: 'Remove Last Point',
+                                    onPressed: controller.boundaryPoints.isNotEmpty
+                                        ? controller.removeLastBoundaryPoint
+                                        : null,
+                                  )),
+                                  Obx(() => IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    tooltip: 'Clear All',
+                                    onPressed: controller.boundaryPoints.isNotEmpty
+                                        ? controller.clearBoundary
+                                        : null,
+                                  )),
+                                ],
+                              ),
+                            ],
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                          )
+                        ],
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -1696,10 +1772,7 @@ class OrchardFormPage extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final suggestion = controller.boundarySearchSuggestions[index];
                           return ListTile(
-                            title: Text((suggestion['display_name'] as String)
-                                .split(',')
-                                .where((part) => !RegExp(r'\\b\\d{5,6}\\b').hasMatch(part))
-                                .join(',').trim() ?? '',),
+                            title: Text(suggestion['display_name'] ?? ''),
                             onTap: () => controller.selectBoundarySuggestion(suggestion),
                           );
                         },
