@@ -1,3 +1,4 @@
+import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
 import 'package:apple_grower/features/freightForwarder/freightForwarder_controller.dart';
 import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
 import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
@@ -233,6 +234,9 @@ class TransportUnionFormController extends GetxController {
         return Get.find<FreightForwarderController>()
             .associatedTransportUnions
             .any((u) => u.id == union.id);
+      case "Aadhati":
+        return Get.find<AadhatiController>() .associatedTransportUnions
+            .any((u) => u.id == union.id);
       default:
         return Get.find<LadaniBuyersController>()
             .associatedTransportUnions
@@ -258,6 +262,9 @@ class TransportUnionFormController extends GetxController {
         Get.find<FreightForwarderController>()
             .addAssociatedTransportUnion(union);
         break;
+      case "Aadhati":
+    Get.find<AadhatiController>() .addAssociatedTransportUnion(union);
+            break;
       default:
         Get.find<LadaniBuyersController>().addAssociatedTransportUnion(union);
     }

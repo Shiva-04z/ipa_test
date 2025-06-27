@@ -46,7 +46,7 @@ class GrowerFormController extends GetxController {
         final List<dynamic> data = json.decode(response.body);
         availableGrowers.value = data
             .map((e) => Grower(
-                  id: e['id']?.toString(),
+                  id: e['_id']?.toString(),
                   name: e['name'],
                   aadharNumber: e['aadharNumber'],
                   phoneNumber: e['phoneNumber'],
@@ -147,7 +147,7 @@ class GrowerFormController extends GetxController {
         final List<dynamic> data = json.decode(response.body);
         searchResults.value = data
             .map((e) => Grower(
-                  id: e['id']?.toString(),
+                  id: e['_id']?.toString(),
                   name: e['name'],
                   aadharNumber: e['aadharNumber'],
                   phoneNumber: e['phoneNumber'],

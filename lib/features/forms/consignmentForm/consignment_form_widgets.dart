@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../core/globals.dart' as glb;
 import '../../../models/driving_profile_model.dart';
 import '../../../models/pack_house_model.dart';
+import '../../grower/grower_controller.dart';
 import 'consignment_form_controller.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -164,7 +165,7 @@ Widget buildPackhouseDetailsCard(ConsignmentFormController controller) {
           decoration: getInputDecoration('Select Packhouse',
               prefixIcon: Icons.business),
           value: controller.selectedPackhouse.value,
-          items: glb.availablePackHouses.map((PackHouse packhouse) {
+          items: Get.find<GrowerController>().packingHouses.map((PackHouse packhouse) {
             return DropdownMenuItem<PackHouse>(
               value: packhouse,
               child: Text(packhouse.name),

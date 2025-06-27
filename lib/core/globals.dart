@@ -30,7 +30,7 @@ RxBool isHindiLanguage = false.obs;
 RxString url="https://14b3-2401-4900-1ca3-a510-dd24-3168-83fc-70ad.ngrok-free.app".obs;
 
 
-RxString id = "685d137cd479db5bf6e8b1ec".obs;
+RxString id = "685d13c6d479db5bf6e8b1f4".obs;
 
 RxList<Complaint> myComplaint = <Complaint>[].obs;
 
@@ -152,44 +152,6 @@ RxList<FreightForwarder> availableBuyers = [
   ),
 ].obs;
 
-RxList<Consignment> availableConsignments = [
-  Consignment(
-    id: 'CONS001',
-    quality: 'Premium',
-    category: 'A',
-    numberOfBoxes: 100,
-    numberOfPiecesInBox: 20,
-    pickupOption: 'Own',
-    shippingFrom: 'Kotkhai',
-    shippingTo: 'Delhi',
-    hasOwnCrates: true,
-    status: 'In Transit',
-    commissionAgent: availableAadhatis[0],
-    driver: availableDrivingProfiles[0],
-    corporateCompany: availableLadanis[0],
-    packingHouse: availablePackHouses[0],
-    createdAt: DateTime.now().subtract(Duration(days: 5)),
-    updatedAt: DateTime.now(),
-  ),
-  Consignment(
-    id: 'CONS002',
-    quality: 'Standard',
-    category: 'B',
-    numberOfBoxes: 150,
-    numberOfPiecesInBox: 18,
-    pickupOption: 'Third Party',
-    shippingFrom: 'Shimla',
-    shippingTo: 'Mumbai',
-    hasOwnCrates: false,
-    status: 'Pending',
-    commissionAgent: availableAadhatis[1],
-    driver: availableDrivingProfiles[1],
-    corporateCompany: availableLadanis[1],
-    packingHouse: availablePackHouses[1],
-    createdAt: DateTime.now().subtract(Duration(days: 2)),
-    updatedAt: DateTime.now(),
-  ),
-].obs;
 
 RxList<DrivingProfile> availableDrivingProfiles = [
   DrivingProfile(
@@ -334,48 +296,7 @@ RxList<Orchard> availableOrchards = [
   ),
 ].obs;
 
-RxList<PackHouse> availablePackHouses = [
-  PackHouse(
-    id: 'PACK001',
-    name: 'Himalayan Packers',
-    phoneNumber: '9876543211',
-    address: 'Industrial Area, Shimla',
-    gradingMachine: 'Automatic Grading System',
-    sortingMachine: 'Color Sorting Machine',
-    gradingMachineCapacity: '1000 boxes/hour',
-    sortingMachineCapacity: '800 boxes/hour',
-    machineManufacturer: 'AppleTech Industries',
-    trayType: TrayType.bothSide,
-    perDayCapacity: '5000 boxes',
-    numberOfCrates: 2000,
-    crateManufacture: 'Himalayan Crates',
-    boxesPacked2023: 50000,
-    boxesPacked2024: 60000,
-    estimatedBoxes2025: 75000,
-    geoLoaction: 'Shimla Industrial Area',
-    numberOfGrowersServed: 50,
-  ),
-  PackHouse(
-    id: 'PACK002',
-    name: 'Kullu Packers',
-    phoneNumber: '9876543212',
-    address: 'Industrial Area, Kullu',
-    gradingMachine: 'Semi-Automatic Grading System',
-    sortingMachine: 'Weight Sorting Machine',
-    gradingMachineCapacity: '800 boxes/hour',
-    sortingMachineCapacity: '600 boxes/hour',
-    machineManufacturer: 'FruitTech Solutions',
-    trayType: TrayType.singleSide,
-    perDayCapacity: '4000 boxes',
-    numberOfCrates: 1500,
-    crateManufacture: 'Kullu Crates',
-    boxesPacked2023: 40000,
-    boxesPacked2024: 45000,
-    estimatedBoxes2025: 60000,
-    geoLoaction: 'Kullu Industrial Area',
-    numberOfGrowersServed: 35,
-  ),
-].obs;
+
 
 RxList<Employee> availablePackers = [
   Employee(

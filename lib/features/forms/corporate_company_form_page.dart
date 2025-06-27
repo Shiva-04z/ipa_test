@@ -48,11 +48,18 @@ class CorporateCompanyFormController extends GetxController {
     isLoading.value = true;
     try {
       final response =
-          await http.get(Uri.parse(glb.url + '/api/ladanis/nearby10'));
+          await http.get(Uri.parse(glb.url + '/api/buyers/nearby10'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         availableCompanies.value =
-            data.map((e) => Ladani.fromJson(e)).toList().cast<Ladani>();
+            data.map((e) => Ladani(
+              id : e['_id'] ,
+              nameOfTradingFirm : e['nameOfFirm'],
+              name: e['name'],
+              contact: e['contact'],
+              address: e['address'],
+
+            )).toList().cast<Ladani>();
         searchResults.value = availableCompanies;
       } else {
         Get.snackbar(
@@ -125,14 +132,21 @@ class CorporateCompanyFormController extends GetxController {
     try {
       final response = await http.get(
         Uri.parse(glb.url +
-            '/api/ladanis/' +
+            '/api/buyers/' +
             Uri.encodeComponent(query) +
             '/searchbyName'),
       );
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         searchResults.value =
-            data.map((e) => Ladani.fromJson(e)).toList().cast<Ladani>();
+            data.map((e) => Ladani(
+              id : e['_id'] ,
+              nameOfTradingFirm : e['nameOfFirm'],
+              name: e['name'],
+              contact: e['contact'],
+              address: e['address'],
+
+            )).toList().cast<Ladani>();
       } else {
         Get.snackbar(
             'Error', 'Failed to search Ladani: \\${response.statusCode}');
@@ -251,7 +265,6 @@ class CorporateCompanyFormController extends GetxController {
                           : Get.find<ApmcOfficeController>()
                               .addLadani(newCompany);
 
-      Get.back();
     } catch (e) {
       Get.snackbar(
         'Error',

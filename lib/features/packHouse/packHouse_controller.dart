@@ -30,16 +30,32 @@ class PackHouseController extends GetxController {
   final RxList<String> galleryImages = <String>[].obs;
   RxList<HpmcCollectionCenter> hpmcDepots = <HpmcCollectionCenter>[].obs;
 
+  // Additional reactive variables for new fields
+  final RxString gradingMachine = "".obs;
+  final RxString sortingMachine = "".obs;
+  final RxString gradingMachineCapacity = "".obs;
+  final RxString sortingMachineCapacity = "".obs;
+  final RxString machineManufacture = "".obs;
+  final RxString trayType = "".obs;
+  final RxString perDayCapacity = "".obs;
+  final RxInt numberOfCrates = 0.obs;
+  final RxString crateManufacture = "".obs;
+  final RxInt boxesPackedT2 = 0.obs;
+  final RxInt boxesPackedT1 = 0.obs;
+  final RxInt boxesEstimatedT = 0.obs;
+  final RxString geoLocation = "".obs;
+  final RxInt numberOfGrowersServed = 0.obs;
+
   // ==================== STATIC DATA ====================
-  String name = gld.packHouse.value.name;
+
   final Map details = {
-    'Grading Machine': '${gld.packHouse.value.gradingMachineCapacity}',
-    'Sorting Machine': '${gld.packHouse.value.sortingMachineCapacity}',
-    'Daily Capacity': '${gld.packHouse.value.perDayCapacity}',
-    'Crates': '${gld.packHouse.value.numberOfCrates}',
-    'Boxes 2023': '${gld.packHouse.value.boxesPacked2023}',
-    'Boxes 2024': '${gld.packHouse.value.boxesPacked2024}',
-    'Boxes 2025': '${gld.packHouse.value.estimatedBoxes2025}',
+    'Grading Machine': '',
+    'Sorting Machine': '',
+    'Daily Capacity': '',
+    'Crates': '',
+    'Boxes T2': '',
+    'Boxes T1': '',
+    'Boxes Estimated T': 'T}',
   }.obs;
 
   // ==================== LIFECYCLE METHODS ====================
@@ -50,23 +66,75 @@ class PackHouseController extends GetxController {
     loadData();
   }
 
-  Future<void> loadData()   
-  async{
+  Future<void> loadData() async {
     String apiurl = glb.url + "/api/packhouse/${glb.id.value}";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       glb.personName.value = data['name'];
       glb.personPhone.value = "+91" + data['phoneNumber'];
-      associatedGrowers.value = glbm.createGrowerListFromApi(data['grower_IDs']);
-      associatedFreightForwarders.value =glbm.createFreightListFromApi(data['freightForwarder_IDs']);
-      associatedDrivers.value =glbm.createDriverListFromApi(data['driver_IDs']);
-      associatedAadhatis.value =glbm.createAadhatiListFromApi(data['aadhati_IDs']);
-      associatedTransportUnions.value =glbm.createTransportListFromApi(data['transportUnion_IDs']);
-      hpmcDepots.value=glbm.createHPMCListFromApi(data['hpmcDepot_IDs']);
-      associatedPackers.value =glbm.createEmployeeListFromApi(data['packhouse_IDs']);
-  }}
+      print(data.toString());
 
+      // Load associated entities
+      associatedGrowers.value =
+          glbm.createGrowerListFromApi(data['grower_IDs']);
+      associatedAadhatis.value =
+          glbm.createAadhatiListFromApi(data['aadhati_IDs']);
+      associatedFreightForwarders.value =
+          glbm.createFreightListFromApi(data['freightForwarder_IDs']);
+      associatedDrivers.value =
+          glbm.createDriverListFromApi(data['drivers_IDs']);
+      associatedTransportUnions.value =
+          glbm.createTransportListFromApi(data['transportUnion_IDs']);
+      associatedLadanis.value = glbm.createLadaniListFromApi(data['buyer_IDs']);
+      associatedPackers.value =
+          glbm.createEmployeeListFromApi(data['employee_IDs']);
+      print(data['hpmcDepot_IDs']);
+      hpmcDepots.value = glbm.createHPMCListFromApi(data['hpmcDepot_IDs']);
+
+      // Load gallery images
+      if (data['gallery'] != null) {
+        final List<dynamic> galleryData = data['gallery'];
+        galleryImages.value =
+            galleryData.map((item) => item['url'] as String).toList();
+      }
+
+      // Update details map with new fields
+      details['Grading Machine'] = data['gradingMachine'] ?? '';
+      details['Grading Machine Capacity'] =
+          data['gradingMachineCapacity'] ?? '';
+      details['Sorting Machine'] = data['sortingMachine'] ?? '';
+      details['Sorting Machine Capacity'] =
+          data['sortingMachineCapacity'] ?? '';
+      details['Machine Manufacture'] = data['machineManufacture'] ?? '';
+      details['Tray Type'] = data['trayType'] ?? '';
+      details['Daily Capacity'] = data['perDayCapacity'] ?? '';
+      details['Number of Crates'] = (data['numberOfCrates'] ?? 0).toString();
+      details['Crate Manufacture'] = data['crateManufacture'] ?? '';
+      details['Boxes Packed T2'] = (data['boxesPackedT2'] ?? 0).toString();
+      details['Boxes Packed T1'] = (data['boxesPackedT1'] ?? 0).toString();
+      details['Boxes Estimated T'] = (data['boxesEstimatedT'] ?? 0).toString();
+      details['Geo Location'] = data['geoLocation'] ?? '';
+      details['Number of Growers Served'] =
+          (data['numberOfGrowersServed'] ?? 0).toString();
+
+      // Populate reactive variables
+      gradingMachine.value = data['gradingMachine'] ?? '';
+      sortingMachine.value = data['sortingMachine'] ?? '';
+      gradingMachineCapacity.value = data['gradingMachineCapacity'] ?? '';
+      sortingMachineCapacity.value = data['sortingMachineCapacity'] ?? '';
+      machineManufacture.value = data['machineManufacture'] ?? '';
+      trayType.value = data['trayType'] ?? '';
+      perDayCapacity.value = data['perDayCapacity'] ?? '';
+      numberOfCrates.value = data['numberOfCrates'] ?? 0;
+      crateManufacture.value = data['crateManufacture'] ?? '';
+      boxesPackedT2.value = data['boxesPackedT2'] ?? 0;
+      boxesPackedT1.value = data['boxesPackedT1'] ?? 0;
+      boxesEstimatedT.value = data['boxesEstimatedT'] ?? 0;
+      geoLocation.value = data['geoLocation'] ?? '';
+      numberOfGrowersServed.value = data['numberOfGrowersServed'] ?? 0;
+    }
+  }
 
   // ==================== GROWER MANAGEMENT METHODS ====================
   void addAssociatedGrower(Grower agent) {
@@ -146,7 +214,6 @@ class PackHouseController extends GetxController {
       uploadAgent(agent.id!);
     }
   }
-
 
   Future<void> createAgent(Aadhati agent) async {
     String apiUrl = glb.url + '/api/agents';
@@ -229,11 +296,16 @@ class PackHouseController extends GetxController {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"name": ladani.name, "contact": ladani.contact}),
+        body: jsonEncode({
+          "name": ladani.name,
+          "contact": ladani.contact,
+          "nameOfFirm": ladani.nameOfTradingFirm,
+          "address": ladani.address
+        }),
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
-        final data = jsonDecode(response.body)['data'];
-        Future.delayed(Duration(seconds: 3));
+        final data = jsonDecode(response.body);
+        print(data);
         print(data['_id']);
         uploadLadani(data['_id']);
         associatedLadanis.add(ladani);
@@ -281,7 +353,8 @@ class PackHouseController extends GetxController {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"name": packer.name, "phoneNumber": packer.phoneNumber}),
+        body: jsonEncode(
+            {"name": packer.name, "phoneNumber": packer.phoneNumber}),
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'];
@@ -297,7 +370,8 @@ class PackHouseController extends GetxController {
   }
 
   void uploadPacker(String id) async {
-    final String apiUrl = glb.url + '/api/packhouse/${glb.id.value}/add-employee';
+    final String apiUrl =
+        glb.url + '/api/packhouse/${glb.id.value}/add-employee';
     print(apiUrl);
     final Map<String, dynamic> updatePayload = {'employeeID': id};
     try {
