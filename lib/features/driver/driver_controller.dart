@@ -154,6 +154,7 @@ class DriverController extends GetxController {
     }
   }
 
+
   void removeAssociatedBuyer(String id) {
     associatedBuyers.removeWhere((buyer) => buyer.id == id);
   }

@@ -117,10 +117,10 @@ class PackingHouseFormController extends GetxController {
                   gradingMachine: e['gradingMachine'] ?? '',
                   sortingMachine: e['sortingMachine'] ?? '',
                   numberOfCrates: e['numberOfCrates'] ?? 0,
-                  boxesPacked2023: e['boxesPacked2023'] ?? 0,
-                  boxesPacked2024: e['boxesPacked2024'] ?? 0,
-                  estimatedBoxes2025: e['estimatedBoxes2025'] ?? 0,
-                  trayType: TrayType.bothSide, // Adjust if API provides this
+                  boxesPackedT1: e['boxesPackedT1'] ?? 0,
+                  boxesPackedT2: e['boxesPackedT2'] ?? 0,
+                  boxesEstimatedT: e['estimatedBoxes2025'] ?? 0,
+                  trayType: e['trayType'] ?? '', // Adjust if API provides this
                 ))
             .toList()
             .cast<PackHouse>();
@@ -156,10 +156,10 @@ class PackingHouseFormController extends GetxController {
                   gradingMachine: e['gradingMachine'] ?? '',
                   sortingMachine: e['sortingMachine'] ?? '',
                   numberOfCrates: e['numberOfCrates'] ?? 0,
-                  boxesPacked2023: e['boxesPacked2023'] ?? 0,
-                  boxesPacked2024: e['boxesPacked2024'] ?? 0,
-                  estimatedBoxes2025: e['estimatedBoxes2025'] ?? 0,
-                  trayType: TrayType.bothSide, // Adjust if API provides this
+                  boxesPackedT1: e['boxesPacked2023'] ?? 0,
+                  boxesPackedT2: e['boxesPacked2024'] ?? 0,
+                  boxesEstimatedT: e['estimatedBoxes2025'] ?? 0,
+                  trayType: e['trayType'] ?? "", // Adjust if API provides this
                 ))
             .toList()
             .cast<PackHouse>();
@@ -227,9 +227,9 @@ class PackingHouseFormController extends GetxController {
         gradingMachine: '',
         sortingMachine: '',
         numberOfCrates: 0,
-        boxesPacked2023: 0,
-        boxesPacked2024: 0,
-        estimatedBoxes2025: 0,
+        boxesPackedT2: 0,
+        boxesPackedT1: 0,
+        boxesEstimatedT: 0,
       );
 
       (glb.roleType.value == "Grower")
@@ -340,7 +340,8 @@ class PackingHouseFormPage extends StatelessWidget {
                   child: Text(
                     'Select or Create Packing House',
                     style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 14,
+                      fontSize:
+                          MediaQuery.of(context).size.width > 400 ? 20 : 14,
                       fontWeight: FontWeight.bold,
                       overflow: TextOverflow.ellipsis,
                       color: const Color(0xff548235),
@@ -352,7 +353,9 @@ class PackingHouseFormPage extends StatelessWidget {
                         onPressed: () => controller.isSearching.value =
                             !controller.isSearching.value,
                         icon: Icon(
-                          controller.isSearching.value ? Icons.add : Icons.search,
+                          controller.isSearching.value
+                              ? Icons.add
+                              : Icons.search,
                           color: const Color(0xff548235),
                         ),
                         label: Text(

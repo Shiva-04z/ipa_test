@@ -316,11 +316,11 @@ class FreightForwarderController extends GetxController {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"name": ladani.name, "contact": ladani.contact}),
+        body: jsonEncode({"name": ladani.name, "contact": ladani.contact, "nameOfFirm":ladani.nameOfTradingFirm,"address": ladani.address}),
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
-        final data = jsonDecode(response.body)['data'];
-        Future.delayed(Duration(seconds: 3));
+        final data = jsonDecode(response.body);
+        print(data);
         print(data['_id']);
         uploadLadani(data['_id']);
         associatedLadanis.add(ladani);

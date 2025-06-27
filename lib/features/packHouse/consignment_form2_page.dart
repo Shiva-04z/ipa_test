@@ -21,7 +21,7 @@ class ConsignmentForm2Controller extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    searchResults.value = glb.availableConsignments;
+
   }
 
   @override
@@ -31,20 +31,7 @@ class ConsignmentForm2Controller extends GetxController {
   }
 
   void onSearchChanged(String query) {
-    if (query.isEmpty) {
-      searchResults.value = glb.availableConsignments;
-    } else {
-      searchResults.value = glb.availableConsignments.where((consignment) {
-        final id = consignment.id.toLowerCase();
-        final quality = consignment.quality.toLowerCase();
-        final category = consignment.category.toLowerCase();
-        final searchLower = query.toLowerCase();
 
-        return id.contains(searchLower) ||
-            quality.contains(searchLower) ||
-            category.contains(searchLower);
-      }).toList();
-    }
   }
 
   void selectConsignment(Consignment consignment) {

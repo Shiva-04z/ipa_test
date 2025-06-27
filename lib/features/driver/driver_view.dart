@@ -6,9 +6,10 @@ import '../../core/globalsWidgets.dart' as glbw;
 
 import '../../models/consignment_model.dart';
 import '../../models/transport_model.dart';
+import '../forms/driver_form_page.dart';
 import '../forms/transport_union_form_page.dart';
 import '../grower/grower_dialogs.dart';
-import 'driver_form_page.dart';
+
 import '../packHouse/consignment_form2_page.dart'; // For adding new consignments
 
 class DriverView extends GetView<DriverController> {
@@ -170,7 +171,7 @@ class DriverView extends GetView<DriverController> {
           _buildDetailRow('Number of Tyres',
               controller.details.value.noOfTyres?.toString() ?? ''),
         ],
-        onEdit: () => Get.to(() => DriverFormPage()),
+        onEdit: () => Get.to(() => DriverFormPageView()),
         onDelete: () {},
       ),
       child: Card(
@@ -213,7 +214,7 @@ class DriverView extends GetView<DriverController> {
   Widget _buildAddNewDriverCard(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width <= 800;
     return InkWell(
-      onTap: () => Get.to(() => DriverFormPage()),
+      onTap: () => Get.to(() => DriverFormPageView()),
       child: Card(
         color: Colors.white,
         elevation: 0,

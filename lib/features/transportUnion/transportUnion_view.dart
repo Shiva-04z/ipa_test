@@ -13,7 +13,6 @@ import '../../models/aadhati.dart';
 import '../../models/freightForwarder.dart';
 import '../../models/consignment_model.dart';
 
-import '../driver/driver_form_page.dart';
 import '../aadhati/aadhati_edit_info_form_page.dart';
 import '../forms/driver_form_page.dart';
 import '../forms/freightForwarder_form_page.dart';
@@ -179,46 +178,45 @@ class TransportUnionView extends GetView<TransportUnionController> {
         item: controller.details,
         title: 'Transport Union Details',
         details: [
-          _buildDetailRow('Name', gld.globalTransport.value.name),
-          _buildDetailRow('Contact', gld.globalTransport.value.contact),
-          _buildDetailRow('Address', gld.globalTransport.value.address),
-          _buildDetailRow('Union Name',
-              gld.globalTransport.value.nameOfTheTransportUnion ?? 'N/A'),
+          _buildDetailRow('Name', controller.details['name']),
+          _buildDetailRow('Contact', controller.details['Contact'],),
+          _buildDetailRow('Address', controller.details["Address"],),
+          _buildDetailRow('Union Name', controller.details["Union Name"]?? 'N/A'),
           _buildDetailRow('Registration No',
-              gld.globalTransport.value.transportUnionRegistrationNo ?? 'N/A'),
+              controller.details['Registeration No'] ?? 'N/A'),
           _buildDetailRow(
               'Vehicles Registered',
-              gld.globalTransport.value.noOfVehiclesRegistered?.toString() ??
+              controller.details["Vehicles Registerd"] ??
                   'N/A'),
           _buildDetailRow(
               'Light Vehicles',
-              gld.globalTransport.value.noOfLightCommercialVehicles
+              controller.details["LCVs"]
                       ?.toString() ??
                   'N/A'),
           _buildDetailRow(
               'Medium Vehicles',
-              gld.globalTransport.value.noOfMediumCommercialVehicles
+              controller.details["MCVs"]
                       ?.toString() ??
                   'N/A'),
           _buildDetailRow(
               'Heavy Vehicles',
-              gld.globalTransport.value.noOfHeavyCommercialVehicles
+              controller.details["HCVs"]
                       ?.toString() ??
                   'N/A'),
           _buildDetailRow(
               'Boxes 2023',
-              gld.globalTransport.value.appleBoxesTransported2023?.toString() ??
+              controller.details["Boxes Transported T-2"] ??
                   'N/A'),
           _buildDetailRow(
               'Boxes 2024',
-              gld.globalTransport.value.appleBoxesTransported2024?.toString() ??
+              controller.details["Boxes Transported T-1"] ??
                   'N/A'),
           _buildDetailRow(
               'Target 2025',
-              gld.globalTransport.value.estimatedTarget2025?.toString() ??
+              controller.details['Boxes Transported T'] ??
                   'N/A'),
           _buildDetailRow(
-              'States', gld.globalTransport.value.statesDrivenThrough ?? 'N/A'),
+              'States', controller.details['States'] ?? 'N/A'),
         ],
         onEdit: () => Get.to(() => TransportUnionFormPage()),
         onDelete: () {},
@@ -1042,7 +1040,6 @@ class TransportUnionView extends GetView<TransportUnionController> {
                 MediaQuery.of(Get.context!).size.width > 840 ? 6 : 3,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-
             children: [
               _buildSummaryCard(
                 'Associated Drivers',
@@ -1093,7 +1090,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
 
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
-    bool isSmallScreen =   MediaQuery.of(Get.context!).size.width > 840;
+    bool isSmallScreen = MediaQuery.of(Get.context!).size.width > 840;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -1126,7 +1123,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
                 count,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: isSmallScreen? 24: 14,
+                  fontSize: isSmallScreen ? 24 : 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),

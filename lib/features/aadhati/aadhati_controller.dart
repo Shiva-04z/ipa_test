@@ -29,31 +29,114 @@ class AadhatiController extends GetxController {
   final RxMap<String, Employee> staff = <String, Employee>{}.obs;
   RxString key = "".obs;
 
+  // Additional reactive variables for new fields
+  final RxString aadhar = "".obs;
+  final RxString apmc_ID = "".obs;
+  final RxString address = "".obs;
+  final RxString nameOfTradingFirm = "".obs;
+  final RxInt tradingExperience = 0.obs;
+  final RxString firmType = "".obs;
+  final RxString licenceNumber = "".obs;
+  final RxInt appleboxesT2 = 0.obs;
+  final RxInt appleboxesT1 = 0.obs;
+  final RxInt appleboxesT = 0.obs;
+  final RxBool needTradeFinance = false.obs;
+  final RxInt applegrowersServed = 0.obs;
+
   // ==================== LIFECYCLE METHODS ====================
   @override
   void onInit() {
     super.onInit();
-    glb.roleType.value ="Aadhati";
-   loadData();
+    glb.roleType.value = "Aadhati";
+    loadData();
   }
 
-  Future<void> loadData()
-  async{
+  Future<void> loadData() async {
     String apiurl = glb.url + "/api/agents/${glb.id.value}";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
+      print(data.keys);
+
+      // Basic information
       glb.personName.value = data['name'];
       glb.personPhone.value = "+91" + data['contact'];
-      associatedGrowers.value = glbm.createGrowerListFromApi(data['grower_IDs']);
-      associatedBuyers.value =glbm.createFreightListFromApi(data['freightForwarder_IDs']);
-      associatedDrivers.value =glbm.createDriverListFromApi(data['driver_IDs']);
-      associatedLadanis.value =glbm.createLadaniListFromApi(data['aadhati_IDs']);
-      associatedTransportUnions.value =glbm.createTransportListFromApi(data['transportUnion_IDs']);
-      associatedPackHouses.value=glbm.createPackhouseListFromApi(data['packhouse_IDs']);
 
+      // Additional fields from mongoose schema
+      details['aadhar'] = data['aadhar'] ?? '';
+      details['apmc_ID'] = data['apmc_ID'] ?? '';
+      details['address'] = data['address'] ?? '';
+      details['nameOfTradingFirm'] = data['nameOfTradingFirm'] ?? '';
+      details['tradingExperience'] =
+          (data['tradingExperience'] ?? 0).toString();
+      details['firmType'] = data['firmType'] ?? '';
+      details['licenceNumber'] = data['licenceNumber'] ?? '';
+      details['appleboxesT2'] = (data['appleboxesT2'] ?? 0).toString();
+      details['appleboxesT1'] = (data['appleboxesT1'] ?? 0).toString();
+      details['appleboxesT'] = (data['appleboxesT'] ?? 0).toString();
+      details['needTradeFinance'] =
+          (data['needTradeFinance'] ?? false).toString();
+      details['applegrowersServed'] =
+          (data['applegrowersServed'] ?? 0).toString();
 
-    }}
+      // Populate reactive variables
+      aadhar.value = data['aadhar'] ?? '';
+      apmc_ID.value = data['apmc_ID'] ?? '';
+      address.value = data['address'] ?? '';
+      nameOfTradingFirm.value = data['nameOfTradingFirm'] ?? '';
+      tradingExperience.value = data['tradingExperience'] ?? 0;
+      firmType.value = data['firmType'] ?? '';
+      licenceNumber.value = data['licenceNumber'] ?? '';
+      appleboxesT2.value = data['appleboxesT2'] ?? 0;
+      appleboxesT1.value = data['appleboxesT1'] ?? 0;
+      appleboxesT.value = data['appleboxesT'] ?? 0;
+      needTradeFinance.value = data['needTradeFinance'] ?? false;
+      applegrowersServed.value = data['applegrowersServed'] ?? 0;
+
+      // Load associated entities
+      associatedGrowers.value =
+          glbm.createGrowerListFromApi(data['grower_IDs']);
+      associatedBuyers.value =
+          glbm.createFreightListFromApi(data['freightForwarder_IDs']);
+      print(data['driver_IDs']);
+      associatedDrivers.value =
+          glbm.createDriverListFromApi(data['driver_IDs']);
+      associatedLadanis.value = glbm.createLadaniListFromApi(data['buyer_IDs']);
+      associatedTransportUnions.value =
+          glbm.createTransportListFromApi(data['transportUnion_IDs']);
+      associatedPackHouses.value =
+          glbm.createPackhouseListFromApi(data['packhouse_IDs']);
+
+      // Load consignments
+      if (data['consignment_IDs'] != null) {
+        // You might need to create a method to load consignments by IDs
+        // consignments.value = glbm.createConsignmentListFromApi(data['consignment_IDs']);
+      }
+
+      // Load gallery images
+      if (data['gallery'] != null) {
+        final List<dynamic> galleryData = data['gallery'];
+        galleryImages.value =
+            galleryData.map((item) => item['url'] as String).toList();
+      }
+
+      // Load staff data
+      if (data['staff'] != null) {
+        final Map<String, dynamic> staffData = data['staff'];
+        staff.value = staffData.map((key, value) {
+          if (value is List && value.isNotEmpty) {
+            // Handle the case where staff value is a list of employee IDs
+            // You might need to fetch employee details separately
+            return MapEntry(
+                key, Employee(name: 'Unknown Employee')); // Placeholder
+          } else {
+            return MapEntry(
+                key, Employee(name: 'Unknown Employee')); // Placeholder
+          }
+        });
+      }
+    }
+  }
 
   // ==================== STAFF MANAGEMENT METHODS ====================
   void addStaff(Employee employee) {
@@ -75,7 +158,6 @@ class AadhatiController extends GetxController {
       uploadGrower(agent.id!);
     }
   }
-
 
   void removeAssociatedGrower(String id) {
     associatedGrowers.removeWhere((grower) => grower.id == id);
@@ -113,8 +195,7 @@ class AadhatiController extends GetxController {
   }
 
   uploadGrower(String agentID) async {
-    final String apiUrl =
-        glb.url + '/api/agents/${glb.id.value}/add-grower';
+    final String apiUrl = glb.url + '/api/agents/${glb.id.value}/add-grower';
     print(apiUrl);
     final Map<String, dynamic> updatePayload = {'growerId': agentID};
     try {
@@ -142,7 +223,7 @@ class AadhatiController extends GetxController {
     associatedBuyers.removeWhere((buyer) => buyer.id == id);
   }
 
-  void  addAssociatedBuyer(FreightForwarder forwarder) {
+  void addAssociatedBuyer(FreightForwarder forwarder) {
     if (forwarder.id == null) {
       createForwarder(forwarder);
     } else {
@@ -206,6 +287,7 @@ class AadhatiController extends GetxController {
   // ==================== LADANI MANAGEMENT METHODS ====================
   void addAssociatedLadani(Ladani ladani) {
     if (ladani.id == null) {
+      print(ladani);
       createLadani(ladani);
     } else {
       uploadLadani(ladani.id!);
@@ -223,11 +305,16 @@ class AadhatiController extends GetxController {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"name": ladani.name, "contact": ladani.contact}),
+        body: jsonEncode({
+          "name": ladani.name,
+          "contact": ladani.contact,
+          "nameOfFirm": ladani.nameOfTradingFirm,
+          "address": ladani.address
+        }),
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
-        final data = jsonDecode(response.body)['data'];
-        Future.delayed(Duration(seconds: 3));
+        final data = jsonDecode(response.body);
+        print(data);
         print(data['_id']);
         uploadLadani(data['_id']);
         associatedLadanis.add(ladani);
@@ -300,8 +387,7 @@ class AadhatiController extends GetxController {
   }
 
   uploadPackHouse(String houseId) async {
-    final String apiUrl =
-        glb.url + '/api/agents/${glb.id.value}/add-packhouse';
+    final String apiUrl = glb.url + '/api/agents/${glb.id.value}/add-packhouse';
     print(apiUrl);
     final Map<String, dynamic> updatePayload = {'packhouseId': houseId};
     try {
@@ -364,7 +450,7 @@ class AadhatiController extends GetxController {
   }
 
   uploadDriver(String driverID) async {
-    final String apiUrl = glb.url + '/api/packhouse/${glb.id.value}/add-driver';
+    final String apiUrl = glb.url + '/api/agents/${glb.id.value}/add-driver';
     print(apiUrl);
     final Map<String, dynamic> updatePayload = {'driverId': driverID};
     try {
@@ -427,7 +513,7 @@ class AadhatiController extends GetxController {
 
   uploadTransport(String agentID) async {
     final String apiUrl =
-        glb.url + '/api/packhouse/${glb.id.value}/add-transport-union';
+        glb.url + '/api/agents/${glb.id.value}/add-transport-union';
     print(apiUrl);
 
     final Map<String, dynamic> updatePayload = {'transportUnionId': agentID};

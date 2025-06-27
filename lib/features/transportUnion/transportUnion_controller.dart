@@ -17,13 +17,13 @@ class TransportUnionController extends GetxController {
   RxString unionName = ''.obs;
   RxString registrationNumber = ''.obs;
   final Map details = {
-    'HCV': '${gld.globalTransport.value.noOfHeavyCommercialVehicles}',
-    'MCV': '${gld.globalTransport.value.noOfMediumCommercialVehicles}',
-    'LCV': '${gld.globalTransport.value.noOfLightCommercialVehicles}',
-    'Vehicles': '${gld.globalTransport.value.noOfVehiclesRegistered}',
-    'Boxes 2023': '${gld.globalTransport.value.appleBoxesTransported2023}',
-    'Boxes 2024': '${gld.globalTransport.value.appleBoxesTransported2024}',
-    'Drivers': '${gld.globalTransport.value.associatedDrivers?.length}',
+    'HCV': '',
+    'MCV': '',
+    'LCV': '',
+    'Vehicles': '',
+    'Boxes 2023': '',
+    'Boxes 2024': '',
+    'Drivers': '',
   }.obs;
   final associatedDrivers = <DrivingProfile>[].obs;
   final associatedGrowers = <Grower>[].obs;
@@ -35,24 +35,48 @@ class TransportUnionController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // TODO: Load data from your data source
+    glb.roleType.value = "TransportUnion";
     loadData();
   }
 
   // ==================== DATA LOADING METHODS ====================
-  Future<void> loadData()
-  async{
+  Future<void> loadData() async {
     String apiurl = glb.url + "/api/transportunion/${glb.id.value}";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       glb.personName.value = data['operatorName'];
       glb.personPhone.value = "+91" + data['contact'];
-      associatedGrowers.value = glbm.createGrowerListFromApi(data['grower_IDs']);
-      associatedDrivers.value =glbm.createDriverListFromApi(data['driver_IDs']);
-      associatedAadhatis.value =glbm.createAadhatiListFromApi(data['aadhati_IDs']);
-      associatedFreightForwarders.value =glbm.createFreightListFromApi(data['freightForwarder_IDs']);
-    }}
+      associatedGrowers.value =
+          glbm.createGrowerListFromApi(data['grower_IDs']);
+      associatedDrivers.value =
+          glbm.createDriverListFromApi(data['driver_IDs']);
+      associatedAadhatis.value =
+          glbm.createAadhatiListFromApi(data['aadhati_IDs']);
+      associatedFreightForwarders.value =
+          glbm.createFreightListFromApi(data['freightForwarder_IDs']);
+      unionName.value = data['name'] ?? '';
+      registrationNumber.value = data['registrationNumber'] ?? '';
+      details['Name'] = unionName.value;
+      details['Contact'] = glb.personPhone.value;
+      details['Address'] = data['address'] ?? '';
+      details['Vehicle Registered'] =
+          data['vehicleRegistered']?.join(', ') ?? '';
+      details['Vehicle Type'] = data['vehicleType'] ?? '';
+      details['HCVs'] = data['HCVs']?.toString() ?? '';
+      details['LCVs'] = data['LCVs']?.toString() ?? '';
+      details['MCVs'] = data['MCVs']?.toString() ?? '';
+      details['State Permit'] = data['statePermit'] ?? '';
+      details['Boxes Transported T-2'] =
+          data['boxesTransportedT2']?.toString() ?? '';
+      details['Boxes Transported T-1'] =
+          data['boxesTransportedT1']?.toString() ?? '';
+      details['Boxes Transported T'] =
+          data['boxesTransportedT0']?.toString() ?? '';
+      details['States Driven Through'] =
+          data['statesDrivenThrough']?.join(', ') ?? '';
+    }
+  }
 
   // ==================== DRIVER MANAGEMENT METHODS ====================
   void addAssociatedDrivers(DrivingProfile driver) {
@@ -90,7 +114,8 @@ class TransportUnionController extends GetxController {
   }
 
   uploadDriver(String driverID) async {
-    final String apiUrl = glb.url + '/api/transportunion/${glb.id.value}/add-driver';
+    final String apiUrl =
+        glb.url + '/api/transportunion/${glb.id.value}/add-driver';
     print(apiUrl);
     final Map<String, dynamic> updatePayload = {'driverId': driverID};
     try {
@@ -113,7 +138,6 @@ class TransportUnionController extends GetxController {
     }
   }
 
-
   // ==================== GROWER MANAGEMENT METHODS ====================
   void addAssociatedGrower(Grower agent) {
     if (agent.id == null) {
@@ -123,7 +147,6 @@ class TransportUnionController extends GetxController {
       uploadGrower(agent.id!);
     }
   }
-
 
   void removeAssociatedGrower(String id) {
     associatedGrowers.removeWhere((grower) => grower.id == id);
@@ -195,7 +218,6 @@ class TransportUnionController extends GetxController {
     }
   }
 
-
   Future<void> createAgent(Aadhati agent) async {
     String apiUrl = glb.url + '/api/agents';
     try {
@@ -258,7 +280,7 @@ class TransportUnionController extends GetxController {
   }
 
   // ==================== FREIGHT FORWARDER MANAGEMENT METHODS ====================
-  void  addAssociatedBuyers(FreightForwarder forwarder) {
+  void addAssociatedBuyers(FreightForwarder forwarder) {
     if (forwarder.id == null) {
       createForwarder(forwarder);
     } else {

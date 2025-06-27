@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:apple_grower/features/grower/grower_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -434,7 +435,7 @@ class ConsignmentFormController extends GetxController {
   Future<void> requestPackhouseSupport() async {
     isPackhouseSupportRequested.value = true;
     await Future.delayed(Duration(seconds: 2));
-    final randomPackhouse = (glb.availablePackHouses.toList()..shuffle()).first;
+    final randomPackhouse = (Get.find<GrowerController>().packingHouses.toList()..shuffle()).first;
     resolvedPackhouseDetails.value = randomPackhouse;
     isPackhouseSupportRequested.value = false;
     Get.snackbar(
