@@ -147,6 +147,12 @@ class RegisterView extends GetView<RegisterController> {
             return _buildPackHouseDetailsStep();
           } else if (controller.selectedRole.value == "Transport Union") {
             return _buildTransportUnionDetailsStep();
+          } else if (controller.selectedRole.value == "Corporate Company" ||
+              controller.selectedRole.value == "Buyer" ||
+              controller.selectedRole.value == "Ladani Buyers") {
+            return _buildLadaniDetailsStep();
+          } else if (controller.selectedRole.value == "Driver") {
+            return _buildDriverDetailsStep();
           }
           return Container();
         default:
@@ -767,6 +773,329 @@ class RegisterView extends GetView<RegisterController> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLadaniDetailsStep() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Icon(Icons.business_center, size: 48, color: Colors.green),
+            SizedBox(height: 16),
+            Text('Ladani/Buyer Information',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green)),
+            SizedBox(height: 24),
+            _buildTextField(
+              controller: controller.nameOfTradingFirmLadaniController,
+              label: 'Trading Firm Name',
+              hint: 'Enter trading firm name',
+              icon: Icons.business,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.tradingSinceYearsController,
+              label: 'Trading Since (Years)',
+              hint: 'Enter years',
+              icon: Icons.timeline,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildFirmTypeLadaniDropdown(),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.licenseNoController,
+              label: 'License Number',
+              hint: 'Enter license number',
+              icon: Icons.verified_user,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.purchaseLocationAddressController,
+              label: 'Purchase Location Address',
+              hint: 'Enter purchase location address',
+              icon: Icons.location_on,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.licensesIssuingAPMCController,
+              label: 'Licenses Issuing APMC',
+              hint: 'Enter licenses issuing APMC',
+              icon: Icons.account_balance,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.locationOnGoogleController,
+              label: 'Location on Google',
+              hint: 'Enter Google Maps location',
+              icon: Icons.map,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.appleBoxesPurchased2023Controller,
+              label: 'Apple Boxes Purchased 2023',
+              hint: 'Enter number',
+              icon: Icons.inventory,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.appleBoxesPurchased2024Controller,
+              label: 'Apple Boxes Purchased 2024',
+              hint: 'Enter number',
+              icon: Icons.inventory,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.estimatedTarget2025LadaniController,
+              label: 'Estimated Target 2025',
+              hint: 'Enter estimated target',
+              icon: Icons.trending_up,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.perBoxExpensesAfterBiddingController,
+              label: 'Per Box Expenses After Bidding',
+              hint: 'Enter per box expenses',
+              icon: Icons.attach_money,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 24),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.green),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'You can manage buyers, trading, and track consignments from your dashboard after registration.',
+                      style: TextStyle(color: Colors.green.shade700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDriverDetailsStep() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Icon(Icons.drive_eta, size: 48, color: Colors.green),
+            SizedBox(height: 16),
+            Text('Driver Information',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green)),
+            SizedBox(height: 24),
+            _buildTextField(
+              controller: controller.drivingLicenseNoController,
+              label: 'Driving License Number',
+              hint: 'Enter driving license number',
+              icon: Icons.credit_card,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.vehicleRegistrationNoController,
+              label: 'Vehicle Registration Number',
+              hint: 'Enter vehicle registration number',
+              icon: Icons.directions_car,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.chassiNoOfVehicleController,
+              label: 'Chassis Number',
+              hint: 'Enter chassis number',
+              icon: Icons.confirmation_number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.payloadCapacityApprovedByRtoController,
+              label: 'Payload Capacity (RTO Approved)',
+              hint: 'Enter payload capacity',
+              icon: Icons.speed,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.grossVehicleWeightController,
+              label: 'Gross Vehicle Weight',
+              hint: 'Enter gross vehicle weight',
+              icon: Icons.line_weight,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.noOfTyresController,
+              label: 'Number of Tyres',
+              hint: 'Enter number of tyres',
+              icon: Icons.circle,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.permitOfVehicleDrivingController,
+              label: 'Permit of Vehicle Driving',
+              hint: 'Enter permit details',
+              icon: Icons.assignment,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.vehicleOwnerAdharGstController,
+              label: 'Vehicle Owner Aadhaar/GST',
+              hint: 'Enter Aadhaar or GST',
+              icon: Icons.perm_identity,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.appleBoxesTransported2023DriverController,
+              label: 'Apple Boxes Transported 2023',
+              hint: 'Enter number',
+              icon: Icons.inventory,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.appleBoxesTransported2024DriverController,
+              label: 'Apple Boxes Transported 2024',
+              hint: 'Enter number',
+              icon: Icons.inventory,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.estimatedTarget2025DriverController,
+              label: 'Estimated Target 2025',
+              hint: 'Enter estimated target',
+              icon: Icons.trending_up,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.statesDrivenThroughDriverController,
+              label: 'States Driven Through',
+              hint: 'Enter states driven through',
+              icon: Icons.map,
+            ),
+            SizedBox(height: 24),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.green),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'You can manage your vehicle, track consignments, and view your driving profile after registration.',
+                      style: TextStyle(color: Colors.green.shade700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFirmTypeLadaniDropdown() {
+    final firmTypes = [
+      'Prop. / Partnership',
+      'HUF',
+      'PL',
+      'LLP',
+      'OPC',
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Firm Type',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[800],
+          ),
+        ),
+        SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.grey.shade50,
+          ),
+          child: DropdownButtonFormField<String>(
+            value: controller.firmTypeLadaniController.text.isEmpty
+                ? null
+                : controller.firmTypeLadaniController.text,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.business, color: Colors.green),
+              border: InputBorder.none,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            hint: Text('Select firm type'),
+            items: firmTypes.map((type) {
+              return DropdownMenuItem<String>(
+                value: type,
+                child: Text(type),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                controller.firmTypeLadaniController.text = value;
+              }
+            },
+          ),
+        ),
+      ],
     );
   }
 

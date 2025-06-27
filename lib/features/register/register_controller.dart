@@ -59,6 +59,50 @@ class RegisterController extends GetxController {
   final estimatedTarget2025Controller = TextEditingController();
   final statesDrivenThroughController = TextEditingController();
 
+  // Ladani (Corporate Company/Buyer) specific controllers
+  final ladaniNameController = TextEditingController();
+  final ladaniContactController = TextEditingController();
+  final ladaniAddressController = TextEditingController();
+  final nameOfTradingFirmLadaniController = TextEditingController();
+  final tradingSinceYearsController = TextEditingController();
+  final firmTypeLadaniController = TextEditingController();
+  final licenseNoController = TextEditingController();
+  final purchaseLocationAddressController = TextEditingController();
+  final licensesIssuingAPMCController = TextEditingController();
+  final locationOnGoogleController = TextEditingController();
+  final appleBoxesPurchased2023Controller = TextEditingController();
+  final appleBoxesPurchased2024Controller = TextEditingController();
+  final estimatedTarget2025LadaniController = TextEditingController();
+  final perBoxExpensesAfterBiddingController = TextEditingController();
+
+  // Driver specific controllers
+  final driverNameController = TextEditingController();
+  final driverContactController = TextEditingController();
+  final drivingLicenseNoController = TextEditingController();
+  final vehicleRegistrationNoController = TextEditingController();
+  final chassiNoOfVehicleController = TextEditingController();
+  final payloadCapacityApprovedByRtoController = TextEditingController();
+  final grossVehicleWeightController = TextEditingController();
+  final noOfTyresController = TextEditingController();
+  final permitOfVehicleDrivingController = TextEditingController();
+  final vehicleOwnerAdharGstController = TextEditingController();
+  final appleBoxesTransported2023DriverController = TextEditingController();
+  final appleBoxesTransported2024DriverController = TextEditingController();
+  final estimatedTarget2025DriverController = TextEditingController();
+  final statesDrivenThroughDriverController = TextEditingController();
+
+  // HPMC Depot specific controllers
+  final hpmcNameController = TextEditingController();
+  final operatorNameController = TextEditingController();
+  final cellNoController = TextEditingController();
+  final aadharNoController = TextEditingController();
+  final licenseNoHpmcController = TextEditingController();
+  final operatingSinceController = TextEditingController();
+  final locationHpmcController = TextEditingController();
+  final boxesTransported2023Controller = TextEditingController();
+  final boxesTransported2024Controller = TextEditingController();
+  final target2025Controller = TextEditingController();
+
   // Observable variables
   RxString selectedRole = "Grower".obs;
   RxInt currentStep = 0.obs;
@@ -145,6 +189,47 @@ class RegisterController extends GetxController {
     appleBoxesTransported2024Controller.dispose();
     estimatedTarget2025Controller.dispose();
     statesDrivenThroughController.dispose();
+    ladaniNameController.dispose();
+    ladaniContactController.dispose();
+    ladaniAddressController.dispose();
+    nameOfTradingFirmLadaniController.dispose();
+    tradingSinceYearsController.dispose();
+    firmTypeLadaniController.dispose();
+    licenseNoController.dispose();
+    purchaseLocationAddressController.dispose();
+    licensesIssuingAPMCController.dispose();
+    locationOnGoogleController.dispose();
+    appleBoxesPurchased2023Controller.dispose();
+    appleBoxesPurchased2024Controller.dispose();
+    estimatedTarget2025LadaniController.dispose();
+    perBoxExpensesAfterBiddingController.dispose();
+    driverNameController.dispose();
+    driverContactController.dispose();
+    drivingLicenseNoController.dispose();
+    vehicleRegistrationNoController.dispose();
+    chassiNoOfVehicleController.dispose();
+    payloadCapacityApprovedByRtoController.dispose();
+    grossVehicleWeightController.dispose();
+    noOfTyresController.dispose();
+    permitOfVehicleDrivingController.dispose();
+    vehicleOwnerAdharGstController.dispose();
+    appleBoxesTransported2023DriverController.dispose();
+    appleBoxesTransported2024DriverController.dispose();
+    estimatedTarget2025DriverController.dispose();
+    statesDrivenThroughDriverController.dispose();
+    hpmcNameController.dispose();
+    operatorNameController.dispose();
+    cellNoController.dispose();
+    aadharNoController.dispose();
+    licenseNoHpmcController.dispose();
+    operatingSinceController.dispose();
+    locationHpmcController.dispose();
+    boxesTransported2023Controller.dispose();
+    boxesTransported2024Controller.dispose();
+    target2025Controller.dispose();
+    needTradeFinance.value = false;
+    currentStep.value = 0;
+    errorMessage.value = "";
     super.onClose();
   }
 
@@ -190,12 +275,12 @@ class RegisterController extends GetxController {
             errorMessage.value = "Please enter APMC ID";
             return false;
           }
-        } else if (selectedRole.value == "PackHouse") {
-          if (gradingMachineController.text.trim().isEmpty) {
-            errorMessage.value = "Please enter grading machine";
+        } else if (selectedRole.value == "HPMC Depot") {
+          if (hpmcNameController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter HPMC name";
             return false;
           }
-        }else {
+        } else {
           if (villageController.text.trim().isEmpty) {
             errorMessage.value = "Please enter your village";
             return false;
@@ -270,6 +355,51 @@ class RegisterController extends GetxController {
             errorMessage.value = "Please enter number of vehicles registered";
             return false;
           }
+        } else if (selectedRole.value == "Corporate Company" ||
+            selectedRole.value == "Buyer" ||
+            selectedRole.value == "Ladani Buyers") {
+          if (nameOfTradingFirmLadaniController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter trading firm name";
+            return false;
+          }
+          if (tradingSinceYearsController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter trading since years";
+            return false;
+          }
+          if (firmTypeLadaniController.text.trim().isEmpty) {
+            errorMessage.value = "Please select firm type";
+            return false;
+          }
+          if (licenseNoController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter license number";
+            return false;
+          }
+        } else if (selectedRole.value == "Driver") {
+          if (drivingLicenseNoController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter driving license number";
+            return false;
+          }
+          if (vehicleRegistrationNoController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter vehicle registration number";
+            return false;
+          }
+        } else if (selectedRole.value == "HPMC Depot") {
+          if (operatorNameController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter operator name";
+            return false;
+          }
+          if (cellNoController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter cell number";
+            return false;
+          }
+          if (aadharNoController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter aadhar number";
+            return false;
+          }
+          if (licenseNoHpmcController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter license number";
+            return false;
+          }
         }
         break;
     }
@@ -285,6 +415,14 @@ class RegisterController extends GetxController {
       case "PackHouse":
         return 3;
       case "Transport Union":
+        return 3;
+      case "Corporate Company":
+      case "Buyer":
+      case "Ladani Buyers":
+        return 3;
+      case "Driver":
+        return 3;
+      case "HPMC Depot":
         return 3;
       default:
         return 2;
@@ -306,6 +444,14 @@ class RegisterController extends GetxController {
           return "PackHouse Details";
         } else if (selectedRole.value == "Transport Union") {
           return "Transport Union Details";
+        } else if (selectedRole.value == "Corporate Company" ||
+            selectedRole.value == "Buyer" ||
+            selectedRole.value == "Ladani Buyers") {
+          return "Ladani/Buyer Details";
+        } else if (selectedRole.value == "Driver") {
+          return "Driver Details";
+        } else if (selectedRole.value == "HPMC Depot") {
+          return "HPMC Depot Details";
         }
         return "Additional Details";
       default:
@@ -331,6 +477,17 @@ class RegisterController extends GetxController {
           break;
         case "Transport Union":
           await registerTransportUnion();
+          break;
+        case "Corporate Company":
+        case "Buyer":
+        case "Ladani Buyers":
+          await registerLadani();
+          break;
+        case "Driver":
+          await registerDriver();
+          break;
+        case "HPMC Depot":
+          await registerHpmcDepot();
           break;
         default:
           errorMessage.value =
@@ -662,6 +819,218 @@ class RegisterController extends GetxController {
     }
   }
 
+  Future<void> registerLadani() async {
+    try {
+      final Map<String, dynamic> requestBody = {
+        "name": ladaniNameController.text.trim(),
+        "contact": ladaniContactController.text.trim(),
+        "address": ladaniAddressController.text.trim(),
+        "nameOfTradingFirm": nameOfTradingFirmLadaniController.text.trim(),
+        "tradingSinceYears":
+            int.tryParse(tradingSinceYearsController.text.trim()) ?? 0,
+        "firmType": firmTypeLadaniController.text.trim(),
+        "licenseNo": licenseNoController.text.trim(),
+        "purchaseLocationAddress":
+            purchaseLocationAddressController.text.trim(),
+        "licensesIssuingAPMC": licensesIssuingAPMCController.text.trim(),
+        "locationOnGoogle": locationOnGoogleController.text.trim(),
+        "appleBoxesPurchased2023":
+            int.tryParse(appleBoxesPurchased2023Controller.text.trim()) ?? 0,
+        "appleBoxesPurchased2024":
+            int.tryParse(appleBoxesPurchased2024Controller.text.trim()) ?? 0,
+        "estimatedTarget2025":
+            double.tryParse(estimatedTarget2025LadaniController.text.trim()) ??
+                0.0,
+        "perBoxExpensesAfterBidding":
+            double.tryParse(perBoxExpensesAfterBiddingController.text.trim()) ??
+                0.0,
+        "associatedAaddhatis": [],
+        "associatedBuyer": [],
+        "truckServiceProviders": [],
+        "myComplaints": [],
+      };
+      final String ladaniApiUrl = glb.url + "/api/ladani";
+      final response = await http.post(
+        Uri.parse(ladaniApiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        glb.id.value = responseData['_id'];
+        Get.snackbar(
+          'Success',
+          'Ladani/Buyer registered successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Get.toNamed(RoutesConstant.ladaniBuyers);
+      } else {
+        final errorData = jsonDecode(response.body);
+        String errorMsg = "Registration failed";
+        if (errorData != null && errorData['message'] != null) {
+          errorMsg = errorData['message'];
+        } else if (response.statusCode == 409) {
+          errorMsg = "Ladani/Buyer already exists";
+        } else if (response.statusCode == 400) {
+          errorMsg = "Invalid data provided";
+        } else if (response.statusCode == 500) {
+          errorMsg = "Server error. Please try again later";
+        }
+        errorMessage.value = errorMsg;
+      }
+    } catch (e) {
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('NetworkException')) {
+        errorMessage.value =
+            "Network error. Please check your internet connection";
+      } else {
+        errorMessage.value = "Registration failed: ${e.toString()}";
+      }
+    }
+  }
+
+  Future<void> registerDriver() async {
+    try {
+      final Map<String, dynamic> requestBody = {
+        "name": driverNameController.text.trim(),
+        "contact": driverContactController.text.trim(),
+        "drivingLicenseNo": drivingLicenseNoController.text.trim(),
+        "vehicleRegistrationNo": vehicleRegistrationNoController.text.trim(),
+        "chassiNoOfVehicle": chassiNoOfVehicleController.text.trim(),
+        "payloadCapacityApprovedByRto":
+            payloadCapacityApprovedByRtoController.text.trim(),
+        "grossVehicleWeight": grossVehicleWeightController.text.trim(),
+        "noOfTyres": int.tryParse(noOfTyresController.text.trim()) ?? 0,
+        "permitOfVehicleDriving": permitOfVehicleDrivingController.text.trim(),
+        "vehicleOwnerAdharGst": vehicleOwnerAdharGstController.text.trim(),
+        "appleBoxesTransported2023": int.tryParse(
+                appleBoxesTransported2023DriverController.text.trim()) ??
+            0,
+        "appleBoxesTransported2024": int.tryParse(
+                appleBoxesTransported2024DriverController.text.trim()) ??
+            0,
+        "estimatedTarget2025":
+            double.tryParse(estimatedTarget2025DriverController.text.trim()) ??
+                0.0,
+        "statesDrivenThrough": statesDrivenThroughDriverController.text.trim(),
+        "appleGrowers": [],
+        "aadhatis": [],
+        "buyers": [],
+        "myComplaints": [],
+      };
+      final String driverApiUrl = glb.url + "/api/driver";
+      final response = await http.post(
+        Uri.parse(driverApiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        glb.id.value = responseData['_id'];
+        Get.snackbar(
+          'Success',
+          'Driver registered successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Get.toNamed(RoutesConstant.driver);
+      } else {
+        final errorData = jsonDecode(response.body);
+        String errorMsg = "Registration failed";
+        if (errorData != null && errorData['message'] != null) {
+          errorMsg = errorData['message'];
+        } else if (response.statusCode == 409) {
+          errorMsg = "Driver already exists";
+        } else if (response.statusCode == 400) {
+          errorMsg = "Invalid data provided";
+        } else if (response.statusCode == 500) {
+          errorMsg = "Server error. Please try again later";
+        }
+        errorMessage.value = errorMsg;
+      }
+    } catch (e) {
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('NetworkException')) {
+        errorMessage.value =
+            "Network error. Please check your internet connection";
+      } else {
+        errorMessage.value = "Registration failed: ${e.toString()}";
+      }
+    }
+  }
+
+  Future<void> registerHpmcDepot() async {
+    try {
+      final Map<String, dynamic> requestBody = {
+        "HPMCname": hpmcNameController.text.trim(),
+        "operatorName": operatorNameController.text.trim(),
+        "cellNo": cellNoController.text.trim(),
+        "aadharNo": aadharNoController.text.trim(),
+        "licenseNo": licenseNoHpmcController.text.trim(),
+        "operatingSince": operatingSinceController.text.trim(),
+        "location": locationHpmcController.text.trim(),
+        "boxesTransported2023":
+            int.tryParse(boxesTransported2023Controller.text.trim()) ?? 0,
+        "boxesTransported2024":
+            int.tryParse(boxesTransported2024Controller.text.trim()) ?? 0,
+        "target2025": double.tryParse(target2025Controller.text.trim()) ?? 0.0,
+        "associatedGrowers": [],
+        "myComplaints": [],
+        "associatedPackHouses": [],
+        "associatedDrivers": [],
+        "associatedTransportUnions": [],
+      };
+      final String hpmcDepotApiUrl = glb.url + "/api/hpmc-depot";
+      final response = await http.post(
+        Uri.parse(hpmcDepotApiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        glb.id.value = responseData['_id'];
+        Get.snackbar(
+          'Success',
+          'HPMC Depot registered successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Get.toNamed(RoutesConstant.hpAgriBoard);
+      } else {
+        final errorData = jsonDecode(response.body);
+        String errorMsg = "Registration failed";
+        if (errorData != null && errorData['message'] != null) {
+          errorMsg = errorData['message'];
+        } else if (response.statusCode == 409) {
+          errorMsg = "HPMC Depot already exists";
+        } else if (response.statusCode == 400) {
+          errorMsg = "Invalid data provided";
+        } else if (response.statusCode == 500) {
+          errorMsg = "Server error. Please try again later";
+        }
+        errorMessage.value = errorMsg;
+      }
+    } catch (e) {
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('NetworkException')) {
+        errorMessage.value =
+            "Network error. Please check your internet connection";
+      } else {
+        errorMessage.value = "Registration failed: ${e.toString()}";
+      }
+    }
+  }
+
   void clearForm() {
     nameController.clear();
     villageController.clear();
@@ -707,6 +1076,44 @@ class RegisterController extends GetxController {
     appleBoxesTransported2024Controller.clear();
     estimatedTarget2025Controller.clear();
     statesDrivenThroughController.clear();
+    ladaniNameController.clear();
+    ladaniContactController.clear();
+    ladaniAddressController.clear();
+    nameOfTradingFirmLadaniController.clear();
+    tradingSinceYearsController.clear();
+    firmTypeLadaniController.clear();
+    licenseNoController.clear();
+    purchaseLocationAddressController.clear();
+    licensesIssuingAPMCController.clear();
+    locationOnGoogleController.clear();
+    appleBoxesPurchased2023Controller.clear();
+    appleBoxesPurchased2024Controller.clear();
+    estimatedTarget2025LadaniController.clear();
+    perBoxExpensesAfterBiddingController.clear();
+    driverNameController.clear();
+    driverContactController.clear();
+    drivingLicenseNoController.clear();
+    vehicleRegistrationNoController.clear();
+    chassiNoOfVehicleController.clear();
+    payloadCapacityApprovedByRtoController.clear();
+    grossVehicleWeightController.clear();
+    noOfTyresController.clear();
+    permitOfVehicleDrivingController.clear();
+    vehicleOwnerAdharGstController.clear();
+    appleBoxesTransported2023DriverController.clear();
+    appleBoxesTransported2024DriverController.clear();
+    estimatedTarget2025DriverController.clear();
+    statesDrivenThroughDriverController.clear();
+    hpmcNameController.clear();
+    operatorNameController.clear();
+    cellNoController.clear();
+    aadharNoController.clear();
+    licenseNoHpmcController.clear();
+    operatingSinceController.clear();
+    locationHpmcController.clear();
+    boxesTransported2023Controller.clear();
+    boxesTransported2024Controller.clear();
+    target2025Controller.clear();
     needTradeFinance.value = false;
     currentStep.value = 0;
     errorMessage.value = "";
