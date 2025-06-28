@@ -295,7 +295,7 @@ class GrowerController extends GetxController {
 
   // ==================== PACKING HOUSE MANAGEMENT METHODS ====================
   void addPackingHouse(PackHouse house) {
-    if (house.id == null) {
+    if (house.id != null) {
       packingHouses.add(house);
       uploadPackHouse(house.id!);
     } else {

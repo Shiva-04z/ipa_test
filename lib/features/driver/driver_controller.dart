@@ -41,11 +41,10 @@ class DriverController extends GetxController {
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
+      print(data);
       glb.personName.value = data['name'];
       glb.personPhone.value = "+91" + data['contact'];
-      associatedGrowers.value = glbm.createGrowerListFromApi(data['grower_IDs']);
       associatedTransportUnions.value =glbm.createTransportListFromApi(data['transportUnion_IDs']);
-
     }}
   // ==================== JOB MANAGEMENT METHODS ====================
   void addConsignment(Consignment consignment) {
@@ -109,7 +108,7 @@ class DriverController extends GetxController {
         body: jsonEncode(updatePayload),
       );
       if (response.statusCode == 200) {
-        print("Sucess");
+        print("Sucesss");
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
