@@ -153,6 +153,14 @@ class RegisterView extends GetView<RegisterController> {
             return _buildLadaniDetailsStep();
           } else if (controller.selectedRole.value == "Driver") {
             return _buildDriverDetailsStep();
+          } else if (controller.selectedRole.value == "HPMC Depot") {
+            return _buildHpmcDepotDetailsStep();
+          } else if (controller.selectedRole.value == "FreightForwarder") {
+            return _buildFreightForwarderDetailsStep();
+          } else if (controller.selectedRole.value == "Police Officer") {
+            return _buildPoliceOfficerDetailsStep();
+          } else if (controller.selectedRole.value == "AMPCO Office") {
+            return _buildAmpcoOfficeDetailsStep();
           }
           return Container();
         default:
@@ -1395,6 +1403,516 @@ class RegisterView extends GetView<RegisterController> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildFreightForwarderDetailsStep() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Icon(Icons.local_shipping, size: 48, color: Colors.green),
+            SizedBox(height: 16),
+            Text('Freight Forwarder Information',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green)),
+            SizedBox(height: 24),
+            _buildTextField(
+              controller: controller.freightForwarderNameController,
+              label: 'Firm Name',
+              hint: 'Enter name',
+              icon: Icons.person,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.freightForwarderContactController,
+              label: 'Contact',
+              hint: 'Enter contact',
+              icon: Icons.phone,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.freightForwarderAddressController,
+              label: 'Address',
+              hint: 'Enter address',
+              icon: Icons.home,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.freightForwarderLicenseNoController,
+              label: 'License Number',
+              hint: 'Enter license number',
+              icon: Icons.verified_user,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.forwardingSinceYearsController,
+              label: 'Forwarding Since (Years)',
+              hint: 'Enter years',
+              icon: Icons.timeline,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.licensesIssuingAuthorityController,
+              label: 'Licenses Issuing Authority',
+              hint: 'Enter authority',
+              icon: Icons.account_balance,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.locationOnGoogleFreightController,
+              label: 'Location on Google',
+              hint: 'Enter Google Maps location',
+              icon: Icons.map,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.appleBoxesForwarded2023Controller,
+              label: 'Apple Boxes Forwarded 2023',
+              hint: 'Enter number',
+              icon: Icons.inventory,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.appleBoxesForwarded2024Controller,
+              label: 'Apple Boxes Forwarded 2024',
+              hint: 'Enter number',
+              icon: Icons.inventory,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.estimatedForwardingTarget2025Controller,
+              label: 'Estimated Forwarding Target 2025',
+              hint: 'Enter estimated target',
+              icon: Icons.trending_up,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.tradeLicenseOfAadhatiAttachedController,
+              label: 'Trade License of Aadhati Attached',
+              hint: 'Enter trade license',
+              icon: Icons.attachment,
+            ),
+            SizedBox(height: 24),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.green),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'You can manage forwarding, track consignments, and view your freight forwarder profile after registration.',
+                      style: TextStyle(color: Colors.green.shade700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHpmcDepotDetailsStep() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Icon(Icons.store, size: 48, color: Colors.green),
+            SizedBox(height: 16),
+            Text('HPMC Depot Information',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green)),
+            SizedBox(height: 24),
+            _buildTextField(
+              controller: controller.hpmcNameController,
+              label: 'HPMC Name',
+              hint: 'Enter HPMC name',
+              icon: Icons.store,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.operatorNameController,
+              label: 'Operator Name',
+              hint: 'Enter operator name',
+              icon: Icons.person,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.cellNoController,
+              label: 'Cell Number',
+              hint: 'Enter cell number',
+              icon: Icons.phone,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.aadharNoController,
+              label: 'Aadhar Number',
+              hint: 'Enter aadhar number',
+              icon: Icons.credit_card,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.licenseNoHpmcController,
+              label: 'License Number',
+              hint: 'Enter license number',
+              icon: Icons.verified_user,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.operatingSinceController,
+              label: 'Operating Since',
+              hint: 'Enter operating since',
+              icon: Icons.calendar_today,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.locationHpmcController,
+              label: 'Location',
+              hint: 'Enter location',
+              icon: Icons.location_on,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.boxesTransported2023Controller,
+              label: 'Boxes Transported 2023',
+              hint: 'Enter number',
+              icon: Icons.inventory,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.boxesTransported2024Controller,
+              label: 'Boxes Transported 2024',
+              hint: 'Enter number',
+              icon: Icons.inventory,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.target2025Controller,
+              label: 'Target 2025',
+              hint: 'Enter target',
+              icon: Icons.trending_up,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 24),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.green),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'You can manage depot operations, growers, and track consignments from your dashboard after registration.',
+                      style: TextStyle(color: Colors.green.shade700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPoliceOfficerDetailsStep() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Icon(Icons.local_police, size: 48, color: Colors.green),
+            SizedBox(height: 16),
+            Text('Police Officer Information',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green)),
+            SizedBox(height: 24),
+            _buildTextField(
+              controller: controller.policeNameController,
+              label: 'Name',
+              hint: 'Enter name',
+              icon: Icons.person,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.policeCellNoController,
+              label: 'Cell Number',
+              hint: 'Enter cell number',
+              icon: Icons.phone,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.policeAdharIdController,
+              label: 'Aadhar ID',
+              hint: 'Enter Aadhar ID',
+              icon: Icons.credit_card,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.policeBeltNoController,
+              label: 'Belt Number',
+              hint: 'Enter belt number',
+              icon: Icons.confirmation_number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.policeRankController,
+              label: 'Rank',
+              hint: 'Enter rank',
+              icon: Icons.star,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.policeReportingOfficerController,
+              label: 'Reporting Officer',
+              hint: 'Enter reporting officer',
+              icon: Icons.supervisor_account,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.policeDutyLocationController,
+              label: 'Duty Location',
+              hint: 'Enter duty location',
+              icon: Icons.location_on,
+            ),
+            SizedBox(height: 24),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.green),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'You can manage police details and assignments after registration.',
+                      style: TextStyle(color: Colors.green.shade700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAmpcoOfficeDetailsStep() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Icon(Icons.account_balance, size: 48, color: Colors.green),
+            SizedBox(height: 16),
+            Text('AMPCO Office Information',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green)),
+            SizedBox(height: 24),
+            _buildTextField(
+              controller: controller.ampcNameController,
+              label: 'Office Name',
+              hint: 'Enter office name',
+              icon: Icons.account_balance,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcAddressController,
+              label: 'Address',
+              hint: 'Enter address',
+              icon: Icons.home,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcSignatoryController,
+              label: 'Authorized Signatory',
+              hint: 'Enter authorized signatory',
+              icon: Icons.person,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcDesignationController,
+              label: 'Designation',
+              hint: 'Enter designation',
+              icon: Icons.badge,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcOfficePhoneNoController,
+              label: 'Office Phone Number',
+              hint: 'Enter office phone number',
+              icon: Icons.phone,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcTotalCommissionAgentsController,
+              label: 'Total Commission Agents',
+              hint: 'Enter total commission agents',
+              icon: Icons.people,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcTotalLadanisController,
+              label: 'Total Ladanis',
+              hint: 'Enter total ladanis',
+              icon: Icons.people,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcTotalTransportersController,
+              label: 'Total Transporters',
+              hint: 'Enter total transporters',
+              icon: Icons.local_shipping,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcNoOfHomeGuardsController,
+              label: 'No. of Home Guards',
+              hint: 'Enter number of home guards',
+              icon: Icons.security,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcTotalStaffController,
+              label: 'Total Staff',
+              hint: 'Enter total staff',
+              icon: Icons.people,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcAppleBoxesSold2023Controller,
+              label: 'Apple Boxes Sold 2023',
+              hint: 'Enter number',
+              icon: Icons.inventory,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcAppleBoxesSold2024Controller,
+              label: 'Apple Boxes Sold 2024',
+              hint: 'Enter number',
+              icon: Icons.inventory,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16),
+            _buildTextField(
+              controller: controller.ampcEstimatedTarget2025Controller,
+              label: 'Estimated Target 2025',
+              hint: 'Enter estimated target',
+              icon: Icons.trending_up,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 24),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.green),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'You can manage AMPCO office operations, staff, and track consignments from your dashboard after registration.',
+                      style: TextStyle(color: Colors.green.shade700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

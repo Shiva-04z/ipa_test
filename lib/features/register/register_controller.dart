@@ -103,6 +103,43 @@ class RegisterController extends GetxController {
   final boxesTransported2024Controller = TextEditingController();
   final target2025Controller = TextEditingController();
 
+  // Freight Forwarder specific controllers
+  final freightForwarderNameController = TextEditingController();
+  final freightForwarderContactController = TextEditingController();
+  final freightForwarderAddressController = TextEditingController();
+  final freightForwarderLicenseNoController = TextEditingController();
+  final forwardingSinceYearsController = TextEditingController();
+  final licensesIssuingAuthorityController = TextEditingController();
+  final locationOnGoogleFreightController = TextEditingController();
+  final appleBoxesForwarded2023Controller = TextEditingController();
+  final appleBoxesForwarded2024Controller = TextEditingController();
+  final estimatedForwardingTarget2025Controller = TextEditingController();
+  final tradeLicenseOfAadhatiAttachedController = TextEditingController();
+
+  // Police Officer specific controllers
+  final policeNameController = TextEditingController();
+  final policeCellNoController = TextEditingController();
+  final policeAdharIdController = TextEditingController();
+  final policeBeltNoController = TextEditingController();
+  final policeRankController = TextEditingController();
+  final policeReportingOfficerController = TextEditingController();
+  final policeDutyLocationController = TextEditingController();
+
+  // AMPCO Office specific controllers
+  final ampcNameController = TextEditingController();
+  final ampcAddressController = TextEditingController();
+  final ampcSignatoryController = TextEditingController();
+  final ampcDesignationController = TextEditingController();
+  final ampcOfficePhoneNoController = TextEditingController();
+  final ampcTotalCommissionAgentsController = TextEditingController();
+  final ampcTotalLadanisController = TextEditingController();
+  final ampcTotalTransportersController = TextEditingController();
+  final ampcNoOfHomeGuardsController = TextEditingController();
+  final ampcTotalStaffController = TextEditingController();
+  final ampcAppleBoxesSold2023Controller = TextEditingController();
+  final ampcAppleBoxesSold2024Controller = TextEditingController();
+  final ampcEstimatedTarget2025Controller = TextEditingController();
+
   // Observable variables
   RxString selectedRole = "Grower".obs;
   RxInt currentStep = 0.obs;
@@ -120,18 +157,15 @@ class RegisterController extends GetxController {
   // Available roles
   final List<String> availableRoles = [
     "Grower",
-    "Aadhati",
-    "Driver",
     "PackHouse",
-    "Commission Agent",
+    "Aadhati",
+    "Ladani Buyers",
+    "Driver",
     "Transport Union",
-    "Corporate Company",
     "FreightForwarder",
     "HPMC Depot",
     "Police Officer",
     "AMPCO Office",
-    "HP Agri Board",
-    "Ladani Buyers"
   ];
 
   // Firm types for aadhati
@@ -227,6 +261,37 @@ class RegisterController extends GetxController {
     boxesTransported2023Controller.dispose();
     boxesTransported2024Controller.dispose();
     target2025Controller.dispose();
+    freightForwarderNameController.dispose();
+    freightForwarderContactController.dispose();
+    freightForwarderAddressController.dispose();
+    freightForwarderLicenseNoController.dispose();
+    forwardingSinceYearsController.dispose();
+    licensesIssuingAuthorityController.dispose();
+    locationOnGoogleFreightController.dispose();
+    appleBoxesForwarded2023Controller.dispose();
+    appleBoxesForwarded2024Controller.dispose();
+    estimatedForwardingTarget2025Controller.dispose();
+    tradeLicenseOfAadhatiAttachedController.dispose();
+    policeNameController.dispose();
+    policeCellNoController.dispose();
+    policeAdharIdController.dispose();
+    policeBeltNoController.dispose();
+    policeRankController.dispose();
+    policeReportingOfficerController.dispose();
+    policeDutyLocationController.dispose();
+    ampcNameController.dispose();
+    ampcAddressController.dispose();
+    ampcSignatoryController.dispose();
+    ampcDesignationController.dispose();
+    ampcOfficePhoneNoController.dispose();
+    ampcTotalCommissionAgentsController.dispose();
+    ampcTotalLadanisController.dispose();
+    ampcTotalTransportersController.dispose();
+    ampcNoOfHomeGuardsController.dispose();
+    ampcTotalStaffController.dispose();
+    ampcAppleBoxesSold2023Controller.dispose();
+    ampcAppleBoxesSold2024Controller.dispose();
+    ampcEstimatedTarget2025Controller.dispose();
     needTradeFinance.value = false;
     currentStep.value = 0;
     errorMessage.value = "";
@@ -274,18 +339,12 @@ class RegisterController extends GetxController {
           if (apmc_IDController.text.trim().isEmpty) {
             errorMessage.value = "Please enter APMC ID";
             return false;
-          }
-        } else if (selectedRole.value == "HPMC Depot") {
-          if (hpmcNameController.text.trim().isEmpty) {
-            errorMessage.value = "Please enter HPMC name";
-            return false;
-          }
-        } else {
+          }}
+
           if (villageController.text.trim().isEmpty) {
             errorMessage.value = "Please enter your village";
             return false;
           }
-        }
         break;
       case 1:
         if (phoneController.text.trim().isEmpty) {
@@ -400,6 +459,33 @@ class RegisterController extends GetxController {
             errorMessage.value = "Please enter license number";
             return false;
           }
+        } else if (selectedRole.value == "FreightForwarder") {
+          if (freightForwarderLicenseNoController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter license number";
+            return false;
+          }
+          if (forwardingSinceYearsController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter forwarding since years";
+            return false;
+          }
+        } else if (selectedRole.value == "Police Officer") {
+          if (policeCellNoController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter police cell number";
+            return false;
+          }
+          if (policeAdharIdController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter police adhar ID";
+            return false;
+          }
+          if (policeBeltNoController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter police belt number";
+            return false;
+          }
+        } else if (selectedRole.value == "AMPCO Office") {
+          if (ampcNameController.text.trim().isEmpty) {
+            errorMessage.value = "Please enter AMPCO name";
+            return false;
+          }
         }
         break;
     }
@@ -423,6 +509,12 @@ class RegisterController extends GetxController {
       case "Driver":
         return 3;
       case "HPMC Depot":
+        return 3;
+      case "FreightForwarder":
+        return 3;
+      case "Police Officer":
+        return 3;
+      case "AMPCO Office":
         return 3;
       default:
         return 2;
@@ -452,6 +544,12 @@ class RegisterController extends GetxController {
           return "Driver Details";
         } else if (selectedRole.value == "HPMC Depot") {
           return "HPMC Depot Details";
+        } else if (selectedRole.value == "FreightForwarder") {
+          return "Freight Forwarder Details";
+        } else if (selectedRole.value == "Police Officer") {
+          return "Police Officer Details";
+        } else if (selectedRole.value == "AMPCO Office") {
+          return "AMPCO Office Details";
         }
         return "Additional Details";
       default:
@@ -488,6 +586,15 @@ class RegisterController extends GetxController {
           break;
         case "HPMC Depot":
           await registerHpmcDepot();
+          break;
+        case "FreightForwarder":
+          await registerFreightForwarder();
+          break;
+        case "Police Officer":
+          await registerPoliceOfficer();
+          break;
+        case "AMPCO Office":
+          await registerAmpcoOffice();
           break;
         default:
           errorMessage.value =
@@ -1031,6 +1138,212 @@ class RegisterController extends GetxController {
     }
   }
 
+  Future<void> registerFreightForwarder() async {
+    try {
+      final Map<String, dynamic> requestBody = {
+        "name": freightForwarderNameController.text.trim(),
+        "contact": freightForwarderContactController.text.trim(),
+        "address": freightForwarderAddressController.text.trim(),
+        "licenseNo": freightForwarderLicenseNoController.text.trim(),
+        "forwardingSinceYears":
+            int.tryParse(forwardingSinceYearsController.text.trim()) ?? 0,
+        "licensesIssuingAuthority":
+            licensesIssuingAuthorityController.text.trim(),
+        "locationOnGoogle": locationOnGoogleFreightController.text.trim(),
+        "appleBoxesForwarded2023":
+            int.tryParse(appleBoxesForwarded2023Controller.text.trim()) ?? 0,
+        "appleBoxesForwarded2024":
+            int.tryParse(appleBoxesForwarded2024Controller.text.trim()) ?? 0,
+        "estimatedForwardingTarget2025":
+            int.tryParse(estimatedForwardingTarget2025Controller.text.trim()) ??
+                0,
+        "tradeLicenseOfAadhatiAttached":
+            tradeLicenseOfAadhatiAttachedController.text.trim(),
+        "associatedAadhatis": [],
+        "associatedGrowers": [],
+        "associatedPickupProviders": [],
+        "associatedTruckServiceProviders": [],
+        "createdAt": DateTime.now().toIso8601String(),
+        "updatedAt": DateTime.now().toIso8601String(),
+      };
+      final String freightForwarderApiUrl = glb.url + "/api/freight-forwarder";
+      final response = await http.post(
+        Uri.parse(freightForwarderApiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        glb.id.value = responseData['_id'];
+        Get.snackbar(
+          'Success',
+          'Freight Forwarder registered successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Get.toNamed(RoutesConstant.freightForwarder);
+      } else {
+        final errorData = jsonDecode(response.body);
+        String errorMsg = "Registration failed";
+        if (errorData != null && errorData['message'] != null) {
+          errorMsg = errorData['message'];
+        } else if (response.statusCode == 409) {
+          errorMsg = "Freight Forwarder already exists";
+        } else if (response.statusCode == 400) {
+          errorMsg = "Invalid data provided";
+        } else if (response.statusCode == 500) {
+          errorMsg = "Server error. Please try again later";
+        }
+        errorMessage.value = errorMsg;
+      }
+    } catch (e) {
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('NetworkException')) {
+        errorMessage.value =
+            "Network error. Please check your internet connection";
+      } else {
+        errorMessage.value = "Registration failed: ${e.toString()}";
+      }
+    }
+  }
+
+  Future<void> registerPoliceOfficer() async {
+    try {
+      final Map<String, dynamic> requestBody = {
+        "name": policeNameController.text.trim(),
+        "cellNo": policeCellNoController.text.trim(),
+        "adharId": policeAdharIdController.text.trim(),
+        "beltNo": policeBeltNoController.text.trim(),
+        "rank": policeRankController.text.trim(),
+        "reportingOfficer": policeReportingOfficerController.text.trim(),
+        "dutyLocation": policeDutyLocationController.text.trim(),
+        "location": {"latitude": 0.0, "longitude": 0.0},
+        "isActive": true,
+        "createdAt": DateTime.now().toIso8601String(),
+        "updatedAt": DateTime.now().toIso8601String(),
+      };
+      final String policeApiUrl = glb.url + "/api/police-officer";
+      final response = await http.post(
+        Uri.parse(policeApiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        glb.id.value = responseData['_id'];
+        Get.snackbar(
+          'Success',
+          'Police Officer registered successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Get.toNamed(RoutesConstant.hpPolice);
+      } else {
+        final errorData = jsonDecode(response.body);
+        String errorMsg = "Registration failed";
+        if (errorData != null && errorData['message'] != null) {
+          errorMsg = errorData['message'];
+        } else if (response.statusCode == 409) {
+          errorMsg = "Police Officer already exists";
+        } else if (response.statusCode == 400) {
+          errorMsg = "Invalid data provided";
+        } else if (response.statusCode == 500) {
+          errorMsg = "Server error. Please try again later";
+        }
+        errorMessage.value = errorMsg;
+      }
+    } catch (e) {
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('NetworkException')) {
+        errorMessage.value =
+            "Network error. Please check your internet connection";
+      } else {
+        errorMessage.value = "Registration failed: ${e.toString()}";
+      }
+    }
+  }
+
+  Future<void> registerAmpcoOffice() async {
+    try {
+      final Map<String, dynamic> requestBody = {
+        "name": ampcNameController.text.trim(),
+        "address": ampcAddressController.text.trim(),
+        "nameOfAuthorizedSignatory": ampcSignatoryController.text.trim(),
+        "designation": ampcDesignationController.text.trim(),
+        "officePhoneNo": ampcOfficePhoneNoController.text.trim(),
+        "totalNoOfCommissionAgents":
+            int.tryParse(ampcTotalCommissionAgentsController.text.trim()) ?? 0,
+        "totalLadanisWithinJurisdiction":
+            int.tryParse(ampcTotalLadanisController.text.trim()) ?? 0,
+        "totalNoOfTransporters":
+            int.tryParse(ampcTotalTransportersController.text.trim()) ?? 0,
+        "noOfHomeGuardsOnDuty":
+            int.tryParse(ampcNoOfHomeGuardsController.text.trim()) ?? 0,
+        "totalApmcStaff":
+            int.tryParse(ampcTotalStaffController.text.trim()) ?? 0,
+        "appleBoxesSold2023":
+            int.tryParse(ampcAppleBoxesSold2023Controller.text.trim()) ?? 0,
+        "appleBoxesSold2024":
+            int.tryParse(ampcAppleBoxesSold2024Controller.text.trim()) ?? 0,
+        "estimatedTarget2025":
+            double.tryParse(ampcEstimatedTarget2025Controller.text.trim()) ??
+                0.0,
+        "approvedAadhati": [],
+        "blacklistedAdhaties": [],
+        "approvedLadanis": [],
+        "blacklistedLadanis": [],
+        "lodgedComplaints": [],
+      };
+      final String ampcApiUrl = glb.url + "/api/ampc-office";
+      final response = await http.post(
+        Uri.parse(ampcApiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        glb.id.value = responseData['_id'];
+        Get.snackbar(
+          'Success',
+          'AMPCO Office registered successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Get.toNamed(RoutesConstant.apmcOffice);
+      } else {
+        final errorData = jsonDecode(response.body);
+        String errorMsg = "Registration failed";
+        if (errorData != null && errorData['message'] != null) {
+          errorMsg = errorData['message'];
+        } else if (response.statusCode == 409) {
+          errorMsg = "AMPCO Office already exists";
+        } else if (response.statusCode == 400) {
+          errorMsg = "Invalid data provided";
+        } else if (response.statusCode == 500) {
+          errorMsg = "Server error. Please try again later";
+        }
+        errorMessage.value = errorMsg;
+      }
+    } catch (e) {
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('NetworkException')) {
+        errorMessage.value =
+            "Network error. Please check your internet connection";
+      } else {
+        errorMessage.value = "Registration failed: ${e.toString()}";
+      }
+    }
+  }
+
   void clearForm() {
     nameController.clear();
     villageController.clear();
@@ -1114,6 +1427,37 @@ class RegisterController extends GetxController {
     boxesTransported2023Controller.clear();
     boxesTransported2024Controller.clear();
     target2025Controller.clear();
+    freightForwarderNameController.clear();
+    freightForwarderContactController.clear();
+    freightForwarderAddressController.clear();
+    freightForwarderLicenseNoController.clear();
+    forwardingSinceYearsController.clear();
+    licensesIssuingAuthorityController.clear();
+    locationOnGoogleFreightController.clear();
+    appleBoxesForwarded2023Controller.clear();
+    appleBoxesForwarded2024Controller.clear();
+    estimatedForwardingTarget2025Controller.clear();
+    tradeLicenseOfAadhatiAttachedController.clear();
+    policeNameController.clear();
+    policeCellNoController.clear();
+    policeAdharIdController.clear();
+    policeBeltNoController.clear();
+    policeRankController.clear();
+    policeReportingOfficerController.clear();
+    policeDutyLocationController.clear();
+    ampcNameController.clear();
+    ampcAddressController.clear();
+    ampcSignatoryController.clear();
+    ampcDesignationController.clear();
+    ampcOfficePhoneNoController.clear();
+    ampcTotalCommissionAgentsController.clear();
+    ampcTotalLadanisController.clear();
+    ampcTotalTransportersController.clear();
+    ampcNoOfHomeGuardsController.clear();
+    ampcTotalStaffController.clear();
+    ampcAppleBoxesSold2023Controller.clear();
+    ampcAppleBoxesSold2024Controller.clear();
+    ampcEstimatedTarget2025Controller.clear();
     needTradeFinance.value = false;
     currentStep.value = 0;
     errorMessage.value = "";

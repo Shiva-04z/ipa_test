@@ -18,6 +18,9 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Apple Grower',
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        cardColor: Colors.white,
+        primaryColor: Colors.tealAccent.shade700,
         // This is the theme of your application.
         //
         // TRY THIS: Try running your application with "flutter run". You'll see
