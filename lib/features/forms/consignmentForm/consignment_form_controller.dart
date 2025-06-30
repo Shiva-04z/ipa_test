@@ -24,6 +24,7 @@ class ConsignmentFormController extends GetxController {
   RxString driverMode = "Self".obs;
   RxString  packHouseMode = "Self".obs;
   RxString aadhatiMode= "Associated".obs;
+  TextEditingController trip1AddressController= TextEditingController();
 
   RxInt step = 0.obs;
   Rx<DrivingProfile?> drivingProfile = Rx<DrivingProfile?>(null);
@@ -98,7 +99,11 @@ class ConsignmentFormController extends GetxController {
   async {
     String api = glb.url.value + "/api/consignmet/${consignment.value!.id!}";
     Map<String,dynamic> uploadData = {
-      "searchId": consignment.value?.searchId
+      'startPointTrip1': glb.selectedOrchardAddress.value,
+      'trip1Driverid': (driverMode.value=="Associated")?drivingProfile.value!.id:transportUnion.value!.id,
+      'packhouseId': packhouse.value!.id,
+      'packHouseMode' : packHouseMode.value,
+      'driverMode' : driverMode.value
     };
     final respone = await http.patch(Uri.parse(api)
         ,body: uploadData,headers: {"Content-Type": "application-json"});
@@ -107,7 +112,26 @@ class ConsignmentFormController extends GetxController {
       print("Sucess");
 
     }
+  }
 
+  Future<dynamic> Step2()
+  async {
+    String api = glb.url.value + "/api/bilty";
+    Map<String,dynamic> data =bilty.value!.toJson();
+    final respone = await http.post(Uri.parse(api)
+        ,body: data,headers: {"Content-Type": "application-json"});
+    Map<String,dynamic> data1 = jsonDecode(respone.body);
+    String api1 = glb.url.value + "/api/consignment/${glb.consignmentID.value}";
+    Map<String,dynamic> data2 = {
+      "bilty": data1["_id"],
+    };
+    final respone1 = await http.patch(Uri.parse(api));
+
+
+    if(respone.statusCode ==201){
+      print("Sucess");
+
+    }
   }
 
 

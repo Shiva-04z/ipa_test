@@ -28,6 +28,7 @@ RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
 RxString url = "https://e63c-2409-40d2-211a-8b13-b822-7378-42c0-d4fe.ngrok-free.app".obs;
 RxString id = "685d137cd479db5bf6e8b1ec".obs;
+RxString selectedOrchardAddress = "".obs;
 RxString consignmentID = "".obs;
 RxList<Complaint> myComplaint = <Complaint>[].obs;
 

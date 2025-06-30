@@ -151,11 +151,38 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
 
   Widget buildSelectionBoxes() {
     return Obx(() {
+
       if (controller.aadhatiMode.value == "Associated") {
         return Padding(
           padding: EdgeInsets.all(8),
           child: Column(
+            spacing:  10,
             children: [
+              if (controller.driverMode.value == "Associated" ||
+                  controller.driverMode.value == "Transport Union" ||
+                  controller.packHouseMode.value == "Associated")
+                Text(
+                  "Selections",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+              if (controller.driverMode.value == "Associated")
+                DropdownButtonFormField<DrivingProfile>(
+                  value: controller.drivingProfile.value,
+                  items: Get.find<GrowerController>()
+                      .drivers
+                      .map((driver) => DropdownMenuItem<DrivingProfile>(
+                    value: driver,
+                    child: Text(driver.name!), // or any display field
+                  ))
+                      .toList(),
+                  onChanged: (value) {
+                    controller.drivingProfile.value = value!;
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Select Driver",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
               Text(
                 "Selections",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -173,7 +200,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                   controller.aadhati.value = value!;
                 },
                 decoration: InputDecoration(
-                  labelText: "Select Driver",
+                  labelText: "Select Aadhati",
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -187,88 +214,154 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
 
   Widget Step3() {
     return Column(
-      children: [aadhatiModeSelection(), buildSelectionBoxes()],
+      children: [driverModeSelection(),aadhatiModeSelection(), buildSelectionBoxes()],
     );
   }
 
   Widget buildButton() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Obx(
-        () => (controller.step.value == 0)
-            ? Row(
-                spacing: 10,
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                        onPressed: () {
-                          controller.addStep();
-                        },
-                        style: ElevatedButton.styleFrom(
-                            shape: BeveledRectangleBorder(),
-                            backgroundColor: Colors.purpleAccent.shade400),
-                        child: Text(
-                          "Next",
-                          style: TextStyle(color: Colors.white),
-                        )),
-                  ),
-                ],
-              )
-            :(controller.step.value==3)? Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 16,
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Decline logic here
-                },
-                child: const Text('Decline Offer', style: TextStyle(color: Colors.white),),
-                style: ElevatedButton.styleFrom(shape: BeveledRectangleBorder(),backgroundColor: Colors.red),
-              ),
-            ),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Accept logic here
-                },
-                child: const Text('Accept for Bidding',style:  TextStyle(color: Colors.white),),
-                style: ElevatedButton.styleFrom(shape: BeveledRectangleBorder(),backgroundColor: Colors.green),
-              ),
-            ),
+      child: Obx(() {
+        int step = controller.step.value;
 
-          ],
-        ): Row(spacing: 10, children: [
-                Expanded(
-                  child: ElevatedButton(
-                      onPressed: () {
-                        controller.step.value -= 1;
-                      },
-                      style: ElevatedButton.styleFrom(
-                          shape: BeveledRectangleBorder(),
-                          backgroundColor: Colors.purpleAccent.shade400),
-                      child: Text(
-                        "Previous",
-                        style: TextStyle(color: Colors.white),
-                      )),
+        // Step 0: Only "Next" button
+        if (step == 0) {
+          return Row(
+            spacing: 10,
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: controller.addStep,
+                  style: ElevatedButton.styleFrom(
+                    shape: BeveledRectangleBorder(),
+                    backgroundColor: Colors.purpleAccent.shade400,
+                  ),
+                  child: const Text("Next", style: TextStyle(color: Colors.white)),
                 ),
+              ),
+            ],
+          );
+        }
+
+        // Step 1: "Previous" and conditional "Next"
+        if (step == 1) {
+          bool canProceed = (controller.driverMode.value == "Self" ||
+              controller.consignment.value!.trip1Driverid != null) &&
+              (controller.packHouseMode.value == "Self" ||
+                  controller.consignment.value!.packhouseId != null);
+
+          return Row(
+            spacing: 10,
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => controller.step.value -= 1,
+                  style: ElevatedButton.styleFrom(
+                    shape: BeveledRectangleBorder(),
+                    backgroundColor: Colors.purpleAccent.shade400,
+                  ),
+                  child: const Text("Previous", style: TextStyle(color: Colors.white)),
+                ),
+              ),
+              if (canProceed)
                 Expanded(
                   child: ElevatedButton(
-                      onPressed: () {
-                        controller.addStep();
-                      },
-                      style: ElevatedButton.styleFrom(
-                          shape: BeveledRectangleBorder(),
-                          backgroundColor: Colors.purpleAccent.shade400),
-                      child: Text(
-                        "Next",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                )
-              ]),
-      ),
+                    onPressed: controller.addStep,
+                    style: ElevatedButton.styleFrom(
+                      shape: BeveledRectangleBorder(),
+                      backgroundColor: Colors.purpleAccent.shade400,
+                    ),
+                    child: const Text("Next", style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+            ],
+          );
+        }
+
+        // Step 2: "Previous" and "Next"
+        if (step == 2) {
+          return Row(
+            spacing: 10,
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => controller.step.value -= 1,
+                  style: ElevatedButton.styleFrom(
+                    shape: BeveledRectangleBorder(),
+                    backgroundColor: Colors.purpleAccent.shade400,
+                  ),
+                  child: const Text("Previous", style: TextStyle(color: Colors.white)),
+                ),
+              ),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: controller.addStep,
+                  style: ElevatedButton.styleFrom(
+                    shape: BeveledRectangleBorder(),
+                    backgroundColor: Colors.purpleAccent.shade400,
+                  ),
+                  child: const Text("Next", style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          );
+        }
+
+        // Step 3: Accept/Decline buttons
+        if (step == 3) {
+          bool canProceed = (controller.driverMode.value == "Self" ||
+              controller.consignment.value!.trip2Driverid != null) &&
+              (controller.consignment.value!.aadhatiId != null);
+          return(canProceed)? Row(
+            spacing: 10,
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Decline logic
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: BeveledRectangleBorder(),
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Text("Decline Offer", style: TextStyle(color: Colors.white)),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Accept logic
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: BeveledRectangleBorder(),
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text("Accept for Bidding", style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          ):Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => controller.step.value -= 1,
+                  style: ElevatedButton.styleFrom(
+                    shape: BeveledRectangleBorder(),
+                    backgroundColor: Colors.purpleAccent.shade400,
+                  ),
+                  child: const Text("Previous", style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Container(); // default fallback
+      }),
     );
   }
+
 
   Widget selectionBoxes() {
     return Obx(() => Padding(
@@ -338,6 +431,14 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     border: OutlineInputBorder(),
                   ),
                 ),
+              if(controller.driverMode.value!='Self' && controller.packHouseMode.value=="Self")
+                TextFormField(
+                  controller: controller.trip1AddressController,
+                  decoration: InputDecoration(border: OutlineInputBorder(), label: Text("Enter Address")),
+
+                )
+
+
             ],
           ),
         ));
@@ -1020,12 +1121,60 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
       } else if (controller.step.value == 2) {
         return Step3();
       } else {
-        return biltyfinalView();
+        return Step4();
       }
     });
   }
 
+  Widget biltySummaryWidget() {
+    final Bilty bilty =
+    Bilty.createDefault(controller.consignment.value!.searchId!);
+    final totalBoxes =
+    bilty.categories.fold<int>(0, (sum, c) => sum + c.boxCount);
+    final totalWeight =
+    bilty.categories.fold<double>(0, (sum, c) => sum + c.totalWeight);
+    final totalValue =
+    bilty.categories.fold<double>(0, (sum, c) => sum + c.totalPrice);
+
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: ExpansionTile(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Bilty Summary',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('Total Boxes: ' + totalBoxes.toString()),
+                Text('Total Weight: ' + totalWeight.toStringAsFixed(2) + ' kg'),
+                Text('Total Value: ₹' + totalValue.toStringAsFixed(2)),
+              ],
+            ),
+          ],
+        ),
+        children: bilty.categories
+            .map((category) => ListTile(
+          title: Text('${category.quality} - ${category.category}'),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Size: ${category.size}'),
+              Text('Boxes: ${category.boxCount}'),
+              Text(
+                  'Weight: ${category.totalWeight.toStringAsFixed(2)} kg'),
+              Text('Value: ₹${category.totalPrice.toStringAsFixed(2)}'),
+            ],
+          ),
+        ))
+            .toList(),
+      ),
+    );
+  }
+
   biltyfinalView() {
+
     final bilty = controller.bilty.value;
     if (bilty == null) return SizedBox();
     bool isMobile = Platform.isAndroid || Platform.isIOS;

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
-
+import '../../core/globals.dart' as glb;
 import 'grower_controller.dart';
 import '../../models/orchard_model.dart';
 import '../../models/consignment_model.dart';
@@ -512,7 +512,10 @@ class GrowerDialogs {
                         Expanded(
                           child: TextButton(
                             onPressed: () {
-                              print("Here");
+                              glb.consignmentID.value="";
+                              glb.selectedOrchardAddress.value = orchard.location;
+
+
                               Get.toNamed(RoutesConstant.consignmentForm);},
                             style: TextButton.styleFrom(
                               backgroundColor: Colors.white.withOpacity(0.1),

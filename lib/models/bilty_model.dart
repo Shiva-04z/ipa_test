@@ -552,7 +552,6 @@ class Bilty {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'categories': categories.map((cat) => cat.toMap()).toList(),
