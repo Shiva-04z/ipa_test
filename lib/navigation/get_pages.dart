@@ -1,3 +1,5 @@
+import 'package:apple_grower/features/forms/consignmentForm/consignment_form_bindings.dart';
+import 'package:apple_grower/features/forms/consignmentForm/consignment_form_page.dart';
 import 'package:apple_grower/features/profile_page/profile_page_bindings.dart';
 import 'package:apple_grower/features/profile_page/profile_page_view.dart';
 import 'package:apple_grower/features/signUpPage/signUP_binidng.dart';
@@ -125,6 +127,13 @@ List<GetPage> getPages = [
     name: RoutesConstant.profile,
     page: () => ProfilePageView(),
     binding: ProfilePageBindigs(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),
+  GetPage(
+    name: RoutesConstant.consignmentForm,
+    page: () => ConsignmentFormPage(),
+    binding: ConsignmentBindings(),
     transition: Transition.fadeIn,
     transitionDuration: Duration(microseconds: 300),
   ),

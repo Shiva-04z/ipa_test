@@ -92,7 +92,8 @@ class GrowerController extends GetxController {
 
   // ==================== ORCHARD MANAGEMENT METHODS ====================
   void addOrchard(Orchard orchard) async {
-    await createOrchard(orchard);
+    orchards.add(orchard);
+    await uploadOrchard(orchard);
   }
 
   void updateOrchard(Orchard orchard) {
@@ -108,38 +109,7 @@ class GrowerController extends GetxController {
     _upload();
   }
 
-  Future<void> createOrchard(Orchard orchard) async {
-    String apiUrl = glb.url + '/api/orchards';
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': orchard.name,
-          'location': orchard.location,
-          'flutternumberOfFruitingTrees': orchard.numberOfFruitingTrees,
-          'harvestDateExpected': orchard.expectedHarvestDate.toIso8601String(),
-          'boundaryPoints': orchard.boundaryPoints,
-          'area': orchard.area
-        }),
-      );
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        orchard = orchard.copyWith(id: data['_id']);
-        uploadOrchard(data['_id']);
-        orchards.add(orchard);
 
-        Get.snackbar('Success', 'Orchard created successfully!',
-            snackPosition: SnackPosition.BOTTOM);
-      } else {
-        Get.snackbar('Error', 'Failed to create orchard: \n${response.body}',
-            snackPosition: SnackPosition.BOTTOM);
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to create orchard: $e',
-          snackPosition: SnackPosition.BOTTOM);
-    }
-  }
 
   updateOrchardApi(Orchard orchard) async {
     final apiUrl = glb.url + "/api/orchards/${orchard.id!}";
@@ -182,12 +152,12 @@ class GrowerController extends GetxController {
     }
   }
 
-  Future<void> uploadOrchard(String id) async {
+  Future<void> uploadOrchard(Orchard orchard) async {
     final apiurl = glb.url + '/api/growers/${glb.id.value}/add-orchard';
     try {
       final Map<String, dynamic> uploadPayload = {'orchardId': id};
       final response = await http.patch(Uri.parse(apiurl),
-          body: jsonEncode(uploadPayload),
+          body: orchard.toJson(),
           headers: {"Content-Type": "application/json"});
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.snackbar("Success", "Added to Grower");

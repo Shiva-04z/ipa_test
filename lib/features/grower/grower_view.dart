@@ -208,9 +208,7 @@ class GrowerView extends GetView<GrowerController> {
       case CropStage.harvest:
         iconColor = Colors.green;
         break;
-      case CropStage.packing:
-        iconColor = Colors.teal;
-        break;
+
     }
     return InkWell(
       onTap: () => GrowerDialogs.showOrchardDetailsDialog(context, orchard),
@@ -310,7 +308,6 @@ class GrowerView extends GetView<GrowerController> {
         color = Colors.green;
         text = 'Harvest';
         break;
-      case CropStage.packing:
         color = Colors.teal;
         text = 'Packing';
         break;
@@ -454,8 +451,7 @@ class GrowerView extends GetView<GrowerController> {
         return glb.getTranslatedText('80% Colour');
       case CropStage.harvest:
         return glb.getTranslatedText('Harvest');
-      case CropStage.packing:
-        return glb.getTranslatedText('Packing');
+
     }
   }
 
@@ -485,13 +481,10 @@ class GrowerView extends GetView<GrowerController> {
                     mainAxisSpacing: 8,
                     childAspectRatio: 1.0,
                   ),
-                  itemCount: controller.consignments.length +
-                      1, // +1 for the Add New card
+                  itemCount: controller.consignments.length , // +1 for the Add New card
                   itemBuilder: (context, index) {
-                    if (index == 0) return _buildAddNewConsignmentCard(context);
-                    // TODO: Build Consignment Card UI
                     return _buildConsignmentCard(
-                      controller.consignments[index - 1],
+                      controller.consignments[index],
                     ); // Placeholder
                   },
                 ),
@@ -521,38 +514,6 @@ class GrowerView extends GetView<GrowerController> {
     );
   }
 
-  Widget _buildAddNewConsignmentCard(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width <= 800;
-    return InkWell(
-      onTap: () =>
-          Get.to(() => ConsignmentFormPage()), // Navigate to the new page
-      child: Card(
-        color: Colors.white,
-        elevation: 0,
-        child: SizedBox.expand(
-          // Wrap content in SizedBox.expand
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.add_circle,
-                size: isSmallScreen ? 32 : 40,
-                color: Colors.red,
-              ),
-              SizedBox(height: 8),
-              Text(
-                glb.getTranslatedText("ADD NEW"),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: isSmallScreen ? 12 : 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildConsignmentCard(Consignment consignment) {
     final isSmallScreen = MediaQuery.of(Get.context!).size.width <= 800;
@@ -576,7 +537,7 @@ class GrowerView extends GetView<GrowerController> {
               SizedBox(height: 8),
               Text(
                 glb.getTranslatedText(
-                    'Consignment ${consignment.id.substring(0, 4)}...'),
+                    'Consignment ${consignment.id?.substring(0, 4)}...'),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -586,17 +547,6 @@ class GrowerView extends GetView<GrowerController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
-                Text(
-                  glb.getTranslatedText('${consignment.numberOfBoxes} Boxes'),
-                  style: TextStyle(fontSize: 12),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  glb.getTranslatedText(consignment.quality),
-                  style: TextStyle(fontSize: 12, color: Colors.blue),
-                ),
-                SizedBox(height: 4),
                 Text(
                   glb.getTranslatedText('Status: ${consignment.status}'),
                   style: TextStyle(fontSize: 12),

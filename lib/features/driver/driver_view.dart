@@ -468,7 +468,7 @@ class DriverView extends GetView<DriverController> {
               ),
               SizedBox(height: 8),
               Text(
-                'Consignment ${consignment.id.substring(0, 4)}...',
+                'Consignment ${consignment.id?.substring(0, 4)}...',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -478,16 +478,6 @@ class DriverView extends GetView<DriverController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
-                Text(
-                  '${consignment.numberOfBoxes} Boxes',
-                  style: TextStyle(fontSize: 12),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  consignment.quality,
-                  style: TextStyle(fontSize: 12, color: Colors.blue),
-                ),
                 SizedBox(height: 4),
                 Text(
                   'Status: ${consignment.status}',

@@ -3,7 +3,7 @@ class RoutesConstant {
   static String signUp = "/signupPage";
   static String register = "/registerPage";
   static String grower = "/growerPage";
-
+static String consignmentForm ="/consignmentForm";
   static String packHouse = "/packHousePage";
   static String aadhati = "/aadhatiPage";
   static String ladaniBuyers = "/ladaniBuyersPage";

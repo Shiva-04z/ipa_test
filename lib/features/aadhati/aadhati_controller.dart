@@ -352,7 +352,7 @@ class AadhatiController extends GetxController {
   // ==================== PACKHOUSE MANAGEMENT METHODS ====================
 
   void addAssociatedPackhouses(PackHouse house) {
-    if (house.id == null) {
+    if (house.id != null) {
       associatedPackHouses.add(house);
       uploadPackHouse(house.id!);
     } else {

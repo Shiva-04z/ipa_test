@@ -1,3 +1,4 @@
+import 'package:apple_grower/navigation/routes_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -504,6 +505,35 @@ class GrowerDialogs {
                       ),
                     ),
                   ),
+                 if(orchard.cropStage == CropStage.harvest) Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () {
+                              print("Here");
+                              Get.toNamed(RoutesConstant.consignmentForm);},
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: Text(
+                              'Make Consignment',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
@@ -972,45 +1002,7 @@ class GrowerDialogs {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildDetailRow('Quality', consignment.quality),
-                        _buildDetailRow('Category', consignment.category),
-                        _buildDetailRow(
-                          'Boxes',
-                          consignment.numberOfBoxes.toString(),
-                        ),
-                        _buildDetailRow(
-                          'Pieces/Box',
-                          consignment.numberOfPiecesInBox.toString(),
-                        ),
-                        _buildDetailRow('Pickup', consignment.pickupOption),
-                        if (consignment.shippingFrom != null)
-                          _buildDetailRow(
-                            'From',
-                            consignment.shippingFrom!,
-                          ),
-                        if (consignment.shippingTo != null)
-                          _buildDetailRow('To', consignment.shippingTo!),
-                        if (consignment.packingHouse != null)
-                          _buildDetailRow(
-                            'Packhouse',
-                            consignment.packingHouse!.name ?? 'N/A',
-                          ),
-                        if (consignment.hasOwnCrates != null)
-                          _buildDetailRow(
-                            'Own Crates',
-                            consignment.hasOwnCrates.toString(),
-                          ),
-                        _buildDetailRow('Status', consignment.status),
-                        if (consignment.commissionAgent != null)
-                          _buildDetailRow(
-                            'Adhani',
-                            '${consignment.commissionAgent!.name} (${consignment.commissionAgent!.contact})',
-                          ),
-                        if (consignment.corporateCompany != null)
-                          _buildDetailRow(
-                            'Ladhani',
-                            '${consignment.corporateCompany!.name} (${consignment.corporateCompany!.contact})',
-                          ),
+
                       ],
                     ),
                   ),
@@ -1023,7 +1015,7 @@ class GrowerDialogs {
                       onPressed: () {
                         Navigator.pop(context);
                         Get.find<GrowerController>().removeConsignment(
-                          consignment.id,
+                          consignment.id!,
                         );
                       },
                       icon: Icon(Icons.delete, size: 18),

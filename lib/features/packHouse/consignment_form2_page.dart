@@ -289,77 +289,7 @@ class ConsignmentForm2Page extends StatelessWidget {
                         opacity: exists ? 0.7 : 1.0,
                         child: Padding(
                           padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.inventory,
-                                    color: Color(0xff548235),
-                                    size: 24,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Consignment ID: ${consignment.id}',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Status: ${consignment.status}',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              _buildInfoRow(
-                                Icons.category,
-                                'Quality: ${consignment.quality}',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildInfoRow(
-                                Icons.label,
-                                'Category: ${consignment.category}',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildInfoRow(
-                                Icons.inventory_2,
-                                'Boxes: ${consignment.numberOfBoxes}',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildInfoRow(
-                                Icons.calendar_today,
-                                'Created: ${consignment.createdAt.toString().split(' ')[0]}',
-                              ),
-                              if (consignment.commissionAgent != null) ...[
-                                const SizedBox(height: 8),
-                                _buildInfoRow(
-                                  Icons.person,
-                                  'Commission Agent: ${consignment.commissionAgent?.name ?? 'N/A'}',
-                                ),
-                              ],
-                              if (consignment.corporateCompany != null) ...[
-                                const SizedBox(height: 8),
-                                _buildInfoRow(
-                                  Icons.business,
-                                  'Corporate Company: ${consignment.corporateCompany?.name ?? 'N/A'}',
-                                ),
-                              ],
-                            ],
-                          ),
+
                         ),
                       ),
                     ),

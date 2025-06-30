@@ -7,7 +7,6 @@ enum CropStage {
   fiftyPercentColour,
   eightyPercentColour,
   harvest,
-  packing
 }
 
 enum QualityMarker {

@@ -26,9 +26,8 @@ RxString personPost = "247001".obs;
 RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
-RxString url="https://b04b-2409-40d2-24-f8ee-88c6-ab7a-548f-aecb.ngrok-free.app".obs;
-
-RxString id = "685e567eb55137ad3867a335".obs;
+RxString url = "https://bml-m3ps.onrender.com".obs;
+RxString id = "685d137cd479db5bf6e8b1ec".obs;
 
 RxList<Complaint> myComplaint = <Complaint>[].obs;
 
@@ -149,7 +148,6 @@ RxList<FreightForwarder> availableBuyers = [
     updatedAt: DateTime.now(),
   ),
 ].obs;
-
 
 RxList<DrivingProfile> availableDrivingProfiles = [
   DrivingProfile(
@@ -293,8 +291,6 @@ RxList<Orchard> availableOrchards = [
     updatedAt: DateTime.now(),
   ),
 ].obs;
-
-
 
 RxList<Employee> availablePackers = [
   Employee(
@@ -520,7 +516,7 @@ String getTranslatedText(String englishText) {
 RxList<HpmcCollectionCenter> availableHpmcDepots = [
   HpmcCollectionCenter(
     id: 'HPMC001',
-   HPMCname: 'Rajesh Kumar',
+    HPMCname: 'Rajesh Kumar',
     operatorName: 'Himachal Collection Center',
     cellNo: '9876543210',
     aadharNo: '123456789012',

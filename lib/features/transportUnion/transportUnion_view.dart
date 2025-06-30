@@ -951,7 +951,7 @@ class TransportUnionView extends GetView<TransportUnionController> {
               ),
               SizedBox(height: 8),
               Text(
-                'Consignment ${consignment.id.substring(0, 4)}...',
+                'Consignment ${consignment.id?.substring(0, 4)}...',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -963,12 +963,12 @@ class TransportUnionView extends GetView<TransportUnionController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  '${consignment.numberOfBoxes} Boxes',
+                  'Boxes',
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  consignment.quality,
+                  "AAA",
                   style: TextStyle(fontSize: 12, color: Colors.blue),
                 ),
               ],

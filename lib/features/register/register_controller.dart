@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../models/grower_model.dart';
 import '../../core/globals.dart' as glb;
 
 class RegisterController extends GetxController {
@@ -323,11 +322,15 @@ class RegisterController extends GetxController {
   bool validateCurrentStep() {
     switch (currentStep.value) {
       case 0:
-        if (nameController.text.trim().isEmpty) {
+        if (nameController.text
+            .trim()
+            .isEmpty) {
           errorMessage.value = "Please enter your name";
           return false;
         }
-        if (aadharController.text.trim().isEmpty) {
+        if (aadharController.text
+            .trim()
+            .isEmpty) {
           errorMessage.value = "Please enter your Aadhar number";
           return false;
         }
@@ -336,18 +339,25 @@ class RegisterController extends GetxController {
           return false;
         }
         if (selectedRole.value == "Aadhati") {
-          if (apmc_IDController.text.trim().isEmpty) {
+          if (apmc_IDController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter APMC ID";
             return false;
-          }}
-
-          if (villageController.text.trim().isEmpty) {
-            errorMessage.value = "Please enter your village";
-            return false;
           }
+        }
+
+        if (villageController.text
+            .trim()
+            .isEmpty) {
+          errorMessage.value = "Please enter your village";
+          return false;
+        }
         break;
       case 1:
-        if (phoneController.text.trim().isEmpty) {
+        if (phoneController.text
+            .trim()
+            .isEmpty) {
           errorMessage.value = "Please enter your phone number";
           return false;
         }
@@ -355,12 +365,16 @@ class RegisterController extends GetxController {
           errorMessage.value = "Phone number must be 10 digits";
           return false;
         }
-        if (addressController.text.trim().isEmpty) {
+        if (addressController.text
+            .trim()
+            .isEmpty) {
           errorMessage.value = "Please enter your address";
           return false;
         }
         if (selectedRole.value != "Aadhati") {
-          if (pinCodeController.text.trim().isEmpty) {
+          if (pinCodeController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter your PIN code";
             return false;
           }
@@ -372,117 +386,169 @@ class RegisterController extends GetxController {
         break;
       case 2:
         if (selectedRole.value == "Aadhati") {
-          if (nameOfTradingFirmController.text.trim().isEmpty) {
+          if (nameOfTradingFirmController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter trading firm name";
             return false;
           }
-          if (tradingExperienceController.text.trim().isEmpty) {
+          if (tradingExperienceController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter trading experience";
             return false;
           }
-          if (firmTypeController.text.trim().isEmpty) {
+          if (firmTypeController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please select firm type";
             return false;
           }
-          if (licenceNumberController.text.trim().isEmpty) {
+          if (licenceNumberController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter licence number";
             return false;
           }
         } else if (selectedRole.value == "PackHouse") {
-          if (gradingMachineController.text.trim().isEmpty) {
+          if (gradingMachineController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter grading machine";
             return false;
           }
-          if (sortingMachineController.text.trim().isEmpty) {
+          if (sortingMachineController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter sorting machine";
             return false;
           }
-          if (numberOfCratesController.text.trim().isEmpty) {
+          if (numberOfCratesController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter number of crates";
             return false;
           }
         } else if (selectedRole.value == "Transport Union") {
-          if (nameOfTheTransportUnionController.text.trim().isEmpty) {
+          if (nameOfTheTransportUnionController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter name of the transport union";
             return false;
           }
-          if (transportUnionRegistrationNoController.text.trim().isEmpty) {
+          if (transportUnionRegistrationNoController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter registration number";
             return false;
           }
-          if (noOfVehiclesRegisteredController.text.trim().isEmpty) {
+          if (noOfVehiclesRegisteredController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter number of vehicles registered";
             return false;
           }
         } else if (selectedRole.value == "Corporate Company" ||
             selectedRole.value == "Buyer" ||
             selectedRole.value == "Ladani Buyers") {
-          if (nameOfTradingFirmLadaniController.text.trim().isEmpty) {
+          if (nameOfTradingFirmLadaniController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter trading firm name";
             return false;
           }
-          if (tradingSinceYearsController.text.trim().isEmpty) {
+          if (tradingSinceYearsController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter trading since years";
             return false;
           }
-          if (firmTypeLadaniController.text.trim().isEmpty) {
+          if (firmTypeLadaniController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please select firm type";
             return false;
           }
-          if (licenseNoController.text.trim().isEmpty) {
+          if (licenseNoController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter license number";
             return false;
           }
         } else if (selectedRole.value == "Driver") {
-          if (drivingLicenseNoController.text.trim().isEmpty) {
+          if (drivingLicenseNoController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter driving license number";
             return false;
           }
-          if (vehicleRegistrationNoController.text.trim().isEmpty) {
+          if (vehicleRegistrationNoController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter vehicle registration number";
             return false;
           }
         } else if (selectedRole.value == "HPMC Depot") {
-          if (operatorNameController.text.trim().isEmpty) {
+          if (operatorNameController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter operator name";
             return false;
           }
-          if (cellNoController.text.trim().isEmpty) {
+          if (cellNoController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter cell number";
             return false;
           }
-          if (aadharNoController.text.trim().isEmpty) {
+          if (aadharNoController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter aadhar number";
             return false;
           }
-          if (licenseNoHpmcController.text.trim().isEmpty) {
+          if (licenseNoHpmcController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter license number";
             return false;
           }
         } else if (selectedRole.value == "FreightForwarder") {
-          if (freightForwarderLicenseNoController.text.trim().isEmpty) {
+          if (freightForwarderLicenseNoController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter license number";
             return false;
           }
-          if (forwardingSinceYearsController.text.trim().isEmpty) {
+          if (forwardingSinceYearsController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter forwarding since years";
             return false;
           }
         } else if (selectedRole.value == "Police Officer") {
-          if (policeCellNoController.text.trim().isEmpty) {
+          if (policeCellNoController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter police cell number";
             return false;
           }
-          if (policeAdharIdController.text.trim().isEmpty) {
+          if (policeAdharIdController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter police adhar ID";
             return false;
           }
-          if (policeBeltNoController.text.trim().isEmpty) {
+          if (policeBeltNoController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter police belt number";
             return false;
           }
         } else if (selectedRole.value == "AMPCO Office") {
-          if (ampcNameController.text.trim().isEmpty) {
+          if (ampcNameController.text
+              .trim()
+              .isEmpty) {
             errorMessage.value = "Please enter AMPCO name";
             return false;
           }
@@ -598,7 +664,7 @@ class RegisterController extends GetxController {
           break;
         default:
           errorMessage.value =
-              "Registration for ${selectedRole.value} is not implemented yet";
+          "Registration for ${selectedRole.value} is not implemented yet";
           break;
       }
     } catch (e) {
@@ -618,7 +684,7 @@ class RegisterController extends GetxController {
         "address": addressController.text.trim(),
         "nameOfTradingFirm": nameOfTradingFirmController.text.trim(),
         "tradingExperience":
-            int.tryParse(tradingExperienceController.text.trim()) ?? 0,
+        int.tryParse(tradingExperienceController.text.trim()) ?? 0,
         "firmType": firmTypeController.text.trim(),
         "licenceNumber": licenceNumberController.text.trim(),
         "appleboxesT2": int.tryParse(appleboxesT2Controller.text.trim()) ?? 0,
@@ -626,7 +692,7 @@ class RegisterController extends GetxController {
         "appleboxesT": int.tryParse(appleboxesTController.text.trim()) ?? 0,
         "needTradeFinance": needTradeFinance.value,
         "applegrowersServed":
-            int.tryParse(applegrowersServedController.text.trim()) ?? 0,
+        int.tryParse(applegrowersServedController.text.trim()) ?? 0,
         "gallery": [],
         "grower_IDs": [],
         "freightForwarder_IDs": [],
@@ -681,7 +747,7 @@ class RegisterController extends GetxController {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         errorMessage.value =
-            "Network error. Please check your internet connection";
+        "Network error. Please check your internet connection";
       } else {
         errorMessage.value = "Registration failed: ${e.toString()}";
       }
@@ -695,7 +761,7 @@ class RegisterController extends GetxController {
         "aadhar": aadharController.text.trim(),
         "phoneNumber": phoneController.text.trim(),
         "address":
-            "${villageController.text.trim()}, ${addressController.text.trim()}",
+        "${villageController.text.trim()}, ${addressController.text.trim()}",
         "pinCode": pinCodeController.text.trim(),
         "orchard_IDs": [],
         "aadhati_IDs": [],
@@ -753,7 +819,7 @@ class RegisterController extends GetxController {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         errorMessage.value =
-            "Network error. Please check your internet connection";
+        "Network error. Please check your internet connection";
       } else {
         errorMessage.value = "Registration failed: ${e.toString()}";
       }
@@ -774,15 +840,15 @@ class RegisterController extends GetxController {
         "trayType": trayTypeController.text.trim(),
         "perDayCapacity": perDayCapacityController.text.trim(),
         "numberOfCrates":
-            int.tryParse(numberOfCratesController.text.trim()) ?? 0,
+        int.tryParse(numberOfCratesController.text.trim()) ?? 0,
         "crateManufacture": crateManufactureController.text.trim(),
         "boxesPackedT2": int.tryParse(boxesPackedT2Controller.text.trim()) ?? 0,
         "boxesPackedT1": int.tryParse(boxesPackedT1Controller.text.trim()) ?? 0,
         "boxesEstimatedT":
-            int.tryParse(boxesEstimatedTController.text.trim()) ?? 0,
+        int.tryParse(boxesEstimatedTController.text.trim()) ?? 0,
         "geoLocation": geoLocationController.text.trim(),
         "numberOfGrowersServed":
-            int.tryParse(numberOfGrowersServedController.text.trim()) ?? 0,
+        int.tryParse(numberOfGrowersServedController.text.trim()) ?? 0,
         "gallery": [],
         "grower_IDs": [],
         "aadhati_IDs": [],
@@ -837,7 +903,7 @@ class RegisterController extends GetxController {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         errorMessage.value =
-            "Network error. Please check your internet connection";
+        "Network error. Please check your internet connection";
       } else {
         errorMessage.value = "Registration failed: ${e.toString()}";
       }
@@ -851,30 +917,30 @@ class RegisterController extends GetxController {
         "contact": transportUnionContactController.text.trim(),
         "address": transportUnionAddressController.text.trim(),
         "nameOfTheTransportUnion":
-            nameOfTheTransportUnionController.text.trim(),
+        nameOfTheTransportUnionController.text.trim(),
         "transportUnionRegistrationNo":
-            transportUnionRegistrationNoController.text.trim(),
+        transportUnionRegistrationNoController.text.trim(),
         "noOfVehiclesRegistered":
-            int.tryParse(noOfVehiclesRegisteredController.text.trim()) ?? 0,
+        int.tryParse(noOfVehiclesRegisteredController.text.trim()) ?? 0,
         "transportUnionPresidentAdharId":
-            transportUnionPresidentAdharIdController.text.trim(),
+        transportUnionPresidentAdharIdController.text.trim(),
         "transportUnionSecretaryAdhar":
-            transportUnionSecretaryAdharController.text.trim(),
+        transportUnionSecretaryAdharController.text.trim(),
         "noOfLightCommercialVehicles":
-            int.tryParse(noOfLightCommercialVehiclesController.text.trim()) ??
-                0,
+        int.tryParse(noOfLightCommercialVehiclesController.text.trim()) ??
+            0,
         "noOfMediumCommercialVehicles":
-            int.tryParse(noOfMediumCommercialVehiclesController.text.trim()) ??
-                0,
+        int.tryParse(noOfMediumCommercialVehiclesController.text.trim()) ??
+            0,
         "noOfHeavyCommercialVehicles":
-            int.tryParse(noOfHeavyCommercialVehiclesController.text.trim()) ??
-                0,
+        int.tryParse(noOfHeavyCommercialVehiclesController.text.trim()) ??
+            0,
         "appleBoxesTransported2023":
-            int.tryParse(appleBoxesTransported2023Controller.text.trim()) ?? 0,
+        int.tryParse(appleBoxesTransported2023Controller.text.trim()) ?? 0,
         "appleBoxesTransported2024":
-            int.tryParse(appleBoxesTransported2024Controller.text.trim()) ?? 0,
+        int.tryParse(appleBoxesTransported2024Controller.text.trim()) ?? 0,
         "estimatedTarget2025":
-            double.tryParse(estimatedTarget2025Controller.text.trim()) ?? 0.0,
+        double.tryParse(estimatedTarget2025Controller.text.trim()) ?? 0.0,
         "statesDrivenThrough": statesDrivenThroughController.text.trim(),
         "appleGrowers": [],
         "aadhatis": [],
@@ -919,7 +985,7 @@ class RegisterController extends GetxController {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         errorMessage.value =
-            "Network error. Please check your internet connection";
+        "Network error. Please check your internet connection";
       } else {
         errorMessage.value = "Registration failed: ${e.toString()}";
       }
@@ -934,23 +1000,23 @@ class RegisterController extends GetxController {
         "address": ladaniAddressController.text.trim(),
         "nameOfTradingFirm": nameOfTradingFirmLadaniController.text.trim(),
         "tradingSinceYears":
-            int.tryParse(tradingSinceYearsController.text.trim()) ?? 0,
+        int.tryParse(tradingSinceYearsController.text.trim()) ?? 0,
         "firmType": firmTypeLadaniController.text.trim(),
         "licenseNo": licenseNoController.text.trim(),
         "purchaseLocationAddress":
-            purchaseLocationAddressController.text.trim(),
+        purchaseLocationAddressController.text.trim(),
         "licensesIssuingAPMC": licensesIssuingAPMCController.text.trim(),
         "locationOnGoogle": locationOnGoogleController.text.trim(),
         "appleBoxesPurchased2023":
-            int.tryParse(appleBoxesPurchased2023Controller.text.trim()) ?? 0,
+        int.tryParse(appleBoxesPurchased2023Controller.text.trim()) ?? 0,
         "appleBoxesPurchased2024":
-            int.tryParse(appleBoxesPurchased2024Controller.text.trim()) ?? 0,
+        int.tryParse(appleBoxesPurchased2024Controller.text.trim()) ?? 0,
         "estimatedTarget2025":
-            double.tryParse(estimatedTarget2025LadaniController.text.trim()) ??
-                0.0,
+        double.tryParse(estimatedTarget2025LadaniController.text.trim()) ??
+            0.0,
         "perBoxExpensesAfterBidding":
-            double.tryParse(perBoxExpensesAfterBiddingController.text.trim()) ??
-                0.0,
+        double.tryParse(perBoxExpensesAfterBiddingController.text.trim()) ??
+            0.0,
         "associatedAaddhatis": [],
         "associatedBuyer": [],
         "truckServiceProviders": [],
@@ -993,7 +1059,7 @@ class RegisterController extends GetxController {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         errorMessage.value =
-            "Network error. Please check your internet connection";
+        "Network error. Please check your internet connection";
       } else {
         errorMessage.value = "Registration failed: ${e.toString()}";
       }
@@ -1009,20 +1075,20 @@ class RegisterController extends GetxController {
         "vehicleRegistrationNo": vehicleRegistrationNoController.text.trim(),
         "chassiNoOfVehicle": chassiNoOfVehicleController.text.trim(),
         "payloadCapacityApprovedByRto":
-            payloadCapacityApprovedByRtoController.text.trim(),
+        payloadCapacityApprovedByRtoController.text.trim(),
         "grossVehicleWeight": grossVehicleWeightController.text.trim(),
         "noOfTyres": int.tryParse(noOfTyresController.text.trim()) ?? 0,
         "permitOfVehicleDriving": permitOfVehicleDrivingController.text.trim(),
         "vehicleOwnerAdharGst": vehicleOwnerAdharGstController.text.trim(),
         "appleBoxesTransported2023": int.tryParse(
-                appleBoxesTransported2023DriverController.text.trim()) ??
+            appleBoxesTransported2023DriverController.text.trim()) ??
             0,
         "appleBoxesTransported2024": int.tryParse(
-                appleBoxesTransported2024DriverController.text.trim()) ??
+            appleBoxesTransported2024DriverController.text.trim()) ??
             0,
         "estimatedTarget2025":
-            double.tryParse(estimatedTarget2025DriverController.text.trim()) ??
-                0.0,
+        double.tryParse(estimatedTarget2025DriverController.text.trim()) ??
+            0.0,
         "statesDrivenThrough": statesDrivenThroughDriverController.text.trim(),
         "appleGrowers": [],
         "aadhatis": [],
@@ -1066,7 +1132,7 @@ class RegisterController extends GetxController {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         errorMessage.value =
-            "Network error. Please check your internet connection";
+        "Network error. Please check your internet connection";
       } else {
         errorMessage.value = "Registration failed: ${e.toString()}";
       }
@@ -1084,9 +1150,9 @@ class RegisterController extends GetxController {
         "operatingSince": operatingSinceController.text.trim(),
         "location": locationHpmcController.text.trim(),
         "boxesTransported2023":
-            int.tryParse(boxesTransported2023Controller.text.trim()) ?? 0,
+        int.tryParse(boxesTransported2023Controller.text.trim()) ?? 0,
         "boxesTransported2024":
-            int.tryParse(boxesTransported2024Controller.text.trim()) ?? 0,
+        int.tryParse(boxesTransported2024Controller.text.trim()) ?? 0,
         "target2025": double.tryParse(target2025Controller.text.trim()) ?? 0.0,
         "associatedGrowers": [],
         "myComplaints": [],
@@ -1131,7 +1197,7 @@ class RegisterController extends GetxController {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         errorMessage.value =
-            "Network error. Please check your internet connection";
+        "Network error. Please check your internet connection";
       } else {
         errorMessage.value = "Registration failed: ${e.toString()}";
       }
@@ -1146,19 +1212,19 @@ class RegisterController extends GetxController {
         "address": freightForwarderAddressController.text.trim(),
         "licenseNo": freightForwarderLicenseNoController.text.trim(),
         "forwardingSinceYears":
-            int.tryParse(forwardingSinceYearsController.text.trim()) ?? 0,
+        int.tryParse(forwardingSinceYearsController.text.trim()) ?? 0,
         "licensesIssuingAuthority":
-            licensesIssuingAuthorityController.text.trim(),
+        licensesIssuingAuthorityController.text.trim(),
         "locationOnGoogle": locationOnGoogleFreightController.text.trim(),
         "appleBoxesForwarded2023":
-            int.tryParse(appleBoxesForwarded2023Controller.text.trim()) ?? 0,
+        int.tryParse(appleBoxesForwarded2023Controller.text.trim()) ?? 0,
         "appleBoxesForwarded2024":
-            int.tryParse(appleBoxesForwarded2024Controller.text.trim()) ?? 0,
+        int.tryParse(appleBoxesForwarded2024Controller.text.trim()) ?? 0,
         "estimatedForwardingTarget2025":
-            int.tryParse(estimatedForwardingTarget2025Controller.text.trim()) ??
-                0,
+        int.tryParse(estimatedForwardingTarget2025Controller.text.trim()) ??
+            0,
         "tradeLicenseOfAadhatiAttached":
-            tradeLicenseOfAadhatiAttachedController.text.trim(),
+        tradeLicenseOfAadhatiAttachedController.text.trim(),
         "associatedAadhatis": [],
         "associatedGrowers": [],
         "associatedPickupProviders": [],
@@ -1203,7 +1269,7 @@ class RegisterController extends GetxController {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         errorMessage.value =
-            "Network error. Please check your internet connection";
+        "Network error. Please check your internet connection";
       } else {
         errorMessage.value = "Registration failed: ${e.toString()}";
       }
@@ -1262,7 +1328,7 @@ class RegisterController extends GetxController {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         errorMessage.value =
-            "Network error. Please check your internet connection";
+        "Network error. Please check your internet connection";
       } else {
         errorMessage.value = "Registration failed: ${e.toString()}";
       }
@@ -1278,22 +1344,22 @@ class RegisterController extends GetxController {
         "designation": ampcDesignationController.text.trim(),
         "officePhoneNo": ampcOfficePhoneNoController.text.trim(),
         "totalNoOfCommissionAgents":
-            int.tryParse(ampcTotalCommissionAgentsController.text.trim()) ?? 0,
+        int.tryParse(ampcTotalCommissionAgentsController.text.trim()) ?? 0,
         "totalLadanisWithinJurisdiction":
-            int.tryParse(ampcTotalLadanisController.text.trim()) ?? 0,
+        int.tryParse(ampcTotalLadanisController.text.trim()) ?? 0,
         "totalNoOfTransporters":
-            int.tryParse(ampcTotalTransportersController.text.trim()) ?? 0,
+        int.tryParse(ampcTotalTransportersController.text.trim()) ?? 0,
         "noOfHomeGuardsOnDuty":
-            int.tryParse(ampcNoOfHomeGuardsController.text.trim()) ?? 0,
+        int.tryParse(ampcNoOfHomeGuardsController.text.trim()) ?? 0,
         "totalApmcStaff":
-            int.tryParse(ampcTotalStaffController.text.trim()) ?? 0,
+        int.tryParse(ampcTotalStaffController.text.trim()) ?? 0,
         "appleBoxesSold2023":
-            int.tryParse(ampcAppleBoxesSold2023Controller.text.trim()) ?? 0,
+        int.tryParse(ampcAppleBoxesSold2023Controller.text.trim()) ?? 0,
         "appleBoxesSold2024":
-            int.tryParse(ampcAppleBoxesSold2024Controller.text.trim()) ?? 0,
+        int.tryParse(ampcAppleBoxesSold2024Controller.text.trim()) ?? 0,
         "estimatedTarget2025":
-            double.tryParse(ampcEstimatedTarget2025Controller.text.trim()) ??
-                0.0,
+        double.tryParse(ampcEstimatedTarget2025Controller.text.trim()) ??
+            0.0,
         "approvedAadhati": [],
         "blacklistedAdhaties": [],
         "approvedLadanis": [],
@@ -1337,7 +1403,7 @@ class RegisterController extends GetxController {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('NetworkException')) {
         errorMessage.value =
-            "Network error. Please check your internet connection";
+        "Network error. Please check your internet connection";
       } else {
         errorMessage.value = "Registration failed: ${e.toString()}";
       }
@@ -1462,4 +1528,5 @@ class RegisterController extends GetxController {
     currentStep.value = 0;
     errorMessage.value = "";
   }
+
 }

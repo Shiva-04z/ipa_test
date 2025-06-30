@@ -353,44 +353,7 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
         elevation: 0,
         color: Colors.white,
         child: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.assignment,
-                size: isSmallScreen ? 32 : 40,
-                color: Colors.orangeAccent,
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Consignment ${consignment.id.substring(0, 4)}...',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: isSmallScreen ? 12 : 14,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (!isSmallScreen) ...[
-                SizedBox(height: 4),
-                Text(
-                  '${consignment.numberOfBoxes} Boxes',
-                  style: TextStyle(fontSize: 12),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  consignment.quality,
-                  style: TextStyle(fontSize: 12, color: Colors.blue),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Status: ${consignment.status}',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ],
-            ],
-          ),
+
         ),
       ),
     );

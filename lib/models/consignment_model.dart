@@ -1,125 +1,139 @@
-import 'package:apple_grower/models/driving_profile_model.dart';
-import 'package:apple_grower/models/ladani_model.dart';
-import 'package:apple_grower/models/pack_house_model.dart';
-
-import 'aadhati.dart';
+import 'package:apple_grower/models/bilty_model.dart';
+import 'package:geocoding/geocoding.dart';
 
 class Consignment {
-  final String id;
-  final String quality;
-  final String category;
-  final int numberOfBoxes;
-  final int numberOfPiecesInBox;
-  final String pickupOption; // 'Own', 'Request Driver Support'
-  final String? shippingFrom;
-  final String? shippingTo;
-  final PackHouse? packingHouse;
-  final Aadhati? commissionAgent;
-  final Ladani? corporateCompany;
-  final bool? hasOwnCrates; // Whether the grower has their own crates
-  final String status; // 'Keep', 'Release for Bid'
-  final DrivingProfile? driver;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  String? id;
+  String? growerId;
+  String? searchId;
+  String? trip1Driverid;
+  Location? startPointTrip1;
+  String? startPointAddressTrip1;
+  Location? endPointTrip1;
+  String? endPointAddressTrip1;
+  String? packhouseId;
+  Location? startPointTrip2;
+  String? startPointAddressTrip2;
+  String? trip2Driverid;
+  String? approval;
+  Location? endPointTrip2;
+  String? endPointAddressTrip2;
+  String? currentStage;
+  String? aadhatiId;
+  double? totalWeight;
+  Bilty? bilty;
+  String? status;
+  String driverMode;
+  String packHouseMode;
+  String  aadhatiMode;
 
-  Consignment({
-    required this.id,
-    required this.quality,
-    required this.category,
-    required this.numberOfBoxes,
-    required this.numberOfPiecesInBox,
-    required this.pickupOption,
-    this.shippingFrom,
-    this.shippingTo,
-    required this.commissionAgent,
-    this.hasOwnCrates,
-    required this.status,
-    required this.driver,
-    required this.corporateCompany,
-    required this.packingHouse,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+  Consignment(
+      {required this.searchId,
+      this.trip1Driverid,
+      this.startPointAddressTrip1,
+      this.endPointAddressTrip1,
+      this.bilty,
+      this.packhouseId,
+      this.currentStage,
+      this.endPointTrip1,
+      this.startPointTrip1,
+      this.totalWeight,
+      this.aadhatiId,
+      this.endPointAddressTrip2,
+      this.endPointTrip2,
+      this.startPointAddressTrip2,
+      this.trip2Driverid,
+      this.startPointTrip2,
+      this.growerId,this.status,
+      this.id,
+      this.approval,
+      required this.aadhatiMode,
+      required this.driverMode,
+      required this.packHouseMode,});
 
-  // Factory constructor for creating a new Consignment from a map
+  // Factory constructor to create a Consignment from JSON
   factory Consignment.fromJson(Map<String, dynamic> json) {
+    Location? parseLocation(Map<String, dynamic>? loc) {
+      if (loc == null) return null;
+      return Location(
+        latitude: (loc['latitude'] as num).toDouble(),
+        longitude: (loc['longitude'] as num).toDouble(),
+        timestamp: DateTime.now(), // No timestamp in JSON, use now
+      );
+    }
+
     return Consignment(
-      id: json['id'],
-      quality: json['quality'],
-      category: json['category'],
-      numberOfBoxes: json['numberOfBoxes'],
-      numberOfPiecesInBox: json['numberOfPiecesInBox'],
-      pickupOption: json['pickupOption'],
-      shippingFrom: json['shippingFrom'],
-      shippingTo: json['shippingTo'],
-      packingHouse: PackHouse.fromJson(json['packingHouse']),
-      commissionAgent: Aadhati.fromJson(json['commissionAgent']),
-      corporateCompany: Ladani.fromJson(json['corporateCompany']),
-      hasOwnCrates: json['hasOwnCrates'],
+      id: json['_id'],
+      growerId: json['growerId'],
+      searchId: json['searchId'],
+      trip1Driverid: json['trip1Driverid'],
+      startPointTrip1: parseLocation(json['startPointTrip1']),
+      startPointAddressTrip1: json['startPointAddressTrip1'],
+      endPointTrip1: parseLocation(json['endPointTrip1']),
+      endPointAddressTrip1: json['endPointAddressTrip1'],
+      packhouseId: json['packhouseId'],
+      startPointTrip2: parseLocation(json['startPointTrip2']),
+      startPointAddressTrip2: json['startPointAddressTrip2'],
+      trip2Driverid: json['trip2Driverid'],
+      approval: json['approval'],
+      endPointTrip2: parseLocation(json['endPointTrip2']),
+      endPointAddressTrip2: json['endPointAddressTrip2'],
+      currentStage: json['currentStage'],
+      aadhatiId: json['aadhatiId'],
+      totalWeight: json['totalWeight']?.toDouble(),
       status: json['status'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      driver: DrivingProfile.fromJson(json['driver']),
+      bilty: json['bilty'] != null ? Bilty.fromJson(json['bilty']) : null,
+      aadhatiMode: json['aadhatiMode'],
+        driverMode: json['driverMode'],
+      packHouseMode:  json ['packHouseMode']
     );
   }
 
-  // Method for converting a Consignment to a map
+  // Convert Consignment to JSON
   Map<String, dynamic> toJson() {
+    Map<String, dynamic>? locToJson(Location? loc) {
+      if (loc == null) return null;
+      return {
+        'latitude': loc.latitude,
+        'longitude': loc.longitude,
+      };
+    }
+
     return {
-      'id': id,
-      'quality': quality,
-      'category': category,
-      'numberOfBoxes': numberOfBoxes,
-      'numberOfPiecesInBox': numberOfPiecesInBox,
-      'pickupOption': pickupOption,
-      'shippingFrom': shippingFrom,
-      'shippingTo': shippingTo,
-      'packingHouse': packingHouse?.toJson(),
-      'corporateCompany': corporateCompany?.toJson(),
-      'commissionAgent': commissionAgent?.toJson(),
-      'hasOwnCrates': hasOwnCrates,
+      'growerId': growerId,
+      'searchId': searchId,
+      'trip1Driverid': trip1Driverid,
+      'startPointTrip1': locToJson(startPointTrip1),
+      'startPointAddressTrip1': startPointAddressTrip1,
+      'endPointTrip1': locToJson(endPointTrip1),
+      'endPointAddressTrip1': endPointAddressTrip1,
+      'packhouseId': packhouseId,
+      'startPointTrip2': locToJson(startPointTrip2),
+      'startPointAddressTrip2': startPointAddressTrip2,
+      'trip2Driverid': trip2Driverid,
+      'approval': approval,
+      'endPointTrip2': locToJson(endPointTrip2),
+      'endPointAddressTrip2': endPointAddressTrip2,
+      'currentStage': currentStage,
+      'aadhatiId': aadhatiId,
+      'totalWeight': totalWeight,
+      'bilty': bilty?.toJson(),
       'status': status,
-      'driver': driver?.toJson(),
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'aadhatiMode': aadhatiMode,
+      'packHouseMode' : packHouseMode,
+      'driverMode' : driverMode
     };
   }
 
-  Consignment copyWith({
-    String? id,
-    String? quality,
-    String? category,
-    int? numberOfBoxes,
-    int? numberOfPiecesInBox,
-    String? pickupOption,
-    String? shippingFrom,
-    String? shippingTo,
-    PackHouse? packingHouse,
-    Aadhati? commissionAgent,
-    Ladani? corporateCompany,
-    bool? hasOwnCrates,
-    String? status,
-    DrivingProfile? driver,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return Consignment(
-      id: id ?? this.id,
-      quality: quality ?? this.quality,
-      category: category ?? this.category,
-      numberOfBoxes: numberOfBoxes ?? this.numberOfBoxes,
-      numberOfPiecesInBox: numberOfPiecesInBox ?? this.numberOfPiecesInBox,
-      pickupOption: pickupOption ?? this.pickupOption,
-      shippingFrom: shippingFrom ?? this.shippingFrom,
-      shippingTo: shippingTo ?? this.shippingTo,
-      packingHouse: packingHouse ?? this.packingHouse,
-      commissionAgent: commissionAgent ?? this.commissionAgent,
-      corporateCompany: corporateCompany ?? this.corporateCompany,
-      hasOwnCrates: hasOwnCrates ?? this.hasOwnCrates,
-      status: status ?? this.status,
-      driver: driver ?? this.driver,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
+  updateMongoId(String id) {
+    this.id = id;
   }
+
+  updateStage(String stage) {
+    this.currentStage = stage;
+  }
+  updateStatus(String status)
+  {
+    this.status = status;
+  }
+
 }
