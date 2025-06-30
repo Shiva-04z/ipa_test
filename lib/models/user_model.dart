@@ -2,7 +2,7 @@ class User {
   String? id;
   String? name;
   String? contact;
-  String? Aadhar;
+  String? aadhar;
   String? email;
   String? role;
   String? roledocID;
@@ -15,6 +15,7 @@ class User {
   User({
     this.id,
     this.name,
+    this.aadhar,
     this.contact,
     this.email,
     this.role,

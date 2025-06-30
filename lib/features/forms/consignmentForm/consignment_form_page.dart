@@ -1,234 +1,1253 @@
+import 'package:apple_grower/features/grower/grower_controller.dart';
+import 'package:apple_grower/models/aadhati.dart';
+import 'package:apple_grower/models/bilty_model.dart';
+import 'package:apple_grower/models/pack_house_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../core/globals.dart' as glb;
 import '../../../models/driving_profile_model.dart';
+import '../../../models/transport_model.dart';
 import 'consignment_form_controller.dart';
-import 'consignment_form_widgets.dart' as ConsignmentFormWidgets;
 
-class ConsignmentFormPage extends StatelessWidget {
-  final ConsignmentFormController controller =
-      Get.put(ConsignmentFormController());
+class ConsignmentFormPage extends GetView<ConsignmentFormController> {
+  final RxBool isEditMode = false.obs;
+  final RxBool showDetails = false.obs;
+  final ImagePicker _picker = ImagePicker();
+  final RxList<String?> imagePaths = <String?>[].obs;
+  final RxBool isEditBoxesMode = false.obs;
+  final RxBool isEditTotalWeightMode = false.obs;
+  final RxString videoPath = ''.obs;
 
-  Widget buildDriverDetailsCard(String selectedDriverOption) {
-    if (selectedDriverOption == "Self") return SizedBox.shrink();
+  Widget driverModeSelection() {
+    return Container(
+      padding: EdgeInsets.all(8),
+      child: Obx(
+        () => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 10,
+          children: [
+            Text(
+              "Driver Selection",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+            ),
+            RadioListTile(
+                value: "Self",
+                groupValue: controller.driverMode.value,
+                title: Text("Self"),
+                subtitle: Text("Drive by Myself"),
+                onChanged: (value) {
+                  controller.driverMode.value = value!;
+                }),
+            RadioListTile(
+                value: "Associated",
+                groupValue: controller.driverMode.value,
+                title: Text("Associated"),
+                subtitle: Text("Select One of Associated"),
+                onChanged: (value) {
+                  controller.driverMode.value = value!;
+                }),
+            RadioListTile(
+                value: "Transport Union",
+                groupValue: controller.driverMode.value,
+                title: Text("Associated Transport Union"),
+                subtitle: Text("Select One of Associated"),
+                onChanged: (value) {
+                  controller.driverMode.value = value!;
+                }),
+            RadioListTile(
+                value: "Request",
+                groupValue: controller.driverMode.value,
+                title: Text("Request"),
+                subtitle: Text("Request FAS for assignment"),
+                onChanged: (value) {
+                  controller.driverMode.value = value!;
+                }),
+          ],
+        ),
+      ),
+    );
+  }
 
+  Widget aadhatiModeSelection() {
+    return Container(
+      padding: EdgeInsets.all(8),
+      child: Obx(
+        () => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 10,
+          children: [
+            Text(
+              "Agent Selection",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+            ),
+            RadioListTile(
+                value: "Associated",
+                groupValue: controller.aadhatiMode.value,
+                title: Text("Associated"),
+                subtitle: Text("Select One of Associated"),
+                onChanged: (value) {
+                  controller.aadhatiMode.value = value!;
+                }),
+            RadioListTile(
+                value: "Request",
+                groupValue: controller.aadhatiMode.value,
+                title: Text("Request"),
+                subtitle: Text("Request FAS for assignment"),
+                onChanged: (value) {
+                  controller.aadhatiMode.value = value!;
+                }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget packHouseModeSelection() {
+    return Container(
+      padding: EdgeInsets.all(8),
+      child: Obx(
+        () => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 10,
+          children: [
+            Text(
+              "PackHouse Selection",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+            ),
+            RadioListTile(
+                value: "Self",
+                groupValue: controller.packHouseMode.value,
+                title: Text("Self"),
+                subtitle: Text("Pack by Myself"),
+                onChanged: (value) {
+                  controller.packHouseMode.value = value!;
+                }),
+            RadioListTile(
+                value: "Associated",
+                groupValue: controller.packHouseMode.value,
+                title: Text("Associated"),
+                subtitle: Text("Select One of Associated"),
+                onChanged: (value) {
+                  controller.packHouseMode.value = value!;
+                }),
+            RadioListTile(
+                value: "Request",
+                groupValue: controller.packHouseMode.value,
+                title: Text("Request"),
+                subtitle: Text("Request FAS for assignment"),
+                onChanged: (value) {
+                  controller.packHouseMode.value = value!;
+                }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildSelectionBoxes() {
+    return Obx(() {
+      if (controller.aadhatiMode.value == "Associated") {
+        return Padding(
+          padding: EdgeInsets.all(8),
+          child: Column(
+            children: [
+              Text(
+                "Selections",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              DropdownButtonFormField<Aadhati>(
+                value: controller.aadhati.value,
+                items: Get.find<GrowerController>()
+                    .commissionAgents
+                    .map((agent) => DropdownMenuItem<Aadhati>(
+                          value: agent,
+                          child: Text(agent.name!), // or any display field
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  controller.aadhati.value = value!;
+                },
+                decoration: InputDecoration(
+                  labelText: "Select Driver",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        );
+      } else
+        return Container();
+    });
+  }
+
+  Widget Step3() {
+    return Column(
+      children: [aadhatiModeSelection(), buildSelectionBoxes()],
+    );
+  }
+
+  Widget buildButton() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Obx(
+        () => (controller.step.value == 0)
+            ? Row(
+                spacing: 10,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                        onPressed: () {
+                          controller.addStep();
+                        },
+                        style: ElevatedButton.styleFrom(
+                            shape: BeveledRectangleBorder(),
+                            backgroundColor: Colors.purpleAccent.shade400),
+                        child: Text(
+                          "Next",
+                          style: TextStyle(color: Colors.white),
+                        )),
+                  ),
+                ],
+              )
+            :(controller.step.value==3)? Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16,
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Decline logic here
+                },
+                child: const Text('Decline Offer', style: TextStyle(color: Colors.white),),
+                style: ElevatedButton.styleFrom(shape: BeveledRectangleBorder(),backgroundColor: Colors.red),
+              ),
+            ),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Accept logic here
+                },
+                child: const Text('Accept for Bidding',style:  TextStyle(color: Colors.white),),
+                style: ElevatedButton.styleFrom(shape: BeveledRectangleBorder(),backgroundColor: Colors.green),
+              ),
+            ),
+
+          ],
+        ): Row(spacing: 10, children: [
+                Expanded(
+                  child: ElevatedButton(
+                      onPressed: () {
+                        controller.step.value -= 1;
+                      },
+                      style: ElevatedButton.styleFrom(
+                          shape: BeveledRectangleBorder(),
+                          backgroundColor: Colors.purpleAccent.shade400),
+                      child: Text(
+                        "Previous",
+                        style: TextStyle(color: Colors.white),
+                      )),
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                      onPressed: () {
+                        controller.addStep();
+                      },
+                      style: ElevatedButton.styleFrom(
+                          shape: BeveledRectangleBorder(),
+                          backgroundColor: Colors.purpleAccent.shade400),
+                      child: Text(
+                        "Next",
+                        style: TextStyle(color: Colors.white),
+                      )),
+                )
+              ]),
+      ),
+    );
+  }
+
+  Widget selectionBoxes() {
+    return Obx(() => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
+            children: [
+              if (controller.driverMode.value == "Associated" ||
+                  controller.driverMode.value == "Transport Union" ||
+                  controller.packHouseMode.value == "Associated")
+                Text(
+                  "Selections",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+              if (controller.driverMode.value == "Associated")
+                DropdownButtonFormField<DrivingProfile>(
+                  value: controller.drivingProfile.value,
+                  items: Get.find<GrowerController>()
+                      .drivers
+                      .map((driver) => DropdownMenuItem<DrivingProfile>(
+                            value: driver,
+                            child: Text(driver.name!), // or any display field
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    controller.drivingProfile.value = value!;
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Select Driver",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              if (controller.driverMode.value == "Transport Union")
+                DropdownButtonFormField<Transport>(
+                  value: controller.transportUnion.value,
+                  items: Get.find<GrowerController>()
+                      .transportUnions
+                      .map((transport) => DropdownMenuItem<Transport>(
+                            value: transport,
+                            child: Text(transport.name), // or any display field
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    controller.transportUnion.value = value!;
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Select Union",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              if (controller.packHouseMode.value == "Associated")
+                DropdownButtonFormField<PackHouse>(
+                  value: controller.packhouse.value,
+                  items: Get.find<GrowerController>()
+                      .packingHouses
+                      .map((packhouse) => DropdownMenuItem<PackHouse>(
+                            value: packhouse,
+                            child: Text(packhouse.name), // or any display field
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    controller.packhouse.value = value!;
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Select PackHouse",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+            ],
+          ),
+        ));
+  }
+
+  Widget Step1() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          driverModeSelection(),
+          packHouseModeSelection(),
+          selectionBoxes()
+        ],
+      ),
+    );
+  }
+
+  Widget fallBack() {
+    return Column(
+      children: [
+        if (controller.driverMode != 'Self')
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(color: Colors.white, boxShadow: [
+              BoxShadow(color: Colors.black, blurRadius: 1, spreadRadius: 1)
+            ]),
+            child: Column(
+              spacing: 10,
+              children: [
+                Center(
+                  child: Icon(
+                    Icons.warning,
+                    color: Colors.amber,
+                  ),
+                ),
+                Text(
+                    (controller.driverMode == "Request" &&
+                            controller.drivingProfile.value == null)
+                        ? "Driver is Not resolved yet"
+                        : (controller.drivingProfile.value == null)
+                            ? "Driver has not accepted request yet"
+                            : "",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
+              ],
+            ),
+          ),
+        SizedBox(
+          height: 10,
+        ),
+        if (controller.packHouseMode.value != "Self")
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(color: Colors.white, boxShadow: [
+              BoxShadow(color: Colors.black, blurRadius: 1, spreadRadius: 1)
+            ]),
+            child: Column(
+              spacing: 10,
+              children: [
+                Center(
+                  child: Icon(
+                    Icons.warning,
+                    color: Colors.amber,
+                  ),
+                ),
+                Text(
+                  (controller.packHouseMode == "Request" &&
+                          controller.packhouse.value == null)
+                      ? "Packhouse is Not resolved yet"
+                      : (controller.packHouseMode.value != "Self" &&
+                              controller.packhouse.value == null)
+                          ? "Packhouse has not accepted request yet"
+                          : "",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          )
+      ],
+    );
+  }
+
+  Color getRowColor(String quality) {
+    switch (quality.toUpperCase()) {
+      case 'AAA':
+        return Colors.red.shade700;
+      case 'GP':
+        return Colors.green.shade700;
+      case 'AA':
+        return Colors.yellow.shade700;
+      case 'MIX/PEAR':
+        return Colors.pink.shade300;
+      default:
+        return Colors.grey.shade200;
+    }
+  }
+
+  Widget biltyCreate() {
+    if (controller.bilty.value == null) {
+      controller.bilty.value =
+          Bilty.createDefault(controller.consignment.value!.searchId!);
+    }
+    final bilty = controller.bilty.value!;
+    if (imagePaths.length != bilty.categories.length) {
+      imagePaths.value = List<String?>.filled(bilty.categories.length, null);
+    }
+    bool isMobile = Platform.isAndroid || Platform.isIOS;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (selectedDriverOption == 'My Drivers') ...[
-          DropdownButtonFormField<DrivingProfile>(
-            decoration: ConsignmentFormWidgets.getInputDecoration(
-                'Select Driver',
-                prefixIcon: Icons.person),
-            value: controller.selectedDriver.value,
-            items: glb.availableDrivingProfiles.map((DrivingProfile driver) {
-              return DropdownMenuItem<DrivingProfile>(
-                value: driver,
-                child: Text(driver.name ?? 'Unknown Driver'),
-              );
-            }).toList(),
-            onChanged: (DrivingProfile? newValue) {
-              controller.selectedDriver.value = newValue;
-            },
-            validator: (value) =>
-                value == null ? 'Please select a driver' : null,
+        Text(
+          "Tools",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              Obx(() => TextButton.icon(
+                    icon: Icon(
+                      isEditBoxesMode.value ? Icons.check_circle : Icons.edit,
+                      color: isEditBoxesMode.value ? Colors.green : Colors.blue,
+                    ),
+                    label: Text(
+                        isEditBoxesMode.value ? 'Save Boxes' : 'Edit Boxes'),
+                    onPressed: () {
+                      if (isEditBoxesMode.value) {
+                        isEditBoxesMode.value = false;
+                        controller.bilty.refresh();
+                      } else {
+                        isEditBoxesMode.value = true;
+                        isEditTotalWeightMode.value = false;
+                      }
+                    },
+                  )),
+              const SizedBox(width: 8),
+              Obx(() => TextButton.icon(
+                    icon: Icon(
+                      isEditTotalWeightMode.value
+                          ? Icons.check_circle
+                          : Icons.edit,
+                      color: isEditTotalWeightMode.value
+                          ? Colors.green
+                          : Colors.orange,
+                    ),
+                    label: Text(isEditTotalWeightMode.value
+                        ? 'Save Total Weight'
+                        : 'Edit Total Weight'),
+                    onPressed: () {
+                      if (isEditTotalWeightMode.value) {
+                        isEditTotalWeightMode.value = false;
+                        controller.bilty.refresh();
+                      } else {
+                        isEditTotalWeightMode.value = true;
+                        isEditBoxesMode.value = false;
+                      }
+                    },
+                  )),
+              const SizedBox(width: 8),
+              Obx(() => TextButton.icon(
+                    icon: Icon(
+                      showDetails.value
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: showDetails.value ? Colors.red : Colors.grey,
+                    ),
+                    label: Text(
+                        showDetails.value ? 'Hide Details' : 'Show Details'),
+                    onPressed: () {
+                      showDetails.value = !showDetails.value;
+                    },
+                  )),
+              Obx(() => TextButton.icon(
+                    icon: const Icon(Icons.add_a_photo, color: Colors.purple),
+                    label: const Text('Add Pictures'),
+                    onPressed: (isEditBoxesMode.value ||
+                            isEditTotalWeightMode.value)
+                        ? () async {
+                            for (int i = 0;
+                                i < controller.bilty.value!.categories.length;
+                                i++) {
+                              final XFile? image = await _picker.pickImage(
+                                  source: ImageSource.camera);
+                              if (image != null) {
+                                imagePaths[i] = image.path;
+                                await uploadImage(File(image.path), i);
+                              }
+                            }
+                          }
+                        : null,
+                  )),
+            ],
           ),
-        ] else if (selectedDriverOption == 'Request Support') ...[
-          ElevatedButton.icon(
-            onPressed: controller.isDriverSupportRequested.value
-                ? null
-                : controller.requestDriverSupport,
-            icon: Icon(Icons.support_agent),
-            label: Text('Request Driver Support'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xff548235),
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+        ),
+        const SizedBox(height: 8),
+        // Video upload section
+        Obx(() => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    TextButton.icon(
+                      icon: Icon(
+                        videoPath.value.isNotEmpty
+                            ? Icons.check_circle
+                            : Icons.videocam,
+                        color: videoPath.value.isNotEmpty
+                            ? Colors.green
+                            : Colors.red,
+                      ),
+                      label: Text(videoPath.value.isNotEmpty
+                          ? 'Video Uploaded'
+                          : 'Upload Video'),
+                      onPressed:
+                          (isEditBoxesMode.value || isEditTotalWeightMode.value)
+                              ? () async {
+                                  final XFile? video = await _picker.pickVideo(
+                                    source: ImageSource.camera,
+                                    maxDuration: const Duration(seconds: 5),
+                                  );
+                                  if (video != null) {
+                                    videoPath.value = video.path;
+                                    await uploadVideo(File(video.path));
+                                  }
+                                }
+                              : null,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Video limit: 5 seconds',
+                        style: TextStyle(color: Colors.grey)),
+                  ],
+                ),
+              ],
+            )),
+        Obx(() => SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: DataTable(
+                  headingRowColor: MaterialStateProperty.resolveWith(
+                      (states) => Colors.orange.shade200),
+                  columns: [
+                    const DataColumn(label: Text("Quality")),
+                    const DataColumn(label: Text("Category")),
+                    if (showDetails.value) ...[
+                      const DataColumn(label: Text("Size in MM")),
+                      const DataColumn(label: Text("No. of Pieces")),
+                      const DataColumn(label: Text("Avg. Weight Per Piece")),
+                      const DataColumn(label: Text("Avg. Gross Box Weight")),
+                    ],
+                    const DataColumn(label: Text("No. of Boxes")),
+                    const DataColumn(label: Text("Total Weight")),
+                    if (isMobile) const DataColumn(label: Text("Image")),
+                  ],
+                  rows: List.generate(bilty.categories.length, (index) {
+                    final category = bilty.categories[index];
+                    final bgColor = getRowColor(category.quality);
+                    return DataRow(
+                      color: MaterialStateProperty.resolveWith<Color?>(
+                          (Set<MaterialState> states) => bgColor),
+                      cells: [
+                        DataCell(Text(category.quality,
+                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(category.category,
+                            style: const TextStyle(color: Colors.white))),
+                        if (showDetails.value) ...[
+                          DataCell(Text(category.size,
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text("${category.piecesPerBox}",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(
+                              "${category.avgWeight.toStringAsFixed(1)}g",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(
+                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                              style: const TextStyle(color: Colors.white))),
+                        ],
+                        isEditBoxesMode.value
+                            ? DataCell(
+                                SizedBox(
+                                  width: 60,
+                                  child: TextFormField(
+                                    initialValue: category.boxCount.toString(),
+                                    keyboardType: TextInputType.number,
+                                    style: const TextStyle(color: Colors.white),
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 6),
+                                    ),
+                                    onChanged: (val) {
+                                      int? newCount = int.tryParse(val);
+                                      if (newCount != null) {
+                                        final newTotalWeight =
+                                            category.avgBoxWeight * newCount;
+                                        controller.bilty.value!
+                                                .categories[index] =
+                                            category.copyWith(
+                                          boxCount: newCount,
+                                          totalWeight: newTotalWeight,
+                                        );
+                                        controller.bilty.refresh();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              )
+                            : DataCell(Text("${category.boxCount}",
+                                style: const TextStyle(color: Colors.white))),
+                        isEditTotalWeightMode.value
+                            ? DataCell(
+                                SizedBox(
+                                  width: 90,
+                                  child: TextFormField(
+                                    initialValue:
+                                        category.totalWeight.toStringAsFixed(1),
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                            decimal: true),
+                                    style: const TextStyle(color: Colors.white),
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 6),
+                                    ),
+                                    onChanged: (val) {
+                                      double? newTotal = double.tryParse(val);
+                                      if (newTotal != null) {
+                                        controller.bilty.value!
+                                                .categories[index] =
+                                            category.copyWith(
+                                          totalWeight: newTotal,
+                                        );
+                                        controller.bilty.refresh();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              )
+                            : DataCell(Text(
+                                "${category.totalWeight.toStringAsFixed(1)}kg",
+                                style: const TextStyle(color: Colors.white))),
+                        if (isMobile)
+                          DataCell(
+                            Obx(() {
+                              final path = imagePaths[index];
+                              final quality = controller
+                                  .bilty.value!.categories[index].quality;
+                              final category = controller
+                                  .bilty.value!.categories[index].category;
+                              return path != null
+                                  ? (isEditBoxesMode.value ||
+                                          isEditTotalWeightMode.value
+                                      ? const Icon(Icons.check_circle,
+                                          color: Colors.green)
+                                      : GestureDetector(
+                                          onTap: () {
+                                            // Show image in a dialog/card
+                                            showDialog(
+                                              context: Get.context!,
+                                              builder: (context) => AlertDialog(
+                                                title: Text('Uploaded Image'),
+                                                content: Image.file(File(path)),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(),
+                                                    child: const Text('Close'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          child: const Icon(Icons.check_circle,
+                                              color: Colors.green),
+                                        ))
+                                  : IconButton(
+                                      icon: const Icon(Icons.camera_alt,
+                                          color: Colors.white),
+                                      onPressed: (isEditBoxesMode.value ||
+                                              isEditTotalWeightMode.value)
+                                          ? () async {
+                                              // Show snackbar/popup with quality and category
+                                              Get.snackbar(
+                                                'Add Image',
+                                                'Quality: $quality\nCategory: $category',
+                                                snackPosition:
+                                                    SnackPosition.BOTTOM,
+                                                duration:
+                                                    const Duration(seconds: 2),
+                                              );
+                                              final XFile? image =
+                                                  await _picker.pickImage(
+                                                      source:
+                                                          ImageSource.camera);
+                                              if (image != null) {
+                                                imagePaths[index] = image.path;
+                                                await uploadImage(
+                                                    File(image.path), index);
+                                              }
+                                            }
+                                          : null,
+                                    );
+                            }),
+                          ),
+                      ],
+                    );
+                  }),
+                ),
               ),
-            ),
-          ),
-          SizedBox(height: 16),
-          if (controller.isDriverSupportRequested.value)
-            Center(
-              child: Column(
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 8),
-                  Text('Requesting driver support...'),
-                ],
-              ),
-            )
-          else if (controller.resolvedDriverDetails.value != null)
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Assigned Driver:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+            )),
+      ],
+    );
+  }
+
+  biltyView() {
+    final bilty = controller.bilty.value;
+    if (bilty == null) return SizedBox();
+    bool isMobile = Platform.isAndroid || Platform.isIOS;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Obx(() => TextButton.icon(
+                  icon: Icon(
+                    showDetails.value ? Icons.visibility_off : Icons.visibility,
+                    color: showDetails.value ? Colors.red : Colors.grey,
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                      'Name: ${controller.resolvedDriverDetails.value!.name ?? 'Unknown Driver'}'),
-                  Text(
-                      'Contact: ${controller.resolvedDriverDetails.value!.contact ?? 'N/A'}'),
-                  if (controller
-                          .resolvedDriverDetails.value!.vehicleRegistrationNo !=
-                      null)
-                    Text(
-                        'Vehicle: ${controller.resolvedDriverDetails.value!.vehicleRegistrationNo}'),
-                ],
+                  label:
+                      Text(showDetails.value ? 'Hide Details' : 'Show Details'),
+                  onPressed: () {
+                    showDetails.value = !showDetails.value;
+                  },
+                )),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Obx(() => DataTable(
+                  headingRowColor: MaterialStateProperty.resolveWith(
+                      (states) => Colors.orange.shade200),
+                  columns: [
+                    const DataColumn(label: Text("Quality")),
+                    const DataColumn(label: Text("Category")),
+                    if (showDetails.value) ...[
+                      const DataColumn(label: Text("Size in MM")),
+                      const DataColumn(label: Text("No. of Pieces")),
+                      const DataColumn(label: Text("Avg. Weight Per Piece")),
+                      const DataColumn(label: Text("Avg. Gross Box Weight")),
+                    ],
+                    const DataColumn(label: Text("No. of Boxes")),
+                    const DataColumn(label: Text("Total Weight")),
+                    if (isMobile) const DataColumn(label: Text("Image")),
+                  ],
+                  rows: List.generate(bilty.categories.length, (index) {
+                    final category = bilty.categories[index];
+                    final bgColor = getRowColor(category.quality);
+                    return DataRow(
+                      color: MaterialStateProperty.resolveWith<Color?>(
+                          (Set<MaterialState> states) => bgColor),
+                      cells: [
+                        DataCell(Text(category.quality,
+                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(category.category,
+                            style: const TextStyle(color: Colors.white))),
+                        if (showDetails.value) ...[
+                          DataCell(Text(category.size,
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text("${category.piecesPerBox}",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(
+                              "${category.avgWeight.toStringAsFixed(1)}g",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(
+                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                              style: const TextStyle(color: Colors.white))),
+                        ],
+                        DataCell(Text("${category.boxCount}",
+                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(
+                            "${category.totalWeight.toStringAsFixed(1)}kg",
+                            style: const TextStyle(color: Colors.white))),
+                        if (isMobile)
+                          DataCell(
+                            category.imagePath != null &&
+                                    category.imagePath!.isNotEmpty
+                                ? GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: Get.context!,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('Uploaded Image'),
+                                          content: Image.file(
+                                              File(category.imagePath!)),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: const Text('Close'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                    child: const Icon(Icons.check_circle,
+                                        color: Colors.green),
+                                  )
+                                : const Icon(Icons.camera_alt,
+                                    color: Colors.white),
+                          ),
+                      ],
+                    );
+                  }),
+                )),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Obx(() => Row(
+              children: [
+                TextButton.icon(
+                  icon: Icon(Icons.play_circle_fill,
+                      color: videoPath.value.isNotEmpty
+                          ? Colors.green
+                          : Colors.grey),
+                  label: const Text('Play Video'),
+                  onPressed: videoPath.value.isNotEmpty
+                      ? () {
+                          showDialog(
+                            context: Get.context!,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Uploaded Video'),
+                              content: AspectRatio(
+                                aspectRatio: 16 / 9,
+                                child: VideoPlayerWidget(
+                                    videoPath: videoPath.value),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      : null,
+                ),
+              ],
+            )),
+      ],
+    );
+  }
+
+  Widget Step2() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        fallBack(),
+        if (controller.packHouseMode.value == "Self" &&
+                controller.driverMode.value == 'Self' ||
+            controller.drivingProfile.value != null)
+          biltyCreate(),
+        if (controller.packHouseMode.value != "Self" &&
+            controller.packhouse.value != null)
+          (controller.bilty.value == null)
+              ? Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                    BoxShadow(
+                        color: Colors.black, blurRadius: 1, spreadRadius: 1)
+                  ]),
+                  child: Column(
+                    spacing: 10,
+                    children: [
+                      Center(
+                        child: Icon(
+                          Icons.warning,
+                          color: Colors.amber,
+                        ),
+                      ),
+                      Text("Packhouse is working on bitly",
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center),
+                    ],
+                  ),
+                )
+              : biltyView(),
+      ],
+    );
+  }
+
+  Widget Step4fallback() {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(color: Colors.white, boxShadow: [
+            BoxShadow(color: Colors.black, blurRadius: 1, spreadRadius: 1)
+          ]),
+          child: Column(
+            spacing: 10,
+            children: [
+              Center(
+                child: Icon(
+                  Icons.warning,
+                  color: Colors.amber,
+                ),
               ),
-            ),
-        ],
+              Text(
+                  (controller.aadhatiMode == "Request" &&
+                          controller.aadhati.value == null)
+                      ? "Aadhati is Not resolved yet"
+                      : (controller.aadhati.value == null)
+                          ? "Aadhati has not accepted request yet"
+                          : "",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        )
+      ],
+    );
+  }
+
+  Widget Step4() {
+    return Column(
+      children: [
+        Step4fallback(),
+        if (controller.aadhati.value != null)
+          (controller.consignment.value!.status! == "Aadhati Done")
+              ? biltyView()
+              : Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                    BoxShadow(
+                        color: Colors.black, blurRadius: 1, spreadRadius: 1)
+                  ]),
+                  child: Column(
+                    spacing: 10,
+                    children: [
+                      Center(
+                        child: Icon(
+                          Icons.warning,
+                          color: Colors.amber,
+                        ),
+                      ),
+                      Text("Aadhati is creating Bilty",
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center),
+                    ],
+                  ),
+                ),
+        SizedBox(
+          height: 10,
+        ),
+      ],
+    );
+  }
+
+  buildViewSection() {
+    return Obx(() {
+      if (controller.step.value == 0) {
+        return Step1();
+      } else if (controller.step.value == 1) {
+        return Step2();
+      } else if (controller.step.value == 2) {
+        return Step3();
+      } else {
+        return biltyfinalView();
+      }
+    });
+  }
+
+  biltyfinalView() {
+    final bilty = controller.bilty.value;
+    if (bilty == null) return SizedBox();
+    bool isMobile = Platform.isAndroid || Platform.isIOS;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Obx(() => TextButton.icon(
+                  icon: Icon(
+                    showDetails.value ? Icons.visibility_off : Icons.visibility,
+                    color: showDetails.value ? Colors.red : Colors.grey,
+                  ),
+                  label:
+                      Text(showDetails.value ? 'Hide Details' : 'Show Details'),
+                  onPressed: () {
+                    showDetails.value = !showDetails.value;
+                  },
+                )),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Obx(() => DataTable(
+                  headingRowColor: MaterialStateProperty.resolveWith(
+                      (states) => Colors.orange.shade200),
+                  columns: [
+                    const DataColumn(label: Text("Quality")),
+                    const DataColumn(label: Text("Category")),
+                    if (showDetails.value) ...[
+                      const DataColumn(label: Text("Size in MM")),
+                      const DataColumn(label: Text("No. of Pieces")),
+                      const DataColumn(label: Text("Avg. Weight Per Piece")),
+                      const DataColumn(label: Text("Avg. Gross Box Weight")),
+                      const DataColumn(label: Text("No. of Boxes")),
+                      const DataColumn(label: Text("Total Weight")),
+                      const DataColumn(label: Text("Price Per Kg")),
+                      const DataColumn(label: Text("Box Value")),
+                      const DataColumn(label: Text("Total Price")),
+                    ],
+                    if (isMobile) const DataColumn(label: Text("Image")),
+                  ],
+                  rows: List.generate(bilty.categories.length, (index) {
+                    final category = bilty.categories[index];
+                    final bgColor = getRowColor(category.quality);
+                    return DataRow(
+                      color: MaterialStateProperty.resolveWith<Color?>(
+                          (Set<MaterialState> states) => bgColor),
+                      cells: [
+                        DataCell(Text(category.quality,
+                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(category.category,
+                            style: const TextStyle(color: Colors.white))),
+                        if (showDetails.value) ...[
+                          DataCell(Text(category.size,
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text("${category.piecesPerBox}",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(
+                              "${category.avgWeight.toStringAsFixed(1)}g",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(
+                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text("${category.boxCount}",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(
+                              "${category.totalWeight.toStringAsFixed(1)}kg",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text("${category.pricePerKg}",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text("${category.boxValue}",
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text("${category.totalPrice}",
+                              style: const TextStyle(color: Colors.white))),
+                        ],
+                        if (isMobile)
+                          DataCell(
+                            category.imagePath != null &&
+                                    category.imagePath!.isNotEmpty
+                                ? GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: Get.context!,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('Uploaded Image'),
+                                          content: Image.file(
+                                              File(category.imagePath!)),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: const Text('Close'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                    child: const Icon(Icons.check_circle,
+                                        color: Colors.green),
+                                  )
+                                : const Icon(Icons.camera_alt,
+                                    color: Colors.white),
+                          ),
+                      ],
+                    );
+                  }),
+                )),
+          ),
+        ),
+        const SizedBox(height: 16),
+        if (isMobile)
+          Obx(() => videoPath.value.isNotEmpty
+              ? Column(
+                  children: [
+                    TextButton.icon(
+                      icon: Icon(Icons.play_circle_fill, color: Colors.green),
+                      label: const Text('Play Video'),
+                      onPressed: () {
+                        showDialog(
+                          context: Get.context!,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Uploaded Video'),
+                            content: AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child:
+                                  VideoPlayerWidget(videoPath: videoPath.value),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('Close'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8)])
+              : TextButton.icon(
+                  icon: Icon(Icons.play_circle_fill, color: Colors.grey),
+                  label: const Text('Play Video'),
+                  onPressed: null,
+                )),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add New Consignment'),
-        backgroundColor: Color(0xff548235),
-        foregroundColor: Colors.white,
-        elevation: 0,
+        title: Obx(
+            () => Text("Consignment Form Step ${controller.step.value + 1}")),
+        backgroundColor: Colors.white,
       ),
       body: Container(
-        height: MediaQuery.of(Get.context!).size.height,
-        width: MediaQuery.of(Get.context!).size.width,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xff548235).withOpacity(0.1), Colors.white],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Form(
-              key: controller.formKey,
-              child: Obx(
-                () => SizedBox(
-                  width: double.infinity,
-                  child: Stepper(
-                    type: StepperType.vertical,
-                    currentStep: controller.currentStep,
-                    onStepContinue: () => controller.onStepContinue(),
-                    onStepCancel: () => controller.onStepCancel(),
-                    onStepTapped: (step) => controller.onStepTapped(step),
-                    steps: buildSteps(),
-                    controlsBuilder: (
-                      BuildContext context,
-                      ControlsDetails controls,
-                    ) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () => controller.onStepContinue(),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xff548235),
-                                  foregroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: Text(
-                                  controller.currentStep == 5
-                                      ? 'Submit'
-                                      : 'Next',
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            if (controller.currentStep > 0)
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () => controller.onStepCancel(),
-                                  child: Text('Back'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.grey[700],
-                                    padding: EdgeInsets.symmetric(vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(8),
+                child: buildViewSection(),
               ),
             ),
-          ),
+            buildButton()
+          ],
         ),
       ),
     );
   }
 
-  List<Step> buildSteps() {
-    return [
-      Step(
-        title: Text('Driver Selection'),
-        content: Obx(
-          () => Column(
-            children: [
-              ConsignmentFormWidgets.buildDriverSelectionCard(controller),
-              SizedBox(height: 16),
-              buildDriverDetailsCard(controller.selectedDriverOption.value),
-            ],
-          ),
-        ),
-        isActive: controller.currentStep >= 0,
-        state:
-            controller.currentStep > 0 ? StepState.complete : StepState.indexed,
-      ),
-      Step(
-        title: Text('Packhouse Selection'),
-        content: Obx(
-          () => Column(
-            children: [
-              ConsignmentFormWidgets.buildPackhouseSelectionCard(controller),
-              SizedBox(height: 16),
-              ConsignmentFormWidgets.buildPackhouseDetailsCard(controller),
-            ],
-          ),
-        ),
-        isActive: controller.currentStep >= 1,
-        state:
-            controller.currentStep > 1 ? StepState.complete : StepState.indexed,
-      ),
-      Step(
-        title: Text('Bilty Details'),
-        content: Obx(
-          () => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              (MediaQuery.of(Get.context!).size.width > 600)
-                  ? ConsignmentFormWidgets.buildBiltyStepDesktop(controller)
-                  : ConsignmentFormWidgets.buildBiltyStepMobile(controller)
-            ],
-          ),
-        ),
-        isActive: controller.currentStep >= 2,
-        state:
-            controller.currentStep > 2 ? StepState.complete : StepState.indexed,
-      ),
-    ];
+  // Placeholder for image upload
+  Future<void> uploadImage(File image, int index) async {
+    // TODO: Implement upload logic here
+  }
+
+  // Placeholder for video upload
+  Future<void> uploadVideo(File video) async {
+    // TODO: Implement upload logic here
+  }
+}
+
+// VideoPlayerWidget for dialog
+class VideoPlayerWidget extends StatefulWidget {
+  final String videoPath;
+  const VideoPlayerWidget({Key? key, required this.videoPath})
+      : super(key: key);
+  @override
+  State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+}
+
+class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+  late VideoPlayerController _controller;
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.file(File(widget.videoPath))
+      ..initialize().then((_) {
+        setState(() {});
+        _controller.play();
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _controller.value.isInitialized
+        ? AspectRatio(
+            aspectRatio: _controller.value.aspectRatio,
+            child: VideoPlayer(_controller),
+          )
+        : const Center(child: CircularProgressIndicator());
   }
 }
