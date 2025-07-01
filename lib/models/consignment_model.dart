@@ -22,9 +22,9 @@ class Consignment {
   double? totalWeight;
   Bilty? bilty;
   String? status;
-  String driverMode;
-  String packHouseMode;
-  String  aadhatiMode;
+  String? driverMode;
+  String? packHouseMode;
+  String?  aadhatiMode;
 
   Consignment(
       {required this.searchId,
@@ -46,9 +46,9 @@ class Consignment {
       this.growerId,this.status,
       this.id,
       this.approval,
-      required this.aadhatiMode,
-      required this.driverMode,
-      required this.packHouseMode,});
+       this.aadhatiMode,
+    this.driverMode,
+   this.packHouseMode,});
 
   // Factory constructor to create a Consignment from JSON
   factory Consignment.fromJson(Map<String, dynamic> json) {

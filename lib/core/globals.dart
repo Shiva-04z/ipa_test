@@ -24,10 +24,12 @@ RxString personPost = "247001".obs;
 RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
-RxString url = "https://a6c2-2409-40d2-23-527b-61a1-3295-c78d-2399.ngrok-free.app".obs;
-RxString id = "685d137cd479db5bf6e8b1ec".obs;
 RxString userId = "".obs;
-
+RxString url =
+    "https://dbed-2401-4900-1c09-6f89-6c3d-787f-2a0-d5de.ngrok-free.app".obs;
+RxString id = "685d137cd479db5bf6e8b1ec".obs;
+RxString selectedOrchardAddress = "".obs;
+RxString consignmentID = "".obs;
 RxList<Complaint> myComplaint = <Complaint>[].obs;
 
 RxList<Aadhati> availableAadhatis = [
