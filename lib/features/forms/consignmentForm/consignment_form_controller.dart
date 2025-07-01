@@ -55,6 +55,7 @@ class ConsignmentFormController extends GetxController {
     final aadharSuffix = glb.personPhone.substring(5);
     final searchId = '$personInitials-$timeStamp-$consignmentCount-$aadharSuffix';
     super.onInit();
+    loadConsignment();
     consignment.value =Consignment(searchId: searchId,);
   }
   loadConsignment()
@@ -77,15 +78,16 @@ class ConsignmentFormController extends GetxController {
 
 
  createConsignment() async {
+    print("Here goes Consignment");
    String api = glb.url.value + "/api/consignmet";
    Map<String,dynamic> uploadData = {
      "searchId": consignment.value?.searchId
    };
-   final respone = await http.post(Uri.parse(api)
-   ,body: uploadData,headers: {"Content-Type": "application-json"});
+   final response = await http.post(Uri.parse(api)
+   ,body: jsonEncode(uploadData),headers: {"Content-Type": "application/json"});
 
-   if(respone.statusCode ==200){
-     Map<String,dynamic> data =  jsonDecode(respone.body);
+   if(response.statusCode ==200||response.statusCode==201){
+     Map<String,dynamic> data =  jsonDecode(response.body);
       consignment.value?.id = data['_id'];
 
    }
