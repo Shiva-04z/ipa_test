@@ -5,12 +5,10 @@ import 'package:latlong2/latlong.dart';
 import '../models/aadhati.dart';
 import '../models/apmc_model.dart';
 import '../models/auth_signatory_post_model.dart';
-import '../models/consignment_model.dart';
 import '../models/driving_profile_model.dart';
 import '../models/grower_model.dart';
 import '../models/ladani_model.dart';
 import '../models/orchard_model.dart';
-import '../models/pack_house_model.dart';
 import '../models/post_model.dart';
 import '../models/transport_model.dart';
 import 'dictionary.dart';
@@ -26,8 +24,9 @@ RxString personPost = "247001".obs;
 RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
-RxString url = "https://bml-m3ps.onrender.com".obs;
+RxString url = "https://a6c2-2409-40d2-23-527b-61a1-3295-c78d-2399.ngrok-free.app".obs;
 RxString id = "685d137cd479db5bf6e8b1ec".obs;
+RxString userId = "".obs;
 
 RxList<Complaint> myComplaint = <Complaint>[].obs;
 

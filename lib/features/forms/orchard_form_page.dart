@@ -1064,9 +1064,10 @@ class OrchardFormPage extends StatelessWidget {
               children: [
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    if (constraints.maxWidth > 500) {
+                    bool isWide = constraints.maxWidth > 500;
+
                       // Wide screen: everything in a row
-                      return Row(
+                     return isWide ? Row(
                         children: [
                           const Text(
                             'Orchard Boundary',
@@ -1118,10 +1119,7 @@ class OrchardFormPage extends StatelessWidget {
                                     : null,
                               )),
                         ],
-                      );
-                    } else {
-                      // Small screen: stacked layout
-                      return Row(
+                      ) :  Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Column(
@@ -1189,7 +1187,6 @@ class OrchardFormPage extends StatelessWidget {
                           )
                         ],
                       );
-                    }
                   },
                 ),
                 const SizedBox(height: 16),
@@ -1918,7 +1915,7 @@ class _FreehandPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (points.isEmpty) return;
     final paint = Paint()
-      ..color = const Color(0xff548235)
+      ..color = Colors.red
       ..strokeWidth = 3.0
       ..style = PaintingStyle.stroke;
     final path = ui.Path();

@@ -600,12 +600,38 @@ class RegisterView extends GetView<RegisterController> {
               keyboardType: TextInputType.number,
             ),
             SizedBox(height: 16),
-            _buildTextField(
-              controller: controller.geoLocationController,
-              label: 'Geo Location',
-              hint: 'Enter geo location',
-              icon: Icons.location_on,
-            ),
+
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        controller: controller.geoLocationController,
+                        label: 'Geo Location',
+                        hint: 'Enter geo location',
+                        icon: Icons.location_on,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    _buildSelectLocationContainer(Icons.location_on),
+                    // Container(
+                    //   // padding: EdgeInsets.symmetric(vertical: 2),
+                    //   decoration: BoxDecoration(
+                    //       borderRadius: BorderRadius.circular(8),
+                    //     border: Border.all(
+                    //       color: Colors.green
+                    //     ),
+                    //   ),
+                    //   child: IconButton(
+                    //     icon: Icon(Icons.map, color: Colors.green, size: 30,),
+                    //     tooltip: 'Select on Map',
+                    //     onPressed: controller.showLocationPicker,
+                    //   ),
+                    // ),
+                  ],
+                ),
+
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.numberOfGrowersServedController,
@@ -848,11 +874,20 @@ class RegisterView extends GetView<RegisterController> {
               icon: Icons.account_balance,
             ),
             SizedBox(height: 16),
-            _buildTextField(
-              controller: controller.locationOnGoogleController,
-              label: 'Location on Google',
-              hint: 'Enter Google Maps location',
-              icon: Icons.map,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    controller: controller.locationOnGoogleController,
+                    label: 'Location on Google',
+                    hint: 'Enter Google Maps location',
+                    icon: Icons.map,
+                  ),
+                ),
+                SizedBox(width: 8,),
+                _buildSelectLocationContainer(Icons.map)
+              ],
             ),
             SizedBox(height: 16),
             _buildTextField(
@@ -1475,11 +1510,20 @@ class RegisterView extends GetView<RegisterController> {
               icon: Icons.account_balance,
             ),
             SizedBox(height: 16),
-            _buildTextField(
-              controller: controller.locationOnGoogleFreightController,
-              label: 'Location on Google',
-              hint: 'Enter Google Maps location',
-              icon: Icons.map,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    controller: controller.locationOnGoogleFreightController,
+                    label: 'Location on Google',
+                    hint: 'Enter Google Maps location',
+                    icon: Icons.map,
+                  ),
+                ),
+                SizedBox(width: 8,),
+                _buildSelectLocationContainer(Icons.map)
+              ],
             ),
             SizedBox(height: 16),
             _buildTextField(
@@ -1607,11 +1651,20 @@ class RegisterView extends GetView<RegisterController> {
               icon: Icons.calendar_today,
             ),
             SizedBox(height: 16),
-            _buildTextField(
-              controller: controller.locationHpmcController,
-              label: 'Location',
-              hint: 'Enter location',
-              icon: Icons.location_on,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    controller: controller.locationHpmcController,
+                    label: 'Location',
+                    hint: 'Enter location',
+                    icon: Icons.location_on,
+                  ),
+                ),
+                SizedBox(width: 8,),
+                _buildSelectLocationContainer(Icons.location_on)
+              ],
             ),
             SizedBox(height: 16),
             _buildTextField(
@@ -1732,11 +1785,20 @@ class RegisterView extends GetView<RegisterController> {
               icon: Icons.supervisor_account,
             ),
             SizedBox(height: 16),
-            _buildTextField(
-              controller: controller.policeDutyLocationController,
-              label: 'Duty Location',
-              hint: 'Enter duty location',
-              icon: Icons.location_on,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    controller: controller.policeDutyLocationController,
+                    label: 'Duty Location',
+                    hint: 'Enter duty location',
+                    icon: Icons.location_on,
+                  ),
+                ),
+                SizedBox(width: 8,),
+                _buildSelectLocationContainer(Icons.location_on)
+              ],
             ),
             SizedBox(height: 24),
             Container(
@@ -1912,6 +1974,22 @@ class RegisterView extends GetView<RegisterController> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSelectLocationContainer(IconData icon){
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+            color: Colors.green
+        ),
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: Colors.green, size: 30,),
+        tooltip: 'Select on Map',
+        onPressed: controller.showLocationPicker,
       ),
     );
   }
