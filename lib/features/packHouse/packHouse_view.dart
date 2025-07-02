@@ -1476,7 +1476,7 @@ class PackHouseView extends GetView<PackHouseController> {
               ),
               SizedBox(height: 8),
               Text(
-                'Consignment ${consignment.id?.substring(0, 4)}...',
+                'Consignment ${consignment.searchId?.substring(0, 4)}...',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,

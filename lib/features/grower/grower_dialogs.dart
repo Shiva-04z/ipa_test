@@ -973,7 +973,22 @@ class GrowerDialogs {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          spacing: 20,
+                          children: [
+                            Expanded(child: Text("Grower Name",style:TextStyle(color: Colors.green,fontSize: 18))),
+                            Expanded(child: Text(consignment.growerName!)),
+                          ],
 
+                        ),
+                        Row(
+                          spacing: 20,
+                          children: [
+                            Expanded(child: Text("Cosnignmet",style:TextStyle(color: Colors.green,fontSize: 18))),
+                            Expanded(child: Text(consignment.searchId!)),
+                          ],
+
+                        )
                       ],
                     ),
                   ),
@@ -984,21 +999,19 @@ class GrowerDialogs {
                   children: [
                     ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context);
-                        Get.find<GrowerController>().removeConsignment(
-                          consignment.id!,
-                        );
+
                       },
-                      icon: Icon(Icons.delete, size: 18),
-                      label: Text('Delete'),
+                      icon: Icon(Icons.movie_creation, size: 18),
+                      label: Text('Create Bilty'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red[700],
+                        backgroundColor: Colors.green[700],
                         padding: EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,
                         ),
                       ),
                     ),
+
                   ],
                 ),
               ],

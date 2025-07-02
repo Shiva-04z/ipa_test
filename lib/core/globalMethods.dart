@@ -41,7 +41,8 @@ List<Consignment> createConsignmentListFromApi(List<dynamic> apiData) {
     print(json);
     return Consignment(
         id: json['_id'],
-        growerId: json['growerId'],
+        growerId: json['growerId'] ,
+        growerName: json['growerName'],
         searchId: json['searchId'],
         trip1Driverid: json['trip1Driverid'],
         startPointAddressTrip1: json['startPointTrip1'],

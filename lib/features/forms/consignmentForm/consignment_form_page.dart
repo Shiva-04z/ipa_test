@@ -3,6 +3,7 @@ import 'package:apple_grower/models/aadhati.dart';
 import 'package:apple_grower/models/bilty_model.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:io';
@@ -583,17 +584,25 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
     if (imagePaths.length != bilty.categories.length) {
       imagePaths.value = List<String?>.filled(bilty.categories.length, null);
     }
-    bool isMobile = Platform.isAndroid || Platform.isIOS;
+    bool isMobile = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
+    showDetails.value=!(isMobile);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Tools",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        Row(
+          children: [
+            Text(
+              "Tools",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+            ),
+          ],
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 20,
             children: [
               Obx(() => TextButton.icon(
                     icon: Icon(
@@ -649,7 +658,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                       showDetails.value = !showDetails.value;
                     },
                   )),
-              Obx(() => TextButton.icon(
+              if (isMobile)Obx(() => TextButton.icon(
                     icon: const Icon(Icons.add_a_photo, color: Colors.purple),
                     label: const Text('Add Pictures'),
                     onPressed: (isEditBoxesMode.value ||
@@ -668,49 +677,51 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                           }
                         : null,
                   )),
+
+              Obx(() => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      TextButton.icon(
+                        icon: Icon(
+                          videoPath.value.isNotEmpty
+                              ? Icons.check_circle
+                              : Icons.videocam,
+                          color: videoPath.value.isNotEmpty
+                              ? Colors.green
+                              : Colors.red,
+                        ),
+                        label: Text(videoPath.value.isNotEmpty
+                            ? 'Video Uploaded'
+                            : 'Upload Video'),
+                        onPressed:
+                        (isEditBoxesMode.value || isEditTotalWeightMode.value)
+                            ? () async {
+                          final XFile? video = await _picker.pickVideo(
+                            source: ImageSource.camera,
+                            maxDuration: const Duration(seconds: 5),
+                          );
+                          if (video != null) {
+                            videoPath.value = video.path;
+                            await uploadVideo(File(video.path));
+                          }
+                        }
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      const Text('Video limit: 5 seconds',
+                          style: TextStyle(color: Colors.grey)),
+                    ],
+                  ),
+                ],
+              )),
             ],
           ),
         ),
         const SizedBox(height: 8),
         // Video upload section
-        Obx(() => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    TextButton.icon(
-                      icon: Icon(
-                        videoPath.value.isNotEmpty
-                            ? Icons.check_circle
-                            : Icons.videocam,
-                        color: videoPath.value.isNotEmpty
-                            ? Colors.green
-                            : Colors.red,
-                      ),
-                      label: Text(videoPath.value.isNotEmpty
-                          ? 'Video Uploaded'
-                          : 'Upload Video'),
-                      onPressed:
-                          (isEditBoxesMode.value || isEditTotalWeightMode.value)
-                              ? () async {
-                                  final XFile? video = await _picker.pickVideo(
-                                    source: ImageSource.camera,
-                                    maxDuration: const Duration(seconds: 5),
-                                  );
-                                  if (video != null) {
-                                    videoPath.value = video.path;
-                                    await uploadVideo(File(video.path));
-                                  }
-                                }
-                              : null,
-                    ),
-                    const SizedBox(width: 12),
-                    const Text('Video limit: 5 seconds',
-                        style: TextStyle(color: Colors.grey)),
-                  ],
-                ),
-              ],
-            )),
+
         Obx(() => SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: SingleChildScrollView(
@@ -729,7 +740,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     ],
                     const DataColumn(label: Text("No. of Boxes")),
                     const DataColumn(label: Text("Total Weight")),
-                    if (isMobile) const DataColumn(label: Text("Image")),
+                   const DataColumn(label: Text("Image")),
                   ],
                   rows: List.generate(bilty.categories.length, (index) {
                     final category = bilty.categories[index];
@@ -821,7 +832,6 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                             : DataCell(Text(
                                 "${category.totalWeight.toStringAsFixed(1)}kg",
                                 style: const TextStyle(color: Colors.white))),
-                        if (isMobile)
                           DataCell(
                             Obx(() {
                               final path = imagePaths[index];
@@ -836,6 +846,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                                           color: Colors.green)
                                       : GestureDetector(
                                           onTap: () {
+
                                             // Show image in a dialog/card
                                             showDialog(
                                               context: Get.context!,
@@ -859,29 +870,28 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                                   : IconButton(
                                       icon: const Icon(Icons.camera_alt,
                                           color: Colors.white),
-                                      onPressed: (isEditBoxesMode.value ||
-                                              isEditTotalWeightMode.value)
-                                          ? () async {
-                                              // Show snackbar/popup with quality and category
-                                              Get.snackbar(
-                                                'Add Image',
-                                                'Quality: $quality\nCategory: $category',
-                                                snackPosition:
-                                                    SnackPosition.BOTTOM,
-                                                duration:
-                                                    const Duration(seconds: 2),
-                                              );
-                                              final XFile? image =
-                                                  await _picker.pickImage(
-                                                      source:
-                                                          ImageSource.camera);
-                                              if (image != null) {
-                                                imagePaths[index] = image.path;
-                                                await uploadImage(
-                                                    File(image.path), index);
-                                              }
-                                            }
-                                          : null,
+                                onPressed: (isEditBoxesMode.value || isEditTotalWeightMode.value)
+                                    ? () async {
+                                  bool isMobile = !kIsWeb &&
+                                      (defaultTargetPlatform == TargetPlatform.android ||
+                                          defaultTargetPlatform == TargetPlatform.iOS);
+
+                                  if (isMobile && ImageSource.camera == ImageSource.camera) {
+                                    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+                                    if (image != null) {
+                                      imagePaths[index] = image.path;
+                                      await uploadImage(File(image.path), index);
+                                    }
+                                  } else {
+                                    Get.snackbar(
+                                      "Warning",
+                                      "This functionality is restricted to the mobile app",
+                                      backgroundColor: Colors.yellow,
+                                      colorText: Colors.white,
+                                    );
+                                  }
+                                }
+                                    : null,
                                     );
                             }),
                           ),
@@ -898,7 +908,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   biltyView() {
     final bilty = controller.bilty.value;
     if (bilty == null) return SizedBox();
-    bool isMobile = Platform.isAndroid || Platform.isIOS;
+    bool isMobile = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1047,7 +1059,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
             controller.consignment.value?.trip1Driverid!= null)
           biltyCreate(),
         if (controller.packHouseMode.value != "Self" &&
-            controller.packhouse.value != null)
+            controller.consignment.value?.packhouseId != null)
           (controller.bilty.value == null)
               ? Container(
                   padding: EdgeInsets.all(8),
