@@ -5,10 +5,6 @@ import 'package:apple_grower/models/consignment_model.dart';
 import 'package:apple_grower/models/transport_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:camera/camera.dart';
-import 'package:video_player/video_player.dart';
-import 'dart:io';
 import '../../../models/aadhati.dart';
 import '../../../models/driving_profile_model.dart';
 import '../../../models/pack_house_model.dart';
@@ -16,7 +12,6 @@ import '../../../models/bilty_model.dart';
 import 'package:http/http.dart' as http;
 import '../../../core/globals.dart' as glb;
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:path_provider/path_provider.dart';
 
 class ConsignmentFormController extends GetxController {
   Rx<Consignment?> consignment = Rx<Consignment?>(null);

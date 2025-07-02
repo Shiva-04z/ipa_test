@@ -16,7 +16,6 @@ class User {
   User({
     this.id,
     this.name,
-    this.aadhar,
     this.contact,
     this.email,
     this.role,
@@ -27,6 +26,7 @@ class User {
     this.createdAt,
     this.lastLogin,
     this.isActive,
+    this.aadhar
   });
 
   factory User.fromJson(Map<String, dynamic> json) {

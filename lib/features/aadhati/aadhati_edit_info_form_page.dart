@@ -24,7 +24,7 @@ class AadhatiFormPage extends GetView<AadhatiController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
+                const Text(
                   'Edit Commission Agent Details',
                   style: TextStyle(
                     fontSize: 24,
@@ -32,10 +32,10 @@ class AadhatiFormPage extends GetView<AadhatiController> {
                     color: Color(0xff548235),
                   ),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 TextFormField(
                   controller: _nameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Name',
                     border: OutlineInputBorder(),
                   ),
@@ -46,10 +46,10 @@ class AadhatiFormPage extends GetView<AadhatiController> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Phone Number',
                     border: OutlineInputBorder(),
                   ),
@@ -61,10 +61,10 @@ class AadhatiFormPage extends GetView<AadhatiController> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _apmcController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'APMC',
                     border: OutlineInputBorder(),
                   ),
@@ -75,10 +75,10 @@ class AadhatiFormPage extends GetView<AadhatiController> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _addressController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Address',
                     border: OutlineInputBorder(),
                   ),
@@ -90,7 +90,7 @@ class AadhatiFormPage extends GetView<AadhatiController> {
                     return null;
                   },
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
@@ -103,10 +103,10 @@ class AadhatiFormPage extends GetView<AadhatiController> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xff548235),
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: const Color(0xff548235),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Save Changes',
                     style: TextStyle(fontSize: 16),
                   ),
