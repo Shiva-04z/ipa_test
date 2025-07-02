@@ -295,7 +295,6 @@ class ConsignmentForm2Page extends StatelessWidget {
                                 children: [
                                   Text(
                                     'Grower: ${consignment.growerName ?? 'Unknown'}',
-
                                     style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500),

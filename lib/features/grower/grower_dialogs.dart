@@ -950,6 +950,8 @@ class GrowerDialogs {
     BuildContext context,
     Consignment consignment,
   ) {
+    print(glb.roleType.value);
+    print(consignment.currentStage);
     return showDialog(
       context: context,
       builder: (context) => Theme(
@@ -994,11 +996,16 @@ class GrowerDialogs {
                   ),
                 ),
                 SizedBox(height: 20),
-                Row(
+
+               if(consignment.currentStage =="Packing Requested" && glb.roleType.value == "PackHouse") Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton.icon(
                       onPressed: () {
+                        print(consignment.id);
+                        glb.consignmentID.value = consignment.id!;
+                        print(glb.consignmentID.value);
+                        Get.toNamed(RoutesConstant.biltyCreation);
 
                       },
                       icon: Icon(Icons.movie_creation, size: 18),
@@ -1010,10 +1017,31 @@ class GrowerDialogs {
                           vertical: 12,
                         ),
                       ),
-                    ),
+                    ),]),
 
-                  ],
-                ),
+
+    if(consignment.currentStage =="Aadhati Selection" && glb.roleType.value == "Aadhati") Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            print(consignment.id);
+                            glb.consignmentID.value = consignment.id!;
+                            print(glb.consignmentID.value);
+                            Get.toNamed(RoutesConstant.biltyCreationAadhati);
+                          },
+                          icon: Icon(Icons.movie_creation, size: 18),
+                          label: Text('Fill Bilty'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green[700],
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),]),
+
+
               ],
             ),
           ),

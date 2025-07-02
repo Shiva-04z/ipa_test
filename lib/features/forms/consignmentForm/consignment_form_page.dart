@@ -13,6 +13,7 @@ import 'package:video_player/video_player.dart';
 import '../../../core/globals.dart' as glb;
 import '../../../models/driving_profile_model.dart';
 import '../../../models/transport_model.dart';
+import 'VideoPlayer.dart';
 import 'consignment_form_controller.dart';
 
 class ConsignmentFormPage extends GetView<ConsignmentFormController> {
@@ -496,7 +497,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   Widget fallBack() {
     return Column(
       children: [
-        if (controller.driverMode != 'Self')
+        if (controller.driverMode.value != 'Self'&&   controller.consignment.value?.trip1Driverid == null)
           Container(
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -526,7 +527,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
         SizedBox(
           height: 10,
         ),
-        if (controller.packHouseMode.value != "Self")
+        if (controller.packHouseMode.value != "Self" &&   controller.consignment.value?.packhouseId == null)
           Container(
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -911,6 +912,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
     bool isMobile = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
+    showDetails.value=!(isMobile);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1055,8 +1057,8 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
       children: [
         fallBack(),
         if (controller.packHouseMode.value == "Self" &&
-                controller.driverMode.value == 'Self' ||
-            controller.consignment.value?.trip1Driverid!= null)
+               ( controller.driverMode.value == 'Self' ||
+            controller.consignment.value?.trip1Driverid!= null))
           biltyCreate(),
         if (controller.packHouseMode.value != "Self" &&
             controller.consignment.value?.packhouseId != null)
@@ -1083,7 +1085,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     ],
                   ),
                 )
-              : biltyView(),
+              : Center(child:biltyView(),),
       ],
     );
   }
@@ -1091,7 +1093,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   Widget Step4fallback() {
     return Column(
       children: [
-        if(controller.aadhati.value==null)Container(
+        if(controller.consignment.value?.aadhatiId==null)Container(
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(color: Colors.white, boxShadow: [
             BoxShadow(color: Colors.black, blurRadius: 1, spreadRadius: 1)
@@ -1125,9 +1127,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
     return Column(
       children: [
         Step4fallback(),
-        if (controller.aadhati.value != null)
-          (controller.consignment.value?.currentStage == "Aadhati Done")
-              ? biltyView()
+        if (controller.consignment.value?.aadhatiId != null)
+          (controller.consignment.value?.currentStage == "Bilty Ready")
+              ?biltyfinalView()
               : Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -1220,7 +1222,10 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   biltyfinalView() {
     final bilty = controller.bilty.value;
     if (bilty == null) return SizedBox();
-    bool isMobile = Platform.isAndroid || Platform.isIOS;
+    bool isMobile = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
+    showDetails.value=!(isMobile);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1257,11 +1262,11 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                       const DataColumn(label: Text("Avg. Gross Box Weight")),
                       const DataColumn(label: Text("No. of Boxes")),
                       const DataColumn(label: Text("Total Weight")),
-                      const DataColumn(label: Text("Price Per Kg")),
-                      const DataColumn(label: Text("Box Value")),
-                      const DataColumn(label: Text("Total Price")),
                     ],
-                    if (isMobile) const DataColumn(label: Text("Image")),
+                    const DataColumn(label: Text("Price Per Kg")),
+                    const DataColumn(label: Text("Box Value")),
+                    const DataColumn(label: Text("Total Price")),
+                    const DataColumn(label: Text("Image")),
                   ],
                   rows: List.generate(bilty.categories.length, (index) {
                     final category = bilty.categories[index];
@@ -1290,14 +1295,14 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                           DataCell(Text(
                               "${category.totalWeight.toStringAsFixed(1)}kg",
                               style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.pricePerKg}",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.boxValue}",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.totalPrice}",
-                              style: const TextStyle(color: Colors.white))),
+
                         ],
-                        if (isMobile)
+                        DataCell(Text("${category.pricePerKg}",
+                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Text("${category.boxValue}",
+                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Text("${category.totalPrice}",
+                            style: const TextStyle(color: Colors.white))),
                           DataCell(
                             category.imagePath != null &&
                                     category.imagePath!.isNotEmpty
@@ -1406,40 +1411,4 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   }
 }
 
-// VideoPlayerWidget for dialog
-class VideoPlayerWidget extends StatefulWidget {
-  final String videoPath;
-  const VideoPlayerWidget({Key? key, required this.videoPath})
-      : super(key: key);
-  @override
-  State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
-}
 
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  late VideoPlayerController _controller;
-  @override
-  void initState() {
-    super.initState();
-    _controller = VideoPlayerController.file(File(widget.videoPath))
-      ..initialize().then((_) {
-        setState(() {});
-        _controller.play();
-      });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _controller.value.isInitialized
-        ? AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            child: VideoPlayer(_controller),
-          )
-        : const Center(child: CircularProgressIndicator());
-  }
-}

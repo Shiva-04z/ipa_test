@@ -538,18 +538,20 @@ class GrowerView extends GetView<GrowerController> {
               SizedBox(height: 8),
               Text(
                 glb.getTranslatedText(
-                    'Consignment ${consignment.id?.substring(0, 4)}...'),
+                    '${consignment.searchId!}'),
+                softWrap: true,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
                 ),
                 textAlign: TextAlign.center,
-                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+
+
               ),
               if (!isSmallScreen) ...[
                 Text(
-                  glb.getTranslatedText('Status: ${consignment.status}'),
+                  glb.getTranslatedText('Status: ${consignment.currentStage}'),
                   style: TextStyle(fontSize: 12),
                 ),
               ],

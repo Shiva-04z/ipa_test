@@ -77,6 +77,20 @@ class ConsignmentFormController extends GetxController {
             packHouseMode:  json ['packHouseMode']
         );
 
+        driverMode.value =consignment.value!.driverMode!;
+        packHouseMode.value = consignment.value!.packHouseMode!;
+
+        print(consignment.value?.currentStage);
+        if(consignment.value?.currentStage=="Packing Requested"||consignment.value?.currentStage=="Packing Complete")
+          {
+            step.value = 1;
+          }
+        else if (consignment.value?.currentStage=="Bilty Ready"||consignment.value?.currentStage=="Aadhati Selection")
+          {
+            step.value = 3;
+          }
+
+
         print(consignment.value!.bilty?.id);
       bilty.value = consignment.value!.bilty;
       }
@@ -113,7 +127,7 @@ class ConsignmentFormController extends GetxController {
       consignment.value?.id = data['_id'];
     }
     Get.find<GrowerController>().addConsignment(consignment.value!);
-    print(consignment);
+    print(consignment.value?.currentStage);
   }
 
   Future<dynamic> Step1() async {

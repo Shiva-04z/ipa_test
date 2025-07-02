@@ -4,6 +4,8 @@ class RoutesConstant {
   static String register = "/registerPage";
   static String grower = "/growerPage";
 static String consignmentForm ="/consignmentForm";
+  static String biltyCreation="/biltyCreation";
+  static String biltyCreationAadhati="/biltyCreationAadhati";
   static String packHouse = "/packHousePage";
   static String aadhati = "/aadhatiPage";
   static String ladaniBuyers = "/ladaniBuyersPage";

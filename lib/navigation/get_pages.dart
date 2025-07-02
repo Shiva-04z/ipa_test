@@ -1,3 +1,7 @@
+import 'package:apple_grower/features/bilty_page/bilty_page_bindings.dart';
+import 'package:apple_grower/features/bilty_page/bilty_page_view.dart';
+import 'package:apple_grower/features/bilty_page_aadhti/bilty_page_aadhti_bindings.dart';
+import 'package:apple_grower/features/bilty_page_aadhti/bilty_page_aadhti_view.dart';
 import 'package:apple_grower/features/forms/consignmentForm/consignment_form_bindings.dart';
 import 'package:apple_grower/features/forms/consignmentForm/consignment_form_page.dart';
 import 'package:apple_grower/features/profile_page/profile_page_bindings.dart';
@@ -134,6 +138,20 @@ List<GetPage> getPages = [
     name: RoutesConstant.consignmentForm,
     page: () => ConsignmentFormPage(),
     binding: ConsignmentBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),
+  GetPage(
+    name: RoutesConstant.biltyCreation,
+    page: () => BiltyPageView(),
+    binding: BiltyPageBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),
+  GetPage(
+    name: RoutesConstant.biltyCreationAadhati,
+    page: () => BiltyPageAadhtiView(),
+    binding: BiltyPageAadhtiBindings(),
     transition: Transition.fadeIn,
     transitionDuration: Duration(microseconds: 300),
   ),

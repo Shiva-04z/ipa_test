@@ -38,7 +38,6 @@ List<Orchard> createOrchardListFromApi(List<dynamic> apiData) {
 List<Consignment> createConsignmentListFromApi(List<dynamic> apiData) {
   print("HQ");
   return apiData.map((json) {
-    print(json);
     return Consignment(
         id: json['_id'],
         growerId: json['growerId'] ,
@@ -66,7 +65,7 @@ List<Consignment> createConsignmentListFromApi(List<dynamic> apiData) {
 
 List<PackHouse> createPackhouseListFromApi(List<dynamic> apiData) {
   return apiData.map((json) {
-    print(json);
+    print("PackHouse");
     return PackHouse(
         id: json['_id'],
         name: json['name'],

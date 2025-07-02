@@ -1488,19 +1488,11 @@ class PackHouseView extends GetView<PackHouseController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  ' Boxes',
+                  '${consignment.growerName}',
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
-                Text(
-                "AAA",
-                  style: TextStyle(fontSize: 12, color: Colors.blue),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Status: ${consignment.status}',
-                  style: TextStyle(fontSize: 12),
-                ),
+
               ],
             ],
           ),

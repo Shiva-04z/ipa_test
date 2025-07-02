@@ -90,7 +90,15 @@ class PackHouseController extends GetxController {
           glbm.createEmployeeListFromApi(data['employee_IDs']);
       print(data['hpmcDepot_IDs']);
       hpmcDepots.value = glbm.createHPMCListFromApi(data['hpmcDepot_IDs']);
-      glb.allConsignments.value = glbm.createConsignmentListFromApi(data['consignment_IDs']);
+      // Separate consignments by currentStage
+      final allConsignments =
+          glbm.createConsignmentListFromApi(data['consignment_IDs']);
+      glb.allConsignments.value = allConsignments
+          .where((c) => c.currentStage == 'Packing Requested')
+          .toList();
+      consignments.value = allConsignments
+          .where((c) => c.currentStage != 'Packing Requested')
+          .toList();
 
       // Load gallery images
       if (data['gallery'] != null) {
