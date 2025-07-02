@@ -471,36 +471,6 @@ class GrowerDialogs {
                                 .trim(),
                           ),
                           SizedBox(height: 16),
-                          Text(
-                            'Crop Quality',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff548235),
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          _buildQualityMarker(
-                            'Anti Hail Net',
-                            orchard.quality.markers[QualityMarker.antiHailNet]!,
-                          ),
-                          _buildQualityMarker(
-                            'Open Farm',
-                            orchard.quality.markers[QualityMarker.openFarm]!,
-                          ),
-                          _buildQualityMarker(
-                            'Hailing Marks',
-                            orchard
-                                .quality.markers[QualityMarker.hailingMarks]!,
-                          ),
-                          _buildQualityMarker(
-                            'Russetting',
-                            orchard.quality.markers[QualityMarker.russetting]!,
-                          ),
-                          _buildQualityMarker(
-                            'Under Size',
-                            orchard.quality.markers[QualityMarker.underSize]!,
-                          ),
                         ],
                       ),
                     ),

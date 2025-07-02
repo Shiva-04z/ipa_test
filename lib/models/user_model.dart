@@ -18,7 +18,6 @@ class User {
     this.name,
     this.aadhar,
     this.contact,
-    this.aadhar,
     this.email,
     this.role,
     this.roledocID,

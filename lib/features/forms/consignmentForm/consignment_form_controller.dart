@@ -19,12 +19,13 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 
 class ConsignmentFormController extends GetxController {
-
-  Rx<Consignment?> consignment  =Rx<Consignment?>(null);
+  Rx<Consignment?> consignment = Rx<Consignment?>(null);
   RxString driverMode = "Self".obs;
-  RxString  packHouseMode = "Self".obs;
-  RxString aadhatiMode= "Associated".obs;
-  TextEditingController trip1AddressController= TextEditingController();
+  RxString packHouseMode = "Self".obs;
+  RxBool biltyValue = false.obs;
+  RxString aadhatiMode = "Associated".obs;
+  TextEditingController trip1AddressController = TextEditingController();
+  TextEditingController trip2AddressController = TextEditingController();
 
   RxInt step = 0.obs;
   Rx<DrivingProfile?> drivingProfile = Rx<DrivingProfile?>(null);
@@ -33,108 +34,179 @@ class ConsignmentFormController extends GetxController {
   Rx<PackHouse?> packhouse = Rx<PackHouse?>(null);
   Rx<Bilty?> bilty = Rx<Bilty?>(null);
 
-  addStep()
-  {
-    step.value +=1;
+  addStep() {
+    step.value += 1;
   }
 
-  groundState()
-  {
-    if(glb.roleType == "PackHouse")
-      step.value==1;
+  groundState() {
+    if (glb.roleType == "PackHouse") step.value == 1;
   }
-
-
 
   @override
   void onInit() {
     // TODO: implement onInit
-    final personInitials = glb.personName.substring(0, 3).toUpperCase();
-    final timeStamp = DateTime.now().millisecondsSinceEpoch.toString().substring(9, 13); // 4-digit slice of time
-    final consignmentCount = Get.find<GrowerController>().consignments.length.toString().padLeft(2, '0');
-    final aadharSuffix = glb.personPhone.substring(5);
-    final searchId = '$personInitials-$timeStamp-$consignmentCount-$aadharSuffix';
+
     super.onInit();
     loadConsignment();
-    consignment.value =Consignment(searchId: searchId,);
   }
-  loadConsignment()
-  async {
-    if(glb.consignmentID.value =="")
-      {
-        createConsignment();
+
+  loadConsignment() async {
+    if (glb.consignmentID.value == "") {
+      createConsignment();
+    } else {
+      String api =
+          glb.url.value + "/api/consignment/${glb.consignmentID.value}";
+      final respone = await http.get(Uri.parse(api));
+      if (respone.statusCode == 200) {
+        final json = jsonDecode(respone.body);
+        consignment.value = Consignment(
+            id: json['_id'],
+            growerId: json['growerId'],
+            searchId: json['searchId'],
+            trip1Driverid: json['trip1Driverid'],
+            startPointAddressTrip1: json['startPointAddressTrip1'],
+            endPointAddressTrip1: json['endPointAddressTrip1'],
+            packhouseId: json['packhouseId'],
+            startPointAddressTrip2: json['startPointAddressTrip2'],
+            trip2Driverid: json['trip2Driverid'],
+            approval: json['approval'], approval1: json['approval1'],
+            endPointAddressTrip2: json['endPointAddressTrip2'],
+            currentStage: json['currentStage'],
+            aadhatiId: json['aadhatiId'],
+            totalWeight: json['totalWeight']?.toDouble(),
+            status: json['status'],
+            bilty: json['bilty'] != null ? Bilty.fromJson(json['bilty']) : null,
+            aadhatiMode: json['aadhatiMode'],
+            driverMode: json['driverMode'],
+            packHouseMode:  json ['packHouseMode']
+        );
+
+        print(consignment.value!.bilty?.id);
+      bilty.value = consignment.value!.bilty;
       }
-    else
-      {
-        String api = glb.url.value + "/api/consignmet/${glb.consignmentID.value}";
-        final respone = await http.get(Uri.parse(api)
-            );
+    }
+  }
 
-        if(respone.statusCode ==200){
-          Consignment.fromJson(jsonDecode(respone.body));
+  createConsignment() async {
+    final personInitials = glb.personName.substring(0, 3).toUpperCase();
+    final timeStamp = DateTime.now()
+        .millisecondsSinceEpoch
+        .toString()
+        .substring(9, 13); // 4-digit slice of time
+    final consignmentCount = Get.find<GrowerController>()
+        .consignments
+        .length
+        .toString()
+        .padLeft(2, '0');
+    final aadharSuffix = glb.personPhone.substring(6, 10);
+    final searchId =
+        '$personInitials-$timeStamp-$consignmentCount-$aadharSuffix';
+    print(searchId);
 
-        }
-  }}
-
-
- createConsignment() async {
     print("Here goes Consignment");
-   String api = glb.url.value + "/api/consignmet";
-   Map<String,dynamic> uploadData = {
-     "searchId": consignment.value?.searchId
-   };
-   final response = await http.post(Uri.parse(api)
-   ,body: jsonEncode(uploadData),headers: {"Content-Type": "application/json"});
+    String api = glb.url.value + "/api/consignment";
+    Map<String, dynamic> uploadData = {"searchId": searchId};
+    consignment.value = Consignment(searchId: searchId);
 
-   if(response.statusCode ==200||response.statusCode==201){
-     Map<String,dynamic> data =  jsonDecode(response.body);
+    final response = await http.post(Uri.parse(api),
+        body: jsonEncode(uploadData),
+        headers: {"Content-Type": "application/json"});
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      Map<String, dynamic> data = jsonDecode(response.body);
       consignment.value?.id = data['_id'];
-
-   }
-   Get.find<GrowerController>().addConsignment(consignment.value!);
-
+    }
+    Get.find<GrowerController>().addConsignment(consignment.value!);
+    print(consignment);
   }
 
-
-
-  Future<dynamic> Step1()
-  async {
-    String api = glb.url.value + "/api/consignmet/${consignment.value!.id!}";
-    Map<String,dynamic> uploadData = {
+  Future<dynamic> Step1() async {
+    print(consignment.value!.id);
+    String api = glb.url.value + "/api/consignment/${consignment.value!.id}";
+    print("Hit");
+    Map<String, dynamic> uploadData = {
       'startPointTrip1': glb.selectedOrchardAddress.value,
-      'trip1Driverid': (driverMode.value=="Associated")?drivingProfile.value!.id:transportUnion.value!.id,
-      'packhouseId': packhouse.value!.id,
-      'packHouseMode' : packHouseMode.value,
-      'driverMode' : driverMode.value
+      'endPointTrip1': trip1AddressController.text,
+      'trip1Driverid': (driverMode.value == "Associated")
+          ? drivingProfile.value?.id
+          : transportUnion.value?.id,
+      'packhouseId': packhouse.value?.id,
+      'packHouseMode': packHouseMode.value,
+      'driverMode': driverMode.value
     };
-    final respone = await http.patch(Uri.parse(api)
-        ,body: uploadData,headers: {"Content-Type": "application-json"});
+    final respone = await http.patch(Uri.parse(api),
+        body: jsonEncode(uploadData),
+        headers: {"Content-Type": "application/json"});
 
-    if(respone.statusCode ==201){
+    if (respone.statusCode == 201) {
       print("Sucess");
-
     }
   }
 
-  Future<dynamic> Step2()
+
+  updateBilty()
   async {
-    String api = glb.url.value + "/api/bilty";
-    Map<String,dynamic> data =bilty.value!.toJson();
-    final respone = await http.post(Uri.parse(api)
-        ,body: data,headers: {"Content-Type": "application-json"});
-    Map<String,dynamic> data1 = jsonDecode(respone.body);
-    String api1 = glb.url.value + "/api/consignment/${glb.consignmentID.value}";
-    Map<String,dynamic> data2 = {
-      "bilty": data1["_id"],
+    String api = glb.url.value + "/api/bilty/${consignment.value!.bilty?.id}";
+    Map<String, dynamic> data = bilty.value!.toJson();
+    final respone = await http.put(Uri.parse(api),
+        body: jsonEncode(data),
+        headers: {"Content-Type": "application/json"});
+  }
+
+
+
+  Future<dynamic> Step3() async {
+
+    print(consignment.value!.id);
+    String api = glb.url.value +
+        "/api/consignment/${consignment.value!.id}/add-bilty/step-3";
+    print("Hit");
+    Map<String, dynamic> uploadData = {
+      'endPointTrip2': trip2AddressController.text,
+      'trip2DriverId': (driverMode.value == "Associated")
+          ? drivingProfile.value?.id
+          : transportUnion.value?.id,
+      'aadhatiId': aadhati.value?.id,
+      'aadhatiMode': aadhatiMode.value,
+      'driverMode': driverMode.value,
     };
-    final respone1 = await http.patch(Uri.parse(api));
+    final respone = await http.patch(Uri.parse(api),
+        body: jsonEncode(uploadData),
+        headers: {"Content-Type": "application/json"});
 
-
-    if(respone.statusCode ==201){
+    if (respone.statusCode == 201) {
       print("Sucess");
-
     }
   }
 
+  Future<dynamic> Step2() async {
+      print("Here");
+      if(biltyValue.value){
+      String api = glb.url.value + "/api/bilty";
+      Map<String, dynamic> data = bilty.value!.toJson();
+      final respone = await http.post(Uri.parse(api),
+          body: jsonEncode(data),
+          headers: {"Content-Type": "application/json"});
+      Map<String, dynamic> data1 = jsonDecode(respone.body);
+      print(data1);
+      String api1 = glb.url.value +
+          "/api/consignment/${consignment.value!.id}/add-bilty/step-2";
+      Map<String, dynamic> data2 = {
+        "bilty": data1["_id"],
+        "currentStage": "Packing Complete"
+      };
+      final respone1 = await http.patch(Uri.parse(api1),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(data2));
+
+      if (respone.statusCode == 201) {
+        print("Sucess");
+
+      }
+biltyValue.value=false;    }else
+  {
+    updateBilty();
+  }
+  }
 
 }

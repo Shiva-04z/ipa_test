@@ -151,16 +151,12 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
 
   Widget buildSelectionBoxes() {
     return Obx(() {
-
-      if (controller.aadhatiMode.value == "Associated") {
+      {
         return Padding(
           padding: EdgeInsets.all(8),
           child: Column(
-            spacing:  10,
+            spacing: 10,
             children: [
-              if (controller.driverMode.value == "Associated" ||
-                  controller.driverMode.value == "Transport Union" ||
-                  controller.packHouseMode.value == "Associated")
                 Text(
                   "Selections",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -171,9 +167,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                   items: Get.find<GrowerController>()
                       .drivers
                       .map((driver) => DropdownMenuItem<DrivingProfile>(
-                    value: driver,
-                    child: Text(driver.name!), // or any display field
-                  ))
+                            value: driver,
+                            child: Text(driver.name!), // or any display field
+                          ))
                       .toList(),
                   onChanged: (value) {
                     controller.drivingProfile.value = value!;
@@ -183,10 +179,25 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-              Text(
-                "Selections",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              ),
+              if (controller.driverMode.value == "Transport Union")
+                DropdownButtonFormField<Transport>(
+                  value: controller.transportUnion.value,
+                  items: Get.find<GrowerController>()
+                      .transportUnions
+                      .map((transport) => DropdownMenuItem<Transport>(
+                    value: transport,
+                    child: Text(transport.name), // or any display field
+                  ))
+                      .toList(),
+                  onChanged: (value) {
+                    controller.transportUnion.value = value!;
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Select Transport Union",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              if (controller.aadhatiMode.value == "Associated")
               DropdownButtonFormField<Aadhati>(
                 value: controller.aadhati.value,
                 items: Get.find<GrowerController>()
@@ -204,17 +215,27 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                   border: OutlineInputBorder(),
                 ),
               ),
+              SizedBox(height: 10,),
+      TextFormField(
+      controller: controller.trip2AddressController,
+      decoration: InputDecoration(
+      border: OutlineInputBorder(),
+      label: Text("Enter Address")),
+      )
             ],
           ),
         );
-      } else
-        return Container();
+      }
     });
   }
 
   Widget Step3() {
     return Column(
-      children: [driverModeSelection(),aadhatiModeSelection(), buildSelectionBoxes()],
+      children: [
+        driverModeSelection(),
+        aadhatiModeSelection(),
+        buildSelectionBoxes()
+      ],
     );
   }
 
@@ -231,12 +252,16 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
             children: [
               Expanded(
                 child: ElevatedButton(
-                  onPressed: controller.addStep,
+                  onPressed: () {
+                    controller.Step1();
+                    controller.addStep();
+                  },
                   style: ElevatedButton.styleFrom(
                     shape: BeveledRectangleBorder(),
                     backgroundColor: Colors.purpleAccent.shade400,
                   ),
-                  child: const Text("Next", style: TextStyle(color: Colors.white)),
+                  child:
+                      const Text("Next", style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
@@ -246,7 +271,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
         // Step 1: "Previous" and conditional "Next"
         if (step == 1) {
           bool canProceed = (controller.driverMode.value == "Self" ||
-              controller.consignment.value!.trip1Driverid != null) &&
+                  controller.consignment.value!.trip1Driverid != null) &&
               (controller.packHouseMode.value == "Self" ||
                   controller.consignment.value!.packhouseId != null);
 
@@ -260,18 +285,21 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     shape: BeveledRectangleBorder(),
                     backgroundColor: Colors.purpleAccent.shade400,
                   ),
-                  child: const Text("Previous", style: TextStyle(color: Colors.white)),
+                  child: const Text("Previous",
+                      style: TextStyle(color: Colors.white)),
                 ),
               ),
               if (canProceed)
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: controller.addStep,
+                    onPressed: (){ controller.Step2();
+                      controller.addStep();},
                     style: ElevatedButton.styleFrom(
                       shape: BeveledRectangleBorder(),
                       backgroundColor: Colors.purpleAccent.shade400,
                     ),
-                    child: const Text("Next", style: TextStyle(color: Colors.white)),
+                    child: const Text("Next",
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ),
             ],
@@ -290,17 +318,20 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     shape: BeveledRectangleBorder(),
                     backgroundColor: Colors.purpleAccent.shade400,
                   ),
-                  child: const Text("Previous", style: TextStyle(color: Colors.white)),
+                  child: const Text("Previous",
+                      style: TextStyle(color: Colors.white)),
                 ),
               ),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: controller.addStep,
+                  onPressed: (){ controller.Step3();
+        controller.addStep();},
                   style: ElevatedButton.styleFrom(
                     shape: BeveledRectangleBorder(),
                     backgroundColor: Colors.purpleAccent.shade400,
                   ),
-                  child: const Text("Next", style: TextStyle(color: Colors.white)),
+                  child:
+                      const Text("Next", style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
@@ -310,58 +341,62 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
         // Step 3: Accept/Decline buttons
         if (step == 3) {
           bool canProceed = (controller.driverMode.value == "Self" ||
-              controller.consignment.value!.trip2Driverid != null) &&
+                  controller.consignment.value!.trip2Driverid != null) &&
               (controller.consignment.value!.aadhatiId != null);
-          return(canProceed)? Row(
-            spacing: 10,
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Decline logic
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: BeveledRectangleBorder(),
-                    backgroundColor: Colors.red,
-                  ),
-                  child: const Text("Decline Offer", style: TextStyle(color: Colors.white)),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Accept logic
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: BeveledRectangleBorder(),
-                    backgroundColor: Colors.green,
-                  ),
-                  child: const Text("Accept for Bidding", style: TextStyle(color: Colors.white)),
-                ),
-              ),
-            ],
-          ):Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => controller.step.value -= 1,
-                  style: ElevatedButton.styleFrom(
-                    shape: BeveledRectangleBorder(),
-                    backgroundColor: Colors.purpleAccent.shade400,
-                  ),
-                  child: const Text("Previous", style: TextStyle(color: Colors.white)),
-                ),
-              ),
-            ],
-          );
+          return (canProceed)
+              ? Row(
+                  spacing: 10,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Decline logic
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: BeveledRectangleBorder(),
+                          backgroundColor: Colors.red,
+                        ),
+                        child: const Text("Decline Offer",
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Accept logic
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: BeveledRectangleBorder(),
+                          backgroundColor: Colors.green,
+                        ),
+                        child: const Text("Accept for Bidding",
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => controller.step.value -= 1,
+                        style: ElevatedButton.styleFrom(
+                          shape: BeveledRectangleBorder(),
+                          backgroundColor: Colors.purpleAccent.shade400,
+                        ),
+                        child: const Text("Previous",
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                );
         }
 
         return Container(); // default fallback
       }),
     );
   }
-
 
   Widget selectionBoxes() {
     return Obx(() => Padding(
@@ -431,14 +466,14 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-              if(controller.driverMode.value!='Self' && controller.packHouseMode.value=="Self")
+              if (controller.driverMode.value != 'Self' &&
+                  controller.packHouseMode.value == "Self")
                 TextFormField(
                   controller: controller.trip1AddressController,
-                  decoration: InputDecoration(border: OutlineInputBorder(), label: Text("Enter Address")),
-
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      label: Text("Enter Address")),
                 )
-
-
             ],
           ),
         ));
@@ -477,9 +512,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                 ),
                 Text(
                     (controller.driverMode == "Request" &&
-                            controller.drivingProfile.value == null)
+                            controller.consignment.value?.trip1Driverid == null)
                         ? "Driver is Not resolved yet"
-                        : (controller.drivingProfile.value == null)
+                        : (controller.consignment.value?.trip1Driverid == null)
                             ? "Driver has not accepted request yet"
                             : "",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -507,10 +542,10 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                 ),
                 Text(
                   (controller.packHouseMode == "Request" &&
-                          controller.packhouse.value == null)
+                      controller.consignment.value?.packhouseId == null)
                       ? "Packhouse is Not resolved yet"
                       : (controller.packHouseMode.value != "Self" &&
-                              controller.packhouse.value == null)
+                      controller.consignment.value?.packhouseId == null)
                           ? "Packhouse has not accepted request yet"
                           : "",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -541,7 +576,8 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   Widget biltyCreate() {
     if (controller.bilty.value == null) {
       controller.bilty.value =
-          Bilty.createDefault(controller.consignment.value!.searchId!);
+          Bilty.createDefault();
+      controller.biltyValue.value = true;
     }
     final bilty = controller.bilty.value!;
     if (imagePaths.length != bilty.categories.length) {
@@ -1008,7 +1044,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
         fallBack(),
         if (controller.packHouseMode.value == "Self" &&
                 controller.driverMode.value == 'Self' ||
-            controller.drivingProfile.value != null)
+            controller.consignment.value?.trip1Driverid!= null)
           biltyCreate(),
         if (controller.packHouseMode.value != "Self" &&
             controller.packhouse.value != null)
@@ -1043,7 +1079,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   Widget Step4fallback() {
     return Column(
       children: [
-        Container(
+        if(controller.aadhati.value==null)Container(
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(color: Colors.white, boxShadow: [
             BoxShadow(color: Colors.black, blurRadius: 1, spreadRadius: 1)
@@ -1058,12 +1094,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                 ),
               ),
               Text(
-                  (controller.aadhatiMode == "Request" &&
-                          controller.aadhati.value == null)
+                  (controller.aadhatiMode.value == "Request")
                       ? "Aadhati is Not resolved yet"
-                      : (controller.aadhati.value == null)
-                          ? "Aadhati has not accepted request yet"
-                          : "",
+                        : "Aadhati has not accepted request yet",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center),
             ],
@@ -1081,7 +1114,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
       children: [
         Step4fallback(),
         if (controller.aadhati.value != null)
-          (controller.consignment.value!.status! == "Aadhati Done")
+          (controller.consignment.value?.currentStage == "Aadhati Done")
               ? biltyView()
               : Container(
                   padding: EdgeInsets.all(8),
@@ -1127,14 +1160,13 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   }
 
   Widget biltySummaryWidget() {
-    final Bilty bilty =
-    Bilty.createDefault(controller.consignment.value!.searchId!);
+    final Bilty? bilty =controller.consignment.value?.bilty!;
     final totalBoxes =
-    bilty.categories.fold<int>(0, (sum, c) => sum + c.boxCount);
+        bilty?.categories.fold<int>(0, (sum, c) => sum + c.boxCount);
     final totalWeight =
-    bilty.categories.fold<double>(0, (sum, c) => sum + c.totalWeight);
+        bilty?.categories.fold<double>(0, (sum, c) => sum + c.totalWeight);
     final totalValue =
-    bilty.categories.fold<double>(0, (sum, c) => sum + c.totalPrice);
+        bilty?.categories.fold<double>(0, (sum, c) => sum + c.totalPrice);
 
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8),
@@ -1148,33 +1180,32 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text('Total Boxes: ' + totalBoxes.toString()),
-                Text('Total Weight: ' + totalWeight.toStringAsFixed(2) + ' kg'),
-                Text('Total Value: ₹' + totalValue.toStringAsFixed(2)),
+                Text('Total Weight: ' + totalWeight!.toStringAsFixed(2) + ' kg'),
+                Text('Total Value: ₹' + totalValue!.toStringAsFixed(2)),
               ],
             ),
           ],
         ),
-        children: bilty.categories
+        children: bilty!.categories
             .map((category) => ListTile(
-          title: Text('${category.quality} - ${category.category}'),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Size: ${category.size}'),
-              Text('Boxes: ${category.boxCount}'),
-              Text(
-                  'Weight: ${category.totalWeight.toStringAsFixed(2)} kg'),
-              Text('Value: ₹${category.totalPrice.toStringAsFixed(2)}'),
-            ],
-          ),
-        ))
+                  title: Text('${category.quality} - ${category.category}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Size: ${category.size}'),
+                      Text('Boxes: ${category.boxCount}'),
+                      Text(
+                          'Weight: ${category.totalWeight.toStringAsFixed(2)} kg'),
+                      Text('Value: ₹${category.totalPrice.toStringAsFixed(2)}'),
+                    ],
+                  ),
+                ))
             .toList(),
       ),
     );
   }
 
   biltyfinalView() {
-
     final bilty = controller.bilty.value;
     if (bilty == null) return SizedBox();
     bool isMobile = Platform.isAndroid || Platform.isIOS;
@@ -1291,32 +1322,32 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
         const SizedBox(height: 16),
         if (isMobile)
           Obx(() => videoPath.value.isNotEmpty
-              ? Column(
-                  children: [
-                    TextButton.icon(
-                      icon: Icon(Icons.play_circle_fill, color: Colors.green),
-                      label: const Text('Play Video'),
-                      onPressed: () {
-                        showDialog(
-                          context: Get.context!,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Uploaded Video'),
-                            content: AspectRatio(
-                              aspectRatio: 16 / 9,
-                              child:
-                                  VideoPlayerWidget(videoPath: videoPath.value),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('Close'),
-                              ),
-                            ],
+              ? Column(children: [
+                  TextButton.icon(
+                    icon: Icon(Icons.play_circle_fill, color: Colors.green),
+                    label: const Text('Play Video'),
+                    onPressed: () {
+                      showDialog(
+                        context: Get.context!,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Uploaded Video'),
+                          content: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child:
+                                VideoPlayerWidget(videoPath: videoPath.value),
                           ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 8)])
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Close'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8)
+                ])
               : TextButton.icon(
                   icon: Icon(Icons.play_circle_fill, color: Colors.grey),
                   label: const Text('Play Video'),

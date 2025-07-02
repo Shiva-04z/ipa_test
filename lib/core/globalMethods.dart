@@ -1,4 +1,5 @@
 import 'package:apple_grower/models/aadhati.dart';
+import 'package:apple_grower/models/consignment_model.dart';
 import 'package:apple_grower/models/driving_profile_model.dart';
 import 'package:apple_grower/models/employee_model.dart';
 import 'package:apple_grower/models/freightForwarder.dart';
@@ -6,6 +7,7 @@ import 'package:apple_grower/models/grower_model.dart';
 import 'package:apple_grower/models/hpmc_collection_center_model.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:apple_grower/models/transport_model.dart';
+import '../models/bilty_model.dart';
 import '../models/ladani_model.dart';
 import '../models/orchard_model.dart';
 
@@ -26,24 +28,44 @@ List<Orchard> createOrchardListFromApi(List<dynamic> apiData) {
         (e) => e.toString() == 'CropStage.${json['cropstage']}',
         orElse: () => CropStage.walnutSize,
       ),
-      quality: OrchardQuality(
-        markers: {
-          QualityMarker.antiHailNet: QualityStatus.good, // default
-          QualityMarker.openFarm: QualityStatus.good,
-          QualityMarker.hailingMarks: QualityStatus.good,
-          QualityMarker.russetting: QualityStatus.good,
-          QualityMarker.underSize: QualityStatus.good,
-        },
-      ),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
   }).toList();
 }
 
+
+List<Consignment> createConsignmentListFromApi(List<dynamic> apiData) {
+  print("HQ");
+  return apiData.map((json) {
+    print(json);
+    return Consignment(
+        id: json['_id'],
+        growerId: json['growerId'],
+        searchId: json['searchId'],
+        trip1Driverid: json['trip1Driverid'],
+        startPointAddressTrip1: json['startPointTrip1'],
+        endPointAddressTrip1: json['endPointTrip1'],
+        packhouseId: json['packhouseId'],
+        startPointAddressTrip2: json['startPointAddressTrip2'],
+        trip2Driverid: json['trip2Driverid'],
+        approval: json['approval'], approval1: json['approval1'],
+        endPointAddressTrip2: json['endPointAddressTrip2'],
+        currentStage: json['currentStage'],
+        aadhatiId: json['aadhatiId'],
+        totalWeight: json['totalWeight']?.toDouble(),
+        status: json['status'],
+        bilty: json['bilty'] != null ? Bilty.fromJson(json['bilty']) : null,
+        aadhatiMode: json['aadhatiMode'],
+        driverMode: json['driverMode'],
+        packHouseMode:  json ['packHouseMode']
+    );
+  }).toList();
+}
+
 List<PackHouse> createPackhouseListFromApi(List<dynamic> apiData) {
   return apiData.map((json) {
-    print("Packhouse");
+    print(json);
     return PackHouse(
         id: json['_id'],
         name: json['name'],
@@ -54,7 +76,7 @@ List<PackHouse> createPackhouseListFromApi(List<dynamic> apiData) {
         numberOfCrates: json['numberOfCrates'] as int,
         boxesPackedT2: json['boxesPackedT2'] as int,
         boxesPackedT1: json['boxesPackedT1'] as int,
-        boxesEstimatedT: json[' boxesEstimatedT'] as int);
+        boxesEstimatedT: json['boxesEstimatedT'] as int);
   }).toList();
 }
 
