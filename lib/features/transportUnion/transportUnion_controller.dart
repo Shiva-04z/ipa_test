@@ -50,19 +50,19 @@ class TransportUnionController extends GetxController {
       associatedAadhatis.value = glbm.createAadhatiListFromApi(data['aadhati_IDs']);
       associatedFreightForwarders.value = glbm.createFreightListFromApi(data['freightForwarder_IDs']);
       unionName.value = data['name'] ?? '';
-      registrationNumber.value = data['registrationNumber'] ?? '';
+      registrationNumber.value = data['transportUnionRegistrationNo'].toString() ?? '';
       details['Name'] = unionName.value;
       details['Contact'] = glb.personPhone.value;
       details['Address'] = data['address'] ?? '';
-      details['Vehicle Registered'] = data['vehicleRegistered'] ?? '';
-      details['Vehicle Type'] = data['vehicleType'] ?? '';
-      details['HCVs'] = data['HCVs']?.toString() ?? '';
-      details['LCVs'] = data['LCVs']?.toString() ?? '';
-      details['MCVs'] = data['MCVs']?.toString() ?? '';
-      details['State Permit'] = data['statePermit'] ?? '';
-      details['Boxes Transported T-2'] = data['boxesTransportedT2']?.toString() ?? '';
-      details['Boxes Transported T-1'] = data['boxesTransportedT1']?.toString() ?? '';
-      details['Boxes Transported T'] = data['boxesTransportedT0']?.toString() ?? '';
+      details['Vehicle Registered'] = data['noOfVehiclesRegistered'].toString() ?? '';
+      // details['Vehicle Type'] = data['vehicleType'] ?? '';
+      details['HCVs'] = data['noOfHeavyCommercialVehicles']?.toString() ?? '';
+      details['LCVs'] = data['noOfLightCommercialVehicles']?.toString() ?? '';
+      details['MCVs'] = data['noOfMediumCommercialVehicles']?.toString() ?? '';
+      // details['State Permit'] = data['statePermit'] ?? '';
+      details['Boxes Transported T-2'] = data['appleBoxesTransported2023']?.toString() ?? '';
+      details['Boxes Transported T-1'] = data['appleBoxesTransported2024']?.toString() ?? '';
+      details['Boxes Transported T'] = data['estimatedTarget2025']?.toString() ?? '';
       details['States Driven Through'] = data['statesDrivenThrough'] ?? '';
     }
   }

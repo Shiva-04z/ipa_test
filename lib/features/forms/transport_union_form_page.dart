@@ -45,16 +45,15 @@ class TransportUnionFormController extends GetxController {
           name: e['name'],
           contact: e['contact'],
           address: e['address'],
-          noOfLightCommercialVehicles: e['LCVs'],
-          noOfMediumCommercialVehicles: e['MCVs'],
-          noOfHeavyCommercialVehicles: e['HCVs'],
-          appleBoxesTransported2023: e['boxesTransportedT3'], // Update if wrong
-          appleBoxesTransported2024: e['boxesTransportedT2'], // Update if wrong
+          noOfLightCommercialVehicles: e['noOfLightCommercialVehicles'],
+          noOfMediumCommercialVehicles: e['noOfMediumCommercialVehicles'],
+          noOfHeavyCommercialVehicles: e['noOfHeavyCommercialVehicles'],
+          appleBoxesTransported2023: e['appleBoxesTransported2023'], // Update if wrong
+          appleBoxesTransported2024: e['appleBoxesTransported2024'], // Update if wrong
           estimatedTarget2025: (e['estimatedTarget2025'] is int)
               ? (e['estimatedTarget2025'] as int).toDouble()
               : e['estimatedTarget2025'],
-          statesDrivenThrough: (e['statesDrivenThrough'] as List<dynamic>?)
-              ?.join(', '),
+          statesDrivenThrough: e['statesDrivenThrough'],
           appleGrowers: [], // or use actual parsing if data present
           aadhatis: [],
           buyers: [],

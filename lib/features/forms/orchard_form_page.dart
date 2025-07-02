@@ -98,6 +98,21 @@ class OrchardFormController extends GetxController {
     );
   }
 
+  Future<String> getAddressFromLatLng(double lat, double lng) async {
+    final url =
+        'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=$lat&lon=$lng&addressdetails=1';
+    final response = await http.get(Uri.parse(url), headers: {
+      'User-Agent': 'YourAppName/1.0 (your@email.com)'
+    });
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['display_name'] ?? 'Unknown location';
+    } else {
+      throw Exception('Failed to fetch address');
+    }
+  }
+
   Future<void> _handleWebLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -245,54 +260,34 @@ class OrchardFormController extends GetxController {
 
   Future<void> _updateLocationFromCoordinates(double lat, double lng) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        lat,
-        lng,
-        localeIdentifier: 'en_IN',
-      );
-
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks.first;
-        String address = '';
-
-        // Add name if available
-        if (place.name?.isNotEmpty ?? false) {
-          address += '${place.name}, ';
-        }
-
-        // Add village/locality
-        if (place.locality?.isNotEmpty ?? false) {
-          address += '${place.locality}, ';
-        } else if (place.subLocality?.isNotEmpty ?? false) {
-          address += '${place.subLocality}, ';
-        }
-
-        // Add administrative area (district)
-        if (place.administrativeArea?.isNotEmpty ?? false) {
-          address += '${place.administrativeArea}, ';
-        }
-
-        // Add postal code
-        if (place.postalCode?.isNotEmpty ?? false) {
-          address += place.postalCode!;
-        }
-
-        // If no address components were found, use coordinates
-        if (address.isEmpty) {
-          address =
-              'Lat: ${lat.toStringAsFixed(6)}, Lng: ${lng.toStringAsFixed(6)}';
-        }
-
-        // Remove trailing comma and space if present
-        address = address.trim();
-        if (address.endsWith(',')) {
-          address = address.substring(0, address.length - 1);
-        }
-
-        locationController.text = address;
+      String address;
+      if (kIsWeb) {
+        address = await getAddressFromLatLng(lat, lng);
       } else {
-        _setFallbackLocation(lat, lng);
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          lat,
+          lng,
+          localeIdentifier: 'en_IN',
+        );
+
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks.first;
+          address = '';
+          if (place.name?.isNotEmpty ?? false) address += '${place.name}, ';
+          if (place.locality?.isNotEmpty ?? false) address += '${place.locality}, ';
+          else if (place.subLocality?.isNotEmpty ?? false) address += '${place.subLocality}, ';
+          if (place.administrativeArea?.isNotEmpty ?? false) address += '${place.administrativeArea}, ';
+          if (place.postalCode?.isNotEmpty ?? false) address += place.postalCode!;
+          if (address.isEmpty) address = 'Lat: ${lat.toStringAsFixed(6)}, Lng: ${lng.toStringAsFixed(6)}';
+          address = address.trim();
+          if (address.endsWith(',')) address = address.substring(0, address.length - 1);
+        } else {
+          address = 'Lat: ${lat.toStringAsFixed(6)}, Lng: ${lng.toStringAsFixed(6)}';
+        }
       }
+
+      locationController.text = address;
+
     } catch (e) {
       debugPrint('Error in geocoding: $e');
       _setFallbackLocation(lat, lng);
