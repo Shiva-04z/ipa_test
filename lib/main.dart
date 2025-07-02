@@ -1,4 +1,3 @@
-import 'package:apple_grower/features/signUpPage/signUP_binidng.dart';
 import 'package:apple_grower/features/splash_screen/splash_screen_bindings.dart';
 import 'package:apple_grower/navigation/get_pages.dart';
 import 'package:apple_grower/navigation/routes_constant.dart';

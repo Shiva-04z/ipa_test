@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../core/globalMethods.dart' as glbm;
@@ -84,12 +82,12 @@ class HPAgriBoardController extends GetxController {
     String apiurl = glb.url + "/api/hpmcDepot/${glb.id.value}";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
+      final Map<String, dynamic> data = jsonDecode(response.body)['data'];
       glb.personName.value = data['operatorName'];
       glb.personPhone.value = "+91" + data['cellNo'];
       associatedGrowers.value = glbm.createGrowerListFromApi(data['grower_IDs']);
-      associatedDrivers.value =glbm.createDriverListFromApi(data['driver_IDs']);
-      associatedTransportUnions.value =glbm.createTransportListFromApi(data['transportUnion_IDs']);
+      associatedDrivers.value =glbm.createDriverListFromApi(data['associatedDrivers']);
+      associatedTransportUnions.value =glbm.createTransportListFromApi(data['associatedTransportUnions']);
       associatedPackHouses.value=glbm.createPackhouseListFromApi(data['packhouse_IDs']);
 
 

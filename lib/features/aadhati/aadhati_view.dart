@@ -33,9 +33,9 @@ class AadhatiView extends GetView<AadhatiController> {
         child: Column(
           children: [
             glbw.buildInfo(),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildSummarySection(),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildSectionChips(),
             Obx(() {
               switch (selectedSection.value) {
@@ -58,7 +58,7 @@ class AadhatiView extends GetView<AadhatiController> {
                 case 'Gallery':
                   return _buildGalleryContainer(context);
                 default:
-                  return SizedBox.shrink();
+                  return const SizedBox.shrink();
               }
             }),
           ],
@@ -69,27 +69,27 @@ class AadhatiView extends GetView<AadhatiController> {
 
   Widget _buildSectionChips() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
             _buildSectionChip('My Commission Agent Info'),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _buildSectionChip('Associated Growers'),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _buildSectionChip('Associated Freight Forwarder'),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _buildSectionChip('Associated Buyers/Ladanis'),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _buildSectionChip('Associated Transport Unions'),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _buildSectionChip('My Staff'),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _buildSectionChip('Associated Drivers'),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _buildSectionChip('Consignments'),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             _buildSectionChip('Gallery'),
           ],
         ),
@@ -115,9 +115,9 @@ class AadhatiView extends GetView<AadhatiController> {
             }
           },
           backgroundColor: Colors.grey[200],
-          selectedColor: Color(0xff548235),
+          selectedColor: const Color(0xff548235),
           checkmarkColor: Colors.white,
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         ));
   }
 
@@ -125,10 +125,10 @@ class AadhatiView extends GetView<AadhatiController> {
     return Stack(
       children: [
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: 1,
           color: Colors.white,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             side: BorderSide(color: Colors.black26, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
@@ -139,7 +139,7 @@ class AadhatiView extends GetView<AadhatiController> {
               padding: const EdgeInsets.only(top: 30),
               child: Obx(
                 () => GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
                         MediaQuery.of(context).size.width > 800 ? 5 : 4,
@@ -160,14 +160,14 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
         ),
         Container(
-          padding: EdgeInsets.all(8),
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: Color(0xff548235),
+            color: const Color(0xff548235),
             borderRadius: BorderRadius.circular(8.0),
           ),
-          constraints: BoxConstraints(maxWidth: 225),
-          child: Text(
+          constraints: const BoxConstraints(maxWidth: 225),
+          child: const Text(
             "My Commission Agent Info",
             style: TextStyle(
               color: Colors.white,
@@ -192,7 +192,7 @@ class AadhatiView extends GetView<AadhatiController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image(
-                image: AssetImage("assets/images/agent.png"),
+                image: const AssetImage("assets/images/agent.png"),
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
@@ -206,10 +206,10 @@ class AadhatiView extends GetView<AadhatiController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   detail,
-                  style: TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
               ],
             ],
@@ -234,7 +234,7 @@ class AadhatiView extends GetView<AadhatiController> {
               size: isSmallScreen ? 32 : 40,
               color: Colors.blue,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               "Edit",
               style: TextStyle(
@@ -252,10 +252,10 @@ class AadhatiView extends GetView<AadhatiController> {
     return Stack(
       children: [
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: 1,
           color: Colors.white,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             side: BorderSide(color: Colors.black26, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
@@ -266,7 +266,7 @@ class AadhatiView extends GetView<AadhatiController> {
               padding: const EdgeInsets.only(top: 30),
               child: Obx(
                 () => GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
                         MediaQuery.of(context).size.width > 800 ? 5 : 4,
@@ -286,14 +286,14 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
         ),
         Container(
-          padding: EdgeInsets.all(8),
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: Color(0xff548235),
+            color: const Color(0xff548235),
             borderRadius: BorderRadius.circular(8.0),
           ),
-          constraints: BoxConstraints(maxWidth: 225),
-          child: Text(
+          constraints: const BoxConstraints(maxWidth: 225),
+          child: const Text(
             "Associated Growers",
             style: TextStyle(
               color: Colors.white,
@@ -331,7 +331,7 @@ class AadhatiView extends GetView<AadhatiController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image(
-                image: AssetImage("assets/images/grower.png"),
+                image: const AssetImage("assets/images/grower.png"),
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
@@ -345,15 +345,15 @@ class AadhatiView extends GetView<AadhatiController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   '${grower.orchards.length} Orchards',
-                  style: TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   grower.address!,
-                  style: TextStyle(fontSize: 12, color: Colors.blue),
+                  style: const TextStyle(fontSize: 12, color: Colors.blue),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -380,7 +380,7 @@ class AadhatiView extends GetView<AadhatiController> {
               size: isSmallScreen ? 32 : 40,
               color: Colors.red,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               "ADD NEW",
               style: TextStyle(
@@ -398,10 +398,10 @@ class AadhatiView extends GetView<AadhatiController> {
     return Stack(
       children: [
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: 1,
           color: Colors.white,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             side: BorderSide(color: Colors.black26, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
@@ -412,7 +412,7 @@ class AadhatiView extends GetView<AadhatiController> {
               padding: const EdgeInsets.only(top: 30),
               child: Obx(
                 () => GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
                         MediaQuery.of(context).size.width > 800 ? 5 : 4,
@@ -432,14 +432,14 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
         ),
         Container(
-          padding: EdgeInsets.all(8),
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: Color(0xff548235),
+            color: const Color(0xff548235),
             borderRadius: BorderRadius.circular(8.0),
           ),
-          constraints: BoxConstraints(maxWidth: 225),
-          child: Text(
+          constraints: const BoxConstraints(maxWidth: 225),
+          child: const Text(
             "Associated Freight Forwarder",
             style: TextStyle(
               color: Colors.white,
@@ -476,7 +476,7 @@ class AadhatiView extends GetView<AadhatiController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image(
-                image: AssetImage("assets/images/buyer.png"),
+                image: const AssetImage("assets/images/buyer.png"),
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
@@ -490,15 +490,15 @@ class AadhatiView extends GetView<AadhatiController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   buyer.contact,
-                  style: TextStyle(fontSize: 12, color: Colors.blue),
+                  style: const TextStyle(fontSize: 12, color: Colors.blue),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   buyer.address,
-                  style: TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -525,7 +525,7 @@ class AadhatiView extends GetView<AadhatiController> {
               size: isSmallScreen ? 32 : 40,
               color: Colors.red,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               "ADD NEW",
               style: TextStyle(
@@ -543,10 +543,10 @@ class AadhatiView extends GetView<AadhatiController> {
     return Stack(
       children: [
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: 1,
           color: Colors.white,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             side: BorderSide(color: Colors.black26, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
@@ -557,7 +557,7 @@ class AadhatiView extends GetView<AadhatiController> {
               padding: const EdgeInsets.only(top: 30),
               child: Obx(
                 () => GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
                         MediaQuery.of(context).size.width > 800 ? 5 : 4,
@@ -577,14 +577,14 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
         ),
         Container(
-          padding: EdgeInsets.all(8),
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: Color(0xff548235),
+            color: const Color(0xff548235),
             borderRadius: BorderRadius.circular(8.0),
           ),
-          constraints: BoxConstraints(maxWidth: 225),
-          child: Text(
+          constraints: const BoxConstraints(maxWidth: 225),
+          child: const Text(
             "Associated Buyers/Ladanis",
             style: TextStyle(
               color: Colors.white,
@@ -622,7 +622,7 @@ class AadhatiView extends GetView<AadhatiController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image(
-                image: AssetImage("assets/images/company.png"),
+                image: const AssetImage("assets/images/company.png"),
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
@@ -636,12 +636,12 @@ class AadhatiView extends GetView<AadhatiController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
-                Text('${ladani.firmType}', style: TextStyle(fontSize: 12)),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
+                Text('${ladani.firmType}', style: const TextStyle(fontSize: 12)),
+                const SizedBox(height: 4),
                 Text(
                   '${ladani.contact}',
-                  style: TextStyle(fontSize: 12, color: Colors.purple),
+                  style: const TextStyle(fontSize: 12, color: Colors.purple),
                 ),
               ],
             ],
@@ -666,7 +666,7 @@ class AadhatiView extends GetView<AadhatiController> {
               size: isSmallScreen ? 32 : 40,
               color: Colors.red,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               "ADD NEW",
               style: TextStyle(
@@ -684,10 +684,10 @@ class AadhatiView extends GetView<AadhatiController> {
     return Stack(
       children: [
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: 1,
           color: Colors.white,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             side: BorderSide(color: Colors.black26, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
@@ -698,7 +698,7 @@ class AadhatiView extends GetView<AadhatiController> {
               padding: const EdgeInsets.only(top: 30),
               child: Obx(
                 () => GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
                         MediaQuery.of(context).size.width > 800 ? 5 : 4,
@@ -718,14 +718,14 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
         ),
         Container(
-          padding: EdgeInsets.all(8),
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: Color(0xff548235),
+            color: const Color(0xff548235),
             borderRadius: BorderRadius.circular(8.0),
           ),
-          constraints: BoxConstraints(maxWidth: 225),
-          child: Text(
+          constraints: const BoxConstraints(maxWidth: 225),
+          child: const Text(
             "Associated Drivers",
             style: TextStyle(
               color: Colors.white,
@@ -764,7 +764,7 @@ class AadhatiView extends GetView<AadhatiController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image(
-                image: AssetImage("assets/images/driver.png"),
+                image: const AssetImage("assets/images/driver.png"),
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
@@ -778,15 +778,15 @@ class AadhatiView extends GetView<AadhatiController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   '${driver.noOfTyres}',
-                  style: TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   '${driver.contact}',
-                  style: TextStyle(fontSize: 12, color: Colors.blue),
+                  style: const TextStyle(fontSize: 12, color: Colors.blue),
                 ),
               ],
             ],
@@ -811,7 +811,7 @@ class AadhatiView extends GetView<AadhatiController> {
               size: isSmallScreen ? 32 : 40,
               color: Colors.red,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               "ADD NEW",
               style: TextStyle(
@@ -835,7 +835,7 @@ class AadhatiView extends GetView<AadhatiController> {
             width: 120,
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Color(0xff548235),
               ),
@@ -851,10 +851,10 @@ class AadhatiView extends GetView<AadhatiController> {
     return Stack(
       children: [
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: 1,
           color: Colors.white,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             side: BorderSide(color: Colors.black26, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
@@ -865,7 +865,7 @@ class AadhatiView extends GetView<AadhatiController> {
               padding: const EdgeInsets.only(top: 30),
               child: Obx(
                 () => GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
                         MediaQuery.of(context).size.width > 800 ? 5 : 4,
@@ -885,14 +885,14 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
         ),
         Container(
-          padding: EdgeInsets.all(8),
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: Color(0xff548235),
+            color: const Color(0xff548235),
             borderRadius: BorderRadius.circular(8.0),
           ),
-          constraints: BoxConstraints(maxWidth: 225),
-          child: Text(
+          constraints: const BoxConstraints(maxWidth: 225),
+          child: const Text(
             "Consignments",
             style: TextStyle(
               color: Colors.white,
@@ -925,7 +925,7 @@ class AadhatiView extends GetView<AadhatiController> {
                 size: isSmallScreen ? 32 : 40,
                 color: Colors.orangeAccent,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Consignment ${consignment.id?.substring(0, 4)}...',
                 style: TextStyle(
@@ -937,12 +937,12 @@ class AadhatiView extends GetView<AadhatiController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
 
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Status: ${consignment.status}',
-                  style: TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
               ],
             ],
@@ -967,7 +967,7 @@ class AadhatiView extends GetView<AadhatiController> {
               size: isSmallScreen ? 32 : 40,
               color: Colors.red,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               "ADD NEW",
               style: TextStyle(
@@ -983,10 +983,10 @@ class AadhatiView extends GetView<AadhatiController> {
 
   Widget _buildSummarySection() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Obx(() => GridView.count(
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             crossAxisCount:
                 MediaQuery.of(Get.context!).size.width > 800 ? 5 : 3,
             crossAxisSpacing: 12,
@@ -1057,7 +1057,7 @@ class AadhatiView extends GetView<AadhatiController> {
                 color: Colors.white,
                 size: 28,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 count,
                 style: TextStyle(
@@ -1066,10 +1066,10 @@ class AadhatiView extends GetView<AadhatiController> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 title,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -1092,10 +1092,10 @@ class AadhatiView extends GetView<AadhatiController> {
     return Stack(
       children: [
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: 1,
           color: Colors.white,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             side: BorderSide(color: Colors.black26, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
@@ -1108,8 +1108,8 @@ class AadhatiView extends GetView<AadhatiController> {
                 child: Obx(
                   () => GridView.builder(
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: isLargeScreen ? 3 : 1,
                       crossAxisSpacing: 8,
@@ -1129,14 +1129,14 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
         ),
         Container(
-          padding: EdgeInsets.all(8),
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: Color(0xff548235),
+            color: const Color(0xff548235),
             borderRadius: BorderRadius.circular(8.0),
           ),
-          constraints: BoxConstraints(maxWidth: 225),
-          child: Text(
+          constraints: const BoxConstraints(maxWidth: 225),
+          child: const Text(
             "Gallery",
             style: TextStyle(
               color: Colors.white,
@@ -1172,7 +1172,7 @@ class AadhatiView extends GetView<AadhatiController> {
             errorBuilder: (context, error, stackTrace) {
               return Container(
                 color: Colors.grey[200],
-                child: Center(
+                child: const Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -1229,7 +1229,7 @@ class AadhatiView extends GetView<AadhatiController> {
                 size: isLargeScreen ? 48 : 64,
                 color: Colors.red,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 "UPLOAD NEW",
                 style: TextStyle(
@@ -1249,10 +1249,10 @@ class AadhatiView extends GetView<AadhatiController> {
     return Stack(
       children: [
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: 1,
           color: Colors.white,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             side: BorderSide(color: Colors.black26, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
@@ -1263,7 +1263,7 @@ class AadhatiView extends GetView<AadhatiController> {
               padding: const EdgeInsets.only(top: 30),
               child: Obx(
                 () => GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
                         MediaQuery.of(context).size.width > 800 ? 5 : 4,
@@ -1284,14 +1284,14 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
         ),
         Container(
-          padding: EdgeInsets.all(8),
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: Color(0xff548235),
+            color: const Color(0xff548235),
             borderRadius: BorderRadius.circular(8.0),
           ),
-          constraints: BoxConstraints(maxWidth: 225),
-          child: Text(
+          constraints: const BoxConstraints(maxWidth: 225),
+          child: const Text(
             "Associated Transport Unions",
             style: TextStyle(
               color: Colors.white,
@@ -1347,15 +1347,15 @@ class AadhatiView extends GetView<AadhatiController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   union.contact,
-                  style: TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   union.transportUnionRegistrationNo ?? 'N/A',
-                  style: TextStyle(fontSize: 12, color: Colors.indigo),
+                  style: const TextStyle(fontSize: 12, color: Colors.indigo),
                 ),
               ],
             ],
@@ -1380,7 +1380,7 @@ class AadhatiView extends GetView<AadhatiController> {
               size: isSmallScreen ? 32 : 40,
               color: Colors.red,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               "ADD NEW",
               style: TextStyle(
@@ -1405,10 +1405,10 @@ class AadhatiView extends GetView<AadhatiController> {
     return Stack(
       children: [
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: 1,
           color: Colors.white,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             side: BorderSide(color: Colors.black26, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
@@ -1419,7 +1419,7 @@ class AadhatiView extends GetView<AadhatiController> {
               padding: const EdgeInsets.only(top: 30),
               child: Obx(
                 () => GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount:
                         MediaQuery.of(context).size.width > 800 ? 5 : 4,
@@ -1443,14 +1443,14 @@ class AadhatiView extends GetView<AadhatiController> {
           ),
         ),
         Container(
-          padding: EdgeInsets.all(8),
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: Color(0xff548235),
+            color: const Color(0xff548235),
             borderRadius: BorderRadius.circular(8.0),
           ),
-          constraints: BoxConstraints(maxWidth: 225),
-          child: Text(
+          constraints: const BoxConstraints(maxWidth: 225),
+          child: const Text(
             "My Staff",
             style: TextStyle(
               color: Colors.white,
@@ -1483,7 +1483,7 @@ class AadhatiView extends GetView<AadhatiController> {
                 size: isSmallScreen ? 32 : 40,
                 color: Colors.grey[400],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 role,
                 style: TextStyle(
@@ -1496,7 +1496,7 @@ class AadhatiView extends GetView<AadhatiController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Click to add',
                   style: TextStyle(fontSize: 12, color: Colors.grey[500]),
@@ -1550,15 +1550,15 @@ class AadhatiView extends GetView<AadhatiController> {
                 overflow: TextOverflow.ellipsis,
               ),
               if (!isSmallScreen) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   role,
-                  style: TextStyle(fontSize: 12, color: Colors.teal),
+                  style: const TextStyle(fontSize: 12, color: Colors.teal),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   employee.phoneNumber ?? 'N/A',
-                  style: TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
               ],
             ],
