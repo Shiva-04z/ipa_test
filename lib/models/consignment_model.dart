@@ -14,7 +14,8 @@ class Consignment {
   Location? startPointTrip2;
   String? startPointAddressTrip2;
   String? trip2Driverid;
-  String? approval;
+  String? approval1;//Associated
+  String? approval;//Driver
   Location? endPointTrip2;
   String? endPointAddressTrip2;
   String? currentStage;
@@ -46,6 +47,7 @@ class Consignment {
       this.growerId,this.status,
       this.id,
       this.approval,
+        this.approval1,
        this.aadhatiMode,
     this.driverMode,
    this.packHouseMode,});
@@ -74,7 +76,7 @@ class Consignment {
       startPointTrip2: parseLocation(json['startPointTrip2']),
       startPointAddressTrip2: json['startPointAddressTrip2'],
       trip2Driverid: json['trip2Driverid'],
-      approval: json['approval'],
+      approval: json['approval'], approval1: json['approval1'],
       endPointTrip2: parseLocation(json['endPointTrip2']),
       endPointAddressTrip2: json['endPointAddressTrip2'],
       currentStage: json['currentStage'],
@@ -111,6 +113,7 @@ class Consignment {
       'startPointAddressTrip2': startPointAddressTrip2,
       'trip2Driverid': trip2Driverid,
       'approval': approval,
+      'approval1': approval1,
       'endPointTrip2': locToJson(endPointTrip2),
       'endPointAddressTrip2': endPointAddressTrip2,
       'currentStage': currentStage,

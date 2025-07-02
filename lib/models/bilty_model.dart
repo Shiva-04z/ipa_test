@@ -103,7 +103,7 @@ class BiltyCategory {
 }
 
 class Bilty {
-  final String id;
+ String? id;
   final DateTime createdAt;
   final DateTime updatedAt;
   final List<BiltyCategory> categories;
@@ -113,7 +113,7 @@ class Bilty {
   final String? videoPath;
 
   Bilty({
-    required this.id,
+    this.id,
     required this.createdAt,
     required this.updatedAt,
     required this.categories,
@@ -124,7 +124,7 @@ class Bilty {
   });
 
   // Create a new Bilty with default categories
-  factory Bilty.createDefault(String id) {
+  factory Bilty.createDefault() {
     final categories = [
       BiltyCategory(
         quality: 'GP',
@@ -428,7 +428,6 @@ class Bilty {
     ];
 
     return Bilty(
-      id: id,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       categories: categories,
@@ -536,7 +535,7 @@ class Bilty {
 
   factory Bilty.fromJson(Map<String, dynamic> json) {
     return Bilty(
-      id: json['id'] as String,
+      id: json['_id'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
       categories: (json['categories'] as List<dynamic>)

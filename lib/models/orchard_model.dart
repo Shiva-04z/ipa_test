@@ -133,7 +133,6 @@ class Orchard {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'name': name,
       'location': location,
       'fruitingTrees': numberOfFruitingTrees,
@@ -142,7 +141,6 @@ class Orchard {
       'area': area,
       'boundaryImagePath': boundaryImagePath,
       'cropStage': cropStage?.toString()?.split('.')?.last,
-      'quality': quality?.toJson(),
       'harvestDelayReason': harvestDelayReason,
       'estimatedBoxes': estimatedBoxes,
       'actualHarvestDate': actualHarvestDate?.toIso8601String(),

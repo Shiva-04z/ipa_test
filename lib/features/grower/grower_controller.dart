@@ -32,7 +32,9 @@ class GrowerController extends GetxController {
   final packHouseAddress = TextEditingController();
   final packHouseOwn = false.obs;
   final selectedApmc = ''.obs;
-  final selectedHarvestDate = DateTime.now().obs;
+  final selectedHarvestDate = DateTime
+      .now()
+      .obs;
   final selectedLocation = ''.obs;
   final selectedPackhouseId = ''.obs;
 
@@ -79,21 +81,55 @@ class GrowerController extends GetxController {
       glb.personPhone.value = "+91" + data['phoneNumber'];
       print(data["aadhati_IDs"]);
       orchards.value = glbm.createOrchardListFromApi(data['orchard_IDs']);
-      packingHouses.value = glbm.createPackhouseListFromApi(data['packhouse_IDs']);
-      freightForwarders.value =glbm.createFreightListFromApi(data['freightForwarder_IDs']);
-      drivers.value =glbm.createDriverListFromApi(data['driver_IDs']);
-      commissionAgents.value =glbm.createAadhatiListFromApi(data['aadhati_IDs']);
-      transportUnions.value =glbm.createTransportListFromApi(data['transportUnion_IDs']);
-      hpmcDepots.value=glbm.createHPMCListFromApi(data['hpmcDepot_IDs']);
-
+      packingHouses.value =
+          glbm.createPackhouseListFromApi(data['packhouse_IDs']);
+      freightForwarders.value =
+          glbm.createFreightListFromApi(data['freightForwarder_IDs']);
+      drivers.value = glbm.createDriverListFromApi(data['driver_IDs']);
+      commissionAgents.value =
+          glbm.createAadhatiListFromApi(data['aadhati_IDs']);
+      transportUnions.value =
+          glbm.createTransportListFromApi(data['transportUnion_IDs']);
+      hpmcDepots.value = glbm.createHPMCListFromApi(data['hpmcDepot_IDs']);
+      consignments.value =
+          glbm.createConsignmentListFromApi(data['consignment_IDs']);
     }
   }
 
 
   // ==================== ORCHARD MANAGEMENT METHODS ====================
   void addOrchard(Orchard orchard) async {
-    orchards.add(orchard);
-    await uploadOrchard(orchard);
+    createOrchard(orchard);
+  }
+
+
+  Future<void> createOrchard(Orchard orchard)
+  async {
+    String apiUrl = glb.url + '/api/orchards';
+    try {
+    print(orchard.toJson());
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(orchard.toJson()),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        orchards.add(orchard);
+        print(data["_id"]);
+        await Future.delayed(Duration(seconds: 3));
+        uploadOrchard(data["_id"]);
+        Get.snackbar('Success', 'Agent created successfully!',
+            snackPosition: SnackPosition.BOTTOM);
+      } else {
+        Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to create agent: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+
   }
 
   void updateOrchard(Orchard orchard) {
@@ -129,22 +165,10 @@ class GrowerController extends GetxController {
       if (orchard.actualHarvestDate != null)
         'actualHarvestDate': orchard.actualHarvestDate!.toIso8601String(),
       'cropstage': orchard.cropStage.toString().split('.').last,
-      'cropQuality': {
-        'antiHailNet': orchard.quality.markers[QualityMarker.antiHailNet] !=
-            QualityStatus.poor,
-        'openFarm': orchard.quality.markers[QualityMarker.openFarm] !=
-            QualityStatus.poor,
-        'HailingMarks': orchard.quality.markers[QualityMarker.hailingMarks] !=
-            QualityStatus.poor,
-        'Russetting': orchard.quality.markers[QualityMarker.russetting] !=
-            QualityStatus.poor,
-        'UnderSize': orchard.quality.markers[QualityMarker.underSize] !=
-            QualityStatus.poor,
-      },
     };
 
-    final response = await http.put(Uri.parse(apiUrl),
-        headers: {"Content-Type": "application-json"},
+    final response = await http.post(Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode(payload));
 
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -152,12 +176,12 @@ class GrowerController extends GetxController {
     }
   }
 
-  Future<void> uploadOrchard(Orchard orchard) async {
+  Future<void> uploadOrchard(String id) async {
     final apiurl = glb.url + '/api/growers/${glb.id.value}/add-orchard';
     try {
       final Map<String, dynamic> uploadPayload = {'orchardId': id};
       final response = await http.patch(Uri.parse(apiurl),
-          body: orchard.toJson(),
+          body: jsonEncode(uploadPayload),
           headers: {"Content-Type": "application/json"});
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.snackbar("Success", "Added to Grower");
@@ -338,20 +362,30 @@ class GrowerController extends GetxController {
   // ==================== CONSIGNMENT MANAGEMENT METHODS ====================
   void addConsignment(Consignment consignment) {
     consignments.add(consignment);
-    _upload();
+    uploadConsignment(consignment.id!);
   }
 
-  void updateConsignment(Consignment consignment) {
-    final index = consignments.indexWhere((c) => c.id == consignment.id);
-    if (index != -1) {
-      consignments[index] = consignment;
-      _upload();
-    }
-  }
 
   void removeConsignment(String consignmentId) {
     consignments.removeWhere((c) => c.id == consignmentId);
     _upload();
+  }
+
+  Future<void> uploadConsignment(String id) async {
+    print(id);
+    print("Adding Consignment");
+    final apiurl = glb.url + '/api/growers/${glb.id.value}/add-consignment';
+    try {
+      final Map<String, dynamic> uploadPayload = {'consignmentId': id};
+      final response = await http.patch(Uri.parse(apiurl),
+          body: jsonEncode(uploadPayload),
+          headers: {"Content-Type": "application/json"});
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Get.snackbar("Success", "Added to Grower");
+      }
+    } catch (e) {
+      Get.snackbar("Failure", e.toString());
+    }
   }
 
   // ==================== DRIVER MANAGEMENT METHODS ====================
