@@ -7,13 +7,13 @@ import 'package:get/get_core/src/get_main.dart';
 
 PreferredSizeWidget buildAppbar() {
   return AppBar(
-    title: Image(
+    title: const Image(
       image: AssetImage("assets/images/logo.png"),
       height: 50,
     ),
     centerTitle: true,
     flexibleSpace: Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
           gradient: LinearGradient(
         colors: [Color(0xffb2dec5), Color(0xffc0bcbb)],
         stops: [0.25, 0.75],
@@ -27,21 +27,21 @@ PreferredSizeWidget buildAppbar() {
 Widget buildInfo() {
   return Container(
     color: Colors.green,
-    padding: EdgeInsets.all(12),
+    padding: const EdgeInsets.all(12),
     child: Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                  color: Color(0xff548235),
+                  color: const Color(0xff548235),
                   borderRadius: BorderRadius.circular(8.0)),
-              constraints: BoxConstraints(maxWidth: 225),
+              constraints: const BoxConstraints(maxWidth: 225),
               child: Text(
                 "${glb.roleType.value}'s Dashboard",
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   overflow: TextOverflow.ellipsis,
                   fontSize: 16,
@@ -56,16 +56,16 @@ Widget buildInfo() {
                 style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0))),
-                child: Text(
+                child: const Text(
                   "Update",
                   style: TextStyle(color: Colors.orange),
                 ))
           ],
         ),
-        Divider(
+        const Divider(
           color: Colors.white,
         ),
-        SizedBox(
+        const SizedBox(
           height: 15,
         ),
         Row(
@@ -74,7 +74,7 @@ Widget buildInfo() {
             Obx(
             () =>Text(
                 glb.personName.value,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -84,7 +84,7 @@ Widget buildInfo() {
             Obx(
             ()=>Text(
                 glb.personPhone.value,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                 ),
@@ -92,7 +92,7 @@ Widget buildInfo() {
             ),
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 15,
         ),
         Row(
@@ -101,7 +101,7 @@ Widget buildInfo() {
             Obx(
             ()=>Text(
                 "Village - ${glb.personVillage}",
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                 ),
@@ -110,7 +110,7 @@ Widget buildInfo() {
             Obx(
             ()=> Text(
                 "Post - ${glb.personPost}",
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                 ),
@@ -118,7 +118,7 @@ Widget buildInfo() {
             ),
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 15,
         ),
         Row(
@@ -127,7 +127,7 @@ Widget buildInfo() {
            Obx(
               ()=> Text(
                 "Bank Account - ${glb.personBank}",
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                 ),
@@ -136,7 +136,7 @@ Widget buildInfo() {
             Obx(
               ()=> Text(
                 "IFSC - ${glb.personIFSC}",
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                 ),
@@ -156,17 +156,17 @@ Widget buildGridCard(String name) {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ImageIcon(
+        const ImageIcon(
           AssetImage("assets/images/orchard.png"),
           size: 40,
           color: Colors.green,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
           child: Text(
             name,
-            style: TextStyle(
+            style: const TextStyle(
                 color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
             overflow: TextOverflow.ellipsis,
           ),

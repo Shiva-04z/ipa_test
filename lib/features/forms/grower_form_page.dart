@@ -1,6 +1,5 @@
 import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
 import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
-import 'package:apple_grower/models/aadhati.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -12,8 +11,6 @@ import '../../models/grower_model.dart';
 import '../../core/globals.dart' as glb;
 import '../driver/driver_controller.dart';
 import '../freightForwarder/freightForwarder_controller.dart';
-import '../grower/grower_controller.dart';
-import '../ladaniBuyers/ladaniBuyers_controller.dart';
 import '../packHouse/packHouse_controller.dart';
 import '../transportUnion/transportUnion_controller.dart';
 

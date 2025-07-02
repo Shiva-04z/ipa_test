@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/globalMethods.dart' as glbm;
 import '../../core/globals.dart' as glb;
@@ -40,7 +38,7 @@ class DriverController extends GetxController {
     String apiurl = glb.url + "/api/drivers/${glb.id.value}";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
+      final Map<String, dynamic> data = jsonDecode(response.body)['data'];
       print(data);
       glb.personName.value = data['name'];
       glb.personPhone.value = "+91" + data['contact'];

@@ -16,7 +16,6 @@ class User {
   User({
     this.id,
     this.name,
-    this.aadhar,
     this.contact,
     this.aadhar,
     this.email,

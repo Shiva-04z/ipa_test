@@ -2,7 +2,6 @@ import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
 import 'package:apple_grower/features/freightForwarder/freightForwarder_controller.dart';
 import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_controller.dart';
 import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
-import 'package:apple_grower/models/driving_profile_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/globalsWidgets.dart' as glbw;

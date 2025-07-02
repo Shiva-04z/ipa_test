@@ -1,17 +1,13 @@
 import 'package:apple_grower/features/hpPolice/hpPolice_controller.dart';
-import 'package:apple_grower/features/packHouse/consignment_form2_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../models/consignment_model.dart';
 import 'package:apple_grower/core/globalsWidgets.dart' as glbw;
 import 'package:apple_grower/models/hp_police_model.dart';
 import 'package:apple_grower/models/driving_profile_model.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../forms/police_officer_form_page.dart';
 import '../forms/driver_form_page.dart';
-import 'package:flutter_map/flutter_map.dart';
 
 class HpPoliceView extends GetView<HpPoliceController> {
   final RxString selectedSection = 'Traffic Control'.obs;

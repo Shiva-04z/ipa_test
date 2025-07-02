@@ -876,9 +876,9 @@ class RegisterController extends GetxController {
   Future<void> registerTransportUnion() async {
     try {
       final Map<String, dynamic> requestBody = {
-        "name": transportUnionNameController.text.trim(),
-        "contact": transportUnionContactController.text.trim(),
-        "address": transportUnionAddressController.text.trim(),
+        "name": nameController.text.trim(),
+        "contact": phoneController.text.trim(),
+        "address": addressController.text.trim(),
         "nameOfTheTransportUnion":
             nameOfTheTransportUnionController.text.trim(),
         "transportUnionRegistrationNo":
@@ -905,13 +905,13 @@ class RegisterController extends GetxController {
         "estimatedTarget2025":
             double.tryParse(estimatedTarget2025Controller.text.trim()) ?? 0.0,
         "statesDrivenThrough": statesDrivenThroughController.text.trim(),
-        "appleGrowers": [],
-        "aadhatis": [],
-        "buyers": [],
-        "associatedDrivers": [],
-        "myComplaints": [],
+        // "appleGrowers": [],
+        // "aadhatis": [],
+        // "buyers": [],
+        // "associatedDrivers": [],
+        // "myComplaints": [],
       };
-      final String transportUnionApiUrl = glb.url + "/api/transport-union";
+      final String transportUnionApiUrl = glb.url + "/api/transportunion/create";
       final response = await http.post(
         Uri.parse(transportUnionApiUrl),
         headers: {
@@ -922,9 +922,7 @@ class RegisterController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        createUser(glb.id.value, name : transportUnionNameController.text.trim(),
-    contact : transportUnionContactController.text.trim(),
-    address : transportUnionAddressController.text.trim(), );
+        createUser(glb.id.value, name : nameController.text.trim(), contact : phoneController.text.trim(), address : addressController.text.trim(), );
         Get.snackbar(
           'Success',
           'Transport Union registered successfully!',
@@ -996,8 +994,8 @@ class RegisterController extends GetxController {
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
         createUser(glb.id.value, name : nameController.text.trim(),
-        contact : ladaniContactController.text.trim(),
-        address : ladaniAddressController.text.trim()
+        contact : phoneController.text.trim(),
+        address : addressController.text.trim()
         );
         Get.snackbar(
           'Success',
@@ -1035,33 +1033,29 @@ class RegisterController extends GetxController {
   Future<void> registerDriver() async {
     try {
       final Map<String, dynamic> requestBody = {
-        "name": driverNameController.text.trim(),
-        "contact": driverContactController.text.trim(),
-        "drivingLicenseNo": drivingLicenseNoController.text.trim(),
+        "name": nameController.text.trim(),
+        "contact": phoneController.text.trim(),
+        "licenseNo": drivingLicenseNoController.text.trim(),
         "vehicleRegistrationNo": vehicleRegistrationNoController.text.trim(),
-        "chassiNoOfVehicle": chassiNoOfVehicleController.text.trim(),
-        "payloadCapacityApprovedByRto":
+        "vehicleType" : chassiNoOfVehicleController.text.trim(),
+        "vehiclePayload":
             payloadCapacityApprovedByRtoController.text.trim(),
-        "grossVehicleWeight": grossVehicleWeightController.text.trim(),
+        "vehicleWeight": grossVehicleWeightController.text.trim(),
         "noOfTyres": int.tryParse(noOfTyresController.text.trim()) ?? 0,
-        "permitOfVehicleDriving": permitOfVehicleDrivingController.text.trim(),
+        "vehiclePermit": permitOfVehicleDrivingController.text.trim(),
         "vehicleOwnerAdharGst": vehicleOwnerAdharGstController.text.trim(),
-        "appleBoxesTransported2023": int.tryParse(
+        "boxesTransportedT2": int.tryParse(
                 appleBoxesTransported2023DriverController.text.trim()) ??
             0,
-        "appleBoxesTransported2024": int.tryParse(
+        "boxesTransportedT1": int.tryParse(
                 appleBoxesTransported2024DriverController.text.trim()) ??
             0,
-        "estimatedTarget2025":
+        "boxesTransportedT0":
             double.tryParse(estimatedTarget2025DriverController.text.trim()) ??
                 0.0,
         "statesDrivenThrough": statesDrivenThroughDriverController.text.trim(),
-        "appleGrowers": [],
-        "aadhatis": [],
-        "buyers": [],
-        "myComplaints": [],
       };
-      final String driverApiUrl = glb.url + "/api/driver";
+      final String driverApiUrl = glb.url + "/api/drivers/create";
       final response = await http.post(
         Uri.parse(driverApiUrl),
         headers: {
@@ -1070,10 +1064,9 @@ class RegisterController extends GetxController {
         body: jsonEncode(requestBody),
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
+        final responseData = jsonDecode(response.body)['data'];
         glb.id.value = responseData['_id'];
-        createUser(glb.id.value, name : driverNameController.text.trim(),
-    contact: driverContactController.text.trim(),);
+        createUser(glb.id.value, name : nameController.text.trim(), contact: phoneController.text.trim(),);
         Get.snackbar(
           'Success',
           'Driver registered successfully!',
@@ -1128,7 +1121,7 @@ class RegisterController extends GetxController {
         "associatedDrivers": [],
         "associatedTransportUnions": [],
       };
-      final String hpmcDepotApiUrl = glb.url + "/api/hpmc-depot";
+      final String hpmcDepotApiUrl = glb.url + "/api/hpmcDepot/create";
       final response = await http.post(
         Uri.parse(hpmcDepotApiUrl),
         headers: {
@@ -1206,7 +1199,7 @@ class RegisterController extends GetxController {
         "createdAt": DateTime.now().toIso8601String(),
         "updatedAt": DateTime.now().toIso8601String(),
       };
-      final String freightForwarderApiUrl = glb.url + "/api/freight-forwarder";
+      final String freightForwarderApiUrl = glb.url + "/api/freightforwarders/create";
       final response = await http.post(
         Uri.parse(freightForwarderApiUrl),
         headers: {
@@ -1271,7 +1264,7 @@ class RegisterController extends GetxController {
         "createdAt": DateTime.now().toIso8601String(),
         "updatedAt": DateTime.now().toIso8601String(),
       };
-      final String policeApiUrl = glb.url + "/api/police-officer";
+      final String policeApiUrl = glb.url + "/api/hppolice/";
       final response = await http.post(
         Uri.parse(policeApiUrl),
         headers: {
@@ -1281,6 +1274,8 @@ class RegisterController extends GetxController {
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        print("Response : $response");
+        print(responseData);
         glb.id.value = responseData['_id'];
         createUser(
           glb.id.value,
@@ -1553,7 +1548,7 @@ class RegisterController extends GetxController {
         final responseData = jsonDecode(response.body);
         print("response : $responseData");
         glb.userId.value = responseData['_id'];
-        print("userId.value : ${glb.userId.value}");
+        print("userId : ${glb.userId.value}");
         Get.snackbar(
           'Success',
           'User account created successfully!',
