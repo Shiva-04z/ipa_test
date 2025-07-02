@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 class Consignment {
   String? id;
   String? growerId;
+  String? growerName;
   String? searchId;
   String? trip1Driverid;
   Location? startPointTrip1;
@@ -47,6 +48,7 @@ class Consignment {
       this.growerId,this.status,
       this.id,
       this.approval,
+        this.growerName,
         this.approval1,
        this.aadhatiMode,
     this.driverMode,
@@ -64,6 +66,7 @@ class Consignment {
     }
 
     return Consignment(
+      growerName: json['growerName'],
       id: json['_id'],
       growerId: json['growerId'],
       searchId: json['searchId'],
@@ -102,6 +105,7 @@ class Consignment {
 
     return {
       'growerId': growerId,
+      'growerName':growerName,
       'searchId': searchId,
       'trip1Driverid': trip1Driverid,
       'startPointTrip1': locToJson(startPointTrip1),

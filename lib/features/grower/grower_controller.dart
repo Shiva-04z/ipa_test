@@ -79,7 +79,6 @@ class GrowerController extends GetxController {
       final Map<String, dynamic> data = jsonDecode(response.body);
       glb.personName.value = data['name'];
       glb.personPhone.value = "+91" + data['phoneNumber'];
-      print(data["aadhati_IDs"]);
       orchards.value = glbm.createOrchardListFromApi(data['orchard_IDs']);
       packingHouses.value =
           glbm.createPackhouseListFromApi(data['packhouse_IDs']);

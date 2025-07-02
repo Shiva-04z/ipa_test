@@ -20,7 +20,12 @@ class ConsignmentForm2Controller extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
+    // Initialize with all consignments
+    searchResults.assignAll(glb.allConsignments);
+    // Listen to allConsignments changes
+    ever(glb.allConsignments, (_) {
+      searchResults.assignAll(glb.allConsignments);
+    });
   }
 
   @override
@@ -30,7 +35,20 @@ class ConsignmentForm2Controller extends GetxController {
   }
 
   void onSearchChanged(String query) {
-
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) {
+      searchResults.assignAll(glb.allConsignments);
+    } else {
+      searchResults.assignAll(glb.allConsignments.where((c) {
+        final growerName = c.growerName?.toLowerCase() ?? '';
+        return (c.id?.toLowerCase().contains(q) ?? false) ||
+            (c.searchId?.toLowerCase().contains(q) ?? false) ||
+            (c.startPointAddressTrip1?.toLowerCase().contains(q) ?? false) ||
+            (c.endPointAddressTrip1?.toLowerCase().contains(q) ?? false) ||
+            (c.status?.toLowerCase().contains(q) ?? false) ||
+            growerName.contains(q);
+      }));
+    }
   }
 
   void selectConsignment(Consignment consignment) {
@@ -67,10 +85,9 @@ class ConsignmentForm2Controller extends GetxController {
                                         .consignments
                                         .any((existingDriver) =>
                                             existingDriver.id == consignment.id)
-                                    :Get.find<HPAgriBoardController>()
-        .consignments
-        .any((existingDriver) =>
-    existingDriver.id == consignment.id);
+                                    : Get.find<HPAgriBoardController>()
+                                        .consignments
+                                        .any((existingDriver) => existingDriver.id == consignment.id);
 
     if (exists) {
       Get.snackbar(
@@ -105,18 +122,12 @@ class ConsignmentForm2Controller extends GetxController {
                                     ? Get.find<HPAgriBoardController>()
                                         .addConsignment(consignment)
                                     : Get.find<HPAgriBoardController>()
-        .addConsignment(consignment);
+                                        .addConsignment(consignment);
     Get.back();
-  }
-
-  void navigateToNewConsignmentForm() {
-    Get.toNamed('/consignment-form');
   }
 }
 
 class ConsignmentForm2Page extends StatelessWidget {
-  ConsignmentForm2Page({super.key});
-
   final controller = Get.put(ConsignmentForm2Controller());
 
   @override
@@ -261,15 +272,8 @@ class ConsignmentForm2Page extends StatelessWidget {
                                           ? Get.find<DriverController>().myJobs.any(
                                               (existingDriver) => existingDriver.id == consignment.id)
                                           : (glb.roleType.value == "HPMC DEPOT")
-                  ? Get.find<HPAgriBoardController>()
-                  .consignments
-                  .any((existingDriver) =>
-              existingDriver.id == consignment.id)
-                  :  Get.find<HPAgriBoardController>()
-                  .consignments
-                  .any((existingDriver) =>
-              existingDriver.id == consignment.id);
-
+                                              ? Get.find<HPAgriBoardController>().consignments.any((existingDriver) => existingDriver.id == consignment.id)
+                                              : Get.find<HPAgriBoardController>().consignments.any((existingDriver) => existingDriver.id == consignment.id);
 
               return Stack(
                 children: [
@@ -279,16 +283,48 @@ class ConsignmentForm2Page extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: InkWell(
-                      onTap: exists
-                          ? null
-                          : () => controller.selectConsignment(consignment),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Opacity(
-                        opacity: exists ? 0.7 : 1.0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-
+                    child: Opacity(
+                      opacity: exists ? 0.7 : 1.0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Grower: ${consignment.growerName ?? 'Unknown'}',
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    consignment.searchId ?? 'Consignment',
+                                    style: const TextStyle(
+                                        fontSize: 14, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (!exists) ...[
+                              IconButton(
+                                icon: const Icon(Icons.check_circle,
+                                    color: Colors.green),
+                                tooltip: 'Accept',
+                                onPressed: () =>
+                                    controller.selectConsignment(consignment),
+                              ),
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.cancel, color: Colors.red),
+                                tooltip: 'Reject',
+                                onPressed: () =>
+                                    controller.searchResults.removeAt(index),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ),

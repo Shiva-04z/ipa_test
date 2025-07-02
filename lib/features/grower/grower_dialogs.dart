@@ -950,6 +950,8 @@ class GrowerDialogs {
     BuildContext context,
     Consignment consignment,
   ) {
+    print(glb.roleType.value);
+    print(consignment.currentStage);
     return showDialog(
       context: context,
       builder: (context) => Theme(
@@ -973,34 +975,73 @@ class GrowerDialogs {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          spacing: 20,
+                          children: [
+                            Expanded(child: Text("Grower Name",style:TextStyle(color: Colors.green,fontSize: 18))),
+                            Expanded(child: Text(consignment.growerName!)),
+                          ],
 
+                        ),
+                        Row(
+                          spacing: 20,
+                          children: [
+                            Expanded(child: Text("Cosnignmet",style:TextStyle(color: Colors.green,fontSize: 18))),
+                            Expanded(child: Text(consignment.searchId!)),
+                          ],
+
+                        )
                       ],
                     ),
                   ),
                 ),
                 SizedBox(height: 20),
-                Row(
+
+               if(consignment.currentStage =="Packing Requested" && glb.roleType.value == "PackHouse") Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context);
-                        Get.find<GrowerController>().removeConsignment(
-                          consignment.id!,
-                        );
+                        print(consignment.id);
+                        glb.consignmentID.value = consignment.id!;
+                        print(glb.consignmentID.value);
+                        Get.toNamed(RoutesConstant.biltyCreation);
+
                       },
-                      icon: Icon(Icons.delete, size: 18),
-                      label: Text('Delete'),
+                      icon: Icon(Icons.movie_creation, size: 18),
+                      label: Text('Create Bilty'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red[700],
+                        backgroundColor: Colors.green[700],
                         padding: EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ),]),
+
+
+    if(consignment.currentStage =="Aadhati Selection" && glb.roleType.value == "Aadhati") Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            print(consignment.id);
+                            glb.consignmentID.value = consignment.id!;
+                            print(glb.consignmentID.value);
+                            Get.toNamed(RoutesConstant.biltyCreationAadhati);
+                          },
+                          icon: Icon(Icons.movie_creation, size: 18),
+                          label: Text('Fill Bilty'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green[700],
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),]),
+
+
               ],
             ),
           ),

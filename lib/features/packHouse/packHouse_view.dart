@@ -1476,7 +1476,7 @@ class PackHouseView extends GetView<PackHouseController> {
               ),
               SizedBox(height: 8),
               Text(
-                'Consignment ${consignment.id?.substring(0, 4)}...',
+                'Consignment ${consignment.searchId?.substring(0, 4)}...',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -1488,19 +1488,11 @@ class PackHouseView extends GetView<PackHouseController> {
               if (!isSmallScreen) ...[
                 SizedBox(height: 4),
                 Text(
-                  ' Boxes',
+                  '${consignment.growerName}',
                   style: TextStyle(fontSize: 12),
                 ),
                 SizedBox(height: 4),
-                Text(
-                "AAA",
-                  style: TextStyle(fontSize: 12, color: Colors.blue),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Status: ${consignment.status}',
-                  style: TextStyle(fontSize: 12),
-                ),
+
               ],
             ],
           ),

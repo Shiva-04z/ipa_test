@@ -58,6 +58,7 @@ class ConsignmentFormController extends GetxController {
             id: json['_id'],
             growerId: json['growerId'],
             searchId: json['searchId'],
+            growerName: json['growerName'],
             trip1Driverid: json['trip1Driverid'],
             startPointAddressTrip1: json['startPointAddressTrip1'],
             endPointAddressTrip1: json['endPointAddressTrip1'],
@@ -75,6 +76,20 @@ class ConsignmentFormController extends GetxController {
             driverMode: json['driverMode'],
             packHouseMode:  json ['packHouseMode']
         );
+
+        driverMode.value =consignment.value!.driverMode!;
+        packHouseMode.value = consignment.value!.packHouseMode!;
+
+        print(consignment.value?.currentStage);
+        if(consignment.value?.currentStage=="Packing Requested"||consignment.value?.currentStage=="Packing Complete")
+          {
+            step.value = 1;
+          }
+        else if (consignment.value?.currentStage=="Bilty Ready"||consignment.value?.currentStage=="Aadhati Selection")
+          {
+            step.value = 3;
+          }
+
 
         print(consignment.value!.bilty?.id);
       bilty.value = consignment.value!.bilty;
@@ -100,8 +115,8 @@ class ConsignmentFormController extends GetxController {
 
     print("Here goes Consignment");
     String api = glb.url.value + "/api/consignment";
-    Map<String, dynamic> uploadData = {"searchId": searchId};
-    consignment.value = Consignment(searchId: searchId);
+    Map<String, dynamic> uploadData = {"searchId": searchId,"growerName": glb.personName.value};
+    consignment.value = Consignment(searchId: searchId,growerName: glb.personName.value);
 
     final response = await http.post(Uri.parse(api),
         body: jsonEncode(uploadData),
@@ -112,13 +127,13 @@ class ConsignmentFormController extends GetxController {
       consignment.value?.id = data['_id'];
     }
     Get.find<GrowerController>().addConsignment(consignment.value!);
-    print(consignment);
+    print(consignment.value?.currentStage);
   }
 
   Future<dynamic> Step1() async {
     print(consignment.value!.id);
     String api = glb.url.value + "/api/consignment/${consignment.value!.id}";
-    print("Hit");
+    print("Hit ${packhouse.value?.id}");
     Map<String, dynamic> uploadData = {
       'startPointTrip1': glb.selectedOrchardAddress.value,
       'endPointTrip1': trip1AddressController.text,

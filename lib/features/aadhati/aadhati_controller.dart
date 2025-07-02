@@ -106,6 +106,16 @@ class AadhatiController extends GetxController {
       associatedPackHouses.value =
           glbm.createPackhouseListFromApi(data['packhouse_IDs']);
 
+
+      final allConsignments =
+      glbm.createConsignmentListFromApi(data['consignment_IDs']);
+      glb.allConsignments.value = allConsignments
+          .where((c) => c.currentStage == 'Aadhati Selection')
+          .toList();
+      consignments.value = allConsignments
+          .where((c) => c.currentStage != 'Aadhati Selection')
+          .toList();
+
       // Load consignments
       if (data['consignment_IDs'] != null) {
         // You might need to create a method to load consignments by IDs

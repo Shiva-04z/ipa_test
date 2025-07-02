@@ -1,3 +1,4 @@
+import 'package:apple_grower/models/consignment_model.dart';
 import 'package:apple_grower/models/employee_model.dart';
 import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:get/get.dart';
@@ -25,12 +26,15 @@ RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
 RxString userId = "".obs;
-RxString url = "https://a6c2-2409-40d2-23-527b-61a1-3295-c78d-2399.ngrok-free.app".obs;
-RxString id = "6864e07e9d6d2aa7e60be91d".obs;
+RxString url =
+    "https://bml-m3ps.onrender.com".obs;
+RxString id = (roleType.value == "Grower")?"6864ffc9d0ab74d21f4e8728".obs : (roleType.value == "Aadhati")?  "6863d8bd12ec4c0cd45a8b1b".obs :"6865214cdc7ad04f871db94e".obs;
+//6864cbb64b7a68ce4e9e0a4e
 RxString selectedOrchardAddress = "".obs;
 RxString consignmentID = "".obs;
 RxList<Complaint> myComplaint = <Complaint>[].obs;
 
+RxList<Consignment> allConsignments = <Consignment>[].obs;
 RxList<Aadhati> availableAadhatis = [
   Aadhati(
     id: '685a3d04d4e21f9f6cb9979e',
