@@ -25,8 +25,7 @@ RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
 RxString userId = "".obs;
-RxString url =
-    "https://a6c2-2409-40d2-23-527b-61a1-3295-c78d-2399.ngrok-free.app".obs;
+RxString url = "https://a6c2-2409-40d2-23-527b-61a1-3295-c78d-2399.ngrok-free.app".obs;
 RxString id = "6863d17002507197ca0855c1".obs;
 RxString selectedOrchardAddress = "".obs;
 RxString consignmentID = "".obs;
