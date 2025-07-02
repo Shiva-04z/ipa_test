@@ -86,8 +86,8 @@ class HPAgriBoardController extends GetxController {
       glb.personName.value = data['operatorName'];
       glb.personPhone.value = "+91" + data['cellNo'];
       associatedGrowers.value = glbm.createGrowerListFromApi(data['grower_IDs']);
-      associatedDrivers.value =glbm.createDriverListFromApi(data['associatedDrivers']);
-      associatedTransportUnions.value =glbm.createTransportListFromApi(data['associatedTransportUnions']);
+      associatedDrivers.value =glbm.createDriverListFromApi(data['drivers_IDs']);
+      associatedTransportUnions.value =glbm.createTransportListFromApi(data['transportUnions_IDs']);
       associatedPackHouses.value=glbm.createPackhouseListFromApi(data['packhouse_IDs']);
 
 

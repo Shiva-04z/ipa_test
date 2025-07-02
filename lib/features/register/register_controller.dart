@@ -671,7 +671,6 @@ class RegisterController extends GetxController {
         // Success
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        print(glb.id.value);
         createUser(glb.id.value);
         Get.snackbar(
           'Success',
@@ -741,7 +740,6 @@ class RegisterController extends GetxController {
         // Success
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        print(glb.id.value);
         createUser(
           glb.id.value,
 
@@ -1134,7 +1132,7 @@ class RegisterController extends GetxController {
         glb.id.value = responseData['_id'];
         createUser(
           glb.id.value,
-          name: hpmcNameController.text.trim(),
+          name: nameController.text.trim(),
           contact: cellNoController.text.trim(),
           aadhar: aadharNoController.text.trim(),
         );
@@ -1274,8 +1272,6 @@ class RegisterController extends GetxController {
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        print("Response : $response");
-        print(responseData);
         glb.id.value = responseData['_id'];
         createUser(
           glb.id.value,
@@ -1536,8 +1532,6 @@ class RegisterController extends GetxController {
         'isActive': true,
       };
 
-      print("body : $updatePayload");
-
       final response = await http.post(
         Uri.parse(userApiUrl),
         headers: {'Content-Type': 'application/json'},
@@ -1546,9 +1540,7 @@ class RegisterController extends GetxController {
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        print("response : $responseData");
         glb.userId.value = responseData['_id'];
-        print("userId : ${glb.userId.value}");
         Get.snackbar(
           'Success',
           'User account created successfully!',
@@ -1593,6 +1585,21 @@ class RegisterController extends GetxController {
     } catch (e) {
       debugPrint('Error getting location: $e');
       _setDefaultLocation();
+    }
+  }
+
+  Future<String> getAddressFromLatLng(double lat, double lng) async {
+    final url =
+        'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=$lat&lon=$lng&addressdetails=1';
+    final response = await http.get(Uri.parse(url), headers: {
+      'User-Agent': 'YourAppName/1.0 (your@email.com)' // REQUIRED by Nominatim
+    });
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['display_name'] ?? 'Unknown Location';
+    } else {
+      throw Exception('Failed to fetch address');
     }
   }
 
@@ -1743,54 +1750,58 @@ class RegisterController extends GetxController {
 
   Future<void> _updateLocationFromCoordinates(double lat, double lng) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        lat,
-        lng,
-        localeIdentifier: 'en_IN',
-      );
-
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks.first;
-        String address = '';
-
-        if (place.name?.isNotEmpty ?? false) {
-          address += '${place.name}, ';
-        }
-        if (place.locality?.isNotEmpty ?? false) {
-          address += '${place.locality}, ';
-        } else if (place.subLocality?.isNotEmpty ?? false) {
-          address += '${place.subLocality}, ';
-        }
-        if (place.administrativeArea?.isNotEmpty ?? false) {
-          address += '${place.administrativeArea}, ';
-        }
-        if (place.postalCode?.isNotEmpty ?? false) {
-          address += place.postalCode!;
-        }
-        if (address.isEmpty) {
-          address =
-          'Lat: ${lat.toStringAsFixed(6)}, Lng: ${lng.toStringAsFixed(6)}';
-        }
-        address = address.trim();
-        if (address.endsWith(',')) {
-          address = address.substring(0, address.length - 1);
-        }
-
-        if(selectedRole.value == "PackHouse"){
-          geoLocationController.text = address;
-        } else if(selectedRole.value == "Police Officer"){
-          policeDutyLocationController.text = address;
-        } else if(selectedRole.value == "HPMC Depot") {
-          locationHpmcController.text = address;
-        } else if(selectedRole.value == "FreightForwarder") {
-          locationOnGoogleFreightController.text = address;
-        } else if(selectedRole.value == "Ladani Buyers") {
-          locationOnGoogleController.text = address;
-        }
-
+      String address;
+      if(kIsWeb) {
+        address = await getAddressFromLatLng(lat, lng);
       } else {
-        _setFallbackLocation(lat, lng);
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          lat,
+          lng,
+          localeIdentifier: 'en_IN',
+        );
+
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks.first;
+          address = '';
+
+          if (place.name?.isNotEmpty ?? false) {
+            address += '${place.name}, ';
+          }
+          if (place.locality?.isNotEmpty ?? false) {
+            address += '${place.locality}, ';
+          } else if (place.subLocality?.isNotEmpty ?? false) {
+            address += '${place.subLocality}, ';
+          }
+          if (place.administrativeArea?.isNotEmpty ?? false) {
+            address += '${place.administrativeArea}, ';
+          }
+          if (place.postalCode?.isNotEmpty ?? false) {
+            address += place.postalCode!;
+          }
+          if (address.isEmpty) {
+            address = 'Lat: ${lat.toStringAsFixed(6)}, Lng: ${lng.toStringAsFixed(6)}';
+          }
+          address = address.trim();
+          if (address.endsWith(',')) {
+            address = address.substring(0, address.length - 1);
+          }
+        } else {
+          address = 'Lat: ${lat.toStringAsFixed(6)}, Lng: ${lng.toStringAsFixed(6)}';
+        }
       }
+
+      if(selectedRole.value == "PackHouse"){
+        geoLocationController.text = address;
+      } else if(selectedRole.value == "Police Officer"){
+        policeDutyLocationController.text = address;
+      } else if(selectedRole.value == "HPMC Depot") {
+        locationHpmcController.text = address;
+      } else if(selectedRole.value == "FreightForwarder") {
+        locationOnGoogleFreightController.text = address;
+      } else if(selectedRole.value == "Ladani Buyers") {
+        locationOnGoogleController.text = address;
+      }
+
     } catch (e) {
       debugPrint('Error in geocoding: $e');
       _setFallbackLocation(lat, lng);
