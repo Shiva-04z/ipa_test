@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/globalMethods.dart' as glbm;
 import '../../core/global_role_loader.dart' as gld;
 import '../../core/globals.dart' as glb;
+import '../../models/transport_model.dart';
 import '../../models/grower_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/aadhati.dart';
@@ -44,7 +46,7 @@ class TransportUnionController extends GetxController {
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body)['data'];
-      glb.personName.value = data['name'];
+      glb.personName.value = data['operatorName'];
       glb.personPhone.value = "+91" + data['contact'];
       associatedGrowers.value = glbm.createGrowerListFromApi(data['grower_IDs']);
       associatedDrivers.value = glbm.createDriverListFromApi(data['drivers_IDs']);
