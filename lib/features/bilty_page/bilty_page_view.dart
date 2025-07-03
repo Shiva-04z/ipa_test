@@ -178,194 +178,196 @@ class BiltyPageView extends GetView<BiltyPageController> {
         const SizedBox(height: 8),
         // Video upload section
 
-        Obx(() => SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: DataTable(
-                  headingRowColor: MaterialStateProperty.resolveWith(
-                      (states) => Colors.orange.shade200),
-                  columns: [
-                    const DataColumn(label: Text("Quality")),
-                    const DataColumn(label: Text("Category")),
-                    if (showDetails.value) ...[
-                      const DataColumn(label: Text("Size in MM")),
-                      const DataColumn(label: Text("No. of Pieces")),
-                      const DataColumn(label: Text("Avg. Weight Per Piece")),
-                      const DataColumn(label: Text("Avg. Gross Box Weight")),
-                    ],
-                    const DataColumn(label: Text("No. of Boxes")),
-                    const DataColumn(label: Text("Total Weight")),
-                    const DataColumn(label: Text("Image")),
-                  ],
-                  rows: List.generate(bilty.categories.length, (index) {
-                    final category = bilty.categories[index];
-                    final bgColor = getRowColor(category.quality);
-                    return DataRow(
-                      color: MaterialStateProperty.resolveWith<Color?>(
-                          (Set<MaterialState> states) => bgColor),
-                      cells: [
-                        DataCell(Text(category.quality,
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text(category.category,
-                            style: const TextStyle(color: Colors.white))),
-                        if (showDetails.value) ...[
-                          DataCell(Text(category.size,
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.piecesPerBox}",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.avgWeight.toStringAsFixed(1)}g",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                              style: const TextStyle(color: Colors.white))),
-                        ],
-                        isEditBoxesMode.value
-                            ? DataCell(
-                                SizedBox(
-                                  width: 60,
-                                  child: TextFormField(
-                                    initialValue: category.boxCount.toString(),
-                                    keyboardType: TextInputType.number,
-                                    style: const TextStyle(color: Colors.white),
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 6),
-                                    ),
-                                    onChanged: (val) {
-                                      int? newCount = int.tryParse(val);
-                                      if (newCount != null) {
-                                        final newTotalWeight =
-                                            category.avgBoxWeight * newCount;
-                                        controller.bilty.value!
-                                                .categories[index] =
-                                            category.copyWith(
-                                          boxCount: newCount,
-                                          totalWeight: newTotalWeight,
-                                        );
-                                        controller.bilty.refresh();
-                                      }
-                                    },
-                                  ),
-                                ),
-                              )
-                            : DataCell(Text("${category.boxCount}",
-                                style: const TextStyle(color: Colors.white))),
-                        isEditTotalWeightMode.value
-                            ? DataCell(
-                                SizedBox(
-                                  width: 90,
-                                  child: TextFormField(
-                                    initialValue:
-                                        category.totalWeight.toStringAsFixed(1),
-                                    keyboardType:
-                                        TextInputType.numberWithOptions(
-                                            decimal: true),
-                                    style: const TextStyle(color: Colors.white),
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 6),
-                                    ),
-                                    onChanged: (val) {
-                                      double? newTotal = double.tryParse(val);
-                                      if (newTotal != null) {
-                                        controller.bilty.value!
-                                                .categories[index] =
-                                            category.copyWith(
-                                          totalWeight: newTotal,
-                                        );
-                                        controller.bilty.refresh();
-                                      }
-                                    },
-                                  ),
-                                ),
-                              )
-                            : DataCell(Text(
-                                "${category.totalWeight.toStringAsFixed(1)}kg",
-                                style: const TextStyle(color: Colors.white))),
-                        DataCell(
-                          Obx(() {
-                            final path = imagePaths[index];
-                            final quality = controller
-                                .bilty.value!.categories[index].quality;
-                            final category = controller
-                                .bilty.value!.categories[index].category;
-                            return path != null
-                                ? (isEditBoxesMode.value ||
-                                        isEditTotalWeightMode.value
-                                    ? const Icon(Icons.check_circle,
-                                        color: Colors.green)
-                                    : GestureDetector(
-                                        onTap: () {
-                                          // Show image in a dialog/card
-                                          showDialog(
-                                            context: Get.context!,
-                                            builder: (context) => AlertDialog(
-                                              title: Text('Uploaded Image'),
-                                              content: Image.file(File(path)),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(),
-                                                  child: const Text('Close'),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                        child: const Icon(Icons.check_circle,
-                                            color: Colors.green),
-                                      ))
-                                : IconButton(
-                                    icon: const Icon(Icons.camera_alt,
-                                        color: Colors.white),
-                                    onPressed: (isEditBoxesMode.value ||
-                                            isEditTotalWeightMode.value)
-                                        ? () async {
-                                            bool isMobile = !kIsWeb &&
-                                                (defaultTargetPlatform ==
-                                                        TargetPlatform
-                                                            .android ||
-                                                    defaultTargetPlatform ==
-                                                        TargetPlatform.iOS);
-
-                                            if (isMobile &&
-                                                ImageSource.camera ==
-                                                    ImageSource.camera) {
-                                              final XFile? image =
-                                                  await _picker.pickImage(
-                                                      source:
-                                                          ImageSource.camera);
-                                              if (image != null) {
-                                                imagePaths[index] = image.path;
-                                                await controller.uploadImage(
-                                                    File(image.path), index);
-                                              }
-                                            } else {
-                                              Get.snackbar(
-                                                "Warning",
-                                                "This functionality is restricted to the mobile app",
-                                                backgroundColor: Colors.yellow,
-                                                colorText: Colors.white,
-                                              );
-                                            }
-                                          }
-                                        : null,
-                                  );
-                          }),
-                        ),
+        Obx(() => Center(
+          child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: DataTable(
+                    headingRowColor: MaterialStateProperty.resolveWith(
+                        (states) => Colors.orange.shade200),
+                    columns: [
+                      const DataColumn(label: Text("Quality")),
+                      const DataColumn(label: Text("Category")),
+                      if (showDetails.value) ...[
+                        const DataColumn(label: Text("Size in MM")),
+                        const DataColumn(label: Text("No. of Pieces")),
+                        const DataColumn(label: Text("Avg. Weight Per Piece")),
+                        const DataColumn(label: Text("Avg. Gross Box Weight")),
                       ],
-                    );
-                  }),
+                      const DataColumn(label: Text("No. of Boxes")),
+                      const DataColumn(label: Text("Total Weight")),
+                      const DataColumn(label: Text("Image")),
+                    ],
+                    rows: List.generate(bilty.categories.length, (index) {
+                      final category = bilty.categories[index];
+                      final bgColor = getRowColor(category.quality);
+                      return DataRow(
+                        color: MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) => bgColor),
+                        cells: [
+                          DataCell(Text(category.quality,
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(category.category,
+                              style: const TextStyle(color: Colors.white))),
+                          if (showDetails.value) ...[
+                            DataCell(Text(category.size,
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Text("${category.piecesPerBox}",
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Text(
+                                "${category.avgWeight.toStringAsFixed(1)}g",
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Text(
+                                "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                                style: const TextStyle(color: Colors.white))),
+                          ],
+                          isEditBoxesMode.value
+                              ? DataCell(
+                                  SizedBox(
+                                    width: 60,
+                                    child: TextFormField(
+                                      initialValue: category.boxCount.toString(),
+                                      keyboardType: TextInputType.number,
+                                      style: const TextStyle(color: Colors.white),
+                                      decoration: const InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.symmetric(
+                                            vertical: 4, horizontal: 6),
+                                      ),
+                                      onChanged: (val) {
+                                        int? newCount = int.tryParse(val);
+                                        if (newCount != null) {
+                                          final newTotalWeight =
+                                              category.avgBoxWeight * newCount;
+                                          controller.bilty.value!
+                                                  .categories[index] =
+                                              category.copyWith(
+                                            boxCount: newCount,
+                                            totalWeight: newTotalWeight,
+                                          );
+                                          controller.bilty.refresh();
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                )
+                              : DataCell(Text("${category.boxCount}",
+                                  style: const TextStyle(color: Colors.white))),
+                          isEditTotalWeightMode.value
+                              ? DataCell(
+                                  SizedBox(
+                                    width: 90,
+                                    child: TextFormField(
+                                      initialValue:
+                                          category.totalWeight.toStringAsFixed(1),
+                                      keyboardType:
+                                          TextInputType.numberWithOptions(
+                                              decimal: true),
+                                      style: const TextStyle(color: Colors.white),
+                                      decoration: const InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.symmetric(
+                                            vertical: 4, horizontal: 6),
+                                      ),
+                                      onChanged: (val) {
+                                        double? newTotal = double.tryParse(val);
+                                        if (newTotal != null) {
+                                          controller.bilty.value!
+                                                  .categories[index] =
+                                              category.copyWith(
+                                            totalWeight: newTotal,
+                                          );
+                                          controller.bilty.refresh();
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                )
+                              : DataCell(Text(
+                                  "${category.totalWeight.toStringAsFixed(1)}kg",
+                                  style: const TextStyle(color: Colors.white))),
+                          DataCell(
+                            Obx(() {
+                              final path = imagePaths[index];
+                              final quality = controller
+                                  .bilty.value!.categories[index].quality;
+                              final category = controller
+                                  .bilty.value!.categories[index].category;
+                              return path != null
+                                  ? (isEditBoxesMode.value ||
+                                          isEditTotalWeightMode.value
+                                      ? const Icon(Icons.check_circle,
+                                          color: Colors.green)
+                                      : GestureDetector(
+                                          onTap: () {
+                                            // Show image in a dialog/card
+                                            showDialog(
+                                              context: Get.context!,
+                                              builder: (context) => AlertDialog(
+                                                title: Text('Uploaded Image'),
+                                                content: Image.file(File(path)),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(),
+                                                    child: const Text('Close'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          child: const Icon(Icons.check_circle,
+                                              color: Colors.green),
+                                        ))
+                                  : IconButton(
+                                      icon: const Icon(Icons.camera_alt,
+                                          color: Colors.white),
+                                      onPressed: (isEditBoxesMode.value ||
+                                              isEditTotalWeightMode.value)
+                                          ? () async {
+                                              bool isMobile = !kIsWeb &&
+                                                  (defaultTargetPlatform ==
+                                                          TargetPlatform
+                                                              .android ||
+                                                      defaultTargetPlatform ==
+                                                          TargetPlatform.iOS);
+
+                                              if (isMobile &&
+                                                  ImageSource.camera ==
+                                                      ImageSource.camera) {
+                                                final XFile? image =
+                                                    await _picker.pickImage(
+                                                        source:
+                                                            ImageSource.camera);
+                                                if (image != null) {
+                                                  imagePaths[index] = image.path;
+                                                  await controller.uploadImage(
+                                                      File(image.path), index);
+                                                }
+                                              } else {
+                                                Get.snackbar(
+                                                  "Warning",
+                                                  "This functionality is restricted to the mobile app",
+                                                  backgroundColor: Colors.yellow,
+                                                  colorText: Colors.white,
+                                                );
+                                              }
+                                            }
+                                          : null,
+                                    );
+                            }),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
                 ),
               ),
-            )),
+        )),
       ],
     );
   }
@@ -393,19 +395,24 @@ class BiltyPageView extends GetView<BiltyPageController> {
           Row(
             children: [
               Expanded(
+                child: Container(
+                  color: Colors.green.shade700,
+                  height: 40,
                   child: ElevatedButton(
-                onPressed: () async {
-                  await controller.uploadBilty();
-                  Get.back();
-                },
-                child: Text(
-                  "Send",
-                  style: TextStyle(color: Colors.white),
+                  onPressed: () async {
+                    await controller.uploadBilty();
+                    Get.back();
+                  },
+                  child: Text(
+                    "Send",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                      shape: ContinuousRectangleBorder(),
+                      backgroundColor: Colors.green.shade700),
+                                      ),
                 ),
-                style: ElevatedButton.styleFrom(
-                    shape: ContinuousRectangleBorder(),
-                    backgroundColor: Colors.green.shade700),
-              )),
+              ),
             ],
           )
         ],

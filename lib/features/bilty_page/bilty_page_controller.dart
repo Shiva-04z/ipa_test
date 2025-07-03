@@ -16,6 +16,7 @@ class BiltyPageController extends GetxController{
   @override
   void onInit() {
     // TODO: implement onInit
+    glb.loadIDData();
 
     super.onInit();
 

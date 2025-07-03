@@ -679,6 +679,7 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        await glb.uploadIDData();
 
         Get.toNamed(RoutesConstant.aadhati);
       } else {
@@ -755,6 +756,7 @@ class RegisterController extends GetxController {
         // Store the created grower data if needed
         // You might want to save the response data to local storage or global state
 
+        await glb.uploadIDData();
         Get.toNamed(RoutesConstant.grower);
       } else {
         // Handle different error status codes
@@ -845,6 +847,7 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        await glb.uploadIDData();
         Get.toNamed(RoutesConstant.packHouse);
       } else {
         final errorData = jsonDecode(response.body);
@@ -928,6 +931,7 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        await glb.uploadIDData();
         Get.toNamed(RoutesConstant.transportUnion);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1002,6 +1006,7 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        await glb.uploadIDData();
         Get.toNamed(RoutesConstant.ladaniBuyers);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1072,6 +1077,7 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        await glb.uploadIDData();
         Get.toNamed(RoutesConstant.driver);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1143,6 +1149,7 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        await glb.uploadIDData();
         Get.toNamed(RoutesConstant.hpAgriBoard);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1221,6 +1228,7 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        await glb.uploadIDData();
         Get.toNamed(RoutesConstant.freightForwarder);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1286,6 +1294,7 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        await glb.uploadIDData();
         Get.toNamed(RoutesConstant.hpPolice);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1365,6 +1374,7 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        await glb.uploadIDData();
         Get.toNamed(RoutesConstant.apmcOffice);
       } else {
         final errorData = jsonDecode(response.body);

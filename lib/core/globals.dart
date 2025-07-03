@@ -3,6 +3,7 @@ import 'package:apple_grower/models/employee_model.dart';
 import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/aadhati.dart';
 import '../models/apmc_model.dart';
 import '../models/auth_signatory_post_model.dart';
@@ -35,6 +36,25 @@ RxString consignmentID = "".obs;
 RxList<Complaint> myComplaint = <Complaint>[].obs;
 
 RxList<Consignment> allConsignments = <Consignment>[].obs;
+
+
+
+
+loadIDData()
+async {
+  SharedPreferences prefs =await SharedPreferences.getInstance();
+  id.value = prefs.getString("id")!;
+}
+
+uploadIDData()async{
+  SharedPreferences prefs =await SharedPreferences.getInstance();
+  prefs.setString("id", id.value);
+
+}
+
+
+
+
 RxList<Aadhati> availableAadhatis = [
   Aadhati(
     id: '685a3d04d4e21f9f6cb9979e',

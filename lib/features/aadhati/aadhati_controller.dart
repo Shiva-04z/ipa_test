@@ -4,6 +4,7 @@ import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/globalMethods.dart' as glbm;
 import '../../core/globals.dart' as glb;
 import '../../models/grower_model.dart';
@@ -47,8 +48,14 @@ class AadhatiController extends GetxController {
   void onInit() {
     super.onInit();
     glb.roleType.value = "Aadhati";
+    glb.loadIDData();
+
     loadData();
   }
+
+
+
+
 
   Future<void> loadData() async {
     String apiurl = glb.url + "/api/agents/${glb.id.value}";

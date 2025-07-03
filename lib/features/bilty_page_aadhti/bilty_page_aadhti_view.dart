@@ -188,7 +188,6 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                                           totalPrice: newTotalPrice,
                                           boxValue: newBoxValue,
                                         );
-
                                       });
                                     }
                                   },
@@ -333,18 +332,22 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
           Row(
             children: [
               Expanded(
-                  child: ElevatedButton(
-                onPressed: () async {
-                  await controller.uploadBilty();
-                  Get.back();
-                },
-                child: Text(
-                  "Send",
-                  style: TextStyle(color: Colors.white),
+                  child: Container(
+                color: Colors.green.shade700,
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await controller.uploadBilty();
+                    Get.back();
+                  },
+                  child: Text(
+                    "Send",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                      shape: ContinuousRectangleBorder(),
+                      backgroundColor: Colors.green.shade700),
                 ),
-                style: ElevatedButton.styleFrom(
-                    shape: ContinuousRectangleBorder(),
-                    backgroundColor: Colors.green.shade700),
               )),
             ],
           )

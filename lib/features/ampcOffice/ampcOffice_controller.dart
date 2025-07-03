@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../core/globals.dart' as glb;
 import '../../models/aadhati.dart';
 import '../../models/ladani_model.dart';
 
@@ -29,6 +30,7 @@ class ApmcOfficeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    glb.loadIDData();
     loadData();
   }
 

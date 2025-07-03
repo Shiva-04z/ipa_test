@@ -30,6 +30,7 @@ class DriverController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    glb.loadIDData();
     loadData();
   }
 

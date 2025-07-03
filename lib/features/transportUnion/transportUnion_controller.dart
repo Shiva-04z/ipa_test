@@ -33,6 +33,7 @@ class TransportUnionController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    glb.loadIDData();
     glb.roleType.value = "Transport Union";
     loadData();
   }

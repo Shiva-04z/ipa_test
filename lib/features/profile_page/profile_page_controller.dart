@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../../core/globals.dart';
+import '../../core/globals.dart' as glb;
 
 class ProfilePageController extends GetxController {
   // Observable variables for user information
@@ -12,6 +13,7 @@ class ProfilePageController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    glb.loadIDData();
     userName = RxString(personName.value);
     phoneNumber = RxString(personPhone.value);
     currentLanguage = RxString(isHindiLanguage.value ? 'हिंदी' : 'English');

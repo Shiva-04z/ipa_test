@@ -42,6 +42,7 @@ class ConsignmentFormController extends GetxController {
     // TODO: implement onInit
 
     super.onInit();
+    glb.loadIDData();
     loadConsignment();
   }
 

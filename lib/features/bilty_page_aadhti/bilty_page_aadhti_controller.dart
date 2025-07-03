@@ -18,6 +18,7 @@ class BiltyPageAadhtiController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    glb.loadIDData();
     loadConsignment();
   }
 

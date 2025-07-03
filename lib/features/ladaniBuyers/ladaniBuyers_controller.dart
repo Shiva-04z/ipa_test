@@ -28,6 +28,7 @@ class LadaniBuyersController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    glb.loadIDData();
     // Initialize with sample data
     details.value = {
       'name': 'Sample Ladani',

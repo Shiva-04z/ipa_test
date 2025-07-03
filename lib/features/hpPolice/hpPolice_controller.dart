@@ -22,6 +22,7 @@ class HpPoliceController extends GetxController {
   @override
   void onInit() {
     glb.roleType.value = "HP Police";
+    glb.loadIDData();
     super.onInit();
   }
 

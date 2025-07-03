@@ -55,6 +55,7 @@ class GrowerController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
+    glb.loadIDData();
     await loadGrowerData();
   }
 

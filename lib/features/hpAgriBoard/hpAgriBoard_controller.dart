@@ -72,6 +72,7 @@ class HPAgriBoardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    glb.loadIDData();
     glb.roleType.value = "HPMC DEPOT";
     loadData();
   }

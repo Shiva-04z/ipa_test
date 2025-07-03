@@ -590,12 +590,18 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
             defaultTargetPlatform == TargetPlatform.iOS);
     showDetails.value=!(isMobile);
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text(
-              "Tools",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Tools",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
             ),
           ],
         ),
@@ -1227,9 +1233,10 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
             defaultTargetPlatform == TargetPlatform.iOS);
     showDetails.value=!(isMobile);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Obx(() => TextButton.icon(
                   icon: Icon(

@@ -61,6 +61,7 @@ class PackHouseController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    glb.loadIDData();
     glb.roleType.value = "PackHouse";
     loadData();
   }

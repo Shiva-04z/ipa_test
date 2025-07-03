@@ -155,4 +155,17 @@ List<GetPage> getPages = [
     transition: Transition.fadeIn,
     transitionDuration: Duration(microseconds: 300),
   ),
+  GetPage(
+    name: RoutesConstant.forward,
+    page: () => BiltyPageAadhtiView(),
+    binding: BiltyPageAadhtiBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),GetPage(
+    name: RoutesConstant.bidding,
+    page: () => BiltyPageAadhtiView(),
+    binding: BiltyPageAadhtiBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),
 ];
