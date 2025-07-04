@@ -27,8 +27,9 @@ class LadaniBuyersController extends GetxController {
   // ==================== LIFECYCLE METHODS ====================
   @override
   void onInit() {
-    super.onInit();
-    glb.loadIDData();
+    super.onInit(
+    );
+    loadData();
     // Initialize with sample data
     details.value = {
       'name': 'Sample Ladani',
@@ -49,12 +50,21 @@ class LadaniBuyersController extends GetxController {
         'name': data['name'],
         'phoneNumber': data['contact'],
         'address': data['address'],
-        'apmc': data['apmc'],
+
       };
       associatedDrivers.value =glbm.createDriverListFromApi(data['driver_IDs']);
       associatedAadhatis.value =glbm.createAadhatiListFromApi(data['aadhati_IDs']);
       associatedTransportUnions.value =glbm.createTransportListFromApi(data['transportUnion_IDs']);
       associatedBuyers.value =glbm.createFreightListFromApi(data['freightForwarder_IDs']);
+      final allConsignments =
+      glbm.createConsignmentListFromApi(data['consignment_IDs']);
+      glb.allConsignments.value = allConsignments
+          .where((c) => c.currentStage == 'Bidding Invite')
+          .toList();
+      consignments.value = allConsignments
+          .where((c) => c.currentStage != 'Bidding Invite')
+          .toList();
+
 
     }}
 

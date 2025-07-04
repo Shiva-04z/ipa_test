@@ -48,6 +48,7 @@ class DefaultFirebaseOptions {
     authDomain: 'bookmyload-d702d.firebaseapp.com',
     storageBucket: 'bookmyload-d702d.firebasestorage.app',
     measurementId: 'G-DBQQ1HKWG5',
+    databaseURL: 'https://bookmyload-d702d-default-rtdb.firebaseio.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(

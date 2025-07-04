@@ -17,5 +17,8 @@ static String consignmentForm ="/consignmentForm";
   static String hpAgriBoard = "/hpAgriBoardPage";
   static String profile = "/profilePage";
   static String forward = "/forwardBilty";
-  static String bidding ="/Bidding";
+  static String aadhatiSession ="/aadhatiSession";
+  static String growerSession ="/growerSession";
+  static String bidderSession ="/bidderSession";
+  static String forwardingBilty="/forwardingBilty";
 }

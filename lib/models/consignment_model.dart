@@ -27,6 +27,8 @@ class Consignment {
   String? driverMode;
   String? packHouseMode;
   String?  aadhatiMode;
+  String? startTime;
+  String? date;
 
   Consignment(
       {required this.searchId,
@@ -52,7 +54,9 @@ class Consignment {
         this.approval1,
        this.aadhatiMode,
     this.driverMode,
-   this.packHouseMode,});
+   this.packHouseMode,
+        this.date,
+      this.startTime});
 
   // Factory constructor to create a Consignment from JSON
   factory Consignment.fromJson(Map<String, dynamic> json) {
@@ -89,7 +93,9 @@ class Consignment {
       bilty: json['bilty'] != null ? Bilty.fromJson(json['bilty']) : null,
       aadhatiMode: json['aadhatiMode'],
         driverMode: json['driverMode'],
-      packHouseMode:  json ['packHouseMode']
+      packHouseMode:  json ['packHouseMode'],
+      startTime: json['startTime'],
+      date: json['date'],
     );
   }
 
@@ -127,7 +133,9 @@ class Consignment {
       'status': status,
       'aadhatiMode': aadhatiMode,
       'packHouseMode' : packHouseMode,
-      'driverMode' : driverMode
+      'driverMode' : driverMode,
+      'date':date,
+      'startTime':startTime
     };
   }
 
