@@ -2,6 +2,7 @@ import 'package:apple_grower/models/employee_model.dart';
 import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/aadhati.dart';
 import '../models/apmc_model.dart';
 import '../models/auth_signatory_post_model.dart';
@@ -17,6 +18,10 @@ import 'dictionary.dart';
 import '../models/hpmc_collection_center_model.dart';
 
 import '../models/complaint_model.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+import 'package:image_picker/image_picker.dart';
 
 RxString roleType = "Grower".obs;
 RxString personName = "Ram Singh".obs;
@@ -29,13 +34,16 @@ RxBool isHindiLanguage = false.obs;
 RxString userId = "".obs;
 RxString url =
     "https://bml-m3ps.onrender.com".obs;
-RxString id = (roleType.value == "Grower")?"6864ffc9d0ab74d21f4e8728".obs : (roleType.value == "Aadhati")?  "6863d8bd12ec4c0cd45a8b1b".obs :"6865214cdc7ad04f871db94e".obs;
+RxString id = (roleType.value == "Grower") ? "6864ffc9d0ab74d21f4e8728".obs : (roleType.value == "Aadhati")?  "6863d8bd12ec4c0cd45a8b1b".obs :"".obs;
 //6864cbb64b7a68ce4e9e0a4e
 RxString selectedOrchardAddress = "".obs;
 RxString consignmentID = "".obs;
 RxList<Complaint> myComplaint = <Complaint>[].obs;
 
 RxList<Consignment> allConsignments = <Consignment>[].obs;
+ImagePicker picker = ImagePicker();
+var selectedImage = Rxn<File>();
+RxBool isUploading = false.obs;
 
 
 
@@ -578,3 +586,43 @@ RxList<HpmcCollectionCenter> availableHpmcDepots = [
     associatedTransportUnions: [],
   ),
 ].obs;
+
+/// Uploads an image to the server and returns the uploaded image URL or response.
+/// [image] can be a File or XFile (from image_picker).
+/// [uploadEndpoint] is the API endpoint for image upload (e.g., url.value + '/api/upload').
+Future<String?> uploadImage(dynamic image, {String? uploadEndpoint}) async {
+  try {
+    // Determine the file to upload
+    File file;
+    if (image is XFile) {
+      file = File(image.path);
+    } else if (image is File) {
+      file = image;
+    } else {
+      throw Exception('Invalid image type');
+    }
+
+    final uri = Uri.parse(uploadEndpoint ?? url.value + '/api/upload');
+    final request = http.MultipartRequest('POST', uri);
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'image',
+        file.path,
+        filename: path.basename(file.path),
+      ),
+    );
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // Parse the response as needed (assuming it returns a URL or JSON)
+      // Example: return jsonDecode(response.body)['url'];
+      return response.body;
+    } else {
+      throw Exception('Image upload failed: \\${response.statusCode}');
+    }
+  } catch (e) {
+    print('Image upload error: $e');
+    return null;
+  }
+}

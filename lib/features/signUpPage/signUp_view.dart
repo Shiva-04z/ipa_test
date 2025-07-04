@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import '../../core/globals.dart' as glb;
 
+// SignIn Screen: This view provides the UI for user sign-in (mobile, Aadhaar, role selection)
 class SignUpView extends GetView<SignUpController> {
   @override
   Widget build(BuildContext context) {
@@ -120,16 +121,25 @@ class SignUpView extends GetView<SignUpController> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Mobile number input for sign-in
           _buildFormField(
+            controller: controller.phoneController,
             label: glb.getTranslatedText("Enter Mobile Number"),
             hintText: glb.getTranslatedText("Mobile Number Hint"),
+            keyboardType: TextInputType.number,
+            maxLength: 10
           ),
           SizedBox(height: 24),
+          // Aadhaar number input for sign-in
           _buildFormField(
+            controller: controller.aadharController,
             label: glb.getTranslatedText("Enter Adhaar Number"),
             hintText: glb.getTranslatedText("Adhaar Number Hint"),
+            keyboardType: TextInputType.number,
+            maxLength: 12
           ),
           SizedBox(height: 30),
+          // Role selection dropdown for sign-in
           Text(
             glb.getTranslatedText("Select Role"),
             style: TextStyle(
@@ -141,7 +151,9 @@ class SignUpView extends GetView<SignUpController> {
           SizedBox(height: 12),
           _buildRoleDropdown(),
           SizedBox(height: 30),
+          // Sign In button (calls controller.navigateToRolePage)
           _buildSubmitButton(),
+          // Register button (navigates to registration page)
           _buildRegisterButton()
         ],
       ),
@@ -181,7 +193,13 @@ class SignUpView extends GetView<SignUpController> {
     );
   }
 
-  Widget _buildFormField({required String label, required String hintText}) {
+  Widget _buildFormField({
+    required TextEditingController controller,
+    required String label,
+    required String hintText,
+    TextInputType? keyboardType,
+    required int maxLength,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -195,6 +213,9 @@ class SignUpView extends GetView<SignUpController> {
         ),
         SizedBox(height: 12),
         TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          maxLength: maxLength,
           decoration: InputDecoration(
             hintText: hintText,
             fillColor: Colors.white,
@@ -219,6 +240,7 @@ class SignUpView extends GetView<SignUpController> {
   }
 
   Widget _buildRoleDropdown() {
+    // Dropdown for selecting user role during sign-in
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -260,6 +282,7 @@ class SignUpView extends GetView<SignUpController> {
   }
 
   Widget _buildSubmitButton() {
+    // Sign In button: triggers sign-in logic in the controller
     return Row(
       children: [
         Expanded(
@@ -274,7 +297,8 @@ class SignUpView extends GetView<SignUpController> {
                 ),
                 shadowColor: Colors.green.withOpacity(0.3),
               ),
-              onPressed: () => controller.navigateToRolePage(),
+              // On press, call controller.navigateToRolePage (sign-in logic)
+              onPressed: () => controller.signInWithApi(),
               child: Text(
                 glb.getTranslatedText("Sign In"),
                 style: TextStyle(

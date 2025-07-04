@@ -46,12 +46,16 @@ class TransportUnionController extends GetxController {
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body)['data'];
-      glb.personName.value = data['operatorName'];
+      glb.personName.value = data['name'];
       glb.personPhone.value = "+91" + data['contact'];
-      associatedGrowers.value = glbm.createGrowerListFromApi(data['grower_IDs']);
-      associatedDrivers.value = glbm.createDriverListFromApi(data['drivers_IDs']);
-      associatedAadhatis.value = glbm.createAadhatiListFromApi(data['aadhati_IDs']);
-      associatedFreightForwarders.value = glbm.createFreightListFromApi(data['freightForwarder_IDs']);
+      associatedGrowers.value =
+          glbm.createGrowerListFromApi(data['grower_IDs']);
+      associatedDrivers.value =
+          glbm.createDriverListFromApi(data['driver_IDs']);
+      associatedAadhatis.value =
+          glbm.createAadhatiListFromApi(data['aadhati_IDs']);
+      associatedFreightForwarders.value =
+          glbm.createFreightListFromApi(data['freightForwarder_IDs']);
       unionName.value = data['name'] ?? '';
       registrationNumber.value = data['transportUnionRegistrationNo'].toString() ?? '';
       details['Name'] = unionName.value;
