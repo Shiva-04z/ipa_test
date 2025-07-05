@@ -891,7 +891,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                         child: Padding(
                           padding: const EdgeInsets.all(14.0),
                           child: Container(
-                            height: 250,
+                            height: 230,
                             child: SingleChildScrollView(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -902,7 +902,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                           fontSize: isMobile.value ? 22:16)),
                                   SizedBox(height: 10),
                                   Obx(() => Container(
-                                        height: isMobile.value ? 200 : 100,
+                                        height: isMobile.value ? 200 : 150,
                                         child: SingleChildScrollView(
                                           child: Column(
                                             children: glb
@@ -921,12 +921,12 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                                       child: Row(
                                                         children: [
                                                           Icon(Icons.person,
-                                                              color: Colors.orange,size: isMobile.value? 20: 10,),
+                                                              color: Colors.orange,size: isMobile.value? 20: 16,),
                                                           SizedBox(width: 8),
                                                           Expanded(
                                                               child: Text(
                                                                   ladani.name ??
-                                                                      '',style: TextStyle(fontSize: isMobile.value? 20: 10),)),
+                                                                      '',style: TextStyle(fontSize: isMobile.value? 20: 16),)),
                                                           selectedLadanis.contains(
                                                                   ladani.id)
                                                               ? Icon(
@@ -979,7 +979,11 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 18, horizontal: 24),
-                    child: Row(
+                    child:  (controller.date.value.isNotEmpty) ?Obx(()=> Center(
+                      child: Container(
+                          child: Text("Bidding will start at ${controller.date.value.substring(0,10)} and ${controller.startTime.value}",softWrap: true,overflow: TextOverflow.visible,style: TextStyle(fontSize: MediaQuery.of(Get.context!).size.width>400 ?22:16))),
+                    ))
+                        :Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         // Date Picker
@@ -1023,7 +1027,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                             ? 'Select Date'
                                             : '${selectedDate.value!.day}/${selectedDate.value!.month}/${selectedDate.value!.year}',
                                         style: TextStyle(
-                                            fontSize: isMobile.value?16:12,
+                                            fontSize: isMobile.value?16:14,
                                             fontWeight: FontWeight.w500,
                                             color: Colors.orange.shade900),
                                       ),
@@ -1034,7 +1038,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                             )),
                         SizedBox(width: 24),
                         // Start Time Picker
-                        Obx(() => Expanded(
+                      Obx(() => Expanded(
                               child: GestureDetector(
                                 onTap: () async {
                                   final picked = await showTimePicker(

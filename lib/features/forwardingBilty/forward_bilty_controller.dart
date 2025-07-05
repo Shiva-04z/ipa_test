@@ -29,7 +29,7 @@ class ForwardBiltyController extends GetxController {
       if (json['bilty'] != null) {
         bilty.value = Bilty.fromJson(json['bilty']);
         date.value=json['date'];
-        startTime.value = json['date'];
+        startTime.value = json['startTime'];
       }
     }
   }
