@@ -27,7 +27,7 @@ RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
 RxString userId = "".obs;
-RxString url = "http://localhost:3000".obs;
+RxString url = "https://bml-m3ps.onrender.com".obs;
 RxString id = (roleType.value == "Grower")?"6867c261b1b00c19ea6516ae".obs : (roleType.value == "Aadhati")?  "6867bfeeaffd574229d28575".obs :(roleType.value == "Ladani/Buyers")?"6867e262efa641e772e4aef0".obs:"6867bd6baffd574229d28558".obs;
 //6864cbb64b7a68ce4e9e0a4e
 RxString selectedOrchardAddress = "".obs;

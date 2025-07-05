@@ -1230,6 +1230,7 @@ class GrowerView extends GetView<GrowerController> {
   Widget _buildSummaryCard(
       String title, String count, Color color, IconData icon) {
     bool isSmallScreen = MediaQuery.of(Get.context!).size.width > 840;
+    bool isMobileScreen= MediaQuery.of(Get.context!).size.width > 400;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -1255,7 +1256,7 @@ class GrowerView extends GetView<GrowerController> {
               Icon(
                 icon,
                 color: Colors.white,
-                size: 28,
+                size: isMobileScreen?24:20,
               ),
               SizedBox(height: 8),
               Text(
@@ -1271,7 +1272,7 @@ class GrowerView extends GetView<GrowerController> {
                 glb.getTranslatedText(title),
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: isMobileScreen?24:16,
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,

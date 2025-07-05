@@ -22,7 +22,7 @@ class GrowerSessionView extends GetView<GrowerSessionController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text("Bidding will start at ${controller.date.value.substring(0,10)} and ${controller.startTime.value}",style: TextStyle(fontSize: 22)),
+             if(controller.date.value.isNotEmpty) Obx(()=> Text("Bidding will start at ${controller.date.value.substring(0,10)} and ${controller.startTime.value}",style: TextStyle(fontSize: MediaQuery.of(Get.context!).size.width>400 ?22:16))),
               const Text('Overall Highest Bidder:',
                   style: TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16)),
