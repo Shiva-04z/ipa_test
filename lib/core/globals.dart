@@ -19,7 +19,7 @@ import '../models/hpmc_collection_center_model.dart';
 import '../models/complaint_model.dart';
 
 RxString roleType = "Grower".obs;
-RxString personName = "Ram Singh".obs;
+RxString personName = "Suresh Singh".obs;
 RxString personPhone = "+91 123567890".obs;
 RxString personVillage = "Nangal Jarialan".obs;
 RxString personPost = "247001".obs;
@@ -28,7 +28,7 @@ RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
 RxString userId = "".obs;
 RxString url = "http://localhost:3000".obs;
-RxString id = (roleType.value == "Grower")?"6864ffc9d0ab74d21f4e8728".obs : (roleType.value == "Aadhati")?  "6863d8bd12ec4c0cd45a8b1b".obs :(roleType.value == "Ladani/Buyers")?"68637b7fa3c254d84a325dc5".obs:"6865214cdc7ad04f871db94e".obs;
+RxString id = (roleType.value == "Grower")?"6867c261b1b00c19ea6516ae".obs : (roleType.value == "Aadhati")?  "6867bfeeaffd574229d28575".obs :(roleType.value == "Ladani/Buyers")?"6867e262efa641e772e4aef0".obs:"6867bd6baffd574229d28558".obs;
 //6864cbb64b7a68ce4e9e0a4e
 RxString selectedOrchardAddress = "".obs;
 RxString consignmentID = "".obs;
@@ -37,6 +37,8 @@ RxList<Complaint> myComplaint = <Complaint>[].obs;
 RxList<Consignment> allConsignments = <Consignment>[].obs;
 
 
+RxList<Ladani> associatedLadanis =<Ladani>[].obs;
+RxList<FreightForwarder> associatedBuyers =<FreightForwarder>[].obs;
 
 
 loadIDData()

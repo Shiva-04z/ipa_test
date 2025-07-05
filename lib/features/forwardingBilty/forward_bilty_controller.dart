@@ -10,6 +10,8 @@ class ForwardBiltyController extends GetxController {
   Rx<Bilty> bilty = Bilty.createDefault().obs;
   RxString searchId = ''.obs;
   RxString growerName = ''.obs;
+  RxString date ="".obs;
+  RxString startTime ="".obs;
 
   @override
   void onInit() {
@@ -26,6 +28,8 @@ class ForwardBiltyController extends GetxController {
       growerName.value = json['growerName'] ?? '';
       if (json['bilty'] != null) {
         bilty.value = Bilty.fromJson(json['bilty']);
+        date.value=json['date'];
+        startTime.value = json['date'];
       }
     }
   }
@@ -120,6 +124,30 @@ class ForwardBiltyController extends GetxController {
 
     return result;
   }
+
+
+  bool isBiddingScheduled() {
+    return date.value.isNotEmpty &&
+      startTime.value.isNotEmpty;
+  }
+
+  bool canStartBidding() {
+    if (!isBiddingScheduled()) return false;
+
+    try {
+      final scheduledDate = DateTime.parse(date.value);
+      final timeParts = startTime.value.split(':');
+      final scheduledDateTime = scheduledDate.add(Duration(
+        hours: int.parse(timeParts[0]),
+        minutes: int.parse(timeParts[1]),
+      ));
+
+      return DateTime.now().isAfter(scheduledDateTime);
+    } catch (e) {
+      return false;
+    }
+  }
+
 
   /// Returns a map of category name to percentage for a given quality (e.g., 'AAA', 'AA', 'GP')
   Map<String, double> categoryShareByQuality(String quality) {

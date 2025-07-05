@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_database/firebase_database.dart';
 import '../../../core/globals.dart' as glb;
+import 'package:apple_grower/models/consignment_model.dart';
 
 class AadhatiSessionController extends GetxController {
   // Separate data for each quality
@@ -22,11 +23,12 @@ class AadhatiSessionController extends GetxController {
   RxBool growerApproval = false.obs;
   RxMap<String, String> highestBidderPerQuality = <String, String>{}.obs;
   RxMap<String, double> highestLandingPerQuality = <String, double>{}.obs;
+  Rxn<Consignment> consignment = Rxn<Consignment>();
+  RxString highestTotals = "".obs;
 
   @override
   void onInit() {
     super.onInit();
-    glb.consignmentID.value="68666675d96b7062a6871a95";
     loadConsignmentBilty().then((_) async {
       await ensureSessionExists();
       _listenToGrowerApproval();
@@ -43,6 +45,9 @@ class AadhatiSessionController extends GetxController {
         final json = jsonDecode(response.body);
         if (json['bilty'] != null) {
           final bilty = Bilty.fromJson(json['bilty']);
+          if (json != null) {
+            consignment.value = Consignment.fromJson(json);
+          }
           // Initialize data structures for each quality
           _initializeQualityData(bilty);
         } else {
@@ -106,8 +111,8 @@ class AadhatiSessionController extends GetxController {
     await _sessionRef!.update({
       'status': 'active',
       'startedAt': DateTime.now().toIso8601String(),
-      'growerApproval' : false,
-      'bids':{}
+      'growerApproval': false,
+      'bids': {}
     });
     _listenToRealtimeAnalytics();
   }
@@ -225,8 +230,8 @@ class AadhatiSessionController extends GetxController {
         'status': 'inactive',
         'startedAt': DateTime.now().toIso8601String(),
         'analytics': analyticsData,
-        'growerApproval' : false,
-        'bids':{}
+        'growerApproval': false,
+        'bids': {}
       });
     }
   }
@@ -250,28 +255,112 @@ class AadhatiSessionController extends GetxController {
     final consignmentId = glb.consignmentID.value;
     final bidsRef =
         FirebaseDatabase.instance.ref('sessions/$consignmentId/bids');
-    bidsRef.onValue.listen((event) {
+    final analyticsRef =
+        FirebaseDatabase.instance.ref('sessions/$consignmentId/analytics');
+
+    bidsRef.onValue.listen((event) async {
       final data = event.snapshot.value;
-      Map<String, double> highestLanding = {};
-      Map<String, String> highestBidder = {};
+      Map<String, double> bidderTotals = {};
+      String? highestBidderId;
+      String? highestBidderName;
+      double highestTotal = 0.0;
+      Map<String, double> highestBidderPrices = {};
+
       if (data is Map) {
-        data.forEach((bidder, qualities) {
-          if (qualities is Map) {
-            qualities.forEach((quality, landing) {
-              double landingVal = 0;
-              if (landing is int) landingVal = landing.toDouble();
-              if (landing is double) landingVal = landing;
-              if (!highestLanding.containsKey(quality) ||
-                  landingVal > highestLanding[quality]!) {
-                highestLanding[quality] = landingVal;
-                highestBidder[quality] = bidder;
+        data.forEach((bidderId, bidderData) {
+          if (bidderData is Map) {
+            final name = bidderData['name'] as String? ?? bidderId;
+            final bids = bidderData['bids'];
+
+            if (bids is Map) {
+              double total = 0.0;
+              Map<String, double> pricePerQuality = {};
+
+              bids.forEach((quality, qualityData) {
+                if (qualityData is Map) {
+                  // Add totalAmount if exists
+                  final totalAmount = qualityData['totalAmount'];
+                  if (totalAmount is int || totalAmount is double) {
+                    total += (totalAmount as num).toDouble();
+                  }
+
+                  // Find first valid bidPerKg
+                  for (var item in qualityData.values) {
+                    if (item is Map && item.containsKey('bidPerKg')) {
+                      final bid = item['bidPerKg'];
+                      double bidPerKg = (bid is int)
+                          ? bid.toDouble()
+                          : (bid as double? ?? 0.0);
+                      pricePerQuality[quality] = bidPerKg;
+                      break; // break inside .forEach doesn't work, so use for-in instead
+                    }
+                  }
+                }
+              });
+
+              bidderTotals[bidderId] = total;
+
+              if (total > highestTotal) {
+                highestTotal = total;
+                highestBidderId = bidderId;
+                highestBidderName = name;
+                highestBidderPrices = pricePerQuality;
               }
-            });
+            }
           }
         });
+
+        // 🔁 Update analytics with highest bidder info
+        if (highestBidderId != null && highestBidderPrices.isNotEmpty) {
+          final analyticsSnapshot = await analyticsRef.get();
+          if (analyticsSnapshot.exists) {
+            final Map<dynamic, dynamic> analyticsData =
+                analyticsSnapshot.value as Map<dynamic, dynamic>;
+
+            final Map<String, dynamic> updatedAnalytics = {};
+
+            analyticsData.forEach((quality, categories) {
+              if (categories is List &&
+                  highestBidderPrices.containsKey(quality)) {
+                final updatedCategories = categories.map((category) {
+                  final updatedCategory =
+                      Map<String, dynamic>.from(category as Map);
+                  updatedCategory['landingCost'] =
+                      highestBidderPrices[quality]!;
+                  return updatedCategory;
+                }).toList();
+
+                updatedAnalytics[quality] = updatedCategories;
+              } else {
+                updatedAnalytics[quality] = categories;
+              }
+            });
+
+            updatedAnalytics['grandTotal'] = highestTotal;
+            updatedAnalytics['highestBidder'] = {
+              'id': highestBidderId,
+              'name': highestBidderName,
+              'total': highestTotal,
+            };
+
+            await analyticsRef.update(updatedAnalytics);
+          }
+        }
+
+        highestTotals.value =highestTotal.toStringAsFixed(2);
+        // 🧠 Update local state
+        highestBidderPerQuality.value = {
+          'global': highestBidderName ?? 'Unknown'
+        };
+        highestLandingPerQuality.value = highestBidderPrices;
+
+        // 🖨️ Print for debug
+        print('🔥 New Highest Bidder: $highestBidderName');
+        print('💸 Total: ₹${highestTotal.toStringAsFixed(2)}');
+        highestBidderPrices.forEach((q, p) {
+          print('➡ $q: ₹${p.toStringAsFixed(2)}/kg');
+        });
       }
-      highestLandingPerQuality.assignAll(highestLanding);
-      highestBidderPerQuality.assignAll(highestBidder);
     });
   }
 }

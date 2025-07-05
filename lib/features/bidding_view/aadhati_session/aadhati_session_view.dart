@@ -1,3 +1,4 @@
+import 'package:apple_grower/navigation/routes_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -18,23 +19,75 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => Get.toNamed('/bidder-session'),
-                    child: const Text('Go to Bidder Session'),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Obx(
+                  () => Text(
+                    "BiltyID : ${controller.consignment.value?.searchId}",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                   ),
-                  ElevatedButton(
-                    onPressed: () => Get.toNamed('/grower-session'),
-                    child: const Text('Go to Grower Session'),
+                ),
+              ),
+              Card(
+                color: Colors.blue[50],
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Grower Approval',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                          const SizedBox(height: 4),
+                          Obx(
+                              ()=> Text(
+                                'Grower: '
+                                '${controller.consignment.value?.growerName ?? '-'}',
+                                style: const TextStyle(fontSize: 14)),
+                          ),
+                        ],
+                      ),
+                      Obx(
+                        ()=> Row(
+                          children: [
+                            Text(
+                              controller.growerApproval.value
+                                  ? 'Approved'
+                                  : 'Pending',
+                              style: TextStyle(
+                                color: controller.growerApproval.value
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              controller.growerApproval.value
+                                  ? Icons.check_circle
+                                  : Icons.cancel,
+                              color: controller.growerApproval.value
+                                  ? Colors.green
+                                  : Colors.red,
+                              size: 28,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
               const SizedBox(height: 12),
               _buildSessionControls(),
               const SizedBox(height: 16),
               Obx(() {
+
                 if (controller.error.isNotEmpty) {
                   return Center(
                     child: Text(
@@ -44,13 +97,13 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                     ),
                   );
                 }
-        
+
                 // Filter out qualities with zero weight
                 final activeQualities = controller.qualityCategories.keys
                     .where((quality) =>
                         (controller.qualityTotalWeights[quality] ?? 0) > 0)
                     .toList();
-        
+
                 if (activeQualities.isEmpty) {
                   return Center(
                     child: Text(
@@ -59,7 +112,7 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                     ),
                   );
                 }
-        
+
                 // Calculate total value and total landing value
                 double totalValue = 0;
                 double totalLandingValue = 0;
@@ -77,7 +130,7 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                     totalLandingValue += weights[i] * landingCosts[i];
                   }
                 });
-        
+
                 return SingleChildScrollView(
                   child: Column(
                     children: [
@@ -93,8 +146,8 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                               child: Column(
                                 children: [
                                   const Text('Total Value',
-                                      style:
-                                          TextStyle(fontWeight: FontWeight.bold)),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
                                   Text('₹${totalValue.toStringAsFixed(2)}',
                                       style: const TextStyle(
                                           fontSize: 16,
@@ -112,9 +165,10 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                               child: Column(
                                 children: [
                                   const Text('Total Landing Value',
-                                      style:
-                                          TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('₹${totalLandingValue.toStringAsFixed(2)}',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  Text(
+                                      '₹${totalLandingValue.toStringAsFixed(2)}',
                                       style: const TextStyle(
                                           fontSize: 16,
                                           color: Colors.blue,
@@ -126,52 +180,46 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      // Highest Bidder and Landing Cost per Quality
-                      Obx(() => SingleChildScrollView(
-                        child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Highest Bidder per Quality:',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold, fontSize: 16)),
-                                ...activeQualities.map((quality) {
-                                  final sanitized = controller.sanitizeKey(quality);
-                                  final bidder = controller
-                                          .highestBidderPerQuality[sanitized] ??
-                                      '-';
-                                  final landing = controller
-                                          .highestLandingPerQuality[sanitized]
-                                          ?.toStringAsFixed(2) ??
-                                      '-';
-                                  return Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 2.0),
-                                    child: Row(
-                                      children: [
-                                        Text('$quality: ',
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.w500)),
-                                        Text('Bidder: $bidder',
-                                            style: const TextStyle(
-                                                color: Colors.deepPurple)),
-                                        const SizedBox(width: 12),
-                                        Text('Landing: ₹$landing',
-                                            style: const TextStyle(
-                                                color: Colors.blue)),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                              ],
-                            ),
-                      )),
+                      // Overall Highest Bidder
+                      const Text('Overall Highest Bidder:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      Card(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 0),
+                        color: Colors.orange[50],
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  'Name: '
+                                  '${controller.highestBidderPerQuality['global'] ?? '-'}',
+                                  style: const TextStyle(
+                                      color: Colors.deepPurple,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
+                              const SizedBox(height: 4),
+                              Text(
+                                  'Total Amount: ₹'
+                                  '${controller.highestTotals.value?? '-'}',
+                                  style: const TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
+                            ],
+                          ),
+                        ),
+                      ),
                       // Winning Bidder per Quality (when session is inactive)
                       Obx(() {
                         if (controller.sessionActive.value)
                           return const SizedBox.shrink();
                         final winners = activeQualities.where((quality) {
                           final sanitized = controller.sanitizeKey(quality);
-                          return controller.highestBidderPerQuality[sanitized] !=
+                          return controller
+                                      .highestBidderPerQuality[sanitized] !=
                                   null &&
                               controller.highestBidderPerQuality[sanitized] !=
                                   '-';
@@ -188,9 +236,9 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                                     color: Colors.green)),
                             ...winners.map((quality) {
                               final sanitized = controller.sanitizeKey(quality);
-                              final bidder =
-                                  controller.highestBidderPerQuality[sanitized] ??
-                                      '-';
+                              final bidder = controller
+                                      .highestBidderPerQuality[sanitized] ??
+                                  '-';
                               final landing = controller
                                       .highestLandingPerQuality[sanitized]
                                       ?.toStringAsFixed(2) ??
@@ -209,8 +257,8 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                                             fontWeight: FontWeight.bold)),
                                     const SizedBox(width: 12),
                                     Text('Landing: ₹$landing',
-                                        style:
-                                            const TextStyle(color: Colors.blue)),
+                                        style: const TextStyle(
+                                            color: Colors.blue)),
                                   ],
                                 ),
                               );
@@ -220,7 +268,7 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                       }),
                       // Summary Cards Row
                       const SizedBox(height: 16),
-        
+
                       // Tab View
                       SizedBox(
                         width: double.infinity,
@@ -276,7 +324,9 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                   ),
                 );
               }),
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               Obx(() => Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -345,54 +395,6 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
     );
   }
 
-  Widget _buildSummaryCards(List<String> activeQualities) {
-    return SizedBox(
-      height: 100,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: activeQualities
-            .map(
-              (quality) => Container(
-                width: 150,
-                margin: const EdgeInsets.only(right: 8),
-                child: Card(
-                  elevation: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          quality,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${controller.qualityTotalWeights[quality]?.toStringAsFixed(1) ?? '0'} kg',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        Text(
-                          '₹${controller.qualityTotalPrices[quality]?.toStringAsFixed(2) ?? '0'}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
   Widget _buildQualityChart(String quality) {
     return Card(
       elevation: 4,
@@ -425,14 +427,6 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                       Text(
                         'Total Weight: ${controller.qualityTotalWeights[quality]?.toStringAsFixed(2) ?? '0'} kg',
                         style: const TextStyle(fontSize: 12),
-                      ),
-                      Text(
-                        'Total Value: ₹${controller.qualityTotalPrices[quality]?.toStringAsFixed(2) ?? '0'}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
                       ),
                     ],
                   ),
@@ -508,10 +502,10 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                             reservedSize: 60,
                           ),
                         ),
-                        topTitles:
-                            AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        rightTitles:
-                            AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
                       ),
                       lineBarsData: [
                         LineChartBarData(
@@ -542,9 +536,12 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                         ),
                         LineChartBarData(
                           spots: List.generate(
-                            controller.qualityLandingCosts[quality]?.length ?? 0,
-                            (i) => FlSpot(i.toDouble(),
-                                controller.qualityLandingCosts[quality]?[i] ?? 0),
+                            controller.qualityLandingCosts[quality]?.length ??
+                                0,
+                            (i) => FlSpot(
+                                i.toDouble(),
+                                controller.qualityLandingCosts[quality]?[i] ??
+                                    0),
                           ),
                           isCurved: true,
                           color: Colors.green,
@@ -560,11 +557,13 @@ class AadhatiSessionView extends GetView<AadhatiSessionController> {
                             return touchedSpots.map((spot) {
                               String label;
                               if (spot.barIndex == 0) {
-                                label = 'Weight: ${spot.y.toStringAsFixed(2)} kg';
+                                label =
+                                    'Weight: ${spot.y.toStringAsFixed(2)} kg';
                               } else if (spot.barIndex == 1) {
                                 label = 'Price: ₹${spot.y.toStringAsFixed(2)}';
                               } else {
-                                label = 'Landing: ₹${spot.y.toStringAsFixed(2)}';
+                                label =
+                                    'Landing: ₹${spot.y.toStringAsFixed(2)}';
                               }
                               return LineTooltipItem(
                                 label,

@@ -13,6 +13,8 @@ class ForwardPageController extends GetxController {
   Rx<Bilty> bilty = Bilty.createDefault().obs;
   RxString searchId = ''.obs;
   RxString growerName = ''.obs;
+  RxString date ="".obs;
+  RxString startTime ="".obs;
 
   @override
   void onInit() {
@@ -27,6 +29,8 @@ class ForwardPageController extends GetxController {
       final json = jsonDecode(response.body);
       searchId.value = json['searchId'] ?? '';
       growerName.value = json['growerName'] ?? '';
+      date.value=json['date']??"";
+      startTime.value =json ['startTime']??"";
       if (json['bilty'] != null) {
         bilty.value = Bilty.fromJson(json['bilty']);
       }
@@ -48,6 +52,29 @@ class ForwardPageController extends GetxController {
 
     return map;
   }
+
+  bool isBiddingScheduled() {
+    return date.value.isNotEmpty &&
+        startTime.value.isNotEmpty;
+  }
+
+  bool canStartBidding() {
+    if (!isBiddingScheduled()) return false;
+
+    try {
+      final scheduledDate = DateTime.parse(date.value);
+      final timeParts = startTime.value.split(':');
+      final scheduledDateTime = scheduledDate.add(Duration(
+        hours: int.parse(timeParts[0]),
+        minutes: int.parse(timeParts[1]),
+      ));
+
+      return DateTime.now().isAfter(scheduledDateTime);
+    } catch (e) {
+      return false;
+    }
+  }
+
 
   double get plotAreaShare {
     final totalWeight = bilty.value.totalWeight;

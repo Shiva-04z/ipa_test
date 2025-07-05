@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 
+import '../../core/globals.dart' as glb;
+import '../../navigation/routes_constant.dart';
 import '../forms/consignmentForm/VideoPlayer.dart';
 import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
 
@@ -16,6 +18,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
   RxBool isMobile = false.obs;
   final RxString selectedQuality = 'AAA'.obs;
   final RxDouble totalWeightOfSelected = 0.0.obs;
+
 
   Widget buildDonutChart(
       Map<String, double> data, List<Color> colors, String title,
@@ -376,9 +379,9 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
       'Mix/Pear': Colors.pink,
       // Add more as needed
     };
-    final AadhatiController aadhatiController = Get.find<AadhatiController>();
-    final RxList<String> selectedBuyers = <String>[].obs;
-    final RxList<String> selectedLadanis = <String>[].obs;
+
+    final RxList<String> selectedBuyers = glb.associatedBuyers.map((b) => b.id!).toList().obs;
+    final RxList<String> selectedLadanis = glb.associatedLadanis.map((l) => l.id!).toList().obs;
 
     // Bidding Date and Slot Selection
     final Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
@@ -888,91 +891,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                         child: Padding(
                           padding: const EdgeInsets.all(14.0),
                           child: Container(
-                            height: 200,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Freight Forwarder Selection',
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16)),
-                                  SizedBox(height: 10),
-                                  Obx(() => Container(
-                                        height: isMobile.value ? 200 : 100,
-                                        child: SingleChildScrollView(
-                                          child: Column(
-                                            children: aadhatiController
-                                                .associatedBuyers
-                                                .map((buyer) => InkWell(
-                                                      onTap: () {
-                                                        if (selectedBuyers
-                                                            .contains(buyer.id)) {
-                                                          selectedBuyers
-                                                              .remove(buyer.id);
-                                                        } else {
-                                                          selectedBuyers
-                                                              .add(buyer.id!);
-                                                        }
-                                                      },
-                                                      child: Row(
-                                                        children: [
-                                                          Icon(Icons.person,
-                                                              color: Colors.blue),
-                                                          SizedBox(width: 8),
-                                                          Expanded(
-                                                              child:
-                                                                  Text(buyer.name)),
-                                                          selectedBuyers.contains(
-                                                                  buyer.id)
-                                                              ? Icon(
-                                                                  Icons
-                                                                      .check_circle,
-                                                                  color:
-                                                                      Colors.green)
-                                                              : Icon(
-                                                                  Icons
-                                                                      .mark_email_unread,
-                                                                  color:
-                                                                      Colors.grey),
-                                                        ],
-                                                      ),
-                                                    ))
-                                                .toList(),
-                                          ),
-                                        ),
-                                      )),
-                                  SizedBox(height: 10),
-                                  Obx(() => selectedBuyers.isNotEmpty
-                                      ? Text(
-                                          'Selected: ' +
-                                              aadhatiController.associatedBuyers
-                                                  .where((b) =>
-                                                      selectedBuyers.contains(b.id))
-                                                  .map((b) => b.name)
-                                                  .join(', '),
-                                          style: TextStyle(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.bold))
-                                      : SizedBox.shrink()),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(14.0),
-                          child: Container(
-                            height: 200,
+                            height: 250,
                             child: SingleChildScrollView(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -980,13 +899,13 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                   Text('Ladanis',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 16)),
+                                          fontSize: isMobile.value ? 22:16)),
                                   SizedBox(height: 10),
                                   Obx(() => Container(
                                         height: isMobile.value ? 200 : 100,
                                         child: SingleChildScrollView(
                                           child: Column(
-                                            children: aadhatiController
+                                            children: glb
                                                 .associatedLadanis
                                                 .map((ladani) => InkWell(
                                                       onTap: () {
@@ -1002,12 +921,12 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                                       child: Row(
                                                         children: [
                                                           Icon(Icons.person,
-                                                              color: Colors.orange),
+                                                              color: Colors.orange,size: isMobile.value? 20: 10,),
                                                           SizedBox(width: 8),
                                                           Expanded(
                                                               child: Text(
                                                                   ladani.name ??
-                                                                      '')),
+                                                                      '',style: TextStyle(fontSize: isMobile.value? 20: 10),)),
                                                           selectedLadanis.contains(
                                                                   ladani.id)
                                                               ? Icon(
@@ -1031,7 +950,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                   Obx(() => selectedLadanis.isNotEmpty
                                       ? Text(
                                           'Selected: ' +
-                                              aadhatiController.associatedLadanis
+                                              glb.associatedLadanis
                                                   .where((l) => selectedLadanis
                                                       .contains(l.id))
                                                   .map((l) => l.name ?? '')
@@ -1168,38 +1087,75 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                   ),
                 ),
                 // Send Invites Button
-                Obx(() => Align(
-                      alignment: Alignment.center,
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.send),
-                        label: Text('Send Invites',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 18),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(32)),
-                          elevation: 8,
-                          shadowColor: Colors.deepPurple.withOpacity(0.2),
-                        ),
-                        onPressed: selectedBuyers.isEmpty &&
-                                    selectedLadanis.isEmpty ||
-                                selectedDate.value == null ||
-                                selectedStartTime.value == null
-                            ? null
-                            : () async {
-                                await controller.sendInvite(
-                                  freightForwarderIds: selectedBuyers.toList(),
-                                  ladaniIds: selectedLadanis.toList(),
-                                  date: selectedDate.value!,
-                                  startTime: selectedStartTime.value!,
-                                );
-                              },
-                      ),
-                    )),
+    Obx(() {
+    final isScheduled = controller.date.value.isNotEmpty &&
+    controller.startTime.value.isNotEmpty;
+
+    return Align(
+    alignment: Alignment.center,
+    child: ElevatedButton.icon(
+    icon: Icon(Icons.send),
+    label: Text(
+    isScheduled ? 'Bidding Scheduled' : 'Send Invites',
+    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    ),
+    style: ElevatedButton.styleFrom(
+    backgroundColor: isScheduled ? Colors.grey : Colors.deepPurple,
+    foregroundColor: Colors.white,
+    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 18),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),),
+    onPressed: isScheduled ||
+    selectedDate.value == null ||selectedStartTime.value == null
+      ? null
+          : () async {
+      await controller.sendInvite(
+      freightForwarderIds: selectedBuyers.toList(),
+      ladaniIds: selectedLadanis.toList(),
+      date: selectedDate.value!,
+      startTime: selectedStartTime.value!,
+      );
+      },
+      ),
+      );
+    }),
+
+                SizedBox(
+                  height: 20,
+                ),
+    Obx(() {
+    final isScheduled = controller.date.value.isNotEmpty &&
+    controller.startTime.value.isNotEmpty;
+    final canStart = controller.canStartBidding();
+
+    return Row(
+    children: [
+    Expanded(
+    child: Container(
+    height: 50,
+    child: ElevatedButton(
+    onPressed: canStart ? () {
+    Get.toNamed(RoutesConstant.aadhatiSession);
+    } : null,
+    style: ElevatedButton.styleFrom(
+    backgroundColor: canStart ? Colors.green : Colors.orange,
+    ),
+    child: Text(
+    canStart
+    ? "Start Bidding"
+        : isScheduled
+    ? "Bidding Not Started Yet"
+        : "Schedule Bidding First",
+    style: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Colors.white, ),
+    ),
+    ),
+    ),
+    ),
+    ],
+    );
+    }),
                 //
                 // Legend/equation text
                 SizedBox(

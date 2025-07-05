@@ -521,7 +521,12 @@ class GrowerView extends GetView<GrowerController> {
     return InkWell(
       onTap: () {
         glb.consignmentID.value = consignment.id!;
-        Get.toNamed(RoutesConstant.consignmentForm);
+        if(consignment.currentStage=="Release for Bid"||consignment.currentStage=="Bidding Invite"||consignment.currentStage=="Bidding Start")
+{
+  print("hello ${consignment.currentStage}");
+  Get.toNamed(RoutesConstant.growerSession);
+} else
+          Get.toNamed(RoutesConstant.consignmentForm);
       },
       child: Card(
         elevation: 0,
@@ -1266,7 +1271,7 @@ class GrowerView extends GetView<GrowerController> {
                 glb.getTranslatedText(title),
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
+                  fontSize: 24,
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,

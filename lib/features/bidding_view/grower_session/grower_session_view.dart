@@ -12,7 +12,8 @@ class GrowerSessionView extends GetView<GrowerSessionController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Aadhati Bidding Session'),
+        title: const Text('Grower Bidding Session'),
+        backgroundColor: Colors.white,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -21,16 +22,45 @@ class GrowerSessionView extends GetView<GrowerSessionController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Text("Bidding will start at ${controller.date.value.substring(0,10)} and ${controller.startTime.value}",style: TextStyle(fontSize: 22)),
+              const Text('Overall Highest Bidder:',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16)),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButton(
-                    onPressed: () => Get.toNamed('/bidder-session'),
-                    child: const Text('Go to Bidder Session'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => Get.toNamed(RoutesConstant.aadhatiSession),
-                    child: const Text('Go to Buyer Session'),
+                  Expanded(
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 0),
+                      color: Colors.orange[50],
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Obx(
+                            ()=> Text(
+                                  'Name: '
+                                      '${controller.highestBidderPerQuality['global'] ?? '-'}',
+                                  style: const TextStyle(
+                                      color: Colors.deepPurple,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
+                            ),
+                            const SizedBox(height: 4),
+                            Obx(
+                              ()=> Text(
+                                  'Total Amount: ₹'
+                                      '${controller.highestTotals.value?? '-'}',
+                                  style: const TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -84,145 +114,6 @@ class GrowerSessionView extends GetView<GrowerSessionController> {
                   child: Column(
                     children: [
                       // Real-time total value and landing value
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Card(
-                            color: Colors.green[50],
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              child: Column(
-                                children: [
-                                  const Text('Total Value',
-                                      style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('₹${totalValue.toStringAsFixed(2)}',
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Card(
-                            color: Colors.blue[50],
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              child: Column(
-                                children: [
-                                  const Text('Total Landing Value',
-                                      style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('₹${totalLandingValue.toStringAsFixed(2)}',
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.blue,
-                                          fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      // Highest Bidder and Landing Cost per Quality
-                      Obx(() => SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Highest Bidder per Quality:',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
-                            ...activeQualities.map((quality) {
-                              final sanitized = controller.sanitizeKey(quality);
-                              final bidder = controller
-                                  .highestBidderPerQuality[sanitized] ??
-                                  '-';
-                              final landing = controller
-                                  .highestLandingPerQuality[sanitized]
-                                  ?.toStringAsFixed(2) ??
-                                  '-';
-                              return Padding(
-                                padding:
-                                const EdgeInsets.symmetric(vertical: 2.0),
-                                child: Row(
-                                  children: [
-                                    Text('$quality: ',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w500)),
-                                    Text('Bidder: $bidder',
-                                        style: const TextStyle(
-                                            color: Colors.deepPurple)),
-                                    const SizedBox(width: 12),
-                                    Text('Landing: ₹$landing',
-                                        style: const TextStyle(
-                                            color: Colors.blue)),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ],
-                        ),
-                      )),
-                      // Winning Bidder per Quality (when session is inactive)
-                      Obx(() {
-                        if (controller.sessionActive.value)
-                          return const SizedBox.shrink();
-                        final winners = activeQualities.where((quality) {
-                          final sanitized = controller.sanitizeKey(quality);
-                          return controller.highestBidderPerQuality[sanitized] !=
-                              null &&
-                              controller.highestBidderPerQuality[sanitized] !=
-                                  '-';
-                        }).toList();
-                        if (winners.isEmpty) return const SizedBox.shrink();
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 12),
-                            const Text('Winning Bidder per Quality:',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.green)),
-                            ...winners.map((quality) {
-                              final sanitized = controller.sanitizeKey(quality);
-                              final bidder =
-                                  controller.highestBidderPerQuality[sanitized] ??
-                                      '-';
-                              final landing = controller
-                                  .highestLandingPerQuality[sanitized]
-                                  ?.toStringAsFixed(2) ??
-                                  '-';
-                              return Padding(
-                                padding:
-                                const EdgeInsets.symmetric(vertical: 2.0),
-                                child: Row(
-                                  children: [
-                                    Text('$quality: ',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w500)),
-                                    Text('Winner: $bidder',
-                                        style: const TextStyle(
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.bold)),
-                                    const SizedBox(width: 12),
-                                    Text('Landing: ₹$landing',
-                                        style:
-                                        const TextStyle(color: Colors.blue)),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ],
-                        );
-                      }),
-                      // Summary Cards Row
-                      const SizedBox(height: 16),
-
                       // Tab View
                       SizedBox(
                         width: double.infinity,
@@ -346,14 +237,7 @@ class GrowerSessionView extends GetView<GrowerSessionController> {
                         'Total Weight: ${controller.qualityTotalWeights[quality]?.toStringAsFixed(2) ?? '0'} kg',
                         style: const TextStyle(fontSize: 12),
                       ),
-                      Text(
-                        'Total Value: ₹${controller.qualityTotalPrices[quality]?.toStringAsFixed(2) ?? '0'}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      ),
+
                     ],
                   ),
                 ],

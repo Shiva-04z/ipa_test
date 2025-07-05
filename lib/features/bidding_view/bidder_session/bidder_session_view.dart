@@ -1,517 +1,571 @@
+import 'package:apple_grower/navigation/routes_constant.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/globals.dart' as glb;
 import 'bidder_session_controller.dart';
 
 class BidderSessionView extends GetView<BidderSessionController> {
-  final TextEditingController nameController = TextEditingController();
-  final Map<String, TextEditingController> bidControllers = {};
+  final Map<String, Map<String, TextEditingController>> bidControllers = {};
+  final Map<String, Map<String, bool>> bidSubmitted = {};
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Aadhati Bidding Session'),
+        title: const Text('Bidder Session'),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => Get.toNamed('/bidder-session'),
-                    child: const Text('Go to Bidder Session'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Obx(() {
+          final qualities = controller.nonZeroCategories;
+          if (qualities.isEmpty) {
+            return Column(
+              children: [
+                 Center(
+                  child: Text(
+                    'No categories available for bidding.',
+                    style: TextStyle(fontSize: 16),
                   ),
-                  ElevatedButton(
-                    onPressed: () => Get.toNamed('/grower-session'),
-                    child: const Text('Go to Grower Session'),
+                ),
+              ],
+            );
+          }
+          return DefaultTabController(
+            length: qualities.length,
+            child: Column(
+              children: [
+                const Text('Overall Highest Bidder:',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16)),
+                Container(
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-              Obx(() {
-                if (controller.error.isNotEmpty) {
-                  return Center(
-                    child: Text(
-                      controller.error.value,
-                      style: const TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.bold),
-                    ),
-                  );
-                }
-
-                // Filter out qualities with zero weight
-                final activeQualities = controller.qualityCategories.keys
-                    .where((quality) =>
-                (controller.qualityTotalWeights[quality] ?? 0) > 0)
-                    .toList();
-
-                if (activeQualities.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No data available',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                  );
-                }
-
-                // Calculate total value and total landing value
-                double totalValue = 0;
-                double totalLandingValue = 0;
-                controller.qualityCategories.forEach((quality, categories) {
-                  final weights = controller.qualityWeights[quality] ?? [];
-                  final prices = controller.qualityPrices[quality] ?? [];
-                  final landingCosts =
-                      controller.qualityLandingCosts[quality] ?? [];
-                  for (int i = 0;
-                  i < weights.length &&
-                      i < prices.length &&
-                      i < landingCosts.length;
-                  i++) {
-                    totalValue += weights[i] * prices[i];
-                    totalLandingValue += weights[i] * landingCosts[i];
-                  }
-                });
-
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      // Real-time total value and landing value
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Card(
-                            color: Colors.green[50],
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              child: Column(
-                                children: [
-                                  const Text('Total Value',
-                                      style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('₹${totalValue.toStringAsFixed(2)}',
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.bold)),
-                                ],
+                  child: TabBar(
+                    tabs: qualities
+                        .map((quality) => Tab(
+                              child: Text(
+                                '$quality\n${controller.qualityTotalWeights[quality]?.toStringAsFixed(1) ?? '0'} kg',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 12),
                               ),
-                            ),
-                          ),
-                          Card(
-                            color: Colors.blue[50],
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              child: Column(
-                                children: [
-                                  const Text('Total Landing Value',
-                                      style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('₹${totalLandingValue.toStringAsFixed(2)}',
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.blue,
-                                          fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      // Highest Bidder and Landing Cost per Quality
-                      Obx(() => SingleChildScrollView(
+                            ))
+                        .toList(),
+                    isScrollable: true,
+                    labelColor: Colors.blue,
+                    unselectedLabelColor: Colors.grey[600],
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.blue[100],
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    labelPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Quality Content
+                Expanded(
+                  child: TabBarView(
+                    children: qualities.map((quality) {
+                      final weights = controller.qualityWeights[quality] ?? [];
+                      final prices = controller.qualityPrices[quality] ?? [];
+                      final landingCosts =
+                          controller.qualityLandingCosts[quality] ?? [];
+                      final categories =
+                          controller.qualityCategories[quality] ?? [];
+
+                      // Initialize controllers and submission status
+                      bidControllers.putIfAbsent(quality, () => {});
+                      bidSubmitted.putIfAbsent(quality, () => {});
+
+                      // Only non-zero subcategories
+                      final nonZeroIndices =
+                          List.generate(categories.length, (i) => i)
+                              .where((i) => weights[i] > 0)
+                              .toList();
+                      final nonZeroCategories =
+                          nonZeroIndices.map((i) => categories[i]).toList();
+                      final nonZeroMinPrices =
+                          nonZeroIndices.map((i) => prices[i]).toList();
+                      final nonZeroWeights =
+                          nonZeroIndices.map((i) => weights[i]).toList();
+
+                      // Initialize controllers with min prices
+                      for (int idx = 0; idx < nonZeroCategories.length; idx++) {
+                        final cat = nonZeroCategories[idx];
+                        bidControllers[quality]!.putIfAbsent(
+                            cat,
+                            () => TextEditingController(
+                                text:
+                                    nonZeroMinPrices[idx].toStringAsFixed(2)));
+                        bidSubmitted[quality]!.putIfAbsent(cat, () => false);
+                      }
+
+                      // Use a StatefulBuilder or ValueNotifier to update totalPrice in real time as bid fields change
+                      ValueNotifier<double> totalPriceNotifier = ValueNotifier(
+                        calculateQualityTotal(
+                            quality, nonZeroCategories, nonZeroWeights),
+                      );
+
+                      // Attach listeners to each bidController for this quality
+                      for (int idx = 0; idx < nonZeroCategories.length; idx++) {
+                        final cat = nonZeroCategories[idx];
+                        bidControllers[quality]![cat]!
+                            .removeListener(() {}); // Remove any previous
+                        bidControllers[quality]![cat]!.addListener(() {
+                          totalPriceNotifier.value = calculateQualityTotal(
+                              quality, nonZeroCategories, nonZeroWeights);
+                        });
+                      }
+
+                      return SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Highest Bidder per Quality:',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
-                            ...activeQualities.map((quality) {
-                              final sanitized = controller.sanitizeKey(quality);
-                              final bidder = controller
-                                  .highestBidderPerQuality[sanitized] ??
-                                  '-';
-                              final landing = controller
-                                  .highestLandingPerQuality[sanitized]
-                                  ?.toStringAsFixed(2) ??
-                                  '-';
-                              return Padding(
-                                padding:
-                                const EdgeInsets.symmetric(vertical: 2.0),
-                                child: Row(
-                                  children: [
-                                    Text('$quality: ',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w500)),
-                                    Text('Bidder: $bidder',
-                                        style: const TextStyle(
-                                            color: Colors.deepPurple)),
-                                    const SizedBox(width: 12),
-                                    Text('Landing: ₹$landing',
-                                        style: const TextStyle(
-                                            color: Colors.blue)),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ],
-                        ),
-                      )),
-                      // Winning Bidder per Quality (when session is inactive)
-                      Obx(() {
-                        if (controller.sessionActive.value)
-                          return const SizedBox.shrink();
-                        final winners = activeQualities.where((quality) {
-                          final sanitized = controller.sanitizeKey(quality);
-                          return controller.highestBidderPerQuality[sanitized] !=
-                              null &&
-                              controller.highestBidderPerQuality[sanitized] !=
-                                  '-';
-                        }).toList();
-                        if (winners.isEmpty) return const SizedBox.shrink();
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 12),
-                            const Text('Winning Bidder per Quality:',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.green)),
-                            ...winners.map((quality) {
-                              final sanitized = controller.sanitizeKey(quality);
-                              final bidder =
-                                  controller.highestBidderPerQuality[sanitized] ??
-                                      '-';
-                              final landing = controller
-                                  .highestLandingPerQuality[sanitized]
-                                  ?.toStringAsFixed(2) ??
-                                  '-';
-                              return Padding(
-                                padding:
-                                const EdgeInsets.symmetric(vertical: 2.0),
-                                child: Row(
-                                  children: [
-                                    Text('$quality: ',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w500)),
-                                    Text('Winner: $bidder',
-                                        style: const TextStyle(
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.bold)),
-                                    const SizedBox(width: 12),
-                                    Text('Landing: ₹$landing',
-                                        style:
-                                        const TextStyle(color: Colors.blue)),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ],
-                        );
-                      }),
-                      // Summary Cards Row
-                      const SizedBox(height: 16),
-
-                      // Tab View
-                      SizedBox(
-                        width: double.infinity,
-                        child: DefaultTabController(
-                          length: activeQualities.length,
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: TabBar(
-                                  tabs: activeQualities
-                                      .map((quality) => Tab(
-                                    child: Text(
-                                      '$quality\n${controller.qualityTotalWeights[quality]?.toStringAsFixed(1) ?? '0'} kg',
-                                      textAlign: TextAlign.center,
-                                      style:
-                                      const TextStyle(fontSize: 12),
+                            // Header with quality info
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '$quality Quality',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
                                     ),
-                                  ))
-                                      .toList(),
-                                  isScrollable: true,
-                                  labelColor: Colors.blue,
-                                  unselectedLabelColor: Colors.grey[600],
-                                  indicator: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: Colors.blue[100],
                                   ),
+                                  Text(
+                                    'Total Weight: ${controller.qualityTotalWeights[quality]?.toStringAsFixed(2) ?? '0'} kg',
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Chart
+                            SizedBox(
+                              height: 250,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: LineChart(
+                                  LineChartData(
+                                    minY: 0,
+                                    gridData: FlGridData(
+                                      show: true,
+                                      drawVerticalLine: true,
+                                      horizontalInterval: _calculateInterval(
+                                          controller.qualityWeights[quality] ??
+                                              []),
+                                      verticalInterval: 1,
+                                      getDrawingHorizontalLine: (value) =>
+                                          FlLine(
+                                        color: Colors.grey[300],
+                                        strokeWidth: 1,
+                                      ),
+                                    ),
+                                    borderData: FlBorderData(
+                                      show: true,
+                                      border: Border.all(
+                                          color: Colors.grey, width: 1),
+                                    ),
+                                    titlesData: FlTitlesData(
+                                      leftTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          reservedSize: 40,
+                                          interval: _calculateInterval(
+                                              controller.qualityWeights[
+                                                      quality] ??
+                                                  []),
+                                          getTitlesWidget: (value, meta) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 4),
+                                              child: Text(
+                                                value.toInt().toString(),
+                                                style: const TextStyle(
+                                                    fontSize: 10),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      bottomTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          interval: 1,
+                                          getTitlesWidget: (value, meta) {
+                                            int idx = value.toInt();
+                                            if (idx < 0 ||
+                                                idx >= categories.length) {
+                                              return const SizedBox.shrink();
+                                            }
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 8.0),
+                                              child: Text(
+                                                categories[idx],
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          reservedSize: 60,
+                                        ),
+                                      ),
+                                      topTitles: AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false)),
+                                      rightTitles: AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false)),
+                                    ),
+                                    lineBarsData: [
+                                      LineChartBarData(
+                                        spots: List.generate(
+                                          controller.qualityWeights[quality]
+                                                  ?.length ??
+                                              0,
+                                          (i) => FlSpot(
+                                              i.toDouble(),
+                                              controller.qualityWeights[quality]
+                                                      ?[i] ??
+                                                  0),
+                                        ),
+                                        isCurved: true,
+                                        color: Colors.blue,
+                                        barWidth: 3,
+                                        dotData: FlDotData(show: true),
+                                        belowBarData: BarAreaData(
+                                          show: true,
+                                          color: Colors.blue.withOpacity(0.1),
+                                        ),
+                                      ),
+                                      LineChartBarData(
+                                        spots: List.generate(
+                                          controller.qualityPrices[quality]
+                                                  ?.length ??
+                                              0,
+                                          (i) => FlSpot(
+                                              i.toDouble(),
+                                              controller.qualityPrices[quality]
+                                                      ?[i] ??
+                                                  0),
+                                        ),
+                                        isCurved: true,
+                                        color: Colors.red,
+                                        barWidth: 3,
+                                        dotData: FlDotData(show: true),
+                                      ),
+                                      LineChartBarData(
+                                        spots: List.generate(
+                                          controller
+                                                  .qualityLandingCosts[quality]
+                                                  ?.length ??
+                                              0,
+                                          (i) => FlSpot(
+                                              i.toDouble(),
+                                              controller.qualityLandingCosts[
+                                                      quality]?[i] ??
+                                                  0),
+                                        ),
+                                        isCurved: true,
+                                        color: Colors.green,
+                                        barWidth: 3,
+                                        dotData: FlDotData(show: true),
+                                      ),
+                                    ],
+                                    lineTouchData: LineTouchData(
+                                      enabled: true,
+                                      touchTooltipData: LineTouchTooltipData(
+                                        tooltipBgColor: Colors.black87,
+                                        getTooltipItems: (touchedSpots) {
+                                          return touchedSpots.map((spot) {
+                                            String label;
+                                            if (spot.barIndex == 0) {
+                                              label =
+                                                  'Weight: ${spot.y.toStringAsFixed(2)} kg';
+                                            } else if (spot.barIndex == 1) {
+                                              label =
+                                                  'Price: ₹${spot.y.toStringAsFixed(2)}';
+                                            } else {
+                                              label =
+                                                  'Landing: ₹${spot.y.toStringAsFixed(2)}';
+                                            }
+                                            return LineTooltipItem(
+                                              label,
+                                              const TextStyle(
+                                                  color: Colors.white),
+                                            );
+                                          }).toList();
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+
+                            // Legend
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 16,
+                              runSpacing: 8,
+                              children: [
+                                _buildLegendDot(Colors.blue, 'Weight (Kg)'),
+                                _buildLegendDot(Colors.red, 'Per Kg Price'),
+                                _buildLegendDot(Colors.green, 'Landing Cost'),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Show total price
+                            ValueListenableBuilder<double>(
+                              valueListenable: totalPriceNotifier,
+                              builder: (context, totalPrice, _) {
+                                return Padding(
                                   padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                                  labelPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 8),
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Text('Total Price: ',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      Text('₹${totalPrice.toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.green)),
+                                      const SizedBox(width: 16),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          final categories = nonZeroCategories;
+                                          final weights = nonZeroWeights;
+                                          final Map<String, dynamic>
+                                              qualityBidData = {};
+                                          for (int idx = 0;
+                                              idx < categories.length;
+                                              idx++) {
+                                            final cat = categories[idx];
+                                            final bidPerKg = double.tryParse(
+                                                    bidControllers[quality]![
+                                                            cat]!
+                                                        .text) ??
+                                                0.0;
+                                            final weight = weights[idx];
+                                            qualityBidData[cat] = {
+                                              'bidPerKg': bidPerKg,
+                                              'weight': weight,
+                                              'total': bidPerKg * weight,
+                                            };
+                                          }
+                                          qualityBidData['totalAmount'] =
+                                              totalPrice;
+                                          await controller.submitQualityBid(
+                                              glb.personName.value,
+                                              quality,
+                                              qualityBidData);
+                                          Get.snackbar('Success',
+                                              'All bids for $quality submitted!',
+                                              backgroundColor:
+                                                  Colors.green[100]);
+                                        },
+                                        child: const Text('Submit All'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                'Note: You must submit separately for each quality.',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.orange,
+                                    fontStyle: FontStyle.italic),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+
+                            // Subcategory bids
+                            const Padding(
+                              padding: EdgeInsets.only(left: 8.0),
+                              child: Text(
+                                'Enter price per kg for each subcategory:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              Container(
-                                height: 500,
-                                child: TabBarView(
-                                  children: activeQualities
-                                      .map((quality) =>
-                                      _buildQualityChart(quality))
-                                      .toList(),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              SizedBox(height: 10,),
-              Obx(() => Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: controller.sessionActive.value
-                      ? Colors.green[50]
-                      : Colors.red[50],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  controller.sessionActive.value
-                      ? 'SESSION ACTIVE'
-                      : 'SESSION INACTIVE',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: controller.sessionActive.value
-                        ? Colors.green
-                        : Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              )),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+                            ),
+                            const SizedBox(height: 8),
 
+                            // Subcategory cards
+                            ...nonZeroCategories.map((category) {
+                              final index = nonZeroCategories.indexOf(category);
+                              final minPrice = nonZeroMinPrices[index];
+                              final weight = nonZeroWeights[index];
+                              final isSubmitted =
+                                  bidSubmitted[quality]?[category] ?? false;
 
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            category,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${weight.toStringAsFixed(2)} kg',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Minimum Price: ₹${minPrice.toStringAsFixed(2)}/kg',
+                                        style: const TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      TextField(
+                                        controller: bidControllers[quality]
+                                            ?[category],
+                                        keyboardType:
+                                            TextInputType.numberWithOptions(
+                                                decimal: true),
+                                        decoration: InputDecoration(
+                                          labelText: 'Your Price (₹/kg)',
+                                          border: const OutlineInputBorder(),
+                                          suffixIcon: isSubmitted
+                                              ? const Icon(Icons.check_circle,
+                                                  color: Colors.green)
+                                              : null,
+                                        ),
+                                        enabled: !isSubmitted,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: ElevatedButton(
+                                          onPressed: isSubmitted
+                                              ? null
+                                              : () async {
+                                                  final bidValue = double
+                                                      .tryParse(bidControllers[
+                                                                      quality]
+                                                                  ?[category]
+                                                              ?.text ??
+                                                          '0');
+                                                  if (bidValue == null ||
+                                                      bidValue < minPrice) {
+                                                    Get.snackbar(
+                                                      'Invalid Bid',
+                                                      'Bid must be at least ₹${minPrice.toStringAsFixed(2)}',
+                                                      backgroundColor:
+                                                          Colors.red[100],
+                                                    );
+                                                    return;
+                                                  }
 
+                                                  // Submit this category bid
+                                                  final success =
+                                                      await controller
+                                                          .submitCategoryBid(
+                                                    glb.personName.value,
+                                                    quality,
+                                                    category,
+                                                    bidValue,
+                                                    weight,
+                                                  );
 
-  Widget _buildQualityChart(String quality) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Header with totals
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '$quality Quality',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Total Weight: ${controller.qualityTotalWeights[quality]?.toStringAsFixed(2) ?? '0'} kg',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      Text(
-                        'Total Value: ₹${controller.qualityTotalPrices[quality]?.toStringAsFixed(2) ?? '0'}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Chart
-            Expanded(
-              child: Container(
-                height: 500,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: LineChart(
-                    LineChartData(
-                      minY: 0,
-                      gridData: FlGridData(
-                        show: true,
-                        drawVerticalLine: true,
-                        horizontalInterval: _calculateInterval(
-                            controller.qualityWeights[quality] ?? []),
-                        verticalInterval: 1,
-                        getDrawingHorizontalLine: (value) => FlLine(
-                          color: Colors.grey[300],
-                          strokeWidth: 1,
-                        ),
-                      ),
-                      borderData: FlBorderData(
-                        show: true,
-                        border: Border.all(color: Colors.grey, width: 1),
-                      ),
-                      titlesData: FlTitlesData(
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 40,
-                            interval: _calculateInterval(
-                                controller.qualityWeights[quality] ?? []),
-                            getTitlesWidget: (value, meta) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 4),
-                                child: Text(
-                                  value.toInt().toString(),
-                                  style: const TextStyle(fontSize: 10),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            interval: 1,
-                            getTitlesWidget: (value, meta) {
-                              int idx = value.toInt();
-                              final categories =
-                                  controller.qualityCategories[quality] ?? [];
-                              if (idx < 0 || idx >= categories.length) {
-                                return const SizedBox.shrink();
-                              }
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  categories[idx],
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
+                                                  if (success) {
+                                                    bidSubmitted[quality]![
+                                                        category] = true;
+                                                    Get.snackbar(
+                                                      'Success',
+                                                      'Bid submitted for $category',
+                                                      backgroundColor:
+                                                          Colors.green[100],
+                                                    );
+                                                    // Refresh UI
+                                                    bidControllers[quality]
+                                                                ?[category]
+                                                            ?.text =
+                                                        bidValue
+                                                            .toStringAsFixed(2);
+                                                  } else {
+                                                    Get.snackbar(
+                                                      'Error',
+                                                      'Failed to submit bid',
+                                                      backgroundColor:
+                                                          Colors.red[100],
+                                                    );
+                                                  }
+                                                },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: isSubmitted
+                                                ? Colors.grey
+                                                : Colors.blue,
+                                            foregroundColor: Colors.white,
+                                          ),
+                                          child: Text(isSubmitted
+                                              ? 'Submitted'
+                                              : 'Submit Bid'),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               );
-                            },
-                            reservedSize: 60,
-                          ),
+                            }),
+                          ],
                         ),
-                        topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      ),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: List.generate(
-                            controller.qualityWeights[quality]?.length ?? 0,
-                                (i) => FlSpot(i.toDouble(),
-                                controller.qualityWeights[quality]?[i] ?? 0),
-                          ),
-                          isCurved: true,
-                          color: Colors.blue,
-                          barWidth: 3,
-                          dotData: FlDotData(show: true),
-                          belowBarData: BarAreaData(
-                            show: true,
-                            color: Colors.blue.withOpacity(0.1),
-                          ),
-                        ),
-                        LineChartBarData(
-                          spots: List.generate(
-                            controller.qualityPrices[quality]?.length ?? 0,
-                                (i) => FlSpot(i.toDouble(),
-                                controller.qualityPrices[quality]?[i] ?? 0),
-                          ),
-                          isCurved: true,
-                          color: Colors.red,
-                          barWidth: 3,
-                          dotData: FlDotData(show: true),
-                        ),
-                        LineChartBarData(
-                          spots: List.generate(
-                            controller.qualityLandingCosts[quality]?.length ?? 0,
-                                (i) => FlSpot(i.toDouble(),
-                                controller.qualityLandingCosts[quality]?[i] ?? 0),
-                          ),
-                          isCurved: true,
-                          color: Colors.green,
-                          barWidth: 3,
-                          dotData: FlDotData(show: true),
-                        ),
-                      ],
-                      lineTouchData: LineTouchData(
-                        enabled: true,
-                        touchTooltipData: LineTouchTooltipData(
-                          tooltipBgColor: Colors.black87,
-                          getTooltipItems: (touchedSpots) {
-                            return touchedSpots.map((spot) {
-                              String label;
-                              if (spot.barIndex == 0) {
-                                label = 'Weight: ${spot.y.toStringAsFixed(2)} kg';
-                              } else if (spot.barIndex == 1) {
-                                label = 'Price: ₹${spot.y.toStringAsFixed(2)}';
-                              } else {
-                                label = 'Landing: ₹${spot.y.toStringAsFixed(2)}';
-                              }
-                              return LineTooltipItem(
-                                label,
-                                const TextStyle(color: Colors.white),
-                              );
-                            }).toList();
-                          },
-                        ),
-                      ),
-                    ),
+                      );
+                    }).toList(),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Legend
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 16,
-              runSpacing: 8,
-              children: [
-                _buildLegendDot(Colors.blue, 'Weight (Kg)'),
-                _buildLegendDot(Colors.red, 'Per Kg Price'),
-                _buildLegendDot(Colors.green, 'Landing Cost'),
               ],
             ),
-          ],
-        ),
+          );
+        }),
       ),
     );
   }
@@ -545,5 +599,17 @@ class BidderSessionView extends GetView<BidderSessionController> {
     if (maxValue <= 1000) return 100;
     return 200;
   }
-}
 
+  double calculateQualityTotal(String quality, List<String> nonZeroCategories,
+      List<double> nonZeroWeights) {
+    double total = 0.0;
+    for (int idx = 0; idx < nonZeroCategories.length; idx++) {
+      final cat = nonZeroCategories[idx];
+      final bidPerKg =
+          double.tryParse(bidControllers[quality]![cat]!.text) ?? 0.0;
+      final weight = nonZeroWeights[idx];
+      total += bidPerKg * weight;
+    }
+    return total;
+  }
+}

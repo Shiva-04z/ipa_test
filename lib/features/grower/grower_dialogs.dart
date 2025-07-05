@@ -1049,54 +1049,31 @@ class GrowerDialogs {
                                   ),
                                 ),
                               ),
-                            ]) : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            print(consignment.id);
-                            glb.consignmentID.value = consignment.id!;
-                            print(glb.consignmentID.value);
-                            Get.toNamed(
-                                RoutesConstant.aadhatiSession);
-                          },
-                          icon: Icon(Icons.movie_creation, size: 18),
-                          label: Text('Start Bidding'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green[700],
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                          ),
-                        ),
-                      ]
-                  ),
-                    // (consignment.currentStage =="Release for Bid")?
-                    //   : Row(
-                    //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    //       children: [
-                    //           ElevatedButton.icon(
-                    //             onPressed: () {
-                    //               print(consignment.id);
-                    //               glb.consignmentID.value = consignment.id!;
-                    //               print(glb.consignmentID.value);
-                    //               Get.toNamed(
-                    //                   RoutesConstant.forward);
-                    //             },
-                    //             icon: Icon(Icons.movie_creation, size: 18),
-                    //             label: Text('Forward Bilty'),
-                    //             style: ElevatedButton.styleFrom(
-                    //               backgroundColor: Colors.green[700],
-                    //               padding: EdgeInsets.symmetric(
-                    //                 horizontal: 20,
-                    //                 vertical: 12,
-                    //               ),
-                    //             ),
-                    //           ),
-                    //         ]),
-                      // :Row(),
-                if(glb.roleType.value=="Ladani/Buyers"||glb.roleType.value=="")
+                            ]) :
+                    (consignment.currentStage =="Release for Bid")?
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  print(consignment.id);
+                                  glb.consignmentID.value = consignment.id!;
+                                  print(glb.consignmentID.value);
+                                  Get.toNamed(
+                                      RoutesConstant.forward);
+                                },
+                                icon: Icon(Icons.movie_creation, size: 18),
+                                label: Text('Forward Bilty'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green[700],
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
+                            ]): Row(),
+                if(glb.roleType.value=="Ladani/Buyers"||glb.roleType.value=="Freight Forwarder")
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [

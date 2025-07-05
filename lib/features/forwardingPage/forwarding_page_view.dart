@@ -1,4 +1,5 @@
 import 'package:apple_grower/features/forwardingPage/forwarding_page_controller.dart';
+import 'package:apple_grower/navigation/routes_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
@@ -868,6 +869,43 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                     biltyfinalView(),
                   ],
                 ),
+
+                Text("Bidding will start at ${controller.date.value.substring(0,10)} and ${controller.startTime.value}"),
+
+                Obx(() {
+                  final isScheduled = controller.date.value.isNotEmpty &&
+                      controller.startTime.value.isNotEmpty;
+                  final canStart = controller.canStartBidding();
+
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: canStart ? () {
+                              Get.toNamed(RoutesConstant.bidderSession);
+                            } : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: canStart ? Colors.green : Colors.orange,
+                            ),
+                            child: Text(
+                              canStart
+                                  ? "Start Bidding"
+                                  : isScheduled
+                                  ? "Bidding Not Started Yet"
+                                  : "Schedule Bidding First",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white, ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
                 // Invite Methods Section
 
               ],

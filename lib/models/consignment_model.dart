@@ -7,17 +7,17 @@ class Consignment {
   String? growerName;
   String? searchId;
   String? trip1Driverid;
-  Location? startPointTrip1;
+  String? startPointTrip1;
   String? startPointAddressTrip1;
-  Location? endPointTrip1;
+  String? endPointTrip1;
   String? endPointAddressTrip1;
   String? packhouseId;
-  Location? startPointTrip2;
+  String? startPointTrip2;
   String? startPointAddressTrip2;
   String? trip2Driverid;
   String? approval1;//Associated
   String? approval;//Driver
-  Location? endPointTrip2;
+  String? endPointTrip2;
   String? endPointAddressTrip2;
   String? currentStage;
   String? aadhatiId;
@@ -60,14 +60,8 @@ class Consignment {
 
   // Factory constructor to create a Consignment from JSON
   factory Consignment.fromJson(Map<String, dynamic> json) {
-    Location? parseLocation(Map<String, dynamic>? loc) {
-      if (loc == null) return null;
-      return Location(
-        latitude: (loc['latitude'] as num).toDouble(),
-        longitude: (loc['longitude'] as num).toDouble(),
-        timestamp: DateTime.now(), // No timestamp in JSON, use now
-      );
-    }
+
+
 
     return Consignment(
       growerName: json['growerName'],
@@ -75,16 +69,16 @@ class Consignment {
       growerId: json['growerId'],
       searchId: json['searchId'],
       trip1Driverid: json['trip1Driverid'],
-      startPointTrip1: parseLocation(json['startPointTrip1']),
+      startPointTrip1: json['startPointTrip1'],
       startPointAddressTrip1: json['startPointAddressTrip1'],
-      endPointTrip1: parseLocation(json['endPointTrip1']),
+      endPointTrip1: json['endPointTrip1'],
       endPointAddressTrip1: json['endPointAddressTrip1'],
       packhouseId: json['packhouseId'],
-      startPointTrip2: parseLocation(json['startPointTrip2']),
+      startPointTrip2: json['startPointTrip2'],
       startPointAddressTrip2: json['startPointAddressTrip2'],
       trip2Driverid: json['trip2Driverid'],
       approval: json['approval'], approval1: json['approval1'],
-      endPointTrip2: parseLocation(json['endPointTrip2']),
+      endPointTrip2: json['endPointTrip2'],
       endPointAddressTrip2: json['endPointAddressTrip2'],
       currentStage: json['currentStage'],
       aadhatiId: json['aadhatiId'],
@@ -101,30 +95,24 @@ class Consignment {
 
   // Convert Consignment to JSON
   Map<String, dynamic> toJson() {
-    Map<String, dynamic>? locToJson(Location? loc) {
-      if (loc == null) return null;
-      return {
-        'latitude': loc.latitude,
-        'longitude': loc.longitude,
-      };
-    }
+
 
     return {
       'growerId': growerId,
       'growerName':growerName,
       'searchId': searchId,
       'trip1Driverid': trip1Driverid,
-      'startPointTrip1': locToJson(startPointTrip1),
+      'startPointTrip1': startPointTrip1,
       'startPointAddressTrip1': startPointAddressTrip1,
-      'endPointTrip1': locToJson(endPointTrip1),
+      'endPointTrip1':endPointTrip1,
       'endPointAddressTrip1': endPointAddressTrip1,
       'packhouseId': packhouseId,
-      'startPointTrip2': locToJson(startPointTrip2),
+      'startPointTrip2': startPointTrip2,
       'startPointAddressTrip2': startPointAddressTrip2,
       'trip2Driverid': trip2Driverid,
       'approval': approval,
       'approval1': approval1,
-      'endPointTrip2': locToJson(endPointTrip2),
+      'endPointTrip2': endPointTrip2,
       'endPointAddressTrip2': endPointAddressTrip2,
       'currentStage': currentStage,
       'aadhatiId': aadhatiId,

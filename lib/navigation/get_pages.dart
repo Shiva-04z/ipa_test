@@ -187,13 +187,17 @@ List<GetPage> getPages = [
     transitionDuration: Duration(microseconds: 300),
   ),
   GetPage(
-    name: '/bidder-session',
+    name: RoutesConstant.bidderSession,
     page: () => BidderSessionView(),
     binding: BidderSessionBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
   ),
   GetPage(
-    name: '/grower-session',
+    name: RoutesConstant.growerSession,
     page: () => GrowerSessionView(),
     binding: GrowerSessionBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
   ),
 ];
