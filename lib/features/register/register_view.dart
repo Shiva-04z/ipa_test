@@ -149,17 +149,17 @@ class RegisterView extends GetView<RegisterController> {
             return _buildTransportUnionDetailsStep();
           } else if (controller.selectedRole.value == "Corporate Company" ||
               controller.selectedRole.value == "Buyer" ||
-              controller.selectedRole.value == "Ladani Buyers") {
+              controller.selectedRole.value == "Ladani/Buyers") {
             return _buildLadaniDetailsStep();
           } else if (controller.selectedRole.value == "Driver") {
             return _buildDriverDetailsStep();
-          } else if (controller.selectedRole.value == "HPMC Depot") {
+          } else if (controller.selectedRole.value == "HPMC DEPOT") {
             return _buildHpmcDepotDetailsStep();
-          } else if (controller.selectedRole.value == "FreightForwarder") {
+          } else if (controller.selectedRole.value == "Freight Forwarder") {
             return _buildFreightForwarderDetailsStep();
-          } else if (controller.selectedRole.value == "Police Officer") {
+          } else if (controller.selectedRole.value == "HP Police") {
             return _buildPoliceOfficerDetailsStep();
-          } else if (controller.selectedRole.value == "AMPCO Office") {
+          } else if (controller.selectedRole.value == "APMC Office") {
             return _buildAmpcoOfficeDetailsStep();
           }
           return Container();

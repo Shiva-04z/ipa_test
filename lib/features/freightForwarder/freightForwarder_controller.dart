@@ -100,6 +100,7 @@ class FreightForwarderController extends GetxController {
           .where((c) => c.currentStage != 'Bidding Invite')
           .toList();
 
+      galleryImages.value = (data['gallery'] as List).map((item) => item['url'] as String).where((url) => url.isNotEmpty).toList();
     }}
 
   // ==================== GROWER MANAGEMENT METHODS ====================
@@ -439,13 +440,37 @@ class FreightForwarderController extends GetxController {
 
   // ==================== GALLERY MANAGEMENT METHODS ====================
   Future<void> pickAndUploadImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-    if (image != null) {
-      // In a real app, you would upload the image to a server and get back a URL
-      // For now, we'll just use the local path
-      galleryImages.add(image.path);
+      if (image != null) {
+        // TODO: Implement image upload to your storage service
+        // For now, we'll just add the local path to demonstrate the UI
+        // await glb.uploadImage(image.path, uploadEndpoint: '/api/growers/${glb.id.value}/upload');
+        // galleryImages.add(image.path);
+        glb.isUploading.value = true;
+        // Use the correct endpoint and pass the XFile
+        final result = await glb.uploadImage(
+          image,
+          uploadEndpoint: '/api/freightforwarders/${glb.id.value}/upload',
+        );
+        glb.isUploading.value = false;
+
+        if (result != null) {
+          galleryImages.add(result); // or parse result if it's a URL
+          Get.snackbar('Success', 'Image uploaded successfully!');
+        } else {
+          Get.snackbar('Upload Failed', 'Image upload failed.');
+        }
+      }
+
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick image: \\n${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 

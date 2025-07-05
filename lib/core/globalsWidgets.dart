@@ -25,6 +25,7 @@ PreferredSizeWidget buildAppbar() {
 }
 
 Widget buildInfo() {
+  print("Person Name : ${glb.personName.value}");
   return Container(
     color: Colors.green,
     padding: const EdgeInsets.all(12),

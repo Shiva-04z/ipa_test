@@ -165,13 +165,13 @@ class RegisterController extends GetxController {
     "Grower",
     "PackHouse",
     "Aadhati",
-    "Ladani Buyers",
+    "Ladani/Buyers",
     "Driver",
     "Transport Union",
-    "FreightForwarder",
-    "HPMC Depot",
-    "Police Officer",
-    "AMPCO Office",
+    "Freight Forwarder",
+    "HPMC DEPOT",
+    "HP Police",
+    "APMC Office",
   ];
 
   // Firm types for aadhati
@@ -525,17 +525,17 @@ class RegisterController extends GetxController {
         return 3;
       case "Corporate Company":
       case "Buyer":
-      case "Ladani Buyers":
+      case "Ladani/Buyers":
         return 3;
       case "Driver":
         return 3;
-      case "HPMC Depot":
+      case "HPMC DEPOT":
         return 3;
-      case "FreightForwarder":
+      case "Freight Forwarder":
         return 3;
-      case "Police Officer":
+      case "HP Police":
         return 3;
-      case "AMPCO Office":
+      case "APMC Office":
         return 3;
       default:
         return 2;
@@ -559,18 +559,18 @@ class RegisterController extends GetxController {
           return "Transport Union Details";
         } else if (selectedRole.value == "Corporate Company" ||
             selectedRole.value == "Buyer" ||
-            selectedRole.value == "Ladani Buyers") {
+            selectedRole.value == "Ladani/Buyers") {
           return "Ladani/Buyer Details";
         } else if (selectedRole.value == "Driver") {
           return "Driver Details";
-        } else if (selectedRole.value == "HPMC Depot") {
+        } else if (selectedRole.value == "HPMC DEPOT") {
           return "HPMC Depot Details";
-        } else if (selectedRole.value == "FreightForwarder") {
+        } else if (selectedRole.value == "Freight Forwarder") {
           return "Freight Forwarder Details";
-        } else if (selectedRole.value == "Police Officer") {
+        } else if (selectedRole.value == "HP Police") {
           return "Police Officer Details";
-        } else if (selectedRole.value == "AMPCO Office") {
-          return "AMPCO Office Details";
+        } else if (selectedRole.value == "APMC Office") {
+          return "APMC Office Details";
         }
         return "Additional Details";
       default:
@@ -599,22 +599,22 @@ class RegisterController extends GetxController {
           break;
         case "Corporate Company":
         case "Buyer":
-        case "Ladani Buyers":
+        case "Ladani/Buyers":
           await registerLadani();
           break;
         case "Driver":
           await registerDriver();
           break;
-        case "HPMC Depot":
+        case "HPMC DEPOT":
           await registerHpmcDepot();
           break;
-        case "FreightForwarder":
+        case "Freight Forwarder":
           await registerFreightForwarder();
           break;
-        case "Police Officer":
+        case "HP Police":
           await registerPoliceOfficer();
           break;
-        case "AMPCO Office":
+        case "APMC Office":
           await registerAmpcoOffice();
           break;
         default:
@@ -679,7 +679,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
 
         Get.toNamed(RoutesConstant.aadhati);
       } else {
@@ -756,7 +757,8 @@ class RegisterController extends GetxController {
         // Store the created grower data if needed
         // You might want to save the response data to local storage or global state
 
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.grower);
       } else {
         // Handle different error status codes
@@ -847,7 +849,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.packHouse);
       } else {
         final errorData = jsonDecode(response.body);
@@ -931,7 +934,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.transportUnion);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1006,7 +1010,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.ladaniBuyers);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1077,7 +1082,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.driver);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1149,7 +1155,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.hpAgriBoard);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1551,6 +1558,7 @@ class RegisterController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         glb.userId.value = responseData['_id'];
+        print("User data : $responseData");
         Get.snackbar(
           'Success',
           'User account created successfully!',
@@ -1802,13 +1810,13 @@ class RegisterController extends GetxController {
 
       if(selectedRole.value == "PackHouse"){
         geoLocationController.text = address;
-      } else if(selectedRole.value == "Police Officer"){
+      } else if(selectedRole.value == "HP Police"){
         policeDutyLocationController.text = address;
-      } else if(selectedRole.value == "HPMC Depot") {
+      } else if(selectedRole.value == "HPMC DEPOT") {
         locationHpmcController.text = address;
-      } else if(selectedRole.value == "FreightForwarder") {
+      } else if(selectedRole.value == "Freight Forwarder") {
         locationOnGoogleFreightController.text = address;
-      } else if(selectedRole.value == "Ladani Buyers") {
+      } else if(selectedRole.value == "Ladani/Buyers") {
         locationOnGoogleController.text = address;
       }
 
