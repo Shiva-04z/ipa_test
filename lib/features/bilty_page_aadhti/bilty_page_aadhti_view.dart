@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../../models/bilty_model.dart';
 import '../forms/consignmentForm/VideoPlayer.dart';
@@ -16,6 +17,8 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
   final RxString videoPath = ''.obs;
   final RxBool isEditBoxesValueMode = false.obs;
   final RxBool isEditPriceMode = false.obs;
+  final RxBool isGaddPricingMode = false.obs;
+  final RxDouble gaddPrice = 0.0.obs;
 
   Color getRowColor(String quality) {
     switch (quality.toUpperCase()) {
@@ -38,7 +41,7 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
           (defaultTargetPlatform == TargetPlatform.android ||
               defaultTargetPlatform == TargetPlatform.iOS);
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -64,6 +67,7 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                         } else {
                           isEditBoxesValueMode.value = true;
                           isEditPriceMode.value = false;
+                          isGaddPricingMode.value = false;
                         }
                       },
                     )),
@@ -83,6 +87,30 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                         } else {
                           isEditPriceMode.value = true;
                           isEditBoxesValueMode.value = false;
+                          isGaddPricingMode.value = false;
+                        }
+                      },
+                    )),
+                const SizedBox(width: 8),
+                Obx(() => TextButton.icon(
+                      icon: Icon(
+                        isGaddPricingMode.value
+                            ? Icons.check_circle
+                            : Icons.monetization_on,
+                        color: isGaddPricingMode.value
+                            ? Colors.green
+                            : Colors.purple,
+                      ),
+                      label: Text(isGaddPricingMode.value
+                          ? 'Save Gadd Pricing'
+                          : 'Gadd Pricing'),
+                      onPressed: () {
+                        if (isGaddPricingMode.value) {
+                          isGaddPricingMode.value = false;
+                        } else {
+                          isGaddPricingMode.value = true;
+                          isEditBoxesValueMode.value = false;
+                          isEditPriceMode.value = false;
                         }
                       },
                     )),
@@ -103,6 +131,87 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
               ],
             ),
           ),
+          Obx(() => isGaddPricingMode.value
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 180,
+                        child: TextFormField(
+                          initialValue: gaddPrice.value == 0.0
+                              ? ''
+                              : gaddPrice.value.toString(),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          decoration: const InputDecoration(
+                            labelText: 'Enter Gadd Price (AAA)',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          onChanged: (val) {
+                            double? newVal = double.tryParse(val);
+                            if (newVal != null) {
+                              gaddPrice.value = newVal;
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          // Set prices by category
+                          final bilty = controller.bilty.value;
+                          if (bilty != null) {
+                            final newCategories = bilty.categories.map((cat) {
+                              if (cat.boxCount == 0) return cat;
+                              double? newPrice;
+                              if (cat.quality.toUpperCase() == 'AAA') {
+                                newPrice = gaddPrice.value;
+                              } else if (cat.quality.toUpperCase() == 'AA') {
+                                newPrice = gaddPrice.value / 2;
+                              } else if (cat.quality.toUpperCase() == 'GP') {
+                                newPrice = (gaddPrice.value / 2) + 10;
+                              }
+                              if (newPrice != null) {
+                                final newTotalPrice =
+                                    newPrice * cat.totalWeight;
+                                final newBoxValue =
+                                    newTotalPrice / cat.boxCount;
+                                return cat.copyWith(
+                                  pricePerKg: newPrice,
+                                  totalPrice: newTotalPrice,
+                                  boxValue: newBoxValue,
+                                );
+                              }
+                              return cat;
+                            }).toList();
+                            controller.bilty.value =
+                                bilty.copyWith(categories: newCategories);
+                            updateBiltyTotals();
+                          }
+                          isGaddPricingMode.value = false;
+                        },
+                        icon: Icon(Icons.check, color: Colors.white),
+                        label: const Text('Apply',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purple,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30)),
+                          elevation: 6,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : SizedBox.shrink()),
           const SizedBox(height: 8),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -127,9 +236,13 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                   const DataColumn(label: Text("Total Price")),
                   const DataColumn(label: Text("Image")),
                 ],
-                rows: List.generate(controller.bilty.value!.categories.length,
-                    (index) {
-                  final category = controller.bilty.value!.categories[index];
+                rows: controller.bilty.value!.categories
+                    .asMap()
+                    .entries
+                    .where((entry) => entry.value.boxCount != 0)
+                    .map((entry) {
+                  final index = entry.key;
+                  final category = entry.value;
                   final bgColor = getRowColor(category.quality);
                   return DataRow(
                     color: MaterialStateProperty.resolveWith<Color?>(
@@ -180,7 +293,6 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                                           newPrice * category.totalWeight;
                                       final newBoxValue =
                                           newTotalPrice / category.boxCount;
-
                                       controller.bilty.update((bilty) {
                                         bilty!.categories[index] =
                                             category.copyWith(
@@ -189,6 +301,7 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                                           boxValue: newBoxValue,
                                         );
                                       });
+                                      updateBiltyTotals();
                                     }
                                   },
                                 ),
@@ -229,6 +342,7 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                                           pricePerKg: newPricePerKg,
                                         );
                                       });
+                                      updateBiltyTotals();
                                     }
                                   },
                                 ),
@@ -268,46 +382,127 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                       ),
                     ],
                   );
-                }),
+                }).toList(),
               ),
             ),
           ),
           const SizedBox(height: 16),
-          Obx(() => videoPath.value.isNotEmpty
-              ? Column(children: [
-                  TextButton.icon(
-                    icon: Icon(Icons.play_circle_fill, color: Colors.green),
-                    label: const Text('Play Video'),
-                    onPressed: () {
-                      showDialog(
-                        context: Get.context!,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Uploaded Video'),
-                          content: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child:
-                                VideoPlayerWidget(videoPath: videoPath.value),
+          Obx(() {
+            final bilty = controller.bilty.value;
+            final formatter = NumberFormat('#,##0.##');
+            Widget summaryCard = bilty == null
+                ? SizedBox.shrink()
+                : Card(
+                    color: Colors.orange.shade50,
+                    elevation: 3,
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 18),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Column(
+                            children: [
+                              Text('Total Boxes',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange.shade900)),
+                              Text(formatter.format(bilty.totalBoxes),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                            ],
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('Close'),
+                          Column(
+                            children: [
+                              Text('Total Weight',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange.shade900)),
+                              Text('${formatter.format(bilty.totalWeight)} kg',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text('Total Value',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange.shade900)),
+                              Text('₹${formatter.format(bilty.totalValue)}',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+            return bilty != null &&
+                    bilty.videoPath != null &&
+                    bilty.videoPath!.isNotEmpty
+                ? Column(children: [
+                    summaryCard,
+                    TextButton.icon(
+                      icon: Icon(Icons.play_circle_fill, color: Colors.green),
+                      label: const Text('Play Video'),
+                      onPressed: () {
+                        showDialog(
+                          context: Get.context!,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Uploaded Video'),
+                            content: AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: VideoPlayerWidget(
+                                  videoPath: bilty.videoPath!),
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 8)
-                ])
-              : TextButton.icon(
-                  icon: Icon(Icons.play_circle_fill, color: Colors.grey),
-                  label: const Text('Play Video'),
-                  onPressed: null,
-                )),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('Close'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8)
+                  ])
+                : Column(children: [
+                    summaryCard,
+                    TextButton.icon(
+                      icon: Icon(Icons.play_circle_fill, color: Colors.grey),
+                      label: const Text('Play Video'),
+                      onPressed: null,
+                    ),
+                  ]);
+          }),
         ],
       );
     });
+  }
+
+  void updateBiltyTotals() {
+    final bilty = controller.bilty.value;
+    if (bilty == null) return;
+    final categories = bilty.categories;
+    final totalBoxes = categories.fold<int>(0, (sum, c) => sum + c.boxCount);
+    final totalWeight =
+        categories.fold<double>(0, (sum, c) => sum + c.totalWeight);
+    final totalValue =
+        categories.fold<double>(0, (sum, c) => sum + c.totalPrice);
+    controller.bilty.value = bilty.copyWith(
+      totalBoxes: totalBoxes.toDouble(),
+      totalWeight: totalWeight,
+      totalValue: totalValue,
+    );
   }
 
   @override

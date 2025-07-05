@@ -1,9 +1,15 @@
+import 'package:apple_grower/features/bidding_view/aadhati_session/aadhati_session_bindings.dart';
+import 'package:apple_grower/features/bidding_view/aadhati_session/aadhati_session_view.dart';
 import 'package:apple_grower/features/bilty_page/bilty_page_bindings.dart';
 import 'package:apple_grower/features/bilty_page/bilty_page_view.dart';
 import 'package:apple_grower/features/bilty_page_aadhti/bilty_page_aadhti_bindings.dart';
 import 'package:apple_grower/features/bilty_page_aadhti/bilty_page_aadhti_view.dart';
 import 'package:apple_grower/features/forms/consignmentForm/consignment_form_bindings.dart';
 import 'package:apple_grower/features/forms/consignmentForm/consignment_form_page.dart';
+import 'package:apple_grower/features/forwardingBilty/forward_bilty_bindings.dart';
+import 'package:apple_grower/features/forwardingBilty/forward_bilty_view.dart';
+import 'package:apple_grower/features/forwardingPage/forwarding_page_bindings.dart';
+import 'package:apple_grower/features/forwardingPage/forwarding_page_view.dart';
 import 'package:apple_grower/features/profile_page/profile_page_bindings.dart';
 import 'package:apple_grower/features/profile_page/profile_page_view.dart';
 import 'package:apple_grower/features/signUpPage/signUP_binidng.dart';
@@ -34,6 +40,10 @@ import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_binding.dart';
 import 'package:apple_grower/features/hpAgriBoard/hpAgriBoard_view.dart';
 import 'package:apple_grower/navigation/routes_constant.dart';
 import 'package:get/get.dart';
+import 'package:apple_grower/features/bidding_view/bidder_session/bidder_session_view.dart';
+import 'package:apple_grower/features/bidding_view/bidder_session/bidder_session_bindings.dart';
+import 'package:apple_grower/features/bidding_view/grower_session/grower_session_view.dart';
+import 'package:apple_grower/features/bidding_view/grower_session/grower_session_bindings.dart';
 
 List<GetPage> getPages = [
   GetPage(
@@ -157,14 +167,36 @@ List<GetPage> getPages = [
   ),
   GetPage(
     name: RoutesConstant.forward,
-    page: () => BiltyPageAadhtiView(),
-    binding: BiltyPageAadhtiBindings(),
+    page: () => ForwardBiltyView(),
+    binding: ForwardBindings(),
     transition: Transition.fadeIn,
     transitionDuration: Duration(microseconds: 300),
-  ),GetPage(
-    name: RoutesConstant.bidding,
-    page: () => BiltyPageAadhtiView(),
-    binding: BiltyPageAadhtiBindings(),
+  ),
+  GetPage(
+    name: RoutesConstant.forwardingBilty,
+    page: () => ForwardPageView(),
+    binding: ForwardPageBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),
+  GetPage(
+    name: RoutesConstant.aadhatiSession,
+    page: () => AadhatiSessionView(),
+    binding: AadhatiSesssionBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),
+  GetPage(
+    name: RoutesConstant.bidderSession,
+    page: () => BidderSessionView(),
+    binding: BidderSessionBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),
+  GetPage(
+    name: RoutesConstant.growerSession,
+    page: () => GrowerSessionView(),
+    binding: GrowerSessionBindings(),
     transition: Transition.fadeIn,
     transitionDuration: Duration(microseconds: 300),
   ),

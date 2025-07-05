@@ -103,7 +103,7 @@ class AadhatiController extends GetxController {
           glbm.createGrowerListFromApi(data['grower_IDs']);
       associatedBuyers.value =
           glbm.createFreightListFromApi(data['freightForwarder_IDs']);
-      print(data['driver_IDs']);
+
       associatedDrivers.value =
           glbm.createDriverListFromApi(data['driver_IDs']);
       associatedLadanis.value = glbm.createLadaniListFromApi(data['buyer_IDs']);
@@ -112,6 +112,14 @@ class AadhatiController extends GetxController {
       associatedPackHouses.value =
           glbm.createPackhouseListFromApi(data['packhouse_IDs']);
       galleryImages.value = (data['gallery'] as List).map((item) => item['url'] as String).where((url) => url.isNotEmpty).toList();
+
+      glb.associatedLadanis.value = glbm.createLadaniListFromApi(data['buyer_IDs']);
+
+      glb.associatedBuyers.value =
+          glbm.createFreightListFromApi(data['freightForwarder_IDs']);
+
+
+
 
 
       final allConsignments =

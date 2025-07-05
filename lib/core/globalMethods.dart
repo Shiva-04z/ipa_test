@@ -58,7 +58,9 @@ List<Consignment> createConsignmentListFromApi(List<dynamic> apiData) {
         bilty: json['bilty'] != null ? Bilty.fromJson(json['bilty']) : null,
         aadhatiMode: json['aadhatiMode'],
         driverMode: json['driverMode'],
-        packHouseMode:  json ['packHouseMode']
+        packHouseMode:  json ['packHouseMode'],
+        startTime: json['startTime'],
+        date: json['date'],
     );
   }).toList();
 }

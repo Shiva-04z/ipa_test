@@ -1,3 +1,6 @@
+import 'package:get/get.dart';
+
+
 import 'package:apple_grower/models/bilty_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,7 +9,7 @@ import 'package:http/http.dart' as http;
 import '../../core/globals.dart' as glb;
 import 'dart:convert';
 
-class ForwardBiltyController extends GetxController {
+class ForwardPageController extends GetxController {
   Rx<Bilty> bilty = Bilty.createDefault().obs;
   RxString searchId = ''.obs;
   RxString growerName = ''.obs;
@@ -26,10 +29,10 @@ class ForwardBiltyController extends GetxController {
       final json = jsonDecode(response.body);
       searchId.value = json['searchId'] ?? '';
       growerName.value = json['growerName'] ?? '';
+      date.value=json['date']??"";
+      startTime.value =json ['startTime']??"";
       if (json['bilty'] != null) {
         bilty.value = Bilty.fromJson(json['bilty']);
-        date.value=json['date'];
-        startTime.value = json['startTime'];
       }
     }
   }
@@ -50,14 +53,37 @@ class ForwardBiltyController extends GetxController {
     return map;
   }
 
+  bool isBiddingScheduled() {
+    return date.value.isNotEmpty &&
+        startTime.value.isNotEmpty;
+  }
+
+  bool canStartBidding() {
+    if (!isBiddingScheduled()) return false;
+
+    try {
+      final scheduledDate = DateTime.parse(date.value);
+      final timeParts = startTime.value.split(':');
+      final scheduledDateTime = scheduledDate.add(Duration(
+        hours: int.parse(timeParts[0]),
+        minutes: int.parse(timeParts[1]),
+      ));
+
+      return DateTime.now().isAfter(scheduledDateTime);
+    } catch (e) {
+      return false;
+    }
+  }
+
+
   double get plotAreaShare {
     final totalWeight = bilty.value.totalWeight;
     if (totalWeight == 0) return 0;
 
     final plotWeight = bilty.value.categories
         .where((c) =>
-            c.quality == 'AAA' &&
-            ['Extra Large', 'Large', 'Medium'].contains(c.category))
+    c.quality == 'AAA' &&
+        ['Extra Large', 'Large', 'Medium'].contains(c.category))
         .fold(0.0, (sum, e) => sum + e.totalWeight);
 
     return plotWeight / totalWeight * 100;
@@ -65,9 +91,9 @@ class ForwardBiltyController extends GetxController {
 
   Map<String, double> get aaaCategoryShare {
     final aaaCategories =
-        bilty.value.categories.where((c) => c.quality == 'AAA');
+    bilty.value.categories.where((c) => c.quality == 'AAA');
     final totalAAAWeight =
-        aaaCategories.fold(0.0, (sum, e) => sum + e.totalWeight);
+    aaaCategories.fold(0.0, (sum, e) => sum + e.totalWeight);
 
     if (totalAAAWeight == 0) {
       return {
@@ -92,23 +118,23 @@ class ForwardBiltyController extends GetxController {
 
     final result = {
       'ELLMS': aaaCategories
-              .where((c) => ellmsCategories.contains(c.category))
-              .fold(0.0, (sum, e) => sum + e.totalWeight) /
+          .where((c) => ellmsCategories.contains(c.category))
+          .fold(0.0, (sum, e) => sum + e.totalWeight) /
           totalAAAWeight *
           100,
       'ES,EES,240': aaaCategories
-              .where((c) => esEes240Categories.contains(c.category))
-              .fold(0.0, (sum, e) => sum + e.totalWeight) /
+          .where((c) => esEes240Categories.contains(c.category))
+          .fold(0.0, (sum, e) => sum + e.totalWeight) /
           totalAAAWeight *
           100,
       'Pittu': aaaCategories
-              .where((c) => pittuCategories.contains(c.category))
-              .fold(0.0, (sum, e) => sum + e.totalWeight) /
+          .where((c) => pittuCategories.contains(c.category))
+          .fold(0.0, (sum, e) => sum + e.totalWeight) /
           totalAAAWeight *
           100,
       'Seprator': aaaCategories
-              .where((c) => separatorCategories.contains(c.category))
-              .fold(0.0, (sum, e) => sum + e.totalWeight) /
+          .where((c) => separatorCategories.contains(c.category))
+          .fold(0.0, (sum, e) => sum + e.totalWeight) /
           totalAAAWeight *
           100,
     };
@@ -125,34 +151,10 @@ class ForwardBiltyController extends GetxController {
     return result;
   }
 
-
-  bool isBiddingScheduled() {
-    return date.value.isNotEmpty &&
-      startTime.value.isNotEmpty;
-  }
-
-  bool canStartBidding() {
-    if (!isBiddingScheduled()) return false;
-
-    try {
-      final scheduledDate = DateTime.parse(date.value);
-      final timeParts = startTime.value.split(':');
-      final scheduledDateTime = scheduledDate.add(Duration(
-        hours: int.parse(timeParts[0]),
-        minutes: int.parse(timeParts[1]),
-      ));
-
-      return DateTime.now().isAfter(scheduledDateTime);
-    } catch (e) {
-      return false;
-    }
-  }
-
-
   /// Returns a map of category name to percentage for a given quality (e.g., 'AAA', 'AA', 'GP')
   Map<String, double> categoryShareByQuality(String quality) {
     final categories =
-        bilty.value.categories.where((c) => c.quality == quality);
+    bilty.value.categories.where((c) => c.quality == quality);
     final totalWeight = categories.fold(0.0, (sum, c) => sum + c.totalWeight);
     if (totalWeight == 0) {
       // Return all categories for this quality with 0%
@@ -170,33 +172,5 @@ class ForwardBiltyController extends GetxController {
     return result;
   }
 
-  Future<void> sendInvite({
-    required List<String> freightForwarderIds,
-    required List<String> ladaniIds,
-    required DateTime date,
-    required TimeOfDay startTime,
-  }) async {
-    final api = glb.url.value + "/api/consignment/${glb.consignmentID.value}/bidding-invite";
-    final body = jsonEncode({
-      'consignmentId': glb.consignmentID.value,
-      'freightForwarderIds': freightForwarderIds,
-      'ladaniIds': ladaniIds,
-      'date': date.toIso8601String(),
-      'startTime': startTime.format(Get.context!),
-    });
-    final response = await http.patch(
-      Uri.parse(api),
-      headers: {"Content-Type": "application/json"},
-      body: body,
-    );
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      Get.snackbar('Success', 'Invites sent successfully!',
-          backgroundColor: Get.theme.colorScheme.secondary,
-          colorText: Get.theme.colorScheme.onSecondary);
-    } else {
-      Get.snackbar('Error', 'Failed to send invites',
-          backgroundColor: Get.theme.colorScheme.error,
-          colorText: Get.theme.colorScheme.onError);
-    }
-  }
+
 }

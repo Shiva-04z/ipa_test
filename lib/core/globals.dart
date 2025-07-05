@@ -1,3 +1,4 @@
+import 'package:apple_grower/models/consignment_model.dart';
 import 'package:apple_grower/models/employee_model.dart';
 import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:get/get.dart';
@@ -25,7 +26,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/globals.dart' as glb;
 
 RxString roleType = "Grower".obs;
-RxString personName = "Ram Singh".obs;
+RxString personName = "Suresh Singh".obs;
 RxString personPhone = "+91 123567890".obs;
 RxString personVillage = "Nangal Jarialan".obs;
 RxString personPost = "247001".obs;
@@ -33,9 +34,8 @@ RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
 RxString userId = "".obs;
-RxString url =
-    "https://58ff-2409-40d2-1a-3e9-5af-c9d9-ac71-2ffc.ngrok-free.app".obs;
-RxString id = (roleType.value == "Grower") ? "6864ffc9d0ab74d21f4e8728".obs : (roleType.value == "Aadhati")?  "6863d8bd12ec4c0cd45a8b1b".obs :"".obs;
+RxString url = "https://bml-m3ps.onrender.com".obs;
+RxString id = (roleType.value == "Grower")?"6867c261b1b00c19ea6516ae".obs : (roleType.value == "Aadhati")?  "6867bfeeaffd574229d28575".obs :(roleType.value == "Ladani/Buyers")?"6867e262efa641e772e4aef0".obs:"6867bd6baffd574229d28558".obs;
 //6864cbb64b7a68ce4e9e0a4e
 RxString selectedOrchardAddress = "".obs;
 RxString consignmentID = "".obs;
@@ -47,56 +47,20 @@ var selectedImage = Rxn<File>();
 RxBool isUploading = false.obs;
 
 
+RxList<Ladani> associatedLadanis =<Ladani>[].obs;
+RxList<FreightForwarder> associatedBuyers =<FreightForwarder>[].obs;
 
 
 loadIDData()
 async {
   SharedPreferences prefs =await SharedPreferences.getInstance();
-  id.value = prefs.getString("id") ?? "";
+  id.value = prefs.getString("id")!;
 }
 
 uploadIDData()async{
   SharedPreferences prefs =await SharedPreferences.getInstance();
   prefs.setString("id", id.value);
 
-}
-
-// Load role type from SharedPreferences
-loadRoleData() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  roleType.value = prefs.getString("roleType") ?? "Grower";
-}
-
-// Save role type to SharedPreferences
-uploadRoleData() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setString("roleType", roleType.value);
-}
-
-// Load both ID and role data
-loadUserData() async {
-  await loadIDData();
-  await loadRoleData();
-}
-
-// Save both ID and role data
-uploadUserData() async {
-  await uploadIDData();
-  await uploadRoleData();
-}
-
-// Logout function - clears stored user data
-logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove("id");
-  await prefs.remove("roleType");
-  
-  // Reset global variables
-  id.value = "";
-  roleType.value = "Grower";
-  
-  // Navigate to sign-up page
-  Get.offAllNamed(RoutesConstant.signUp);
 }
 
 
@@ -219,7 +183,6 @@ RxList<FreightForwarder> availableBuyers = [
     updatedAt: DateTime.now(),
   ),
 ].obs;
-
 
 RxList<DrivingProfile> availableDrivingProfiles = [
   DrivingProfile(
@@ -363,8 +326,6 @@ RxList<Orchard> availableOrchards = [
     updatedAt: DateTime.now(),
   ),
 ].obs;
-
-
 
 RxList<Employee> availablePackers = [
   Employee(
@@ -590,7 +551,7 @@ String getTranslatedText(String englishText) {
 RxList<HpmcCollectionCenter> availableHpmcDepots = [
   HpmcCollectionCenter(
     id: 'HPMC001',
-   HPMCname: 'Rajesh Kumar',
+    HPMCname: 'Rajesh Kumar',
     operatorName: 'Himachal Collection Center',
     cellNo: '9876543210',
     aadharNo: '123456789012',
@@ -625,55 +586,3 @@ RxList<HpmcCollectionCenter> availableHpmcDepots = [
     associatedTransportUnions: [],
   ),
 ].obs;
-
-/// Uploads an image to the server and returns the uploaded image URL or response.
-/// [image] can be a File or XFile (from image_picker).
-/// [uploadEndpoint] is the API endpoint for image upload (e.g., url.value + '/api/upload').
-Future<String?> uploadImage(dynamic image, {required String uploadEndpoint}) async {
-  try {
-    // Determine the file to upload
-    File file;
-    if (image is XFile) {
-      file = File(image.path);
-    } else if (image is File) {
-      file = image;
-    } else {
-      throw Exception('Invalid image type');
-    }
-
-    final String apiUrl = glb.url + uploadEndpoint;
-    final uri = Uri.parse(apiUrl);
-    final request = http.MultipartRequest('POST', uri);
-    request.files.add(
-      await http.MultipartFile.fromPath('image', file.path, filename: path.basename(file.path),),
-    );
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      // Parse the response as needed (assuming it returns a URL or JSON)
-      // Example: return jsonDecode(response.body)['url'];
-      return response.body;
-    } else {
-      throw Exception('Image upload failed: \\${response.statusCode}');
-    }
-  } catch (e) {
-    print('Image upload error: $e');
-    return null;
-  }
-}
-
-
-
-/// Uploads a list of images to the server and returns a list of uploaded image URLs or responses.
-/// [images] can be a List<File> or List<XFile> (from image_picker).
-/// [uploadEndpoint] is the API endpoint for image upload (e.g., url.value + '/api/upload').
-Future<List<String?>> uploadImages(List<dynamic> images, {required String uploadEndpoint}) async {
-  List<String?> results = [];
-  for (var image in images) {
-    final result = await uploadImage(image, uploadEndpoint: uploadEndpoint);
-    results.add(result);
-  }
-  return results;
-}
-

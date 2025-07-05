@@ -91,6 +91,15 @@ class FreightForwarderController extends GetxController {
       associatedTransportUnions.value =glbm.createTransportListFromApi(data['transportUnion_IDs']);
       associatedAadhatis.value =glbm.createAadhatiListFromApi(data['aadhati_IDs']);
       associatedLadanis.value =glbm.createLadaniListFromApi(data['buyer_IDs']);
+      final allConsignments =
+      glbm.createConsignmentListFromApi(data['consignment_IDs']);
+      glb.allConsignments.value = allConsignments
+          .where((c) => c.currentStage == 'Bidding Invite')
+          .toList();
+      consignments.value = allConsignments
+          .where((c) => c.currentStage != 'Bidding Invite')
+          .toList();
+
       galleryImages.value = (data['gallery'] as List).map((item) => item['url'] as String).where((url) => url.isNotEmpty).toList();
     }}
 

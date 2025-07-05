@@ -1,3 +1,8 @@
+import 'package:apple_grower/features/forwardingPage/forwarding_page_controller.dart';
+import 'package:apple_grower/navigation/routes_constant.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:get/get.dart';
 import 'dart:io';
 
 import 'package:apple_grower/features/forwardingBilty/forward_bilty_controller.dart';
@@ -8,17 +13,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 
-import '../../core/globals.dart' as glb;
-import '../../navigation/routes_constant.dart';
 import '../forms/consignmentForm/VideoPlayer.dart';
-import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
 
-class ForwardBiltyView extends GetView<ForwardBiltyController> {
+
+class ForwardPageView  extends GetView<ForwardPageController> {
   RxBool showDetails = false.obs;
   RxBool isMobile = false.obs;
   final RxString selectedQuality = 'AAA'.obs;
   final RxDouble totalWeightOfSelected = 0.0.obs;
-
 
   Widget buildDonutChart(
       Map<String, double> data, List<Color> colors, String title,
@@ -167,16 +169,16 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Obx(() => TextButton.icon(
-                  icon: Icon(
-                    showDetails.value ? Icons.visibility_off : Icons.visibility,
-                    color: showDetails.value ? Colors.red : Colors.grey,
-                  ),
-                  label:
-                      Text(showDetails.value ? 'Hide Details' : 'Show Details'),
-                  onPressed: () {
-                    showDetails.value = !showDetails.value;
-                  },
-                )),
+              icon: Icon(
+                showDetails.value ? Icons.visibility_off : Icons.visibility,
+                color: showDetails.value ? Colors.red : Colors.grey,
+              ),
+              label:
+              Text(showDetails.value ? 'Hide Details' : 'Show Details'),
+              onPressed: () {
+                showDetails.value = !showDetails.value;
+              },
+            )),
           ],
         ),
         const SizedBox(height: 8),
@@ -185,91 +187,91 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Obx(() => DataTable(
-                  headingRowColor: MaterialStateProperty.resolveWith(
+              headingRowColor: MaterialStateProperty.resolveWith(
                       (states) => Colors.orange.shade200),
-                  columns: [
-                    const DataColumn(label: Text("Quality")),
-                    const DataColumn(label: Text("Category")),
-                    if (showDetails.value) ...[
-                      const DataColumn(label: Text("Size in MM")),
-                      const DataColumn(label: Text("No. of Pieces")),
-                      const DataColumn(label: Text("Avg. Weight Per Piece")),
-                      const DataColumn(label: Text("Avg. Gross Box Weight")),
-                      const DataColumn(label: Text("No. of Boxes")),
-                      const DataColumn(label: Text("Total Weight")),
-                    ],
-                    const DataColumn(label: Text("Price Per Kg")),
-                    const DataColumn(label: Text("Box Value")),
-                    const DataColumn(label: Text("Total Price")),
-                    const DataColumn(label: Text("Image")),
-                  ],
-                  rows: List.generate(bilty.categories.length, (index) {
-                    final category = bilty.categories[index];
-                    if (category.boxCount == 0)
-                      return null; // Hide rows with boxCount == 0
-                    final bgColor = getRowColor(category.quality);
-                    return DataRow(
-                      color: MaterialStateProperty.resolveWith<Color?>(
+              columns: [
+                const DataColumn(label: Text("Quality")),
+                const DataColumn(label: Text("Category")),
+                if (showDetails.value) ...[
+                  const DataColumn(label: Text("Size in MM")),
+                  const DataColumn(label: Text("No. of Pieces")),
+                  const DataColumn(label: Text("Avg. Weight Per Piece")),
+                  const DataColumn(label: Text("Avg. Gross Box Weight")),
+                  const DataColumn(label: Text("No. of Boxes")),
+                  const DataColumn(label: Text("Total Weight")),
+                ],
+                const DataColumn(label: Text("Price Per Kg")),
+                const DataColumn(label: Text("Box Value")),
+                const DataColumn(label: Text("Total Price")),
+                const DataColumn(label: Text("Image")),
+              ],
+              rows: List.generate(bilty.categories.length, (index) {
+                final category = bilty.categories[index];
+                if (category.boxCount == 0)
+                  return null; // Hide rows with boxCount == 0
+                final bgColor = getRowColor(category.quality);
+                return DataRow(
+                  color: MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) => bgColor),
-                      cells: [
-                        DataCell(Text(category.quality,
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text(category.category,
-                            style: const TextStyle(color: Colors.white))),
-                        if (showDetails.value) ...[
-                          DataCell(Text(category.size,
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.piecesPerBox}",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.avgWeight.toStringAsFixed(1)}g",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.boxCount}",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.totalWeight.toStringAsFixed(1)}kg",
-                              style: const TextStyle(color: Colors.white))),
-                        ],
-                        DataCell(Text("${category.pricePerKg}",
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text("${category.boxValue}",
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text("${category.totalPrice}",
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(
-                          category.imagePath != null &&
-                                  category.imagePath!.isNotEmpty
-                              ? GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: Get.context!,
-                                      builder: (context) => AlertDialog(
-                                        title: Text('Uploaded Image'),
-                                        content: Image.file(
-                                            File(category.imagePath!)),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                            child: const Text('Close'),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                  child: const Icon(Icons.check_circle,
-                                      color: Colors.green),
-                                )
-                              : const Icon(Icons.camera_alt,
-                                  color: Colors.white),
-                        ),
-                      ],
-                    );
-                  }).whereType<DataRow>().toList(), // Filter out nulls
-                )),
+                  cells: [
+                    DataCell(Text(category.quality,
+                        style: const TextStyle(color: Colors.white))),
+                    DataCell(Text(category.category,
+                        style: const TextStyle(color: Colors.white))),
+                    if (showDetails.value) ...[
+                      DataCell(Text(category.size,
+                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Text("${category.piecesPerBox}",
+                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Text(
+                          "${category.avgWeight.toStringAsFixed(1)}g",
+                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Text(
+                          "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Text("${category.boxCount}",
+                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Text(
+                          "${category.totalWeight.toStringAsFixed(1)}kg",
+                          style: const TextStyle(color: Colors.white))),
+                    ],
+                    DataCell(Text("${category.pricePerKg}",
+                        style: const TextStyle(color: Colors.white))),
+                    DataCell(Text("${category.boxValue}",
+                        style: const TextStyle(color: Colors.white))),
+                    DataCell(Text("${category.totalPrice}",
+                        style: const TextStyle(color: Colors.white))),
+                    DataCell(
+                      category.imagePath != null &&
+                          category.imagePath!.isNotEmpty
+                          ? GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: Get.context!,
+                            builder: (context) => AlertDialog(
+                              title: Text('Uploaded Image'),
+                              content: Image.file(
+                                  File(category.imagePath!)),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        child: const Icon(Icons.check_circle,
+                            color: Colors.green),
+                      )
+                          : const Icon(Icons.camera_alt,
+                          color: Colors.white),
+                    ),
+                  ],
+                );
+              }).whereType<DataRow>().toList(), // Filter out nulls
+            )),
           ),
         ),
         const SizedBox(height: 16),
@@ -380,13 +382,6 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
       // Add more as needed
     };
 
-    final RxList<String> selectedBuyers = glb.associatedBuyers.map((b) => b.id!).toList().obs;
-    final RxList<String> selectedLadanis = glb.associatedLadanis.map((l) => l.id!).toList().obs;
-
-    // Bidding Date and Slot Selection
-    final Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
-    final Rx<TimeOfDay?> selectedStartTime = Rx<TimeOfDay?>(null);
-    final List<String> slotOptions = ['10-12', '2-4', '4-6'];
 
     return Scaffold(
       appBar: AppBar(
@@ -481,7 +476,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                     final bilty = controller.bilty.value;
                                     return Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                                      MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Column(
                                           children: [
@@ -495,7 +490,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                                 style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight:
-                                                        FontWeight.bold)),
+                                                    FontWeight.bold)),
                                           ],
                                         ),
                                         Column(
@@ -510,7 +505,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                                 style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight:
-                                                        FontWeight.bold)),
+                                                    FontWeight.bold)),
                                           ],
                                         ),
                                         Column(
@@ -525,7 +520,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                                 style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight:
-                                                        FontWeight.bold)),
+                                                    FontWeight.bold)),
                                           ],
                                         ),
                                       ],
@@ -533,23 +528,23 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                   }),
                                   SizedBox(height: 8),
                                   Obx(() => buildDonutChart(
-                                        qualityMap,
-                                        qualityColors,
-                                        "Quality Distribution",
-                                        onSectionTap: (quality) {
-                                          selectedQuality.value = quality;
-                                          // Calculate total weight for selected quality
-                                          final total = controller
-                                              .bilty.value.categories
-                                              .where(
-                                                  (c) => c.quality == quality)
-                                              .fold<double>(
-                                                  0,
-                                                  (sum, c) =>
-                                                      sum + c.totalWeight);
-                                          totalWeightOfSelected.value = total;
-                                        },
-                                      )),
+                                    qualityMap,
+                                    qualityColors,
+                                    "Quality Distribution",
+                                    onSectionTap: (quality) {
+                                      selectedQuality.value = quality;
+                                      // Calculate total weight for selected quality
+                                      final total = controller
+                                          .bilty.value.categories
+                                          .where(
+                                              (c) => c.quality == quality)
+                                          .fold<double>(
+                                          0,
+                                              (sum, c) =>
+                                          sum + c.totalWeight);
+                                      totalWeightOfSelected.value = total;
+                                    },
+                                  )),
                                 ],
                               ),
                             ),
@@ -570,16 +565,16 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                             child: SingleChildScrollView(
                               child: Obx(() {
                                 final filteredMap =
-                                    controller.categoryShareByQuality(
-                                        selectedQuality.value);
+                                controller.categoryShareByQuality(
+                                    selectedQuality.value);
                                 final filteredCats = controller
                                     .bilty.value.categories
                                     .where((c) =>
-                                        c.quality == selectedQuality.value)
+                                c.quality == selectedQuality.value)
                                     .toList();
                                 final filteredWeight =
-                                    filteredCats.fold<double>(
-                                        0, (sum, c) => sum + c.totalWeight);
+                                filteredCats.fold<double>(
+                                    0, (sum, c) => sum + c.totalWeight);
                                 final filteredBoxes = filteredCats.fold<int>(
                                     0, (sum, c) => sum + c.boxCount);
                                 final filteredValue = filteredCats.fold<double>(
@@ -589,7 +584,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                   children: [
                                     Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                                      MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Column(
                                           children: [
@@ -603,7 +598,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                                 style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight:
-                                                        FontWeight.bold)),
+                                                    FontWeight.bold)),
                                           ],
                                         ),
                                         Column(
@@ -617,7 +612,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                                 style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight:
-                                                        FontWeight.bold)),
+                                                    FontWeight.bold)),
                                           ],
                                         ),
                                         Column(
@@ -632,7 +627,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                                 style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight:
-                                                        FontWeight.bold)),
+                                                    FontWeight.bold)),
                                           ],
                                         ),
                                       ],
@@ -642,8 +637,8 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                                       filteredMap,
                                       filteredMap.keys
                                           .map((cat) =>
-                                              categoryColorMap[cat] ??
-                                              Colors.grey)
+                                      categoryColorMap[cat] ??
+                                          Colors.grey)
                                           .toList(),
                                       '${selectedQuality.value} Category Distribution',
                                     ),
@@ -874,303 +869,45 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                     biltyfinalView(),
                   ],
                 ),
-                // Invite Methods Section
-                Text(
-                  "Invite Members",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 18),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(14.0),
-                          child: Container(
-                            height: 230,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Ladanis',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: isMobile.value ? 22:16)),
-                                  SizedBox(height: 10),
-                                  Obx(() => Container(
-                                        height: isMobile.value ? 200 : 150,
-                                        child: SingleChildScrollView(
-                                          child: Column(
-                                            children: glb
-                                                .associatedLadanis
-                                                .map((ladani) => InkWell(
-                                                      onTap: () {
-                                                        if (selectedLadanis
-                                                            .contains(ladani.id)) {
-                                                          selectedLadanis
-                                                              .remove(ladani.id);
-                                                        } else {
-                                                          selectedLadanis
-                                                              .add(ladani.id!);
-                                                        }
-                                                      },
-                                                      child: Row(
-                                                        children: [
-                                                          Icon(Icons.person,
-                                                              color: Colors.orange,size: isMobile.value? 20: 16,),
-                                                          SizedBox(width: 8),
-                                                          Expanded(
-                                                              child: Text(
-                                                                  ladani.name ??
-                                                                      '',style: TextStyle(fontSize: isMobile.value? 20: 16),)),
-                                                          selectedLadanis.contains(
-                                                                  ladani.id)
-                                                              ? Icon(
-                                                                  Icons
-                                                                      .check_circle,
-                                                                  color:
-                                                                      Colors.green)
-                                                              : Icon(
-                                                                  Icons
-                                                                      .mark_email_unread,
-                                                                  color:
-                                                                      Colors.grey),
-                                                        ],
-                                                      ),
-                                                    ))
-                                                .toList(),
-                                          ),
-                                        ),
-                                      )),
-                                  SizedBox(height: 10),
-                                  Obx(() => selectedLadanis.isNotEmpty
-                                      ? Text(
-                                          'Selected: ' +
-                                              glb.associatedLadanis
-                                                  .where((l) => selectedLadanis
-                                                      .contains(l.id))
-                                                  .map((l) => l.name ?? '')
-                                                  .join(', '),
-                                          style: TextStyle(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.bold))
-                                      : SizedBox.shrink()),
-                                ],
-                              ),
+
+                Text("Bidding will start at ${controller.date.value.substring(0,10)} and ${controller.startTime.value}"),
+
+                Obx(() {
+                  final isScheduled = controller.date.value.isNotEmpty &&
+                      controller.startTime.value.isNotEmpty;
+                  final canStart = controller.canStartBidding();
+
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: canStart ? () {
+                              Get.toNamed(RoutesConstant.bidderSession);
+                            } : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: canStart ? Colors.green : Colors.orange,
+                            ),
+                            child: Text(
+                              canStart
+                                  ? "Start Bidding"
+                                  : isScheduled
+                                  ? "Bidding Not Started Yet"
+                                  : "Schedule Bidding First",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white, ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 30),
-                // Date and Slot Pickers
-                Card(
-                  elevation: 4,
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18)),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 18, horizontal: 24),
-                    child:  (controller.date.value.isNotEmpty) ?Obx(()=> Center(
-                      child: Container(
-                          child: Text("Bidding will start at ${controller.date.value.substring(0,10)} and ${controller.startTime.value}",softWrap: true,overflow: TextOverflow.visible,style: TextStyle(fontSize: MediaQuery.of(Get.context!).size.width>400 ?22:16))),
-                    ))
-                        :Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Date Picker
-                        Obx(() => Expanded(
-                              child: GestureDetector(
-                                onTap: () async {
-                                  final now = DateTime.now();
-                                  final picked = await showDatePicker(
-                                    context: context,
-                                    initialDate: now,
-                                    firstDate: now,
-                                    lastDate: now.add(Duration(days: 365)),
-                                  );
-                                  if (picked != null)
-                                    selectedDate.value = picked;
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 18, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.orange.shade50,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                        color: Colors.orange, width: 1.5),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.orange.withOpacity(0.08),
-                                        blurRadius: 6,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.calendar_today,
-                                          color: Colors.orange, size: isMobile.value?32:16,),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        selectedDate.value == null
-                                            ? 'Select Date'
-                                            : '${selectedDate.value!.day}/${selectedDate.value!.month}/${selectedDate.value!.year}',
-                                        style: TextStyle(
-                                            fontSize: isMobile.value?16:14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.orange.shade900),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            )),
-                        SizedBox(width: 24),
-                        // Start Time Picker
-                      Obx(() => Expanded(
-                              child: GestureDetector(
-                                onTap: () async {
-                                  final picked = await showTimePicker(
-                                    context: context,
-                                    initialTime: TimeOfDay.now(),
-                                  );
-                                  if (picked != null)
-                                    selectedStartTime.value = picked;
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 18, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.deepPurple.shade50,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                        color: Colors.deepPurple, width: 1.5),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color:
-                                            Colors.deepPurple.withOpacity(0.08),
-                                        blurRadius: 6,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.access_time,
-                                          color: Colors.deepPurple,size: isMobile.value?32:16,),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        selectedStartTime.value == null
-                                            ? 'Start Time'
-                                            : selectedStartTime.value!
-                                                .format(context),
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.deepPurple.shade900),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            )),
-                      ],
-                    ),
-                  ),
-                ),
-                // Send Invites Button
-    Obx(() {
-    final isScheduled = controller.date.value.isNotEmpty &&
-    controller.startTime.value.isNotEmpty;
+                    ],
+                  );
+                }),
+                // Invite Methods Section
 
-    return Align(
-    alignment: Alignment.center,
-    child: ElevatedButton.icon(
-    icon: Icon(Icons.send),
-    label: Text(
-    isScheduled ? 'Bidding Scheduled' : 'Send Invites',
-    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-    ),
-    style: ElevatedButton.styleFrom(
-    backgroundColor: isScheduled ? Colors.grey : Colors.deepPurple,
-    foregroundColor: Colors.white,
-    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 18),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),),
-    onPressed: isScheduled ||
-    selectedDate.value == null ||selectedStartTime.value == null
-      ? null
-          : () async {
-      await controller.sendInvite(
-      freightForwarderIds: selectedBuyers.toList(),
-      ladaniIds: selectedLadanis.toList(),
-      date: selectedDate.value!,
-      startTime: selectedStartTime.value!,
-      );
-      },
-      ),
-      );
-    }),
-
-                SizedBox(
-                  height: 20,
-                ),
-    Obx(() {
-    final isScheduled = controller.date.value.isNotEmpty &&
-    controller.startTime.value.isNotEmpty;
-    final canStart = controller.canStartBidding();
-
-    return Row(
-    children: [
-    Expanded(
-    child: Container(
-    height: 50,
-    child: ElevatedButton(
-    onPressed: canStart ? () {
-    Get.toNamed(RoutesConstant.aadhatiSession);
-    } : null,
-    style: ElevatedButton.styleFrom(
-    backgroundColor: canStart ? Colors.green : Colors.orange,
-    ),
-    child: Text(
-    canStart
-    ? "Start Bidding"
-        : isScheduled
-    ? "Bidding Not Started Yet"
-        : "Schedule Bidding First",
-    style: TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.bold,
-    color: Colors.white, ),
-    ),
-    ),
-    ),
-    ),
-    ],
-    );
-    }),
-                //
-                // Legend/equation text
-                SizedBox(
-                  height: 10,
-                ),
-                Center(
-                  child: Text(
-                    "Technology Parnter: Techori Rishishwar",
-                    style: TextStyle(fontStyle: FontStyle.italic, fontSize: 10),
-                  ),
-                ),
               ],
             ),
           ),

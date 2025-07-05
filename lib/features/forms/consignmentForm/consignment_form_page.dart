@@ -366,6 +366,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
+
+                          controller.Step4();
+                          Get.back();
                           // Accept logic
                         },
                         style: ElevatedButton.styleFrom(

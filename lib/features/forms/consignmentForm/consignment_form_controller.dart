@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:apple_grower/features/grower/grower_controller.dart';
 import 'package:apple_grower/models/consignment_model.dart';
 import 'package:apple_grower/models/transport_model.dart';
+import 'package:apple_grower/navigation/routes_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../models/aadhati.dart';
@@ -75,7 +76,9 @@ class ConsignmentFormController extends GetxController {
             bilty: json['bilty'] != null ? Bilty.fromJson(json['bilty']) : null,
             aadhatiMode: json['aadhatiMode'],
             driverMode: json['driverMode'],
-            packHouseMode:  json ['packHouseMode']
+            packHouseMode:  json ['packHouseMode'],
+            startTime: json['startTime'],
+            date: json['date']
         );
 
         driverMode.value =consignment.value!.driverMode!;
@@ -90,12 +93,28 @@ class ConsignmentFormController extends GetxController {
           {
             step.value = 3;
           }
+        else if(consignment.value?.currentStage=="Release for Bid"||consignment.value?.currentStage=="Bidding Invite"||consignment.value?.currentStage=="Bidding Start")
+          {
+            Get.offNamed(RoutesConstant.growerSession);
+          }
 
 
         print(consignment.value!.bilty?.id);
       bilty.value = consignment.value!.bilty;
       }
     }
+  }
+
+
+  Step4()
+  async {
+
+    String apiurl = glb.url + "/api/consignment/${glb.consignmentID.value}/change-status";
+    Map <String, dynamic> data ={
+      "currentStage": "Release for Bid"
+    };
+    final response =await http.patch(Uri.parse(apiurl),body: jsonEncode(data),  headers: {"Content-Type": "application/json"});
+    print(response.body);
   }
 
   createConsignment() async {

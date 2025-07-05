@@ -927,7 +927,7 @@ class AadhatiView extends GetView<AadhatiController> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Consignment ${consignment.id?.substring(0, 4)}...',
+                '${consignment.searchId!}',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -941,7 +941,7 @@ class AadhatiView extends GetView<AadhatiController> {
 
                 const SizedBox(height: 4),
                 Text(
-                  'Status: ${consignment.status}',
+                  'Status: ${consignment.currentStage}',
                   style: const TextStyle(fontSize: 12),
                 ),
               ],

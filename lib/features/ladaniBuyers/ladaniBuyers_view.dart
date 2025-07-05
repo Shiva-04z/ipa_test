@@ -180,7 +180,7 @@ class LadaniBuyersView extends GetView<LadaniBuyersController> {
                 height: isSmallScreen ? 32 : 40,
               ),
               Text(
-                name,
+                detail,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isSmallScreen ? 12 : 14,
@@ -189,13 +189,7 @@ class LadaniBuyersView extends GetView<LadaniBuyersController> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              if (!isSmallScreen) ...[
-                SizedBox(height: 4),
-                Text(
-                  detail,
-                  style: TextStyle(fontSize: 12),
-                ),
-              ],
+
             ],
           ),
         ),
