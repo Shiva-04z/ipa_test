@@ -533,7 +533,7 @@ class RegisterController extends GetxController {
         return 3;
       case "Freight Forwarder":
         return 3;
-      case "Police Officer":
+      case "HP Police":
         return 3;
       case "APMC Office":
         return 3;
@@ -611,7 +611,7 @@ class RegisterController extends GetxController {
         case "Freight Forwarder":
           await registerFreightForwarder();
           break;
-        case "Police Officer":
+        case "HP Police":
           await registerPoliceOfficer();
           break;
         case "APMC Office":
@@ -679,7 +679,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
 
         Get.toNamed(RoutesConstant.aadhati);
       } else {
@@ -756,7 +757,8 @@ class RegisterController extends GetxController {
         // Store the created grower data if needed
         // You might want to save the response data to local storage or global state
 
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.grower);
       } else {
         // Handle different error status codes
@@ -847,7 +849,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.packHouse);
       } else {
         final errorData = jsonDecode(response.body);
@@ -931,7 +934,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.transportUnion);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1006,7 +1010,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.ladaniBuyers);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1077,7 +1082,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.driver);
       } else {
         final errorData = jsonDecode(response.body);
@@ -1149,7 +1155,8 @@ class RegisterController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await glb.uploadIDData();
+        glb.roleType.value = selectedRole.value;
+        await glb.uploadUserData();
         Get.toNamed(RoutesConstant.hpAgriBoard);
       } else {
         final errorData = jsonDecode(response.body);

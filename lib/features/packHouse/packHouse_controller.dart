@@ -11,7 +11,6 @@ import '../../models/aadhati.dart';
 import '../../models/ladani_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/consignment_model.dart';
-import '../../core/global_role_loader.dart' as gld;
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import '../../core/globalMethods.dart' as glbm;
@@ -91,6 +90,8 @@ class PackHouseController extends GetxController {
           glbm.createEmployeeListFromApi(data['employee_IDs']);
       print(data['hpmcDepot_IDs']);
       hpmcDepots.value = glbm.createHPMCListFromApi(data['hpmcDepot_IDs']);
+      galleryImages.value = (data['gallery'] as List).map((item) => item['url'] as String).where((url) => url.isNotEmpty).toList();
+
       // Separate consignments by currentStage
       final allConsignments =
           glbm.createConsignmentListFromApi(data['consignment_IDs']);
@@ -677,12 +678,30 @@ class PackHouseController extends GetxController {
 
   // ==================== GALLERY MANAGEMENT METHODS ====================
   Future<void> pickAndUploadImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      // Here you would typically upload the image to your storage
-      // For now, we'll just add the path to the list
-      galleryImages.add(image.path);
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        glb.isUploading.value = true;
+        // Use the correct endpoint and pass the XFile
+        final result = await glb.uploadImage(image, uploadEndpoint: '/api/packhouse/${glb.id.value}/upload',);
+        glb.isUploading.value = false;
+
+        if (result != null) {
+          galleryImages.add(result); // or parse result if it's a URL
+          Get.snackbar('Success', 'Image uploaded successfully!');
+        } else {
+          Get.snackbar('Upload Failed', 'Image upload failed.');
+        }
+      }
+
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick image: \\n${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 

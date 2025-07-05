@@ -11,17 +11,18 @@ import '../models/driving_profile_model.dart';
 import '../models/grower_model.dart';
 import '../models/ladani_model.dart';
 import '../models/orchard_model.dart';
-import '../models/pack_house_model.dart';
 import '../models/post_model.dart';
 import '../models/transport_model.dart';
 import 'dictionary.dart';
 import '../models/hpmc_collection_center_model.dart';
+import '../navigation/routes_constant.dart';
 
 import '../models/complaint_model.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:image_picker/image_picker.dart';
+import '../../core/globals.dart' as glb;
 
 RxString roleType = "Grower".obs;
 RxString personName = "Ram Singh".obs;
@@ -33,7 +34,7 @@ RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
 RxString userId = "".obs;
 RxString url =
-    "https://bml-m3ps.onrender.com".obs;
+    "https://58ff-2409-40d2-1a-3e9-5af-c9d9-ac71-2ffc.ngrok-free.app".obs;
 RxString id = (roleType.value == "Grower") ? "6864ffc9d0ab74d21f4e8728".obs : (roleType.value == "Aadhati")?  "6863d8bd12ec4c0cd45a8b1b".obs :"".obs;
 //6864cbb64b7a68ce4e9e0a4e
 RxString selectedOrchardAddress = "".obs;
@@ -51,13 +52,51 @@ RxBool isUploading = false.obs;
 loadIDData()
 async {
   SharedPreferences prefs =await SharedPreferences.getInstance();
-  id.value = prefs.getString("id")!;
+  id.value = prefs.getString("id") ?? "";
 }
 
 uploadIDData()async{
   SharedPreferences prefs =await SharedPreferences.getInstance();
   prefs.setString("id", id.value);
 
+}
+
+// Load role type from SharedPreferences
+loadRoleData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  roleType.value = prefs.getString("roleType") ?? "Grower";
+}
+
+// Save role type to SharedPreferences
+uploadRoleData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString("roleType", roleType.value);
+}
+
+// Load both ID and role data
+loadUserData() async {
+  await loadIDData();
+  await loadRoleData();
+}
+
+// Save both ID and role data
+uploadUserData() async {
+  await uploadIDData();
+  await uploadRoleData();
+}
+
+// Logout function - clears stored user data
+logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove("id");
+  await prefs.remove("roleType");
+  
+  // Reset global variables
+  id.value = "";
+  roleType.value = "Grower";
+  
+  // Navigate to sign-up page
+  Get.offAllNamed(RoutesConstant.signUp);
 }
 
 
@@ -590,7 +629,7 @@ RxList<HpmcCollectionCenter> availableHpmcDepots = [
 /// Uploads an image to the server and returns the uploaded image URL or response.
 /// [image] can be a File or XFile (from image_picker).
 /// [uploadEndpoint] is the API endpoint for image upload (e.g., url.value + '/api/upload').
-Future<String?> uploadImage(dynamic image, {String? uploadEndpoint}) async {
+Future<String?> uploadImage(dynamic image, {required String uploadEndpoint}) async {
   try {
     // Determine the file to upload
     File file;
@@ -602,14 +641,11 @@ Future<String?> uploadImage(dynamic image, {String? uploadEndpoint}) async {
       throw Exception('Invalid image type');
     }
 
-    final uri = Uri.parse(uploadEndpoint ?? url.value + '/api/upload');
+    final String apiUrl = glb.url + uploadEndpoint;
+    final uri = Uri.parse(apiUrl);
     final request = http.MultipartRequest('POST', uri);
     request.files.add(
-      await http.MultipartFile.fromPath(
-        'image',
-        file.path,
-        filename: path.basename(file.path),
-      ),
+      await http.MultipartFile.fromPath('image', file.path, filename: path.basename(file.path),),
     );
 
     final streamedResponse = await request.send();
@@ -626,3 +662,18 @@ Future<String?> uploadImage(dynamic image, {String? uploadEndpoint}) async {
     return null;
   }
 }
+
+
+
+/// Uploads a list of images to the server and returns a list of uploaded image URLs or responses.
+/// [images] can be a List<File> or List<XFile> (from image_picker).
+/// [uploadEndpoint] is the API endpoint for image upload (e.g., url.value + '/api/upload').
+Future<List<String?>> uploadImages(List<dynamic> images, {required String uploadEndpoint}) async {
+  List<String?> results = [];
+  for (var image in images) {
+    final result = await uploadImage(image, uploadEndpoint: uploadEndpoint);
+    results.add(result);
+  }
+  return results;
+}
+

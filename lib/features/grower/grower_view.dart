@@ -1,7 +1,6 @@
 import 'package:apple_grower/features/forms/buyer_form_page.dart';
 import 'package:apple_grower/features/forms/driver_form_page.dart';
 import 'package:apple_grower/features/grower/grower_controller.dart';
-import 'package:apple_grower/models/ladani_model.dart';
 import 'package:apple_grower/navigation/routes_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,17 +12,14 @@ import '../../models/hpmc_collection_center_model.dart';
 import '../../models/pack_house_model.dart';
 import '../../models/driving_profile_model.dart';
 import '../../models/transport_model.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../models/freightForwarder.dart';
 import '../forms/commission_agent_form_page.dart';
-import '../forms/consignmentForm/consignment_form_page.dart';
 import '../forms/orchard_form_page.dart';
 import '../forms/packing_house_form_page.dart';
 import 'grower_dialogs.dart';
 import '../../models/orchard_model.dart';
 import '../../models/consignment_model.dart';
 import '../forms/transport_union_form_page.dart';
-import 'dart:io';
 import '../forms/hpmc_depot_form_page.dart';
 
 class GrowerView extends GetView<GrowerController> {
@@ -1361,11 +1357,14 @@ class GrowerView extends GetView<GrowerController> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image(
-            image: kIsWeb
-                ? NetworkImage(imageUrl) as ImageProvider
-                : FileImage(File(imageUrl)) as ImageProvider,
+            image:
+            // kIsWeb
+            //     ?
+            NetworkImage(imageUrl) as ImageProvider,
+                // : FileImage(File(imageUrl)) as ImageProvider,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
+              print("error : ${error}");
               return Container(
                 color: Colors.grey[200],
                 child: Center(

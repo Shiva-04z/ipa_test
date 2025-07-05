@@ -93,6 +93,7 @@ class GrowerController extends GetxController {
       hpmcDepots.value = glbm.createHPMCListFromApi(data['hpmcDepot_IDs']);
       consignments.value =
           glbm.createConsignmentListFromApi(data['consignment_IDs']);
+      galleryImages.value = (data['gallery'] as List).map((item) => item['url'] as String).where((url) => url.isNotEmpty).toList();
     }
   }
 
@@ -665,8 +666,24 @@ class GrowerController extends GetxController {
       if (image != null) {
         // TODO: Implement image upload to your storage service
         // For now, we'll just add the local path to demonstrate the UI
-        galleryImages.add(image.path);
+        // await glb.uploadImage(image.path, uploadEndpoint: '/api/growers/${glb.id.value}/upload');
+        // galleryImages.add(image.path);
+        glb.isUploading.value = true;
+        // Use the correct endpoint and pass the XFile
+        final result = await glb.uploadImage(
+          image,
+          uploadEndpoint: '/api/growers/${glb.id.value}/upload',
+        );
+        glb.isUploading.value = false;
+
+        if (result != null) {
+          galleryImages.add(result); // or parse result if it's a URL
+          Get.snackbar('Success', 'Image uploaded successfully!');
+        } else {
+          Get.snackbar('Upload Failed', 'Image upload failed.');
+        }
       }
+
     } catch (e) {
       Get.snackbar(
         'Error',

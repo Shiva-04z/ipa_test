@@ -59,7 +59,7 @@ class SignUpController extends GetxController{
 
         glb.id.value = data['roledocID'];
         print("ID : ${glb.id.value}");
-        glb.uploadIDData();
+        glb.uploadUserData(); // Save both ID and role data
         print('Response Body : ${response.body}');
         // You can store user info in globals or session here
         Get.snackbar("Success", "Sign in successful!");
@@ -85,42 +85,52 @@ class SignUpController extends GetxController{
     switch (currentValue.value) {
       case "Grower":
         glb.roleType.value = "Grower"; // Set global role type
+        glb.uploadRoleData(); // Save role to SharedPreferences
         Get.toNamed(RoutesConstant.grower); // Navigate to Grower dashboard/page
         break;
       case "PackHouse":
         glb.roleType.value = "PackHouse";
+        glb.uploadRoleData();
         Get.toNamed(RoutesConstant.packHouse);
         break;
       case "Aadhati":
         glb.roleType.value = "Aadhati";
+        glb.uploadRoleData();
         Get.toNamed(RoutesConstant.aadhati);
         break;
       case "Ladani/Buyers":
         glb.roleType.value = "Ladani/Buyers";
+        glb.uploadRoleData();
         Get.toNamed(RoutesConstant.ladaniBuyers);
         break;
       case "Freight Forwarder":
         glb.roleType.value = "Freight Forwarder";
+        glb.uploadRoleData();
         Get.toNamed(RoutesConstant.freightForwarder);
         break;
       case "Driver":
         glb.roleType.value = "Driver";
+        glb.uploadRoleData();
         Get.toNamed(RoutesConstant.driver);
         break;
       case "Transport Union":
         glb.roleType.value = "Transport Union";
+        glb.uploadRoleData();
         Get.toNamed(RoutesConstant.transportUnion);
         break;
       case "APMC Office":
         glb.roleType.value = "APMC Office";
+        glb.uploadRoleData();
         Get.toNamed(RoutesConstant.apmcOffice);
         break;
       case "HP Police":
         glb.roleType.value = "HP Police";
+        glb.uploadRoleData();
         Get.toNamed(RoutesConstant.hpPolice);
         break;
       case "HPMC DEPOT":
         glb.roleType.value = "HPMC DEPOT";
+        glb.uploadRoleData();
         Get.toNamed(RoutesConstant.hpAgriBoard);
         break;
       default:
