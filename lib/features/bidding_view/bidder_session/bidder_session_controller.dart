@@ -63,6 +63,7 @@ class BidderSessionController extends GetxController {
     } else {
       // Update only this bidder's entry inside the existing 'bids' map
       await bidsRef.child(glb.id.value).update({
+        "name": glb.personName.value,
         "roletype": glb.roleType.value,
       });
     }

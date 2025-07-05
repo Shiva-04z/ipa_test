@@ -12,6 +12,7 @@ class ForwardBiltyController extends GetxController {
   RxString growerName = ''.obs;
   RxString date ="".obs;
   RxString startTime ="".obs;
+  RxBool canStart =true.obs;
 
   @override
   void onInit() {
@@ -142,9 +143,9 @@ class ForwardBiltyController extends GetxController {
         minutes: int.parse(timeParts[1]),
       ));
 
-      return DateTime.now().isAfter(scheduledDateTime);
+      return true;
     } catch (e) {
-      return false;
+      return true;
     }
   }
 

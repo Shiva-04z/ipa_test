@@ -39,33 +39,43 @@ class BidderSessionView extends GetView<BidderSessionController> {
                 const Text('Overall Highest Bidder:',
                     style: TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 16)),
-                Container(
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: TabBar(
-                    tabs: qualities
-                        .map((quality) => Tab(
-                              child: Text(
-                                '$quality\n${controller.qualityTotalWeights[quality]?.toStringAsFixed(1) ?? '0'} kg',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 0),
+                        color: Colors.orange[50],
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Obx(
+                                    ()=> Text(
+                                    'Name: '
+                                        '${controller.highestBidderPerQuality['global'] ?? '-'}',
+                                    style: const TextStyle(
+                                        color: Colors.deepPurple,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16)),
                               ),
-                            ))
-                        .toList(),
-                    isScrollable: true,
-                    labelColor: Colors.blue,
-                    unselectedLabelColor: Colors.grey[600],
-                    indicator: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.blue[100],
+                              const SizedBox(height: 4),
+                              Obx(
+                                    ()=> Text(
+                                    'Total Amount: ₹'
+                                        '${controller.highestTotals.value?? '-'}',
+                                    style: const TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    labelPadding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
+                  ],
                 ),
                 const SizedBox(height: 16),
 

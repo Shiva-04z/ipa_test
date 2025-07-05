@@ -883,14 +883,14 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                         child: Container(
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: canStart ? () {
+                            onPressed: controller.canStart.value ? () {
                               Get.toNamed(RoutesConstant.bidderSession);
                             } : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: canStart ? Colors.green : Colors.orange,
                             ),
                             child: Text(
-                              canStart
+                              controller.canStart.value
                                   ? "Start Bidding"
                                   : isScheduled
                                   ? "Bidding Not Started Yet"
