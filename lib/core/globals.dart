@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/aadhati.dart';
 import '../models/apmc_model.dart';
 import '../models/auth_signatory_post_model.dart';
-import '../models/consignment_model.dart';
 import '../models/driving_profile_model.dart';
 import '../models/grower_model.dart';
 import '../models/ladani_model.dart';
@@ -61,6 +60,44 @@ uploadIDData()async{
   SharedPreferences prefs =await SharedPreferences.getInstance();
   prefs.setString("id", id.value);
 
+}
+
+// Load role type from SharedPreferences
+loadRoleData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  roleType.value = prefs.getString("roleType") ?? "Grower";
+}
+
+// Save role type to SharedPreferences
+uploadRoleData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString("roleType", roleType.value);
+}
+
+// Load both ID and role data
+loadUserData() async {
+  await loadIDData();
+  await loadRoleData();
+}
+
+// Save both ID and role data
+uploadUserData() async {
+  await uploadIDData();
+  await uploadRoleData();
+}
+
+// Logout function - clears stored user data
+logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove("id");
+  await prefs.remove("roleType");
+  
+  // Reset global variables
+  id.value = "";
+  roleType.value = "Grower";
+  
+  // Navigate to sign-up page
+  Get.offAllNamed(RoutesConstant.signUp);
 }
 
 
@@ -586,3 +623,55 @@ RxList<HpmcCollectionCenter> availableHpmcDepots = [
     associatedTransportUnions: [],
   ),
 ].obs;
+
+/// Uploads an image to the server and returns the uploaded image URL or response.
+/// [image] can be a File or XFile (from image_picker).
+/// [uploadEndpoint] is the API endpoint for image upload (e.g., url.value + '/api/upload').
+Future<String?> uploadImage(dynamic image, {required String uploadEndpoint}) async {
+  try {
+    // Determine the file to upload
+    File file;
+    if (image is XFile) {
+      file = File(image.path);
+    } else if (image is File) {
+      file = image;
+    } else {
+      throw Exception('Invalid image type');
+    }
+
+    final String apiUrl = glb.url + uploadEndpoint;
+    final uri = Uri.parse(apiUrl);
+    final request = http.MultipartRequest('POST', uri);
+    request.files.add(
+      await http.MultipartFile.fromPath('image', file.path, filename: path.basename(file.path),),
+    );
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // Parse the response as needed (assuming it returns a URL or JSON)
+      // Example: return jsonDecode(response.body)['url'];
+      return response.body;
+    } else {
+      throw Exception('Image upload failed: \\${response.statusCode}');
+    }
+  } catch (e) {
+    print('Image upload error: $e');
+    return null;
+  }
+}
+
+
+
+/// Uploads a list of images to the server and returns a list of uploaded image URLs or responses.
+/// [images] can be a List<File> or List<XFile> (from image_picker).
+/// [uploadEndpoint] is the API endpoint for image upload (e.g., url.value + '/api/upload').
+Future<List<String?>> uploadImages(List<dynamic> images, {required String uploadEndpoint}) async {
+  List<String?> results = [];
+  for (var image in images) {
+    final result = await uploadImage(image, uploadEndpoint: uploadEndpoint);
+    results.add(result);
+  }
+  return results;
+}
+
