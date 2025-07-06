@@ -2,8 +2,6 @@ import 'package:apple_grower/features/forms/commission_agent_form_page.dart';
 import 'package:apple_grower/features/freightForwarder/freightForwarder_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:io';
-
 import '../../core/globalsWidgets.dart' as glbw;
 import '../../models/grower_model.dart';
 import '../../models/driving_profile_model.dart';
@@ -1207,9 +1205,7 @@ class FreightForwarderView extends GetView<FreightForwarderController> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image(
-            image: imageUrl.startsWith('http')
-                ? NetworkImage(imageUrl) as ImageProvider
-                : FileImage(File(imageUrl)) as ImageProvider,
+            image: NetworkImage(imageUrl) as ImageProvider,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(

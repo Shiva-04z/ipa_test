@@ -305,9 +305,6 @@ class GrowerView extends GetView<GrowerController> {
         color = Colors.green;
         text = 'Harvest';
         break;
-        color = Colors.teal;
-        text = 'Packing';
-        break;
     }
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -1364,10 +1361,7 @@ class GrowerView extends GetView<GrowerController> {
           borderRadius: BorderRadius.circular(12),
           child: Image(
             image:
-            // kIsWeb
-            //     ?
             NetworkImage(imageUrl) as ImageProvider,
-                // : FileImage(File(imageUrl)) as ImageProvider,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               print("error : ${error}");

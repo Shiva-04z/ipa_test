@@ -4,7 +4,6 @@ import 'package:apple_grower/features/ladaniBuyers/ladaniBuyers_controller.dart'
 import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:io';
 import '../../core/globalsWidgets.dart' as glbw;
 import '../../models/aadhati.dart';
 import '../../models/transport_model.dart';
@@ -889,9 +888,7 @@ class LadaniBuyersView extends GetView<LadaniBuyersController> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image(
-            image: imageUrl.startsWith('http')
-                ? NetworkImage(imageUrl) as ImageProvider
-                : FileImage(File(imageUrl)) as ImageProvider,
+            image: NetworkImage(imageUrl) as ImageProvider,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(

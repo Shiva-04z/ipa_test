@@ -4,7 +4,6 @@ import 'package:apple_grower/models/freightForwarder.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/globalsWidgets.dart' as glbw;
-import '../../core/global_role_loader.dart' as gld;
 import '../../models/grower_model.dart';
 import '../../models/ladani_model.dart';
 import '../../models/driving_profile_model.dart';
@@ -19,7 +18,6 @@ import '../grower/grower_dialogs.dart';
 import '../packHouse/consignment_form2_page.dart';
 import '../forms/transport_union_form_page.dart';
 import '../forms/employee_form_page.dart';
-import 'dart:io';
 
 class AadhatiView extends GetView<AadhatiController> {
   final RxString selectedSection = 'My Commission Agent Info'.obs;
@@ -1165,9 +1163,7 @@ class AadhatiView extends GetView<AadhatiController> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image(
-            image: imageUrl.startsWith('http')
-                ? NetworkImage(imageUrl) as ImageProvider
-                : FileImage(File(imageUrl)) as ImageProvider,
+            image:NetworkImage(imageUrl) as ImageProvider,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
