@@ -2,6 +2,7 @@
 class BiltyCategory {
   final String quality;
   final String category;
+  final String variety;
   final String size;
   final int piecesPerBox;
   final double avgWeight;
@@ -23,6 +24,7 @@ class BiltyCategory {
     required this.avgBoxWeight,
     required this.boxCount,
     required this.totalWeight,
+    required this.variety,
     this.imagePath,
     required this.pricePerKg,
     required this.boxValue,
@@ -34,6 +36,7 @@ class BiltyCategory {
   BiltyCategory copyWith({
     String? quality,
     String? category,
+    String? variety,
     String? size,
     int? piecesPerBox,
     double? avgWeight,
@@ -60,6 +63,7 @@ class BiltyCategory {
       boxValue: boxValue ?? this.boxValue,
       totalPrice: totalPrice ?? this.totalPrice,
       videoPath: videoPath ?? this.videoPath,
+      variety: variety?? this.variety
     );
   }
 
@@ -79,6 +83,7 @@ class BiltyCategory {
       'boxValue': boxValue,
       'totalPrice': totalPrice,
       'videoPath': videoPath,
+      'variety': variety
     };
   }
 
@@ -87,6 +92,7 @@ class BiltyCategory {
     return BiltyCategory(
       quality: map['quality'] as String,
       category: map['category'] as String,
+      variety:  map['variety'] as String,
       size: map['size'] as String,
       piecesPerBox: map['piecesPerBox'] as int,
       avgWeight: (map['avgWeight'] as num).toDouble(),
@@ -112,6 +118,7 @@ class Bilty {
   final double totalValue;
   final String? videoPath;
 
+
   Bilty({
     this.id,
     required this.createdAt,
@@ -130,6 +137,7 @@ class Bilty {
         quality: 'GP',
         category: 'Large',
         size: '>75mm-<80mm',
+        variety: 'Delicious',
         piecesPerBox: 40,
         avgWeight: 200,
         avgBoxWeight: 10,
@@ -142,6 +150,7 @@ class Bilty {
       BiltyCategory(
         quality: 'GP',
         category: 'Medium',
+        variety: 'Delicious',
         size: '>70mm-<75mm',
         piecesPerBox: 50,
         avgWeight: 160,
@@ -155,6 +164,7 @@ class Bilty {
       BiltyCategory(
         quality: 'GP',
         category: 'Small',
+        variety: 'Delicious',
         size: '>65mm-<70mm',
         piecesPerBox: 60,
         avgWeight: 133,
@@ -169,6 +179,7 @@ class Bilty {
         quality: 'GP',
         category: 'Extra Small',
         size: '>60mm-<65mm',
+        variety: 'Delicious',
         piecesPerBox: 70,
         avgWeight: 116,
         avgBoxWeight: 15,
@@ -182,6 +193,7 @@ class Bilty {
         quality: 'AAA',
         category: 'Extra Large',
         size: '>80mm',
+        variety: 'Delicious',
         piecesPerBox: 80,
         avgWeight: 250,
         avgBoxWeight: 20,
@@ -195,6 +207,7 @@ class Bilty {
         quality: 'AAA',
         category: 'Large',
         size: '>75mm-<80mm',
+        variety: 'Delicious',
         piecesPerBox: 100,
         avgWeight: 200,
         avgBoxWeight: 15,
@@ -208,6 +221,7 @@ class Bilty {
         quality: 'AAA',
         category: 'Medium',
         size: '>70mm-<75mm',
+        variety: 'Delicious',
         piecesPerBox: 125,
         avgWeight: 250,
         avgBoxWeight: 31.25,
@@ -221,6 +235,7 @@ class Bilty {
         quality: 'AAA',
         category: 'Small',
         size: '>65mm-<70mm',
+        variety: 'Delicious',
         piecesPerBox: 150,
         avgWeight: 250,
         avgBoxWeight: 37.5,
@@ -234,6 +249,7 @@ class Bilty {
         quality: 'AAA',
         category: 'Extra Small',
         size: '>60mm-<65mm',
+        variety: 'Delicious',
         piecesPerBox: 175,
         avgWeight: 250,
         avgBoxWeight: 43.75,
@@ -247,6 +263,7 @@ class Bilty {
         quality: 'AAA',
         category: 'E Extra Small',
         size: '>55mm-<60mm',
+        variety: 'Delicious',
         piecesPerBox: 200,
         avgWeight: 250,
         avgBoxWeight: 50,
@@ -260,6 +277,7 @@ class Bilty {
         quality: 'AAA',
         category: '240 Count',
         size: '>50mm-<55mm',
+        variety: 'Delicious',
         piecesPerBox: 240,
         avgWeight: 250,
         avgBoxWeight: 60,
@@ -273,6 +291,7 @@ class Bilty {
         quality: 'AAA',
         category: 'Pittu',
         size: '>45mm-<50mm',
+        variety: 'Delicious',
         piecesPerBox: 270,
         avgWeight: 250,
         avgBoxWeight: 20,
@@ -286,6 +305,7 @@ class Bilty {
         quality: 'AAA',
         category: 'Seprator',
         size: '>40mm-<45mm',
+        variety: 'Delicious',
         piecesPerBox: 300,
         avgWeight: 65,
         avgBoxWeight: 20,
@@ -299,6 +319,7 @@ class Bilty {
         quality: 'AA',
         category: 'Extra Large',
         size: '>80mm',
+        variety: 'Delicious',
         piecesPerBox: 80,
         avgWeight: 250,
         avgBoxWeight: 20,
@@ -312,6 +333,7 @@ class Bilty {
         quality: 'AA',
         category: 'Large',
         size: '>75mm-<80mm',
+        variety: 'Delicious',
         piecesPerBox: 100,
         avgWeight: 200,
         avgBoxWeight: 20,
@@ -325,6 +347,7 @@ class Bilty {
         quality: 'AA',
         category: 'Medium',
         size: '>70mm-<75mm',
+        variety: 'Delicious',
         piecesPerBox: 125,
         avgWeight: 160,
         avgBoxWeight: 20,
@@ -338,6 +361,7 @@ class Bilty {
         quality: 'AA',
         category: 'Small',
         size: '>65mm-<70mm',
+        variety: 'Delicious',
         piecesPerBox: 150,
         avgWeight: 133,
         avgBoxWeight: 20,
@@ -351,6 +375,7 @@ class Bilty {
         quality: 'AA',
         category: 'Extra Small',
         size: '>60mm-<65mm',
+        variety: 'Delicious',
         piecesPerBox: 175,
         avgWeight: 116,
         avgBoxWeight: 20,
@@ -364,6 +389,7 @@ class Bilty {
         quality: 'AA',
         category: 'E Extra Small',
         size: '>55mm-<60mm',
+        variety: 'Delicious',
         piecesPerBox: 200,
         avgWeight: 98,
         avgBoxWeight: 20,
@@ -377,6 +403,7 @@ class Bilty {
         quality: 'AA',
         category: '240 Count',
         size: '>50mm-<55mm',
+        variety: 'Delicious',
         piecesPerBox: 240,
         avgWeight: 75,
         avgBoxWeight: 20,
@@ -390,6 +417,7 @@ class Bilty {
         quality: 'AA',
         category: 'Pittu',
         size: '>45mm-<50mm',
+        variety: 'Delicious',
         piecesPerBox: 270,
         avgWeight: 70,
         avgBoxWeight: 20,
@@ -403,6 +431,7 @@ class Bilty {
         quality: 'AA',
         category: 'Seprator',
         size: '>40mm-<45mm',
+        variety: 'Delicious',
         piecesPerBox: 300,
         avgWeight: 65,
         avgBoxWeight: 20,
@@ -415,6 +444,7 @@ class Bilty {
       BiltyCategory(
         quality: 'Mix/Pear',
         category: 'Mix & Pears',
+        variety: 'Delicious',
         size: 'All Sizes',
         piecesPerBox: 80,
         avgWeight: 0,

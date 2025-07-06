@@ -414,10 +414,6 @@ class RegisterController extends GetxController {
             errorMessage.value = "Please enter grading machine";
             return false;
           }
-          if (sortingMachineController.text.trim().isEmpty) {
-            errorMessage.value = "Please enter sorting machine";
-            return false;
-          }
           if (numberOfCratesController.text.trim().isEmpty) {
             errorMessage.value = "Please enter number of crates";
             return false;
@@ -796,8 +792,8 @@ class RegisterController extends GetxController {
         "address": addressController.text.trim(),
         "gradingMachine": gradingMachineController.text.trim(),
         "gradingMachineCapacity": gradingMachineCapacityController.text.trim(),
-        "sortingMachine": sortingMachineController.text.trim(),
-        "sortingMachineCapacity": sortingMachineCapacityController.text.trim(),
+        "sortingMachine": "",
+        "sortingMachineCapacity": "",
         "machineManufacture": machineManufactureController.text.trim(),
         "trayType": trayTypeController.text.trim(),
         "perDayCapacity": perDayCapacityController.text.trim(),

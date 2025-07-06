@@ -193,6 +193,7 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                 const DataColumn(label: Text("Quality")),
                 const DataColumn(label: Text("Category")),
                 if (showDetails.value) ...[
+                  const DataColumn(label: Text("Variety")),
                   const DataColumn(label: Text("Size in MM")),
                   const DataColumn(label: Text("No. of Pieces")),
                   const DataColumn(label: Text("Avg. Weight Per Piece")),
@@ -219,6 +220,8 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                     DataCell(Text(category.category,
                         style: const TextStyle(color: Colors.white))),
                     if (showDetails.value) ...[
+                      DataCell(Text(category.variety,
+                          style: const TextStyle(color: Colors.white))),
                       DataCell(Text(category.size,
                           style: const TextStyle(color: Colors.white))),
                       DataCell(Text("${category.piecesPerBox}",
@@ -442,7 +445,7 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                         ),
                         Row(
                           children: [
-                            const Text('Grower: ',
+                            const Text('Grower:',
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             Text(controller.growerName.value,
                                 style: const TextStyle(fontSize: 16)),
