@@ -96,55 +96,55 @@ Widget buildInfo() {
         const SizedBox(
           height: 15,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Obx(
-            ()=>Text(
-                "Village - ${glb.personVillage}",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            Obx(
-            ()=> Text(
-                "Post - ${glb.personPost}",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-           Obx(
-              ()=> Text(
-                "Bank Account - ${glb.personBank}",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            Obx(
-              ()=> Text(
-                "IFSC - ${glb.personIFSC}",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   children: [
+        //     Obx(
+        //     ()=>Text(
+        //         "Village - ${glb.personVillage}",
+        //         style: const TextStyle(
+        //           color: Colors.white,
+        //           fontSize: 14,
+        //         ),
+        //       ),
+        //     ),
+        //     Obx(
+        //     ()=> Text(
+        //         "Post - ${glb.personPost}",
+        //         style: const TextStyle(
+        //           color: Colors.white,
+        //           fontSize: 14,
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
+        // const SizedBox(
+        //   height: 15,
+        // ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   children: [
+        //    Obx(
+        //       ()=> Text(
+        //         "Bank Account - ${glb.personBank}",
+        //         style: const TextStyle(
+        //           color: Colors.white,
+        //           fontSize: 14,
+        //         ),
+        //       ),
+        //     ),
+        //     Obx(
+        //       ()=> Text(
+        //         "IFSC - ${glb.personIFSC}",
+        //         style: const TextStyle(
+        //           color: Colors.white,
+        //           fontSize: 14,
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ],
     ),
   );
