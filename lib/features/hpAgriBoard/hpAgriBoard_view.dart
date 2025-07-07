@@ -15,7 +15,6 @@ import '../packHouse/consignment_form2_page.dart';
 
 
 import '../forms/transport_union_form_page.dart';
-import 'dart:io';
 
 class HPAgriBoardView extends GetView<HPAgriBoardController> {
   final RxString selectedSection = 'My HPMC Depot Info'.obs;
@@ -733,9 +732,7 @@ class HPAgriBoardView extends GetView<HPAgriBoardController> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image(
-            image: imageUrl.startsWith('http')
-                ? NetworkImage(imageUrl) as ImageProvider
-                : FileImage(File(imageUrl)) as ImageProvider,
+            image: NetworkImage(imageUrl) as ImageProvider,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(

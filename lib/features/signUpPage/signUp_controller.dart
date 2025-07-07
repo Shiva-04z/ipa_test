@@ -59,7 +59,7 @@ class SignUpController extends GetxController{
 
         glb.id.value = data['roledocID'];
         print("ID : ${glb.id.value}");
-        glb.uploadUserData(); // Save both ID and role data
+        glb.uploadIDData(); // Save both ID and role data
         print('Response Body : ${response.body}');
         // You can store user info in globals or session here
         Get.snackbar("Success", "Sign in successful!");

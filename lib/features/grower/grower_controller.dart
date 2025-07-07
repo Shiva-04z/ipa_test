@@ -11,8 +11,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import '../../core/globals.dart';
 import '../../core/globals.dart' as glb;
 import '../../models/aadhati.dart';
 import '../../models/grower_model.dart';
@@ -664,10 +662,6 @@ class GrowerController extends GetxController {
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
       if (image != null) {
-        // TODO: Implement image upload to your storage service
-        // For now, we'll just add the local path to demonstrate the UI
-        // await glb.uploadImage(image.path, uploadEndpoint: '/api/growers/${glb.id.value}/upload');
-        // galleryImages.add(image.path);
         glb.isUploading.value = true;
         // Use the correct endpoint and pass the XFile
         final result = await glb.uploadImage(

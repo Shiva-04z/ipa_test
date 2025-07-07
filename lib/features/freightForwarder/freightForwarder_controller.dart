@@ -445,10 +445,6 @@ class FreightForwarderController extends GetxController {
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
       if (image != null) {
-        // TODO: Implement image upload to your storage service
-        // For now, we'll just add the local path to demonstrate the UI
-        // await glb.uploadImage(image.path, uploadEndpoint: '/api/growers/${glb.id.value}/upload');
-        // galleryImages.add(image.path);
         glb.isUploading.value = true;
         // Use the correct endpoint and pass the XFile
         final result = await glb.uploadImage(

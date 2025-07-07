@@ -5,11 +5,8 @@ import 'package:apple_grower/features/packHouse/packHouse_controller.dart';
 import 'package:apple_grower/models/employee_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:io';
-import '../../core/global_role_loader.dart' as gld;
 import '../../core/globalsWidgets.dart' as glbw;
 import '../../models/hpmc_collection_center_model.dart';
-import '../../models/pack_house_model.dart';
 import '../../models/grower_model.dart';
 import '../../models/aadhati.dart';
 import '../../models/ladani_model.dart' as buyer_model;
@@ -1611,9 +1608,7 @@ class PackHouseView extends GetView<PackHouseController> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image(
-            image: imageUrl.startsWith('http')
-                ? NetworkImage(imageUrl) as ImageProvider
-                : FileImage(File(imageUrl)) as ImageProvider,
+            image:NetworkImage(imageUrl) as ImageProvider,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
