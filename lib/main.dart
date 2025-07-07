@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Apple Grower',
+      title: 'Book My Load',
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         cardColor: Colors.white,
