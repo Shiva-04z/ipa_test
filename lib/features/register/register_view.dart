@@ -564,7 +564,7 @@ class RegisterView extends GetView<RegisterController> {
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.boxesPackedT2Controller,
-              label: 'Boxes Packed (T-2)',
+              label: 'Boxes Packed ${(DateTime.now().subtract(Duration(days: 730)).year)}',
               hint: 'Enter boxes packed two years ago',
               icon: Icons.inventory,
               keyboardType: TextInputType.number,
@@ -572,7 +572,7 @@ class RegisterView extends GetView<RegisterController> {
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.boxesPackedT1Controller,
-              label: 'Boxes Packed (T-1)',
+              label: 'Boxes Packed ${(DateTime.now().subtract(Duration(days: 366)).year)}',
               hint: 'Enter boxes packed last year',
               icon: Icons.inventory,
               keyboardType: TextInputType.number,
@@ -580,7 +580,7 @@ class RegisterView extends GetView<RegisterController> {
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.boxesEstimatedTController,
-              label: 'Estimated Boxes (This Year)',
+              label: 'Estimated Boxes ${(DateTime.now().year)}',
               hint: 'Enter estimated boxes for this year',
               icon: Icons.inventory,
               keyboardType: TextInputType.number,
@@ -741,7 +741,7 @@ class RegisterView extends GetView<RegisterController> {
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.appleBoxesTransported2023Controller,
-              label: 'Apple Boxes Transported 2023',
+              label: 'Apple Boxes Transported ${(DateTime.now().subtract(Duration(days: 730)).year)}',
               hint: 'Enter number',
               icon: Icons.inventory,
               keyboardType: TextInputType.number,
@@ -749,7 +749,7 @@ class RegisterView extends GetView<RegisterController> {
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.appleBoxesTransported2024Controller,
-              label: 'Apple Boxes Transported 2024',
+              label: 'Apple Boxes Transported ${(DateTime.now().subtract(Duration(days: 366)).year)}',
               hint: 'Enter number',
               icon: Icons.inventory,
               keyboardType: TextInputType.number,
@@ -757,7 +757,7 @@ class RegisterView extends GetView<RegisterController> {
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.estimatedTarget2025Controller,
-              label: 'Estimated Target 2025',
+              label: 'Estimated Target ${(DateTime.now().year)}',
               hint: 'Enter estimated target',
               icon: Icons.trending_up,
               keyboardType: TextInputType.number,
@@ -878,7 +878,7 @@ class RegisterView extends GetView<RegisterController> {
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.appleBoxesPurchased2023Controller,
-              label: 'Apple Boxes Purchased 2023',
+              label: 'Apple Boxes Purchased ${(DateTime.now().subtract(Duration(days: 730)).year)}',
               hint: 'Enter number',
               icon: Icons.inventory,
               keyboardType: TextInputType.number,
@@ -886,7 +886,7 @@ class RegisterView extends GetView<RegisterController> {
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.appleBoxesPurchased2024Controller,
-              label: 'Apple Boxes Purchased 2024',
+              label: 'Apple Boxes Purchased ${(DateTime.now().subtract(Duration(days: 365)).year)}',
               hint: 'Enter number',
               icon: Icons.inventory,
               keyboardType: TextInputType.number,
@@ -894,7 +894,7 @@ class RegisterView extends GetView<RegisterController> {
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.estimatedTarget2025LadaniController,
-              label: 'Estimated Target 2025',
+              label: 'Estimated Target ${(DateTime.now().year)}',
               hint: 'Enter estimated target',
               icon: Icons.trending_up,
               keyboardType: TextInputType.number,

@@ -114,8 +114,6 @@ class PackHouseController extends GetxController {
       details['Grading Machine Capacity'] =
           data['gradingMachineCapacity'] ?? '';
       details['Sorting Machine'] = data['sortingMachine'] ?? '';
-      details['Sorting Machine Capacity'] =
-          data['sortingMachineCapacity'] ?? '';
       details['Machine Manufacture'] = data['machineManufacture'] ?? '';
       details['Tray Type'] = data['trayType'] ?? '';
       details['Daily Capacity'] = data['perDayCapacity'] ?? '';
@@ -136,8 +134,7 @@ class PackHouseController extends GetxController {
       machineManufacture.value = data['machineManufacture'] ?? '';
       trayType.value = data['trayType'] ?? '';
       perDayCapacity.value = data['perDayCapacity'] ?? '';
-      numberOfCrates.value = data['numberOfCrates'] ?? 0;
-      crateManufacture.value = data['crateManufacture'] ?? '';
+           crateManufacture.value = data['crateManufacture'] ?? '';
       boxesPackedT2.value = data['boxesPackedT2'] ?? 0;
       boxesPackedT1.value = data['boxesPackedT1'] ?? 0;
       boxesEstimatedT.value = data['boxesEstimatedT'] ?? 0;

@@ -226,7 +226,7 @@ class PackingHouseFormController extends GetxController {
         address: addressController.text,
         gradingMachine: '',
         sortingMachine: '',
-        numberOfCrates: 0,
+        numberOfCrates: '',
         boxesPackedT2: 0,
         boxesPackedT1: 0,
         boxesEstimatedT: 0,

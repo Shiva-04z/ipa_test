@@ -73,9 +73,9 @@ List<PackHouse> createPackhouseListFromApi(List<dynamic> apiData) {
         name: json['name'],
         phoneNumber: json['phoneNumber'],
         address: json["address"],
-        gradingMachine: '',
+        gradingMachine: json['gradingMachine'],
         sortingMachine: '',
-        numberOfCrates: json['numberOfCrates'] as int,
+        numberOfCrates: json['numberOfCrates'] ,
         boxesPackedT2: json['boxesPackedT2'] as int,
         boxesPackedT1: json['boxesPackedT1'] as int,
         boxesEstimatedT: json['boxesEstimatedT'] as int);

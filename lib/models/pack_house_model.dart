@@ -51,7 +51,7 @@ class PackHouse {
   final String? machineManufacture;
   final String? trayType;
   final String? perDayCapacity;
-  final int numberOfCrates;
+  final String? numberOfCrates;
   final String? crateManufacture;
   final int boxesPackedT2;
   final int boxesPackedT1;
@@ -133,7 +133,7 @@ class PackHouse {
       machineManufacture: json['machineManufacture'] as String?,
       trayType: json['trayType'] as String?,
       perDayCapacity: json['perDayCapacity'] as String?,
-      numberOfCrates: json['numberOfCrates'] as int? ?? 0,
+      numberOfCrates: json['numberOfCrates'] as String?,
       crateManufacture: json['crateManufacture'] as String?,
       boxesPackedT2: json['boxesPackedT2'] as int? ?? 0,
       boxesPackedT1: json['boxesPackedT1'] as int? ?? 0,
@@ -270,7 +270,7 @@ class PackHouse {
     String? machineManufacture,
     String? trayType,
     String? perDayCapacity,
-    int? numberOfCrates,
+   String? numberOfCrates,
     String? crateManufacture,
     int? boxesPackedT2,
     int? boxesPackedT1,

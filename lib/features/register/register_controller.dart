@@ -796,9 +796,8 @@ class RegisterController extends GetxController {
         "sortingMachineCapacity": "",
         "machineManufacture": machineManufactureController.text.trim(),
         "trayType": trayTypeController.text.trim(),
-        "perDayCapacity": perDayCapacityController.text.trim(),
-        "numberOfCrates":
-            int.tryParse(numberOfCratesController.text.trim()) ?? 0,
+        "perDayCapacity": "",
+        "numberOfCrates":numberOfCratesController.text??"gi",
         "crateManufacture": crateManufactureController.text.trim(),
         "boxesPackedT2": int.tryParse(boxesPackedT2Controller.text.trim()) ?? 0,
         "boxesPackedT1": int.tryParse(boxesPackedT1Controller.text.trim()) ?? 0,
