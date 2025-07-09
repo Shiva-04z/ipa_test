@@ -121,11 +121,11 @@ class GrowerController extends GetxController {
         Get.snackbar('Success', 'Agent created successfully!',
             snackPosition: SnackPosition.BOTTOM);
       } else {
-        Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
+        Get.snackbar('Error', 'Failed to create Orchard: \n${response.body}',
             snackPosition: SnackPosition.BOTTOM);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to create agent: $e',
+      Get.snackbar('Error', 'Failed to create Orchard: $e',
           snackPosition: SnackPosition.BOTTOM);
     }
 

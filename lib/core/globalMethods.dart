@@ -17,6 +17,7 @@ List<Orchard> createOrchardListFromApi(List<dynamic> apiData) {
       id: json['_id']?.toString(),
       name: json['name'] ?? 'Unnamed',
       location: json['location'] ?? 'Unknown',
+      estimatedBoxes: json['estimatedBoxes'],
       numberOfFruitingTrees: json['numberOfFruitingTrees'] ?? 0,
       expectedHarvestDate: DateTime.parse(json['expectedHarvestDate']),
       boundaryPoints: (json['boundaryPoints'] as List)
