@@ -32,7 +32,7 @@ Widget buildInfo() {
     child: Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Container(
               padding: const EdgeInsets.all(8),
@@ -50,6 +50,7 @@ Widget buildInfo() {
                 ),
               ),
             ),
+            Spacer(),
             ElevatedButton(
                 onPressed: () {
                   Get.toNamed(RoutesConstant.profile);
@@ -60,7 +61,10 @@ Widget buildInfo() {
                 child: const Text(
                   "Update",
                   style: TextStyle(color: Colors.orange),
-                ))
+                )),
+            IconButton(onPressed: () async{
+              await glb.logout();
+            }, icon: Icon(Icons.logout_rounded, color: Colors.white,))
           ],
         ),
         const Divider(
@@ -148,7 +152,7 @@ Widget buildInfo() {
       ],
     ),
   );
-} // TODO Implement this library.
+}
 
 Widget buildGridCard(String name) {
   return Card(
