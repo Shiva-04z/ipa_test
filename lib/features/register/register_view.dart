@@ -520,7 +520,7 @@ class RegisterView extends GetView<RegisterController> {
             _buildTextField(
               controller: controller.gradingMachineController,
               label: 'Grading and sorting Machine',
-              hint: 'Enter grading machine',
+              hint: 'Enter grading and sorting machine',
               icon: Icons.precision_manufacturing,
             ),
             SizedBox(height: 16),
