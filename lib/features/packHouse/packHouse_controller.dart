@@ -48,7 +48,7 @@ class PackHouseController extends GetxController {
 
   final Map details = {
     'Grading Machine': '',
-    'Sorting Machine': '',
+    'Machine Manufacture': '',
     'Daily Capacity': '',
     'Crates': '',
     'Boxes T2': '',
@@ -113,7 +113,6 @@ class PackHouseController extends GetxController {
       details['Grading Machine'] = data['gradingMachine'] ?? '';
       details['Grading Machine Capacity'] =
           data['gradingMachineCapacity'] ?? '';
-      details['Sorting Machine'] = data['sortingMachine'] ?? '';
       details['Machine Manufacture'] = data['machineManufacture'] ?? '';
       details['Tray Type'] = data['trayType'] ?? '';
       details['Daily Capacity'] = data['perDayCapacity'] ?? '';

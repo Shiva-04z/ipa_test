@@ -103,6 +103,10 @@ class ProfilePageController extends GetxController {
     );
   }
 
+  void Signout()
+  {}
+
+
   void changeLanguage() {
     Get.dialog(
       AlertDialog(
