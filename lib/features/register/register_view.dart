@@ -541,13 +541,6 @@ class RegisterView extends GetView<RegisterController> {
             _buildTrayTypeDropdown(),
             SizedBox(height: 16),
             _buildTextField(
-              controller: controller.perDayCapacityController,
-              label: 'Per Day Capacity',
-              hint: 'Enter per day capacity',
-              icon: Icons.calendar_today,
-            ),
-            SizedBox(height: 16),
-            _buildTextField(
               controller: controller.numberOfCratesController,
               label: 'Number of Crates',
               hint: 'Enter number of crates',

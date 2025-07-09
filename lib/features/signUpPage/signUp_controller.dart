@@ -35,6 +35,33 @@ class SignUpController extends GetxController{
     final String aadharNo = aadharController.text.trim();
     final String role = currentValue.value;
 
+    if (phoneNo.length != 10) {
+      Get.snackbar(
+        "Invalid Mobile Number",
+        "Please enter a valid 10-digit mobile number.",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: EdgeInsets.all(12),
+        borderRadius: 8,
+        duration: Duration(seconds: 2),
+      );
+      return;
+    }
+
+    if (aadharNo.length != 12) {
+      Get.snackbar(
+        "Invalid Aadhaar Number",
+        "Please enter a valid 12-digit Aadhaar number.",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: EdgeInsets.all(12),
+        borderRadius: 8,
+        duration: Duration(seconds: 2),
+      );
+      return;
+    }
     if (phoneNo.isEmpty || aadharNo.isEmpty) {
       Get.snackbar("Error", "Please enter both phone and Aadhaar number");
       return;
