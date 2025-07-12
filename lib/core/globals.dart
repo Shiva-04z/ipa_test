@@ -35,7 +35,7 @@ RxString personBank = "XXXX3312".obs;
 RxString personIFSC = "CNRB0002452".obs;
 RxBool isHindiLanguage = false.obs;
 RxString userId = "".obs;
-RxString url = "https://bml-m3ps.onrender.com".obs;
+RxString url = "https://collected-wrestling-thumbnails-utilization.trycloudflare.com".obs;
 RxString id = "".obs;
 //6864cbb64b7a68ce4e9e0a4e
 RxString selectedOrchardAddress = "".obs;

@@ -116,10 +116,10 @@ class PackHouseController extends GetxController {
       details['Machine Manufacture'] = data['machineManufacture'] ?? '';
       details['Tray Type'] = data['trayType'] ?? '';
       details['Daily Capacity'] = data['perDayCapacity'] ?? '';
-      details['Number of Crates'] = (data['numberOfCrates'] ?? 0).toString();
+      details['Crates'] = (data['numberOfCrates'] ?? 0).toString();
       details['Crate Manufacture'] = data['crateManufacture'] ?? '';
-      details['Boxes Packed T2'] = (data['boxesPackedT2'] ?? 0).toString();
-      details['Boxes Packed T1'] = (data['boxesPackedT1'] ?? 0).toString();
+      details['Boxes T2'] = (data['boxesPackedT2'] ?? 0).toString();
+      details['Boxes T1'] = (data['boxesPackedT1'] ?? 0).toString();
       details['Boxes Estimated T'] = (data['boxesEstimatedT'] ?? 0).toString();
       details['Geo Location'] = data['geoLocation'] ?? '';
       details['Number of Growers Served'] =

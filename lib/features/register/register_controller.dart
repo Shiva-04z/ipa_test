@@ -171,7 +171,7 @@ class RegisterController extends GetxController {
     "Freight Forwarder",
     "HPMC DEPOT",
     "HP Police",
-    "APMC Office",
+    // "APMC Office",
   ];
 
   // Firm types for aadhati
