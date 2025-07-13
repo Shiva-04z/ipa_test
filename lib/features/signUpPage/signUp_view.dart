@@ -47,14 +47,13 @@ class SignUpView extends GetView<SignUpController> {
                       SizedBox(height: 10),
                       _buildLoginHeader(),
 
-                      _buildFormContainer(context),
+                    _buildFormContainer(context),
 
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
-          ),
+          ),)
         ],
       ),
     );
@@ -62,7 +61,7 @@ class SignUpView extends GetView<SignUpController> {
 
   Widget _buildLogo(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width > 600 ? 250 : 200,
+      width: MediaQuery.of(context).size.width > 600 ? 230 : 180,
       child: Center(
         child: Image(
           image: AssetImage('assets/images/logo.png'),
@@ -87,17 +86,15 @@ class SignUpView extends GetView<SignUpController> {
         ],
       ),
       child: Center(
-        child: Obx(
-          () => Text(
-            "${controller.currentValue.value}${glb.getTranslatedText("'s Login")}",
+        child:Text(
+            "User Login",
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
-          ),
-        ),
+          )
       ),
     );
   }
@@ -129,7 +126,6 @@ class SignUpView extends GetView<SignUpController> {
             keyboardType: TextInputType.number,
             maxLength: 10
           ),
-          SizedBox(height: 24),
           // Aadhaar number input for sign-in
           _buildFormField(
             controller: controller.aadharController,
@@ -138,19 +134,18 @@ class SignUpView extends GetView<SignUpController> {
             keyboardType: TextInputType.number,
             maxLength: 12
           ),
-          SizedBox(height: 30),
+
           // Role selection dropdown for sign-in
           Text(
             glb.getTranslatedText("Select Role"),
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 22,
+              fontSize: 20,
             ),
           ),
-          SizedBox(height: 12),
           _buildRoleDropdown(),
-          SizedBox(height: 30),
+          SizedBox(height: 16),
           // Sign In button (calls controller.navigateToRolePage)
           _buildSubmitButton(),
           // Register button (navigates to registration page)
@@ -208,10 +203,9 @@ class SignUpView extends GetView<SignUpController> {
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 22,
+            fontSize: 20,
           ),
         ),
-        SizedBox(height: 12),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,

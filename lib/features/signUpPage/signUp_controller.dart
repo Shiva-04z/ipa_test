@@ -24,7 +24,7 @@ class SignUpController extends GetxController{
     DropdownMenuItem(value: "Freight Forwarder", child: Text("Freight Forwarder")),
     DropdownMenuItem(value: "Driver", child: Text("Driver")),
     DropdownMenuItem(value: "Transport Union", child: Text("Transport Union")),
-    DropdownMenuItem(value: "APMC Office", child: Text("APMC Office")),
+    // DropdownMenuItem(value: "APMC Office", child: Text("APMC Office")),
     DropdownMenuItem(value: "HP Police", child: Text("HP Police")),
     DropdownMenuItem(value: "HPMC DEPOT", child: Text("HPMC DEPOT")),
   ];

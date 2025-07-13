@@ -992,7 +992,7 @@ class GrowerDialogs {
                           spacing: 20,
                           children: [
                             Expanded(
-                                child: Text("Cosnignmet",
+                                child: Text("Consignment",
                                     style: TextStyle(
                                         color: Colors.green, fontSize: 18))),
                             Expanded(child: Text(consignment.searchId!)),
