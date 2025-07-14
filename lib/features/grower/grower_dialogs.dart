@@ -329,12 +329,7 @@ class GrowerDialogs {
                                 );
                                 controller.addCommissionAgent(agent);
                                 Navigator.pop(context);
-                                Get.snackbar(
-                                  'Success',
-                                  'Commission agent added successfully',
-                                  backgroundColor: Colors.green,
-                                  colorText: Colors.white,
-                                );
+
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -839,12 +834,7 @@ class GrowerDialogs {
                                 );
                                 controller.updateOrchard(updatedOrchard);
                                 Navigator.pop(context);
-                                Get.snackbar(
-                                  'Success',
-                                  'Orchard updated successfully',
-                                  backgroundColor: Colors.green,
-                                  colorText: Colors.white,
-                                );
+
                               }
                             },
                             style: ElevatedButton.styleFrom(

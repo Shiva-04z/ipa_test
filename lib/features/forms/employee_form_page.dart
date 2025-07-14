@@ -109,6 +109,7 @@ class EmployeeFormPage extends StatelessWidget {
 
   Widget _buildBasicDetailsSection() {
     return Card(
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

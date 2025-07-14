@@ -626,13 +626,7 @@ class OrchardFormController extends GetxController {
                                 onPressed: () {
                                   isSatelliteMode.value =
                                       !isSatelliteMode.value;
-                                  Get.snackbar(
-                                    'Map View Changed',
-                                    isSatelliteMode.value
-                                        ? 'Satellite View'
-                                        : 'Standard View',
-                                    snackPosition: SnackPosition.BOTTOM,
-                                  );
+
                                 },
                                 backgroundColor: const Color(0xff548235),
                                 child: Icon(
@@ -667,6 +661,8 @@ class OrchardFormController extends GetxController {
                           left: 16,
                           bottom: 16,
                           child: Card(
+                            color: Colors.white,
+
                             elevation: 4,
                             child: Column(
                               children: [
@@ -917,6 +913,7 @@ class OrchardFormPage extends StatelessWidget {
 
   Widget _buildBasicDetails() {
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -1046,6 +1043,7 @@ class OrchardFormPage extends StatelessWidget {
 
   Widget _buildBoundarySectionRow(BuildContext context) {
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -1117,6 +1115,7 @@ class OrchardFormPage extends StatelessWidget {
 
   Widget _buildBoundarySection(BuildContext context) {
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -1465,13 +1464,7 @@ class OrchardFormPage extends StatelessWidget {
                                               onPressed: () {
                                                 controller.isSatelliteMode.value =
                                                 !controller.isSatelliteMode.value;
-                                                Get.snackbar(
-                                                  'Map View Changed',
-                                                  controller.isSatelliteMode.value
-                                                      ? 'Satellite View'
-                                                      : 'Standard View',
-                                                  snackPosition: SnackPosition.BOTTOM,
-                                                );
+
                                               },
                                               backgroundColor: const Color(0xff548235),
                                               child: Icon(
@@ -1509,6 +1502,7 @@ class OrchardFormPage extends StatelessWidget {
                                         left: 16,
                                         bottom: 16,
                                         child: Card(
+                                          color: Colors.white,
                                           elevation: 4,
                                           child: Column(
                                             children: [
@@ -1640,13 +1634,7 @@ class OrchardFormPage extends StatelessWidget {
                                             onPressed: () {
                                               controller.isSatelliteMode.value =
                                               !controller.isSatelliteMode.value;
-                                              Get.snackbar(
-                                                'Map View Changed',
-                                                controller.isSatelliteMode.value
-                                                    ? 'Satellite View'
-                                                    : 'Standard View',
-                                                snackPosition: SnackPosition.BOTTOM,
-                                              );
+
                                             },
                                             backgroundColor: const Color(0xff548235),
                                             child: Icon(
@@ -1684,6 +1672,7 @@ class OrchardFormPage extends StatelessWidget {
                                       left: 16,
                                       bottom: 16,
                                       child: Card(
+                                        color: Colors.white,
                                         elevation: 4,
                                         child: Column(
                                           children: [
@@ -1875,6 +1864,7 @@ class OrchardFormPage extends StatelessWidget {
 
   Widget _buildHarvestDetails() {
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(

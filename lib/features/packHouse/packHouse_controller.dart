@@ -175,8 +175,7 @@ class PackHouseController extends GetxController {
         print(data["_id"]);
         await Future.delayed(Duration(seconds: 3));
         uploadGrower(data["_id"]);
-        Get.snackbar('Success', 'Agent created successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
             snackPosition: SnackPosition.BOTTOM);
@@ -199,8 +198,7 @@ class PackHouseController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
@@ -241,8 +239,7 @@ class PackHouseController extends GetxController {
         print(data["_id"]);
         await Future.delayed(Duration(seconds: 3));
         uploadAgent(data["_id"]);
-        Get.snackbar('Success', 'Agent created successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
             snackPosition: SnackPosition.BOTTOM);
@@ -266,8 +263,7 @@ class PackHouseController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
@@ -334,8 +330,7 @@ class PackHouseController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
@@ -388,8 +383,7 @@ class PackHouseController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
@@ -451,8 +445,7 @@ class PackHouseController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
@@ -636,8 +629,7 @@ class PackHouseController extends GetxController {
         print(data["_id"]);
         uploadHPMC(data['_id']);
 
-        Get.snackbar('Success', 'Agent created successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
             snackPosition: SnackPosition.BOTTOM);
@@ -686,7 +678,6 @@ class PackHouseController extends GetxController {
 
         if (result != null) {
           galleryImages.add(result); // or parse result if it's a URL
-          Get.snackbar('Success', 'Image uploaded successfully!');
         } else {
           Get.snackbar('Upload Failed', 'Image upload failed.');
         }

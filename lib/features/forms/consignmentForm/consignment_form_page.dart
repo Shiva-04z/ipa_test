@@ -1198,6 +1198,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
         bilty?.categories.fold<double>(0, (sum, c) => sum + c.totalPrice);
 
     return Card(
+      color: Colors.white,
       margin: EdgeInsets.symmetric(vertical: 8),
       child: ExpansionTile(
         title: Row(
@@ -1412,7 +1413,10 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                 child: buildViewSection(),
               ),
             ),
-            buildButton()
+            buildButton(),
+            if(MediaQuery.of(Get.context!).size.width>600)SizedBox(
+              height: 50,
+            )
           ],
         ),
       ),

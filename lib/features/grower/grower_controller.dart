@@ -118,8 +118,6 @@ class GrowerController extends GetxController {
         print(data["_id"]);
         await Future.delayed(Duration(seconds: 3));
         uploadOrchard(data["_id"]);
-        Get.snackbar('Success', 'Agent created successfully!',
-            snackPosition: SnackPosition.BOTTOM);
       } else {
         Get.snackbar('Error', 'Failed to create Orchard: \n${response.body}',
             snackPosition: SnackPosition.BOTTOM);
@@ -183,7 +181,7 @@ class GrowerController extends GetxController {
           body: jsonEncode(uploadPayload),
           headers: {"Content-Type": "application/json"});
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.snackbar("Success", "Added to Grower");
+
       }
     } catch (e) {
       Get.snackbar("Failure", e.toString());
@@ -231,8 +229,7 @@ class GrowerController extends GetxController {
         print(data["_id"]);
         await Future.delayed(Duration(seconds: 3));
         uploadAgent(data["_id"]);
-        Get.snackbar('Success', 'Agent created successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
             snackPosition: SnackPosition.BOTTOM);
@@ -256,8 +253,7 @@ class GrowerController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
@@ -321,8 +317,6 @@ class GrowerController extends GetxController {
         uploadPackHouse(data['_id']);
         packingHouses.add(packhouse);
 
-        Get.snackbar('Success', 'Orchard created successfully!',
-            snackPosition: SnackPosition.BOTTOM);
       } else {
         Get.snackbar('Error', 'Failed to create orchard: \n${response.body}',
             snackPosition: SnackPosition.BOTTOM);
@@ -346,9 +340,7 @@ class GrowerController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
-      } else {
+} else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
       }
@@ -380,7 +372,6 @@ class GrowerController extends GetxController {
           body: jsonEncode(uploadPayload),
           headers: {"Content-Type": "application/json"});
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.snackbar("Success", "Added to Grower");
       }
     } catch (e) {
       Get.snackbar("Failure", e.toString());
@@ -434,8 +425,7 @@ class GrowerController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
@@ -619,8 +609,6 @@ class GrowerController extends GetxController {
         print(data["_id"]);
         uploadHPMC(data['_id']);
 
-        Get.snackbar('Success', 'Agent created successfully!',
-            snackPosition: SnackPosition.BOTTOM);
       } else {
         Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
             snackPosition: SnackPosition.BOTTOM);
@@ -672,7 +660,7 @@ class GrowerController extends GetxController {
 
         if (result != null) {
           galleryImages.add(result); // or parse result if it's a URL
-          Get.snackbar('Success', 'Image uploaded successfully!');
+
         } else {
           Get.snackbar('Upload Failed', 'Image upload failed.');
         }
@@ -727,8 +715,6 @@ class GrowerController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);

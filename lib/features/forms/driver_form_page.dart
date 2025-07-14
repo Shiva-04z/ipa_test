@@ -337,6 +337,7 @@ class DriverFormPageView extends StatelessWidget {
 
   Widget _buildSearchSection(BuildContext context) {
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -454,6 +455,7 @@ class DriverFormPageView extends StatelessWidget {
           return Stack(
             children: [
               Card(
+                color: Colors.white,
                 margin: const EdgeInsets.only(bottom: 12),
                 elevation: 2,
                 shape: RoundedRectangleBorder(
@@ -564,6 +566,7 @@ class DriverFormPageView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Card(
+            color: Colors.white,
             elevation: 2,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

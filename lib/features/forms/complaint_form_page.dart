@@ -85,13 +85,7 @@ class ComplaintFormController extends GetxController {
       glb.myComplaint.add(newComplaint);
 
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Complaint submitted successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -174,6 +168,7 @@ class ComplaintFormPage extends StatelessWidget {
 
   Widget _buildApmcSelection() {
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -226,6 +221,7 @@ class ComplaintFormPage extends StatelessWidget {
 
   Widget _buildComplaintAgainstSection() {
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -293,6 +289,7 @@ class ComplaintFormPage extends StatelessWidget {
 
   Widget _buildComplaintDescription() {
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(

@@ -425,7 +425,7 @@ class GrowerView extends GetView<GrowerController> {
         child: Text(
           glb.getTranslatedText(text),
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12),
+          style: TextStyle(fontSize: MediaQuery.of(Get.context!).size.width>600 ? 16 :14,fontWeight: FontWeight.bold),
         ),
       ),
     );

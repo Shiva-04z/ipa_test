@@ -242,13 +242,7 @@ class PackingHouseFormController extends GetxController {
                   : Get.find<DriverController>().addAssociatedPackhouse(house);
 
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Packing house added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xff548235),
-        colorText: Colors.white,
-      );
+
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -326,6 +320,7 @@ class PackingHouseFormPage extends StatelessWidget {
 
   Widget _buildSearchSection(BuildContext context) {
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -425,6 +420,7 @@ class PackingHouseFormPage extends StatelessWidget {
               return Stack(
                 children: [
                   Card(
+                    color: Colors.white,
                     margin: const EdgeInsets.only(bottom: 12),
                     elevation: 2,
                     shape: RoundedRectangleBorder(
@@ -552,6 +548,7 @@ class PackingHouseFormPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Card(
+            color: Colors.white,
             elevation: 2,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

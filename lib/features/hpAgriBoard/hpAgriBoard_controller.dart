@@ -127,8 +127,7 @@ class HPAgriBoardController extends GetxController {
         print(data["_id"]);
         await Future.delayed(Duration(seconds: 3));
         uploadGrower(data["_id"]);
-        Get.snackbar('Success', 'Agent created successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to create agent: \n${response.body}',
             snackPosition: SnackPosition.BOTTOM);
@@ -152,8 +151,7 @@ class HPAgriBoardController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
@@ -188,8 +186,7 @@ class HPAgriBoardController extends GetxController {
         uploadPackHouse(data['_id']);
         associatedPackHouses.add(packhouse);
 
-        Get.snackbar('Success', 'Orchard created successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to create orchard: \n${response.body}',
             snackPosition: SnackPosition.BOTTOM);
@@ -213,9 +210,7 @@ class HPAgriBoardController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Success");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
-      } else {
+            } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
       }
@@ -276,8 +271,7 @@ class HPAgriBoardController extends GetxController {
       );
       if (response.statusCode == 200) {
         print("Sucess");
-        Get.snackbar('Success', 'Grower updated successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+
       } else {
         Get.snackbar('Error', 'Failed to update grower: ${response.statusCode}',
             snackPosition: SnackPosition.BOTTOM);
@@ -389,7 +383,7 @@ class HPAgriBoardController extends GetxController {
 
         if (result != null) {
           galleryImages.add(result); // or parse result if it's a URL
-          Get.snackbar('Success', 'Image uploaded successfully!');
+
         } else {
           Get.snackbar('Upload Failed', 'Image upload failed.');
         }
