@@ -187,6 +187,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
             child: Obx(() => DataTable(
                   headingRowColor: MaterialStateProperty.resolveWith(
                       (states) => Colors.orange.shade200),
+                  columnSpacing: 12,
                   columns: [
                     const DataColumn(label: Text("Quality")),
                     const DataColumn(label: Text("Category")),
@@ -230,8 +231,10 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                           DataCell(Text(
                               "${category.avgBoxWeight.toStringAsFixed(1)}kg",
                               style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.boxCount}",
-                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Center(
+                            child: Text("${category.boxCount}",
+                                style: const TextStyle(color: Colors.white)),
+                          )),
                           DataCell(Text(
                               "${category.totalWeight.toStringAsFixed(1)}kg",
                               style: const TextStyle(color: Colors.white))),

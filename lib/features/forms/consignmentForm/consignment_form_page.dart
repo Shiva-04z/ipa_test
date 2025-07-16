@@ -10,7 +10,8 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../../core/globals.dart' as glb;
+import 'package:apple_grower/features/forms/consignmentForm/biltydownloadandshare.dart'
+    as bd;
 import '../../../models/driving_profile_model.dart';
 import '../../../models/transport_model.dart';
 import 'VideoPlayer.dart';
@@ -159,10 +160,10 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
           child: Column(
             spacing: 10,
             children: [
-                Text(
-                  "Selections",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
+              Text(
+                "Selections",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
               if (controller.driverMode.value == "Associated")
                 DropdownButtonFormField<DrivingProfile>(
                   value: controller.drivingProfile.value,
@@ -187,9 +188,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                   items: Get.find<GrowerController>()
                       .transportUnions
                       .map((transport) => DropdownMenuItem<Transport>(
-                    value: transport,
-                    child: Text(transport.name), // or any display field
-                  ))
+                            value: transport,
+                            child: Text(transport.name), // or any display field
+                          ))
                       .toList(),
                   onChanged: (value) {
                     controller.transportUnion.value = value!;
@@ -200,30 +201,31 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                   ),
                 ),
               if (controller.aadhatiMode.value == "Associated")
-              DropdownButtonFormField<Aadhati>(
-                value: controller.aadhati.value,
-                items: Get.find<GrowerController>()
-                    .commissionAgents
-                    .map((agent) => DropdownMenuItem<Aadhati>(
-                          value: agent,
-                          child: Text(agent.name!), // or any display field
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  controller.aadhati.value = value!;
-                },
-                decoration: InputDecoration(
-                  labelText: "Select Aadhati",
-                  border: OutlineInputBorder(),
+                DropdownButtonFormField<Aadhati>(
+                  value: controller.aadhati.value,
+                  items: Get.find<GrowerController>()
+                      .commissionAgents
+                      .map((agent) => DropdownMenuItem<Aadhati>(
+                            value: agent,
+                            child: Text(agent.name!), // or any display field
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    controller.aadhati.value = value!;
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Select Aadhati",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
+              SizedBox(
+                height: 10,
               ),
-              SizedBox(height: 10,),
-      TextFormField(
-      controller: controller.trip2AddressController,
-      decoration: InputDecoration(
-      border: OutlineInputBorder(),
-      label: Text("Enter Address")),
-      )
+              TextFormField(
+                controller: controller.trip2AddressController,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(), label: Text("Enter Address")),
+              )
             ],
           ),
         );
@@ -294,8 +296,10 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
               if (canProceed)
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: (){ controller.Step2();
-                      controller.addStep();},
+                    onPressed: () {
+                      controller.Step2();
+                      controller.addStep();
+                    },
                     style: ElevatedButton.styleFrom(
                       shape: BeveledRectangleBorder(),
                       backgroundColor: Colors.purpleAccent.shade400,
@@ -326,8 +330,10 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
               ),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: (){ controller.Step3();
-        controller.addStep();},
+                  onPressed: () {
+                    controller.Step3();
+                    controller.addStep();
+                  },
                   style: ElevatedButton.styleFrom(
                     shape: BeveledRectangleBorder(),
                     backgroundColor: Colors.purpleAccent.shade400,
@@ -366,7 +372,6 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-
                           controller.Step4();
                           Get.back();
                           // Accept logic
@@ -500,7 +505,8 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   Widget fallBack() {
     return Column(
       children: [
-        if (controller.driverMode.value != 'Self'&&   controller.consignment.value?.trip1Driverid == null)
+        if (controller.driverMode.value != 'Self' &&
+            controller.consignment.value?.trip1Driverid == null)
           Container(
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -530,7 +536,8 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
         SizedBox(
           height: 10,
         ),
-        if (controller.packHouseMode.value != "Self" &&   controller.consignment.value?.packhouseId == null)
+        if (controller.packHouseMode.value != "Self" &&
+            controller.consignment.value?.packhouseId == null)
           Container(
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -547,10 +554,10 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                 ),
                 Text(
                   (controller.packHouseMode == "Request" &&
-                      controller.consignment.value?.packhouseId == null)
+                          controller.consignment.value?.packhouseId == null)
                       ? "Packhouse is Not resolved yet"
                       : (controller.packHouseMode.value != "Self" &&
-                      controller.consignment.value?.packhouseId == null)
+                              controller.consignment.value?.packhouseId == null)
                           ? "Packhouse has not accepted request yet"
                           : "",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -580,8 +587,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
 
   Widget biltyCreate() {
     if (controller.bilty.value == null) {
-      controller.bilty.value =
-          Bilty.createDefault();
+      controller.bilty.value = Bilty.createDefault();
       controller.biltyValue.value = true;
     }
     final bilty = controller.bilty.value!;
@@ -591,10 +597,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
     bool isMobile = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
-    showDetails.value=!(isMobile);
+    showDetails.value = !(isMobile);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
-
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -612,8 +617,31 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
           scrollDirection: Axis.horizontal,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 20,
+            spacing: 10,
             children: [
+              Obx(() => TextButton.icon(
+                icon: Icon(
+                  isEditTotalWeightMode.value
+                      ? Icons.check_circle
+                      : Icons.edit,
+                  color: isEditTotalWeightMode.value
+                      ? Colors.green
+                      : Colors.orange,
+                ),
+                label: Text(isEditTotalWeightMode.value
+                    ? 'Save Total Weight'
+                    : 'Edit Total Weight'),
+                onPressed: () {
+                  if (isEditTotalWeightMode.value) {
+                    isEditTotalWeightMode.value = false;
+                    controller.bilty.refresh();
+                  } else {
+                    isEditTotalWeightMode.value = true;
+                    isEditBoxesMode.value = false;
+                  }
+                },
+              )),
+              const SizedBox(width: 8),
               Obx(() => TextButton.icon(
                     icon: Icon(
                       isEditBoxesMode.value ? Icons.check_circle : Icons.edit,
@@ -631,29 +659,8 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                       }
                     },
                   )),
-              const SizedBox(width: 8),
-              Obx(() => TextButton.icon(
-                    icon: Icon(
-                      isEditTotalWeightMode.value
-                          ? Icons.check_circle
-                          : Icons.edit,
-                      color: isEditTotalWeightMode.value
-                          ? Colors.green
-                          : Colors.orange,
-                    ),
-                    label: Text(isEditTotalWeightMode.value
-                        ? 'Save Total Weight'
-                        : 'Edit Total Weight'),
-                    onPressed: () {
-                      if (isEditTotalWeightMode.value) {
-                        isEditTotalWeightMode.value = false;
-                        controller.bilty.refresh();
-                      } else {
-                        isEditTotalWeightMode.value = true;
-                        isEditBoxesMode.value = false;
-                      }
-                    },
-                  )),
+
+
               const SizedBox(width: 8),
               Obx(() => TextButton.icon(
                     icon: Icon(
@@ -668,64 +675,65 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                       showDetails.value = !showDetails.value;
                     },
                   )),
-              if (isMobile)Obx(() => TextButton.icon(
-                    icon: const Icon(Icons.add_a_photo, color: Colors.purple),
-                    label: const Text('Add Pictures'),
-                    onPressed: (isEditBoxesMode.value ||
-                            isEditTotalWeightMode.value)
-                        ? () async {
-                            for (int i = 0;
-                                i < controller.bilty.value!.categories.length;
-                                i++) {
-                              final XFile? image = await _picker.pickImage(
-                                  source: ImageSource.camera);
-                              if (image != null) {
-                                imagePaths[i] = image.path;
-                                await uploadImage(File(image.path), i);
+              if (isMobile)
+                Obx(() => TextButton.icon(
+                      icon: const Icon(Icons.add_a_photo, color: Colors.purple),
+                      label: const Text('Add Pictures'),
+                      onPressed: (isEditBoxesMode.value ||
+                              isEditTotalWeightMode.value)
+                          ? () async {
+                              for (int i = 0;
+                                  i < controller.bilty.value!.categories.length;
+                                  i++) {
+                                final XFile? image = await _picker.pickImage(
+                                    source: ImageSource.camera);
+                                if (image != null) {
+                                  imagePaths[i] = image.path;
+                                  await uploadImage(File(image.path), i);
+                                }
                               }
                             }
-                          }
-                        : null,
-                  )),
-
+                          : null,
+                    )),
               Obx(() => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TextButton.icon(
-                        icon: Icon(
-                          videoPath.value.isNotEmpty
-                              ? Icons.check_circle
-                              : Icons.videocam,
-                          color: videoPath.value.isNotEmpty
-                              ? Colors.green
-                              : Colors.red,
-                        ),
-                        label: Text(videoPath.value.isNotEmpty
-                            ? 'Video Uploaded'
-                            : 'Upload Video'),
-                        onPressed:
-                        (isEditBoxesMode.value || isEditTotalWeightMode.value)
-                            ? () async {
-                          final XFile? video = await _picker.pickVideo(
-                            source: ImageSource.camera,
-                            maxDuration: const Duration(seconds: 5),
-                          );
-                          if (video != null) {
-                            videoPath.value = video.path;
-                            await uploadVideo(File(video.path));
-                          }
-                        }
-                            : null,
+                      Row(
+                        children: [
+                          TextButton.icon(
+                            icon: Icon(
+                              videoPath.value.isNotEmpty
+                                  ? Icons.check_circle
+                                  : Icons.videocam,
+                              color: videoPath.value.isNotEmpty
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                            label: Text(videoPath.value.isNotEmpty
+                                ? 'Video Uploaded'
+                                : 'Upload Video'),
+                            onPressed: (isEditBoxesMode.value ||
+                                    isEditTotalWeightMode.value)
+                                ? () async {
+                                    final XFile? video =
+                                        await _picker.pickVideo(
+                                      source: ImageSource.camera,
+                                      maxDuration: const Duration(seconds: 5),
+                                    );
+                                    if (video != null) {
+                                      videoPath.value = video.path;
+                                      await uploadVideo(File(video.path));
+                                    }
+                                  }
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text('Video limit: 5 seconds',
+                              style: TextStyle(color: Colors.grey)),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      const Text('Video limit: 5 seconds',
-                          style: TextStyle(color: Colors.grey)),
                     ],
-                  ),
-                ],
-              )),
+                  )),
             ],
           ),
         ),
@@ -739,6 +747,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                 child: DataTable(
                   headingRowColor: MaterialStateProperty.resolveWith(
                       (states) => Colors.orange.shade200),
+                  columnSpacing: 12,
                   columns: [
                     const DataColumn(label: Text("Quality")),
                     const DataColumn(label: Text("Category")),
@@ -751,7 +760,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     ],
                     const DataColumn(label: Text("No. of Boxes")),
                     const DataColumn(label: Text("Total Weight")),
-                   const DataColumn(label: Text("Image")),
+                    const DataColumn(label: Text("Image")),
                   ],
                   rows: List.generate(bilty.categories.length, (index) {
                     final category = bilty.categories[index];
@@ -761,22 +770,22 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                           (Set<MaterialState> states) => bgColor),
                       cells: [
                         DataCell(Text(category.quality,
-                            style: const TextStyle(color: Colors.white))),
+                            style: const TextStyle(color: Colors.white,),textAlign: TextAlign.center,)),
                         DataCell(Text(category.category,
-                            style: const TextStyle(color: Colors.white))),
+                            style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
                         if (showDetails.value) ...[
                           DataCell(Text(category.variety,
-                              style: const TextStyle(color: Colors.white))),
+                              style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
                           DataCell(Text(category.size,
-                              style: const TextStyle(color: Colors.white))),
+                              style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
                           DataCell(Text("${category.piecesPerBox}",
-                              style: const TextStyle(color: Colors.white))),
+                              style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
                           DataCell(Text(
                               "${category.avgWeight.toStringAsFixed(1)}g",
-                              style: const TextStyle(color: Colors.white))),
+                              style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
                           DataCell(Text(
                               "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                              style: const TextStyle(color: Colors.white))),
+                              style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
                         ],
                         isEditBoxesMode.value
                             ? DataCell(
@@ -809,8 +818,10 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                                   ),
                                 ),
                               )
-                            : DataCell(Text("${category.boxCount}",
-                                style: const TextStyle(color: Colors.white))),
+                            : DataCell(Center(
+                              child: Text("${category.boxCount}",
+                                  style: const TextStyle(color: Colors.white),textAlign: TextAlign.center),
+                            )),
                         isEditTotalWeightMode.value
                             ? DataCell(
                                 SizedBox(
@@ -844,70 +855,79 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                               )
                             : DataCell(Text(
                                 "${category.totalWeight.toStringAsFixed(1)}kg",
-                                style: const TextStyle(color: Colors.white))),
-                          DataCell(
-                            Obx(() {
-                              final path = imagePaths[index];
-                              final quality = controller
-                                  .bilty.value!.categories[index].quality;
-                              final category = controller
-                                  .bilty.value!.categories[index].category;
-                              return path != null
-                                  ? (isEditBoxesMode.value ||
-                                          isEditTotalWeightMode.value
-                                      ? const Icon(Icons.check_circle,
-                                          color: Colors.green)
-                                      : GestureDetector(
-                                          onTap: () {
+                                style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
+                        DataCell(
+                          Obx(() {
+                            final path = imagePaths[index];
+                            final quality = controller
+                                .bilty.value!.categories[index].quality;
+                            final category = controller
+                                .bilty.value!.categories[index].category;
+                            return path != null
+                                ? (isEditBoxesMode.value ||
+                                        isEditTotalWeightMode.value
+                                    ? const Icon(Icons.check_circle,
+                                        color: Colors.green)
+                                    : GestureDetector(
+                                        onTap: () {
+                                          // Show image in a dialog/card
+                                          showDialog(
+                                            context: Get.context!,
+                                            builder: (context) => AlertDialog(
+                                              title: Text('Uploaded Image'),
+                                              content: Image.file(File(path)),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(),
+                                                  child: const Text('Close'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        child: const Icon(Icons.check_circle,
+                                            color: Colors.green),
+                                      ))
+                                : IconButton(
+                                    icon: const Icon(Icons.camera_alt,
+                                        color: Colors.white),
+                                    onPressed: (isEditBoxesMode.value ||
+                                            isEditTotalWeightMode.value)
+                                        ? () async {
+                                            bool isMobile = !kIsWeb &&
+                                                (defaultTargetPlatform ==
+                                                        TargetPlatform
+                                                            .android ||
+                                                    defaultTargetPlatform ==
+                                                        TargetPlatform.iOS);
 
-                                            // Show image in a dialog/card
-                                            showDialog(
-                                              context: Get.context!,
-                                              builder: (context) => AlertDialog(
-                                                title: Text('Uploaded Image'),
-                                                content: Image.file(File(path)),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () =>
-                                                        Navigator.of(context)
-                                                            .pop(),
-                                                    child: const Text('Close'),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                          child: const Icon(Icons.check_circle,
-                                              color: Colors.green),
-                                        ))
-                                  : IconButton(
-                                      icon: const Icon(Icons.camera_alt,
-                                          color: Colors.white),
-                                onPressed: (isEditBoxesMode.value || isEditTotalWeightMode.value)
-                                    ? () async {
-                                  bool isMobile = !kIsWeb &&
-                                      (defaultTargetPlatform == TargetPlatform.android ||
-                                          defaultTargetPlatform == TargetPlatform.iOS);
-
-                                  if (isMobile && ImageSource.camera == ImageSource.camera) {
-                                    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-                                    if (image != null) {
-                                      imagePaths[index] = image.path;
-                                      await uploadImage(File(image.path), index);
-                                    }
-                                  } else {
-                                    Get.snackbar(
-                                      "Warning",
-                                      "This functionality is restricted to the mobile app",
-                                      backgroundColor: Colors.yellow,
-                                      colorText: Colors.white,
-                                    );
-                                  }
-                                }
-                                    : null,
-                                    );
-                            }),
-                          ),
+                                            if (isMobile &&
+                                                ImageSource.camera ==
+                                                    ImageSource.camera) {
+                                              final XFile? image =
+                                                  await _picker.pickImage(
+                                                      source:
+                                                          ImageSource.camera);
+                                              if (image != null) {
+                                                imagePaths[index] = image.path;
+                                                await uploadImage(
+                                                    File(image.path), index);
+                                              }
+                                            } else {
+                                              Get.snackbar(
+                                                "Warning",
+                                                "This functionality is restricted to the mobile app",
+                                                backgroundColor: Colors.yellow,
+                                                colorText: Colors.white,
+                                              );
+                                            }
+                                          }
+                                        : null,
+                                  );
+                          }),
+                        ),
                       ],
                     );
                   }),
@@ -924,7 +944,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
     bool isMobile = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
-    showDetails.value=!(isMobile);
+    showDetails.value = !(isMobile);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -949,6 +969,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Obx(() => DataTable(
+              columnSpacing: 12,
                   headingRowColor: MaterialStateProperty.resolveWith(
                       (states) => Colors.orange.shade200),
                   columns: [
@@ -990,8 +1011,10 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                               "${category.avgBoxWeight.toStringAsFixed(1)}kg",
                               style: const TextStyle(color: Colors.white))),
                         ],
-                        DataCell(Text("${category.boxCount}",
-                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Center(
+                          child: Text("${category.boxCount}",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
                         DataCell(Text(
                             "${category.totalWeight.toStringAsFixed(1)}kg",
                             style: const TextStyle(color: Colors.white))),
@@ -1072,8 +1095,8 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
       children: [
         fallBack(),
         if (controller.packHouseMode.value == "Self" &&
-               ( controller.driverMode.value == 'Self' ||
-            controller.consignment.value?.trip1Driverid!= null))
+            (controller.driverMode.value == 'Self' ||
+                controller.consignment.value?.trip1Driverid != null))
           biltyCreate(),
         if (controller.packHouseMode.value != "Self" &&
             controller.consignment.value?.packhouseId != null)
@@ -1100,7 +1123,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     ],
                   ),
                 )
-              : Center(child:biltyView(),),
+              : Center(
+                  child: biltyView(),
+                ),
       ],
     );
   }
@@ -1108,29 +1133,30 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   Widget Step4fallback() {
     return Column(
       children: [
-        if(controller.consignment.value?.aadhatiId==null)Container(
-          padding: EdgeInsets.all(8),
-          decoration: BoxDecoration(color: Colors.white, boxShadow: [
-            BoxShadow(color: Colors.black, blurRadius: 1, spreadRadius: 1)
-          ]),
-          child: Column(
-            spacing: 10,
-            children: [
-              Center(
-                child: Icon(
-                  Icons.warning,
-                  color: Colors.amber,
+        if (controller.consignment.value?.aadhatiId == null)
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(color: Colors.white, boxShadow: [
+              BoxShadow(color: Colors.black, blurRadius: 1, spreadRadius: 1)
+            ]),
+            child: Column(
+              spacing: 10,
+              children: [
+                Center(
+                  child: Icon(
+                    Icons.warning,
+                    color: Colors.amber,
+                  ),
                 ),
-              ),
-              Text(
-                  (controller.aadhatiMode.value == "Request")
-                      ? "Aadhati is Not resolved yet"
+                Text(
+                    (controller.aadhatiMode.value == "Request")
+                        ? "Aadhati is Not resolved yet"
                         : "Aadhati has not accepted request yet",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center),
-            ],
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
+              ],
+            ),
           ),
-        ),
         SizedBox(
           height: 10,
         )
@@ -1144,7 +1170,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
         Step4fallback(),
         if (controller.consignment.value?.aadhatiId != null)
           (controller.consignment.value?.currentStage == "Bilty Ready")
-              ?biltyfinalView()
+              ? biltyfinalView()
               : Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -1189,7 +1215,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   }
 
   Widget biltySummaryWidget() {
-    final Bilty? bilty =controller.consignment.value?.bilty!;
+    final Bilty? bilty = controller.consignment.value?.bilty!;
     final totalBoxes =
         bilty?.categories.fold<int>(0, (sum, c) => sum + c.boxCount);
     final totalWeight =
@@ -1210,7 +1236,8 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text('Total Boxes: ' + totalBoxes.toString()),
-                Text('Total Weight: ' + totalWeight!.toStringAsFixed(2) + ' kg'),
+                Text(
+                    'Total Weight: ' + totalWeight!.toStringAsFixed(2) + ' kg'),
                 Text('Total Value: ₹' + totalValue!.toStringAsFixed(2)),
               ],
             ),
@@ -1241,7 +1268,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
     bool isMobile = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
-    showDetails.value=!(isMobile);
+    showDetails.value = !(isMobile);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -1267,6 +1294,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Obx(() => DataTable(
+              columnSpacing: 12,
                   headingRowColor: MaterialStateProperty.resolveWith(
                       (states) => Colors.orange.shade200),
                   columns: [
@@ -1310,12 +1338,13 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                           DataCell(Text(
                               "${category.avgBoxWeight.toStringAsFixed(1)}kg",
                               style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.boxCount}",
-                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Center(
+                            child: Text("${category.boxCount}",
+                                style: const TextStyle(color: Colors.white)),
+                          )),
                           DataCell(Text(
                               "${category.totalWeight.toStringAsFixed(1)}kg",
                               style: const TextStyle(color: Colors.white))),
-
                         ],
                         DataCell(Text("${category.pricePerKg}",
                             style: const TextStyle(color: Colors.white))),
@@ -1323,33 +1352,33 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                             style: const TextStyle(color: Colors.white))),
                         DataCell(Text("${category.totalPrice}",
                             style: const TextStyle(color: Colors.white))),
-                          DataCell(
-                            category.imagePath != null &&
-                                    category.imagePath!.isNotEmpty
-                                ? GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                        context: Get.context!,
-                                        builder: (context) => AlertDialog(
-                                          title: Text('Uploaded Image'),
-                                          content: Image.file(
-                                              File(category.imagePath!)),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context).pop(),
-                                              child: const Text('Close'),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                    child: const Icon(Icons.check_circle,
-                                        color: Colors.green),
-                                  )
-                                : const Icon(Icons.camera_alt,
-                                    color: Colors.white),
-                          ),
+                        DataCell(
+                          category.imagePath != null &&
+                                  category.imagePath!.isNotEmpty
+                              ? GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: Get.context!,
+                                      builder: (context) => AlertDialog(
+                                        title: Text('Uploaded Image'),
+                                        content: Image.file(
+                                            File(category.imagePath!)),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(),
+                                            child: const Text('Close'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  child: const Icon(Icons.check_circle,
+                                      color: Colors.green),
+                                )
+                              : const Icon(Icons.camera_alt,
+                                  color: Colors.white),
+                        ),
                       ],
                     );
                   }),
@@ -1401,6 +1430,20 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
       appBar: AppBar(
         title: Obx(
             () => Text("Consignment Form Step ${controller.step.value + 1}")),
+        actions: [
+          Obx(()=> (controller.step.value == 1 || controller.step.value == 3)?
+    IconButton(
+      icon: Icon(Icons.share_outlined),
+      color: Colors.blue,
+      onPressed: () {
+        (controller.step.value == 1)?
+        bd.shareBilty(controller.bilty.value!,growerName: controller.consignment.value!.growerName,packhouseName: (controller.consignment.value!.packHouseMode=="Self")?"Self":controller.packhouse.value!.name,aadhatiName: "",consignmentNo:controller.consignment.value!.searchId ,
+            websiteUrl: "https://bookmyloadindia.com"): bd.downloadFinalBilty(controller.bilty.value!,growerName: controller.consignment.value!.growerName,packhouseName: (controller.consignment.value!.packHouseMode=="Self")?"Self":controller.consignment.value!.packHouseMode,aadhatiName: controller.consignment.value!.aadhatiId,consignmentNo:controller.consignment.value!.searchId ,
+            websiteUrl: "https://bookmyloadindia.com");
+      },
+    ):Text("${controller.step.value}"))
+
+        ],
         backgroundColor: Colors.white,
       ),
       body: Container(
@@ -1414,9 +1457,6 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
               ),
             ),
             buildButton(),
-            if(MediaQuery.of(Get.context!).size.width>600)SizedBox(
-              height: 50,
-            )
           ],
         ),
       ),
@@ -1433,5 +1473,3 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
     // TODO: Implement upload logic here
   }
 }
-
-

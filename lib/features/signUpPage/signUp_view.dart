@@ -277,34 +277,37 @@ class SignUpView extends GetView<SignUpController> {
 
   Widget _buildSubmitButton() {
     // Sign In button: triggers sign-in logic in the controller
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 50,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.only(top:32),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  shadowColor: Colors.green.withOpacity(0.3),
                 ),
-                shadowColor: Colors.green.withOpacity(0.3),
-              ),
-              // On press, call controller.navigateToRolePage (sign-in logic)
-              onPressed: () => controller.signInWithApi(),
-              child: Text(
-                glb.getTranslatedText("Sign In"),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                // On press, call controller.navigateToRolePage (sign-in logic)
+                onPressed: () => controller.signInWithApi(),
+                child: Text(
+                  glb.getTranslatedText("Sign In"),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

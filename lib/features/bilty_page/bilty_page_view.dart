@@ -55,48 +55,49 @@ class BiltyPageView extends GetView<BiltyPageController> {
           scrollDirection: Axis.horizontal,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 20,
+            spacing: 10,
             children: [
               Obx(() => TextButton.icon(
-                    icon: Icon(
-                      isEditBoxesMode.value ? Icons.check_circle : Icons.edit,
-                      color: isEditBoxesMode.value ? Colors.green : Colors.blue,
-                    ),
-                    label: Text(
-                        isEditBoxesMode.value ? 'Save Boxes' : 'Edit Boxes'),
-                    onPressed: () {
-                      if (isEditBoxesMode.value) {
-                        isEditBoxesMode.value = false;
-                        controller.bilty.refresh();
-                      } else {
-                        isEditBoxesMode.value = true;
-                        isEditTotalWeightMode.value = false;
-                      }
-                    },
-                  )),
+                icon: Icon(
+                  isEditTotalWeightMode.value
+                      ? Icons.check_circle
+                      : Icons.edit,
+                  color: isEditTotalWeightMode.value
+                      ? Colors.green
+                      : Colors.orange,
+                ),
+                label: Text(isEditTotalWeightMode.value
+                    ? 'Save Total Weight'
+                    : 'Edit Total Weight'),
+                onPressed: () {
+                  if (isEditTotalWeightMode.value) {
+                    isEditTotalWeightMode.value = false;
+                    controller.bilty.refresh();
+                  } else {
+                    isEditTotalWeightMode.value = true;
+                    isEditBoxesMode.value = false;
+                  }
+                },
+              )),
               const SizedBox(width: 8),
               Obx(() => TextButton.icon(
-                    icon: Icon(
-                      isEditTotalWeightMode.value
-                          ? Icons.check_circle
-                          : Icons.edit,
-                      color: isEditTotalWeightMode.value
-                          ? Colors.green
-                          : Colors.orange,
-                    ),
-                    label: Text(isEditTotalWeightMode.value
-                        ? 'Save Total Weight'
-                        : 'Edit Total Weight'),
-                    onPressed: () {
-                      if (isEditTotalWeightMode.value) {
-                        isEditTotalWeightMode.value = false;
-                        controller.bilty.refresh();
-                      } else {
-                        isEditTotalWeightMode.value = true;
-                        isEditBoxesMode.value = false;
-                      }
-                    },
-                  )),
+                icon: Icon(
+                  isEditBoxesMode.value ? Icons.check_circle : Icons.edit,
+                  color: isEditBoxesMode.value ? Colors.green : Colors.blue,
+                ),
+                label: Text(
+                    isEditBoxesMode.value ? 'Save Boxes' : 'Edit Boxes'),
+                onPressed: () {
+                  if (isEditBoxesMode.value) {
+                    isEditBoxesMode.value = false;
+                    controller.bilty.refresh();
+                  } else {
+                    isEditBoxesMode.value = true;
+                    isEditTotalWeightMode.value = false;
+                  }
+                },
+              )),
+
               const SizedBox(width: 8),
               Obx(() => TextButton.icon(
                     icon: Icon(
@@ -184,6 +185,7 @@ class BiltyPageView extends GetView<BiltyPageController> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: DataTable(
+                    columnSpacing: 12,
                     headingRowColor: MaterialStateProperty.resolveWith(
                         (states) => Colors.orange.shade200),
                     columns: [
@@ -253,8 +255,10 @@ class BiltyPageView extends GetView<BiltyPageController> {
                                     ),
                                   ),
                                 )
-                              : DataCell(Text("${category.boxCount}",
-                                  style: const TextStyle(color: Colors.white))),
+                              : DataCell(Center(
+                                child: Text("${category.boxCount}",
+                                    style: const TextStyle(color: Colors.white)),
+                              )),
                           isEditTotalWeightMode.value
                               ? DataCell(
                                   SizedBox(

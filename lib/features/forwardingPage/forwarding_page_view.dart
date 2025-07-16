@@ -187,6 +187,7 @@ class ForwardPageView  extends GetView<ForwardPageController> {
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Obx(() => DataTable(
+              columnSpacing: 12,
               headingRowColor: MaterialStateProperty.resolveWith(
                       (states) => Colors.orange.shade200),
               columns: [
@@ -232,8 +233,10 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                       DataCell(Text(
                           "${category.avgBoxWeight.toStringAsFixed(1)}kg",
                           style: const TextStyle(color: Colors.white))),
-                      DataCell(Text("${category.boxCount}",
-                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Center(
+                        child: Text("${category.boxCount}",
+                            style: const TextStyle(color: Colors.white)),
+                      )),
                       DataCell(Text(
                           "${category.totalWeight.toStringAsFixed(1)}kg",
                           style: const TextStyle(color: Colors.white))),
