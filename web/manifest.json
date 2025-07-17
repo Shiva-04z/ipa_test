@@ -1,13 +1,13 @@
 {
-    "name": "apple_grower",
-    "short_name": "apple_grower",
+    "name": "Book My Load",
+    "short_name": "BookMyLoad",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "description": "Book My Load is a digital platform connecting growers, aadhatis, packhouses, ladanis, and drivers to streamline the Apple Trading supply chain.",
     "icons": [
         {
             "src": "icons/Icon-192.png",
