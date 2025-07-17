@@ -243,6 +243,7 @@ Future<void> downloadFinalBilty(
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
+                  pw.Image(logoImage, width: 80, height: 80),
                   pw.Text(
                     'HP Marketing Board Approved - Consignment\nDetails Receipt',
                     style: pw.TextStyle(
@@ -254,7 +255,6 @@ Future<void> downloadFinalBilty(
                     ),
                     textAlign: pw.TextAlign.center,
                   ),
-                  pw.Image(logoImage, width: 80, height: 80),
                 ]
               ),
               pw.SizedBox(height: 16),
