@@ -625,6 +625,44 @@ class RegisterController extends GetxController {
     }
   }
 
+  void navigateToRolePage() {
+    switch (selectedRole.value) {
+      case "Grower":
+        Get.toNamed(RoutesConstant.grower); // Navigate to Grower dashboard/page
+        break;
+      case "PackHouse":
+        Get.toNamed(RoutesConstant.packHouse);
+        break;
+      case "Aadhati":
+        Get.toNamed(RoutesConstant.aadhati);
+        break;
+      case "Ladani/Buyers":
+        Get.toNamed(RoutesConstant.ladaniBuyers);
+        break;
+      case "Freight Forwarder":
+        Get.toNamed(RoutesConstant.freightForwarder);
+        break;
+      case "Driver":
+        Get.toNamed(RoutesConstant.driver);
+        break;
+      case "Transport Union":
+        Get.toNamed(RoutesConstant.transportUnion);
+        break;
+      case "APMC Office":
+        Get.toNamed(RoutesConstant.apmcOffice);
+        break;
+      case "HP Police":
+        Get.toNamed(RoutesConstant.hpPolice);
+        break;
+      case "HPMC DEPOT":
+        Get.toNamed(RoutesConstant.hpAgriBoard);
+        break;
+      default:
+      // Show error if role is not recognized
+        Get.snackbar("Error", "Invalid role selected");
+    }
+  }
+
   Future<void> registerAadhati() async {
     try {
       final Map<String, dynamic> requestBody = {
@@ -667,7 +705,6 @@ class RegisterController extends GetxController {
         // Success
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        createUser(glb.id.value);
         Get.snackbar(
           'Success',
           'Aadhati registered successfully!',
@@ -677,8 +714,7 @@ class RegisterController extends GetxController {
         );
         glb.roleType.value = selectedRole.value;
         await glb.uploadUserData();
-
-        Get.toNamed(RoutesConstant.aadhati);
+        createUser(glb.id.value);
       } else {
         // Handle different error status codes
         final errorData = jsonDecode(response.body);
@@ -738,10 +774,6 @@ class RegisterController extends GetxController {
         // Success
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        createUser(
-          glb.id.value,
-
-        );
         Get.snackbar(
           'Success',
           'Grower registered successfully!',
@@ -755,7 +787,9 @@ class RegisterController extends GetxController {
 
         glb.roleType.value = selectedRole.value;
         await glb.uploadUserData();
-        Get.toNamed(RoutesConstant.grower);
+        createUser(
+          glb.id.value,
+        );
       } else {
         // Handle different error status codes
         final errorData = jsonDecode(response.body);
@@ -834,9 +868,6 @@ class RegisterController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        createUser(glb.id.value, name: nameController.text.trim(),
-    contact : phoneController.text.trim(),
-    address : addressController.text.trim(),);
         Get.snackbar(
           'Success',
           'PackHouse registered successfully!',
@@ -846,7 +877,9 @@ class RegisterController extends GetxController {
         );
         glb.roleType.value = selectedRole.value;
         await glb.uploadUserData();
-        Get.toNamed(RoutesConstant.packHouse);
+        createUser(glb.id.value, name: nameController.text.trim(),
+          contact : phoneController.text.trim(),
+          address : addressController.text.trim(),);
       } else {
         final errorData = jsonDecode(response.body);
         String errorMsg = "Registration failed";
@@ -921,7 +954,6 @@ class RegisterController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        createUser(glb.id.value, name : nameController.text.trim(), contact : phoneController.text.trim(), address : addressController.text.trim(), );
         Get.snackbar(
           'Success',
           'Transport Union registered successfully!',
@@ -931,7 +963,7 @@ class RegisterController extends GetxController {
         );
         glb.roleType.value = selectedRole.value;
         await glb.uploadUserData();
-        Get.toNamed(RoutesConstant.transportUnion);
+        createUser(glb.id.value, name : nameController.text.trim(), contact : phoneController.text.trim(), address : addressController.text.trim(), );
       } else {
         final errorData = jsonDecode(response.body);
         String errorMsg = "Registration failed";
@@ -994,10 +1026,6 @@ class RegisterController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        createUser(glb.id.value, name : nameController.text.trim(),
-        contact : phoneController.text.trim(),
-        address : addressController.text.trim()
-        );
         Get.snackbar(
           'Success',
           'Ladani/Buyer registered successfully!',
@@ -1007,7 +1035,10 @@ class RegisterController extends GetxController {
         );
         glb.roleType.value = selectedRole.value;
         await glb.uploadUserData();
-        Get.toNamed(RoutesConstant.ladaniBuyers);
+        createUser(glb.id.value, name : nameController.text.trim(),
+            contact : phoneController.text.trim(),
+            address : addressController.text.trim()
+        );
       } else {
         final errorData = jsonDecode(response.body);
         String errorMsg = "Registration failed";
@@ -1069,7 +1100,6 @@ class RegisterController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body)['data'];
         glb.id.value = responseData['_id'];
-        createUser(glb.id.value, name : nameController.text.trim(), contact: phoneController.text.trim(),);
         Get.snackbar(
           'Success',
           'Driver registered successfully!',
@@ -1079,7 +1109,7 @@ class RegisterController extends GetxController {
         );
         glb.roleType.value = selectedRole.value;
         await glb.uploadUserData();
-        Get.toNamed(RoutesConstant.driver);
+        createUser(glb.id.value, name : nameController.text.trim(), contact: phoneController.text.trim(),);
       } else {
         final errorData = jsonDecode(response.body);
         String errorMsg = "Registration failed";
@@ -1137,12 +1167,6 @@ class RegisterController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        createUser(
-          glb.id.value,
-          name: nameController.text.trim(),
-          contact: cellNoController.text.trim(),
-          aadhar: aadharNoController.text.trim(),
-        );
         Get.snackbar(
           'Success',
           'HPMC Depot registered successfully!',
@@ -1152,7 +1176,12 @@ class RegisterController extends GetxController {
         );
         glb.roleType.value = selectedRole.value;
         await glb.uploadUserData();
-        Get.toNamed(RoutesConstant.hpAgriBoard);
+        createUser(
+          glb.id.value,
+          name: nameController.text.trim(),
+          contact: cellNoController.text.trim(),
+          aadhar: aadharNoController.text.trim(),
+        );
       } else {
         final errorData = jsonDecode(response.body);
         String errorMsg = "Registration failed";
@@ -1217,12 +1246,6 @@ class RegisterController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        createUser(
-          glb.id.value,
-          name: freightForwarderNameController.text.trim(),
-          contact: freightForwarderContactController.text.trim(),
-          address: freightForwarderAddressController.text.trim(),
-        );
         Get.snackbar(
           'Success',
           'Freight Forwarder registered successfully!',
@@ -1231,7 +1254,12 @@ class RegisterController extends GetxController {
           colorText: Colors.white,
         );
         await glb.uploadIDData();
-        Get.toNamed(RoutesConstant.freightForwarder);
+        createUser(
+          glb.id.value,
+          name: freightForwarderNameController.text.trim(),
+          contact: freightForwarderContactController.text.trim(),
+          address: freightForwarderAddressController.text.trim(),
+        );
       } else {
         final errorData = jsonDecode(response.body);
         String errorMsg = "Registration failed";
@@ -1283,12 +1311,6 @@ class RegisterController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         glb.id.value = responseData['_id'];
-        createUser(
-          glb.id.value,
-          name: policeNameController.text.trim(),
-          contact: policeCellNoController.text.trim(),
-          aadhar: policeAdharIdController.text.trim(),
-        );
         Get.snackbar(
           'Success',
           'Police Officer registered successfully!',
@@ -1297,7 +1319,12 @@ class RegisterController extends GetxController {
           colorText: Colors.white,
         );
         await glb.uploadIDData();
-        Get.toNamed(RoutesConstant.hpPolice);
+        createUser(
+          glb.id.value,
+          name: policeNameController.text.trim(),
+          contact: policeCellNoController.text.trim(),
+          aadhar: policeAdharIdController.text.trim(),
+        );
       } else {
         final errorData = jsonDecode(response.body);
         String errorMsg = "Registration failed";
@@ -1553,7 +1580,7 @@ class RegisterController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         glb.userId.value = responseData['_id'];
-        print("User data : $responseData");
+        navigateToRolePage();
         Get.snackbar(
           'Success',
           'User account created successfully!',
@@ -1563,7 +1590,7 @@ class RegisterController extends GetxController {
         );
       } else {
         final errorData = jsonDecode(response.body);
-        String errorMsg = "User registration failed";
+        String errorMsg = "User registration failed!";
         if (errorData != null && errorData['message'] != null) {
           errorMsg = errorData['message'];
         }
