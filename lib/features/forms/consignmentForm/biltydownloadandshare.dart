@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart' as material;
+import 'package:flutter/services.dart' show rootBundle;
 // For font support
 import '../../../models/bilty_model.dart';
 
@@ -61,24 +62,35 @@ Future<void> shareBilty(
       throw Exception('No categories available in the bilty');
     }
     final font = await PdfGoogleFonts.tillanaMedium();
+    // Load the image asset
+    final logoBytes = await rootBundle.load('assets/images/bilty.png');
+    final logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
     final pdf = pw.Document();
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4.landscape,
         build: (pw.Context context) => [
           pw.Center(
-            child: pw.Column(children: [
-              pw.Text(
-                'HP Marketing Board Approved - Consignment\nDetails Receipt',
-                style: pw.TextStyle(
-                  font: font,
-                  fontSize: 24,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.blue200,
-                  decoration: pw.TextDecoration.underline,
-                ),
-                textAlign: pw.TextAlign.center,
-              ),
+            child: pw.Column(
+                children: [
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text(
+                        'HP Marketing Board Approved - Consignment\nDetails Receipt',
+                        style: pw.TextStyle(
+                          font: font,
+                          fontSize: 24,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.blue200,
+                          decoration: pw.TextDecoration.underline,
+                        ),
+                        textAlign: pw.TextAlign.center,
+                      ),
+                      pw.Image(logoImage, width: 80, height: 80),
+                    ]
+                  ),
+
               pw.SizedBox(height: 16),
             ]),
           ),
@@ -218,6 +230,9 @@ Future<void> downloadFinalBilty(
       throw Exception('No categories available in the bilty');
     }
     final font = await PdfGoogleFonts.tillanaMedium();
+    // Load the image asset
+    final logoBytes = await rootBundle.load('assets/images/bilty.png');
+    final logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
     final pdf = pw.Document();
     pdf.addPage(
       pw.MultiPage(
@@ -225,16 +240,22 @@ Future<void> downloadFinalBilty(
         build: (pw.Context context) => [
           pw.Center(
             child: pw.Column(children: [
-              pw.Text(
-                'HP Marketing Board Approved - Consignment\nDetails Receipt',
-                style: pw.TextStyle(
-                  font: font,
-                  fontSize: 24,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.blue200,
-                  decoration: pw.TextDecoration.underline,
-                ),
-                textAlign: pw.TextAlign.center,
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text(
+                    'HP Marketing Board Approved - Consignment\nDetails Receipt',
+                    style: pw.TextStyle(
+                      font: font,
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blue200,
+                      decoration: pw.TextDecoration.underline,
+                    ),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                  pw.Image(logoImage, width: 80, height: 80),
+                ]
               ),
               pw.SizedBox(height: 16),
             ]),
