@@ -12,7 +12,7 @@ PreferredSizeWidget buildAppbar() {
       height: 50,
     ),
     centerTitle: true,
-    actions: [IconButton(onPressed: (){Get.toNamed(RoutesConstant.chatBot);}, icon: Icon(Icons.chat,color: Colors.white,))],
+    actions: [IconButton(onPressed: (){Get.toNamed(RoutesConstant.chatBot);}, icon: Icon(Icons.live_help_rounded,color: Colors.white,))],
     flexibleSpace: Container(
       decoration: const BoxDecoration(
           gradient: LinearGradient(

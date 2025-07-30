@@ -67,8 +67,8 @@ class BiltyPageView extends GetView<BiltyPageController> {
                       : Colors.orange,
                 ),
                 label: Text(isEditTotalWeightMode.value
-                    ? 'Save Total Weight'
-                    : 'Edit Total Weight'),
+                    ? 'Save Box Weight'
+                    : 'Edit Box Weight'),
                 onPressed: () {
                   if (isEditTotalWeightMode.value) {
                     isEditTotalWeightMode.value = false;
@@ -195,8 +195,8 @@ class BiltyPageView extends GetView<BiltyPageController> {
                         const DataColumn(label: Text("Size in MM")),
                         const DataColumn(label: Text("No. of Pieces")),
                         const DataColumn(label: Text("Avg. Weight Per Piece")),
-                        const DataColumn(label: Text("Avg. Gross Box Weight")),
                       ],
+                      const DataColumn(label: Text("Gross Box Weight")),
                       const DataColumn(label: Text("No. of Boxes")),
                       const DataColumn(label: Text("Total Weight")),
                       const DataColumn(label: Text("Image")),
@@ -220,10 +220,43 @@ class BiltyPageView extends GetView<BiltyPageController> {
                             DataCell(Text(
                                 "${category.avgWeight.toStringAsFixed(1)}g",
                                 style: const TextStyle(color: Colors.white))),
-                            DataCell(Text(
-                                "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                                style: const TextStyle(color: Colors.white))),
+
                           ],
+                          isEditTotalWeightMode.value
+                              ? DataCell(
+                            SizedBox(
+                              width: 90,
+                              child: TextFormField(
+                                initialValue:
+                                category.avgBoxWeight.toStringAsFixed(1),
+                                keyboardType:
+                                TextInputType.numberWithOptions(
+                                    decimal: true),
+                                style: const TextStyle(color: Colors.white),
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 6),
+                                ),
+                                onChanged: (val) {
+                                  double? newTotal = double.tryParse(val);
+                                  if (newTotal != null) {
+                                    controller.bilty.value!
+                                        .categories[index] =
+                                        category.copyWith(
+                                            avgBoxWeight: newTotal,
+                                            totalWeight:  newTotal* controller.bilty.value!.categories[index].boxCount
+                                        );
+                                    controller.bilty.refresh();
+                                  }
+                                },
+                              ),
+                            ),
+                          )
+                              : DataCell(Text(
+                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                              style: const TextStyle(color: Colors.white))),
                           isEditBoxesMode.value
                               ? DataCell(
                                   SizedBox(
@@ -259,38 +292,7 @@ class BiltyPageView extends GetView<BiltyPageController> {
                                 child: Text("${category.boxCount}",
                                     style: const TextStyle(color: Colors.white)),
                               )),
-                          isEditTotalWeightMode.value
-                              ? DataCell(
-                                  SizedBox(
-                                    width: 90,
-                                    child: TextFormField(
-                                      initialValue:
-                                          category.totalWeight.toStringAsFixed(1),
-                                      keyboardType:
-                                          TextInputType.numberWithOptions(
-                                              decimal: true),
-                                      style: const TextStyle(color: Colors.white),
-                                      decoration: const InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        isDense: true,
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 4, horizontal: 6),
-                                      ),
-                                      onChanged: (val) {
-                                        double? newTotal = double.tryParse(val);
-                                        if (newTotal != null) {
-                                          controller.bilty.value!
-                                                  .categories[index] =
-                                              category.copyWith(
-                                            totalWeight: newTotal,
-                                          );
-                                          controller.bilty.refresh();
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                )
-                              : DataCell(Text(
+                         DataCell(Text(
                                   "${category.totalWeight.toStringAsFixed(1)}kg",
                                   style: const TextStyle(color: Colors.white))),
                           DataCell(

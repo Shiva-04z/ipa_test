@@ -18,12 +18,17 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ConsignmentFormController extends GetxController {
   Rx<Consignment?> consignment = Rx<Consignment?>(null);
-  RxString driverMode = "Self".obs;
-  RxString packHouseMode = "Self".obs;
+  RxString driverMode = "Request".obs;
+  RxString packHouseMode = "Request".obs;
   RxBool biltyValue = false.obs;
   RxString aadhatiMode = "Associated".obs;
+
+  RxBool imageUpload =false.obs;
+  RxBool videoUpload =false.obs;
   TextEditingController trip1AddressController = TextEditingController();
   TextEditingController trip2AddressController = TextEditingController();
+  TextEditingController remarkController = TextEditingController();
+  TextEditingController varietyController = TextEditingController();
 
   RxInt step = 0.obs;
   Rx<DrivingProfile?> drivingProfile = Rx<DrivingProfile?>(null);
@@ -50,14 +55,24 @@ class ConsignmentFormController extends GetxController {
     loadConsignment();
   }
 
-  Future<void> _loadImage()async{
-    final imageBytes = (await rootBundle.load('assets/images/apple.png')).buffer.asUint8List();
+  Future<void> _loadImage() async {
+    final imageBytes =
+        (await rootBundle.load('assets/images/apple.png')).buffer.asUint8List();
     // 3. Assign the loaded image to the reactive variable.
     // The UI will automatically update.
     glb.logoImage.value = pw.MemoryImage(imageBytes);
   }
 
+  Bilty changeVariety(Bilty bilty, String text) {
+    final updatedCategories = bilty.categories.map((category) {
+      return category.copyWith(variety: text);
+    }).toList();
 
+    return bilty.copyWith(
+      categories: updatedCategories,
+      updatedAt: DateTime.now(),
+    );
+  }
 
   loadConsignment() async {
     if (glb.consignmentID.value == "") {
@@ -79,7 +94,8 @@ class ConsignmentFormController extends GetxController {
             packhouseId: json['packhouseId'],
             startPointAddressTrip2: json['startPointAddressTrip2'],
             trip2Driverid: json['trip2Driverid'],
-            approval: json['approval'], approval1: json['approval1'],
+            approval: json['approval'],
+            approval1: json['approval1'],
             endPointAddressTrip2: json['endPointAddressTrip2'],
             currentStage: json['currentStage'],
             aadhatiId: json['aadhatiId'],
@@ -88,44 +104,38 @@ class ConsignmentFormController extends GetxController {
             bilty: json['bilty'] != null ? Bilty.fromJson(json['bilty']) : null,
             aadhatiMode: json['aadhatiMode'],
             driverMode: json['driverMode'],
-            packHouseMode:  json ['packHouseMode'],
+            packHouseMode: json['packHouseMode'],
             startTime: json['startTime'],
-            date: json['date']
-        );
+            date: json['date']);
 
-        driverMode.value =consignment.value!.driverMode!;
+        driverMode.value = consignment.value!.driverMode!;
         packHouseMode.value = consignment.value!.packHouseMode!;
 
         print(consignment.value?.currentStage);
-        if(consignment.value?.currentStage=="Packing Requested"||consignment.value?.currentStage=="Packing Complete")
-          {
-            step.value = 1;
-          }
-        else if (consignment.value?.currentStage=="Bilty Ready"||consignment.value?.currentStage=="Aadhati Selection")
-          {
-            step.value = 3;
-          }
-        else if(consignment.value?.currentStage=="Release for Bid"||consignment.value?.currentStage=="Bidding Invite"||consignment.value?.currentStage=="Bidding Start")
-          {
-            Get.offNamed(RoutesConstant.growerSession);
-          }
-
+        if (consignment.value?.currentStage == "Packing Requested" ||
+            consignment.value?.currentStage == "Packing Complete") {
+          step.value = 1;
+        } else if (consignment.value?.currentStage == "Bilty Ready" ||
+            consignment.value?.currentStage == "Aadhati Selection") {
+          step.value = 3;
+        } else if (consignment.value?.currentStage == "Release for Bid" ||
+            consignment.value?.currentStage == "Bidding Invite" ||
+            consignment.value?.currentStage == "Bidding Start") {
+          Get.offNamed(RoutesConstant.growerSession);
+        }
 
         print(consignment.value!.bilty?.id);
-      bilty.value = consignment.value!.bilty;
+        bilty.value = consignment.value!.bilty;
       }
     }
   }
 
-
-  Step4()
-  async {
-
-    String apiurl = glb.url + "/api/consignment/${glb.consignmentID.value}/change-status";
-    Map <String, dynamic> data ={
-      "currentStage": "Release for Bid"
-    };
-    final response =await http.patch(Uri.parse(apiurl),body: jsonEncode(data),  headers: {"Content-Type": "application/json"});
+  Step4() async {
+    String apiurl =
+        glb.url + "/api/consignment/${glb.consignmentID.value}/change-status";
+    Map<String, dynamic> data = {"currentStage": "Release for Bid"};
+    final response = await http.patch(Uri.parse(apiurl),
+        body: jsonEncode(data), headers: {"Content-Type": "application/json"});
     print(response.body);
   }
 
@@ -147,8 +157,12 @@ class ConsignmentFormController extends GetxController {
 
     print("Here goes Consignment");
     String api = glb.url.value + "/api/consignment";
-    Map<String, dynamic> uploadData = {"searchId": searchId,"growerName": glb.personName.value};
-    consignment.value = Consignment(searchId: searchId,growerName: glb.personName.value);
+    Map<String, dynamic> uploadData = {
+      "searchId": searchId,
+      "growerName": glb.personName.value
+    };
+    consignment.value =
+        Consignment(searchId: searchId, growerName: glb.personName.value);
 
     final response = await http.post(Uri.parse(api),
         body: jsonEncode(uploadData),
@@ -185,30 +199,31 @@ class ConsignmentFormController extends GetxController {
     }
   }
 
-
-  updateBilty()
-  async {
+  updateBilty() async {
     String api = glb.url.value + "/api/bilty/${consignment.value!.bilty?.id}";
     Map<String, dynamic> data = bilty.value!.toJson();
     final respone = await http.put(Uri.parse(api),
-        body: jsonEncode(data),
-        headers: {"Content-Type": "application/json"});
+        body: jsonEncode(data), headers: {"Content-Type": "application/json"});
   }
 
-
-
   Future<dynamic> Step3() async {
+    String? aadhatiId = "";
+    if (aadhatiMode.value == "Request") {
+      aadhatiId = "687e5bf151ea60ccb4d142c0";
+    } else {
+      aadhatiId = aadhati.value!.id;
+    }
 
     print(consignment.value!.id);
     String api = glb.url.value +
         "/api/consignment/${consignment.value!.id}/add-bilty/step-3";
-    print("Hit");
+
     Map<String, dynamic> uploadData = {
       'endPointTrip2': trip2AddressController.text,
       'trip2DriverId': (driverMode.value == "Associated")
           ? drivingProfile.value?.id
           : transportUnion.value?.id,
-      'aadhatiId': aadhati.value?.id,
+      'aadhatiId': aadhatiId,
       'aadhatiMode': aadhatiMode.value,
       'driverMode': driverMode.value,
     };
@@ -222,8 +237,8 @@ class ConsignmentFormController extends GetxController {
   }
 
   Future<dynamic> Step2() async {
-      print("Here");
-      if(biltyValue.value){
+    print("Here");
+    if (biltyValue.value) {
       String api = glb.url.value + "/api/bilty";
       Map<String, dynamic> data = bilty.value!.toJson();
       final respone = await http.post(Uri.parse(api),
@@ -243,12 +258,10 @@ class ConsignmentFormController extends GetxController {
 
       if (respone.statusCode == 201) {
         print("Sucess");
-
       }
-biltyValue.value=false;    }else
-  {
-    updateBilty();
+      biltyValue.value = false;
+    } else {
+      updateBilty();
+    }
   }
-  }
-
 }

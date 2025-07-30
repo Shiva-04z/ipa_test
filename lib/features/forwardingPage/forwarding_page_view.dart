@@ -206,10 +206,10 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                 const DataColumn(label: Text("Category")),
                 if (showDetails.value) ...[
                   const DataColumn(label: Text("Variety")),
-                  const DataColumn(label: Text("Size in MM")),
-                  const DataColumn(label: Text("No. of Pieces")),
-                  const DataColumn(label: Text("Avg. Weight Per Piece")),
-                  const DataColumn(label: Text("Avg. Gross Box Weight")),
+                  const DataColumn(label: Text("Size in MM")),],
+                  const DataColumn(label: Text("Count")),if (showDetails.value) ...[
+                  const DataColumn(label: Text("Avg. Wt/Piece")),
+                  const DataColumn(label: Text("Gross Box Weight")),
                   const DataColumn(label: Text("No. of Boxes")),
                   const DataColumn(label: Text("Total Weight")),
                 ],
@@ -227,37 +227,59 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                   color: MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) => bgColor),
                   cells: [
-                    DataCell(Text(category.quality,
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(category.category,
-                        style: const TextStyle(color: Colors.white))),
+                    DataCell(Center(
+                      child: Text(category.quality,
+                          style: const TextStyle(color: Colors.white)),
+                    )),
+                    DataCell(Center(
+                      child: Text(category.category,
+                          style: const TextStyle(color: Colors.white)),
+                    )),
                     if (showDetails.value) ...[
-                      DataCell(Text(category.variety,
-                          style: const TextStyle(color: Colors.white))),
-                      DataCell(Text(category.size,
-                          style: const TextStyle(color: Colors.white))),
-                      DataCell(Text("${category.piecesPerBox}",
-                          style: const TextStyle(color: Colors.white))),
-                      DataCell(Text(
-                          "${category.avgWeight.toStringAsFixed(1)}g",
-                          style: const TextStyle(color: Colors.white))),
-                      DataCell(Text(
-                          "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Center(
+                        child: Text(category.variety,
+                            style: const TextStyle(color: Colors.white)),
+                      )),
+                      DataCell(Center(
+                        child: Text(category.size,
+                            style: const TextStyle(color: Colors.white)),
+                      )),],
+                      DataCell(Center(
+                        child: Text("${category.piecesPerBox}",
+                            style: const TextStyle(color: Colors.white)),
+                      )), if (showDetails.value) ...[
+                      DataCell(Center(
+                        child: Text(
+                            "${category.avgWeight.toStringAsFixed(1)}g",
+                            style: const TextStyle(color: Colors.white)),
+                      )),
+                      DataCell(Center(
+                        child: Text(
+                            "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                            style: const TextStyle(color: Colors.white)),
+                      )),
                       DataCell(Center(
                         child: Text("${category.boxCount}",
                             style: const TextStyle(color: Colors.white)),
                       )),
-                      DataCell(Text(
-                          "${category.totalWeight.toStringAsFixed(1)}kg",
-                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Center(
+                        child: Text(
+                            "${category.totalWeight.toStringAsFixed(1)}kg",
+                            style: const TextStyle(color: Colors.white)),
+                      )),
                     ],
-                    DataCell(Text("${category.pricePerKg}",
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Text("${category.boxValue}",
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Text("${category.totalPrice}",
-                        style: const TextStyle(color: Colors.white))),
+                    DataCell(Center(
+                      child: Text("${category.pricePerKg}",
+                          style: const TextStyle(color: Colors.white)),
+                    )),
+                    DataCell(Center(
+                      child: Text("${category.boxValue}",
+                          style: const TextStyle(color: Colors.white)),
+                    )),
+                    DataCell(Center(
+                      child: Text("${category.totalPrice}",
+                          style: const TextStyle(color: Colors.white)),
+                    )),
                     DataCell(
                       category.imagePath != null &&
                           category.imagePath!.isNotEmpty

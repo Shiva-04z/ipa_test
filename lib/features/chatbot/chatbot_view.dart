@@ -170,7 +170,7 @@ class ChatPageView extends GetView<ChatBotController> {
                 ? Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Text(
-                "Kisan Mitra is typing...",
+                "AI is typing...",
                 style: TextStyle(
                   color: Colors.green.shade600,
                   fontStyle: FontStyle.italic,

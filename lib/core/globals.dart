@@ -39,7 +39,9 @@ RxBool isHindiLanguage = false.obs;
 RxString userId = "".obs;
 RxString url = "https://bml-m3ps.onrender.com".obs;
 RxString id = "".obs;
+RxString remark = "".obs;
 Rxn<pw.MemoryImage> logoImage = Rxn<pw.MemoryImage>();
+Rxn<pw.MemoryImage> logo2Image = Rxn<pw.MemoryImage>();
 //6864cbb64b7a68ce4e9e0a4e
 RxString selectedOrchardAddress = "".obs;
 RxString consignmentID = "".obs;

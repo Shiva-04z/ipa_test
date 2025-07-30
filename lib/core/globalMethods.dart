@@ -102,7 +102,12 @@ List<Aadhati> createAadhatiListFromApi(List<dynamic> apiData) {
         id: json['_id']?.toString(),
         name: json['name'] ?? 'Unnamed',
         contact: json['contact'],
-        apmc: json['apmc']);
+        apmc: json['apmc_ID'],
+    address: json['address'],
+    apmc_ID: json['apmc_ID']);
+
+
+
   }).toList();
 }
 

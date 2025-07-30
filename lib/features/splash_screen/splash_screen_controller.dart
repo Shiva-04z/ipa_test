@@ -14,12 +14,20 @@ class SplashScreenController extends GetxController
   @override
   void onInit() {
     super.onInit();
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     );
     _startAnimations();
-    _checkLoginStatusAndNavigate();
+    // _checkLoginStatusAndNavigate();
+
+  }
+
+  @override
+  void onReady()
+  {
+    Get.toNamed(RoutesConstant.forward);
   }
 
   @override

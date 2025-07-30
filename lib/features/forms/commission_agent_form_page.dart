@@ -54,12 +54,13 @@ class CommissionAgentFormController extends GetxController {
           await http.get(Uri.parse(glb.url + '/api/agents/nearby10'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
+
         availableAadhatis.value = data
             .map((e) => Aadhati(
                   id: e['_id']?.toString(),
                   name: e['name'],
                   contact: e['contact'],
-                  apmc: e['apmc'],
+                  apmc: e['apmc_ID'],
                   address: e['address'],
                   nameOfTradingFirm: e['nameOfTradingFirm'],
                   tradingSinceYears: e['tradingSinceYears'],
@@ -78,6 +79,8 @@ class CommissionAgentFormController extends GetxController {
             .toList()
             .cast<Aadhati>();
         searchResults.value = availableAadhatis;
+        print(availableAadhatis.last.name);
+        print(availableAadhatis.last.address);
       } else {
         Get.snackbar('Error', 'Failed to load agents: ${response.statusCode}');
       }
@@ -552,11 +555,7 @@ class CommissionAgentFormPage extends StatelessWidget {
                             Icons.location_on,
                             'Address: ${agent.address ?? 'N/A'}',
                           ),
-                          const SizedBox(height: 8),
-                          _buildInfoRow(
-                            Icons.business,
-                            'Firm Type: ${agent.firmType ?? 'N/A'}',
-                          ),
+
                         ],
                       ),
                     ),

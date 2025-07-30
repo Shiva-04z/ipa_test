@@ -57,17 +57,17 @@ class ChatBotController extends GetxController {
   Future<String> _getBotResponse(String userInput) async {
     isLoading.value = true;
     try {
-      String apiUrl = "https://kissanapi.onrender.com/ask";
+      String apiUrl = "https://bot-1buv.onrender.com/chat";
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {"Content-Type": "application/json"},
-        body: json.encode({"query": userInput}),
+        body: json.encode({"message": userInput}),
       );
 
       if (response.statusCode == 200) {
         Map<String, dynamic> data = json.decode(response.body);
-        res.value = data["response"] as String;
-        return data["response"] ?? "I couldn't understand. Please ask again.";
+        res.value = data["reply"] as String;
+        return data["reply"] ?? "I couldn't understand. Please ask again.";
       } else {
         throw Exception("Failed to get response: ${response.statusCode}");
       }

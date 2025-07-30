@@ -178,16 +178,16 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Obx(() => TextButton.icon(
-                  icon: Icon(
-                    showDetails.value ? Icons.visibility_off : Icons.visibility,
-                    color: showDetails.value ? Colors.red : Colors.grey,
-                  ),
-                  label:
-                      Text(showDetails.value ? 'Hide Details' : 'Show Details'),
-                  onPressed: () {
-                    showDetails.value = !showDetails.value;
-                  },
-                )),
+              icon: Icon(
+                showDetails.value ? Icons.visibility_off : Icons.visibility,
+                color: showDetails.value ? Colors.red : Colors.grey,
+              ),
+              label:
+              Text(showDetails.value ? 'Hide Details' : 'Show Details'),
+              onPressed: () {
+                showDetails.value = !showDetails.value;
+              },
+            )),
           ],
         ),
         const SizedBox(height: 8),
@@ -196,97 +196,119 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Obx(() => DataTable(
-                  headingRowColor: MaterialStateProperty.resolveWith(
+              columnSpacing: 12,
+              headingRowColor: MaterialStateProperty.resolveWith(
                       (states) => Colors.orange.shade200),
-                  columnSpacing: 12,
-                  columns: [
-                    const DataColumn(label: Text("Quality")),
-                    const DataColumn(label: Text("Category")),
-                    if (showDetails.value) ...[
-                      const DataColumn(label: Text("Variety")),
-                      const DataColumn(label: Text("Size in MM")),
-                      const DataColumn(label: Text("No. of Pieces")),
-                      const DataColumn(label: Text("Avg. Weight Per Piece")),
-                      const DataColumn(label: Text("Avg. Gross Box Weight")),
-                      const DataColumn(label: Text("No. of Boxes")),
-                      const DataColumn(label: Text("Total Weight")),
-                    ],
-                    const DataColumn(label: Text("Price Per Kg")),
-                    const DataColumn(label: Text("Box Value")),
-                    const DataColumn(label: Text("Total Price")),
-                    const DataColumn(label: Text("Image")),
-                  ],
-                  rows: List.generate(bilty.categories.length, (index) {
-                    final category = bilty.categories[index];
-                    if (category.boxCount == 0)
-                      return null; // Hide rows with boxCount == 0
-                    final bgColor = getRowColor(category.quality);
-                    return DataRow(
-                      color: MaterialStateProperty.resolveWith<Color?>(
+              columns: [
+                const DataColumn(label: Text("Quality")),
+                const DataColumn(label: Text("Category")),
+                if (showDetails.value) ...[
+                  const DataColumn(label: Text("Variety")),
+                  const DataColumn(label: Text("Size in MM")),],
+                const DataColumn(label: Text("Count")),if (showDetails.value) ...[
+                  const DataColumn(label: Text("Avg. Wt/Piece")),
+                  const DataColumn(label: Text("Gross Box Weight")),
+                  const DataColumn(label: Text("No. of Boxes")),
+                  const DataColumn(label: Text("Total Weight")),
+                ],
+                const DataColumn(label: Text("Price Per Kg")),
+                const DataColumn(label: Text("Box Value")),
+                const DataColumn(label: Text("Total Price")),
+                const DataColumn(label: Text("Image")),
+              ],
+              rows: List.generate(bilty.categories.length, (index) {
+                final category = bilty.categories[index];
+                if (category.boxCount == 0)
+                  return null; // Hide rows with boxCount == 0
+                final bgColor = getRowColor(category.quality);
+                return DataRow(
+                  color: MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) => bgColor),
-                      cells: [
-                        DataCell(Text(category.quality,
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text(category.category,
-                            style: const TextStyle(color: Colors.white))),
-                        if (showDetails.value) ...[
-                          DataCell(Text(category.variety,
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(category.size,
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.piecesPerBox}",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.avgWeight.toStringAsFixed(1)}g",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Center(
-                            child: Text("${category.boxCount}",
-                                style: const TextStyle(color: Colors.white)),
-                          )),
-                          DataCell(Text(
-                              "${category.totalWeight.toStringAsFixed(1)}kg",
-                              style: const TextStyle(color: Colors.white))),
-                        ],
-                        DataCell(Text("${category.pricePerKg}",
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text("${category.boxValue}",
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text("${category.totalPrice}",
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(
-                          category.imagePath != null &&
-                                  category.imagePath!.isNotEmpty
-                              ? GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: Get.context!,
-                                      builder: (context) => AlertDialog(
-                                        title: Text('Uploaded Image'),
-                                        content: Image.file(
-                                            File(category.imagePath!)),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                            child: const Text('Close'),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                  child: const Icon(Icons.check_circle,
-                                      color: Colors.green),
-                                )
-                              : const Icon(Icons.camera_alt,
-                                  color: Colors.white),
-                        ),
-                      ],
-                    );
-                  }).whereType<DataRow>().toList(), // Filter out nulls
-                )),
+                  cells: [
+                    DataCell(Center(
+                      child: Text(category.quality,
+                          style: const TextStyle(color: Colors.white)),
+                    )),
+                    DataCell(Center(
+                      child: Text(category.category,
+                          style: const TextStyle(color: Colors.white)),
+                    )),
+                    if (showDetails.value) ...[
+                      DataCell(Center(
+                        child: Text(category.variety,
+                            style: const TextStyle(color: Colors.white)),
+                      )),
+                      DataCell(Center(
+                        child: Text(category.size,
+                            style: const TextStyle(color: Colors.white)),
+                      )),],
+                    DataCell(Center(
+                      child: Text("${category.piecesPerBox}",
+                          style: const TextStyle(color: Colors.white)),
+                    )), if (showDetails.value) ...[
+                      DataCell(Center(
+                        child: Text(
+                            "${category.avgWeight.toStringAsFixed(1)}g",
+                            style: const TextStyle(color: Colors.white)),
+                      )),
+                      DataCell(Center(
+                        child: Text(
+                            "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                            style: const TextStyle(color: Colors.white)),
+                      )),
+                      DataCell(Center(
+                        child: Text("${category.boxCount}",
+                            style: const TextStyle(color: Colors.white)),
+                      )),
+                      DataCell(Center(
+                        child: Text(
+                            "${category.totalWeight.toStringAsFixed(1)}kg",
+                            style: const TextStyle(color: Colors.white)),
+                      )),
+                    ],
+                    DataCell(Center(
+                      child: Text("${category.pricePerKg}",
+                          style: const TextStyle(color: Colors.white)),
+                    )),
+                    DataCell(Center(
+                      child: Text("${category.boxValue}",
+                          style: const TextStyle(color: Colors.white)),
+                    )),
+                    DataCell(Center(
+                      child: Text("${category.totalPrice}",
+                          style: const TextStyle(color: Colors.white)),
+                    )),
+                    DataCell(
+                      category.imagePath != null &&
+                          category.imagePath!.isNotEmpty
+                          ? GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: Get.context!,
+                            builder: (context) => AlertDialog(
+                              title: Text('Uploaded Image'),
+                              content: Image.file(
+                                  File(category.imagePath!)),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        child: const Icon(Icons.check_circle,
+                            color: Colors.green),
+                      )
+                          : const Icon(Icons.camera_alt,
+                          color: Colors.white),
+                    ),
+                  ],
+                );
+              }).whereType<DataRow>().toList(), // Filter out nulls
+            )),
           ),
         ),
         const SizedBox(height: 16),

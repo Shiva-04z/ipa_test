@@ -24,6 +24,7 @@ class ForwardPageController extends GetxController {
   }
 
   Future<void> loadConsignment() async {
+    print(glb.consignmentID.value);
     String api = glb.url.value + "/api/consignment/${glb.consignmentID.value}";
     final response = await http.get(Uri.parse(api));
     if (response.statusCode == 200) {

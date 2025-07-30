@@ -95,96 +95,92 @@ pw.Widget buildDonutChartPdf({
     crossAxisAlignment: pw.CrossAxisAlignment.center,
     children: [
       pw.Center(
-      child: pw.Text(
-        title,
-        style: pw.TextStyle(
-          font: font,
-          fontSize: 18,
-          fontWeight: pw.FontWeight.bold,
+        child: pw.Text(
+          title,
+          style: pw.TextStyle(
+            font: font,
+            fontSize: 18,
+            fontWeight: pw.FontWeight.bold,
+          ),
+          textAlign: pw.TextAlign.left,
         ),
-        textAlign: pw.TextAlign.left,
-      ),),
+      ),
       pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.center,
         crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
           // Donut chart (fixed outer/inner radius, no arc labels)
-          pw.Stack(
-            alignment: pw.Alignment.center,
-              children: [
-          pw.Container(
-            width: size,
-            height: size,
-            child: pw.CustomPaint(
-              size: PdfPoint(size, size),
-              painter: (ctx, pdfSize) {
-                final center = PdfPoint(pdfSize.x / 2, pdfSize.y / 2);
-                double startAngle = -90.0;
-                for (int i = 0; i < values.length; i++) {
-                  final sweep = 360 * (values[i] / total) - gapDegrees;
-                  if (sweep <= 0) {
+          pw.Stack(alignment: pw.Alignment.center, children: [
+            pw.Container(
+              width: size,
+              height: size,
+              child: pw.CustomPaint(
+                size: PdfPoint(size, size),
+                painter: (ctx, pdfSize) {
+                  final center = PdfPoint(pdfSize.x / 2, pdfSize.y / 2);
+                  double startAngle = -90.0;
+                  for (int i = 0; i < values.length; i++) {
+                    final sweep = 360 * (values[i] / total) - gapDegrees;
+                    if (sweep <= 0) {
+                      startAngle += 360 * (values[i] / total);
+                      continue;
+                    }
+                    final arcStart =
+                        _degreesToRadians(startAngle + gapDegrees / 2);
+                    final arcEnd =
+                        _degreesToRadians(startAngle + sweep + gapDegrees / 2);
+                    final steps = (sweep.abs() / 2).ceil().clamp(2, 180);
+                    ctx.setLineWidth(outerRadius - innerRadius);
+                    ctx.setStrokeColor(colors[i % colors.length]);
+                    ctx.setLineCap(PdfLineCap.round);
+                    for (int s = 0; s <= steps; s++) {
+                      final t = s / steps;
+                      final angle = arcStart + (arcEnd - arcStart) * t;
+                      final x = center.x + outerRadius * math.cos(angle);
+                      final y = center.y + outerRadius * math.sin(angle);
+                      if (s == 0) {
+                        ctx.moveTo(x, y);
+                      } else {
+                        ctx.lineTo(x, y);
+                      }
+                    }
+                    ctx.strokePath();
+                    // Draw white separator arc (thin line) at the start of each segment
+                    ctx.setLineWidth((outerRadius - innerRadius) * 0.18);
+                    ctx.setStrokeColor(PdfColors.white);
+                    ctx.setLineCap(PdfLineCap.round);
+                    final sepAngle =
+                        _degreesToRadians(startAngle + gapDegrees / 2);
+                    final sepSteps = 6;
+                    for (int s = 0; s <= sepSteps; s++) {
+                      final t = s / sepSteps;
+                      final angle = sepAngle + 0.01 * t; // short arc
+                      final x = center.x + outerRadius * math.cos(angle);
+                      final y = center.y + outerRadius * math.sin(angle);
+                      if (s == 0) {
+                        ctx.moveTo(x, y);
+                      } else {
+                        ctx.lineTo(x, y);
+                      }
+                    }
+                    ctx.strokePath();
                     startAngle += 360 * (values[i] / total);
-                    continue;
                   }
-                  final arcStart =
-                      _degreesToRadians(startAngle + gapDegrees / 2);
-                  final arcEnd =
-                      _degreesToRadians(startAngle + sweep + gapDegrees / 2);
-                  final steps = (sweep.abs() / 2).ceil().clamp(2, 180);
-                  ctx.setLineWidth(outerRadius - innerRadius);
-                  ctx.setStrokeColor(colors[i % colors.length]);
-                  ctx.setLineCap(PdfLineCap.round);
-                  for (int s = 0; s <= steps; s++) {
-                    final t = s / steps;
-                    final angle = arcStart + (arcEnd - arcStart) * t;
-                    final x = center.x + outerRadius * math.cos(angle);
-                    final y = center.y + outerRadius * math.sin(angle);
-                    if (s == 0) {
-                      ctx.moveTo(x, y);
-                    } else {
-                      ctx.lineTo(x, y);
-                    }
-                  }
-                  ctx.strokePath();
-                  // Draw white separator arc (thin line) at the start of each segment
-                  ctx.setLineWidth((outerRadius - innerRadius) * 0.18);
-                  ctx.setStrokeColor(PdfColors.white);
-                  ctx.setLineCap(PdfLineCap.round);
-                  final sepAngle =
-                      _degreesToRadians(startAngle + gapDegrees / 2);
-                  final sepSteps = 6;
-                  for (int s = 0; s <= sepSteps; s++) {
-                    final t = s / sepSteps;
-                    final angle = sepAngle + 0.01 * t; // short arc
-                    final x = center.x + outerRadius * math.cos(angle);
-                    final y = center.y + outerRadius * math.sin(angle);
-                    if (s == 0) {
-                      ctx.moveTo(x, y);
-                    } else {
-                      ctx.lineTo(x, y);
-                    }
-                  }
-                  ctx.strokePath();
-                  startAngle += 360 * (values[i] / total);
-                }
-                // Inner white circle for donut effect
-                ctx.setFillColor(PdfColors.white);
-                ctx.drawEllipse(center.x, center.y, innerRadius, innerRadius);
-                ctx.fillPath();
-              },
+                  // Inner white circle for donut effect
+                  ctx.setFillColor(PdfColors.white);
+                  ctx.drawEllipse(center.x, center.y, innerRadius, innerRadius);
+                  ctx.fillPath();
+                },
+              ),
             ),
-          ),
-
-  pw.Center(
-  child: pw.Container(
-  width: innerRadius * 1.6, // Adjust size as needed
-  height: innerRadius * 1.6,
-  child:glb.logoImage.value != null
-      ? pw.Image(pw.MemoryImage(glb.logoImage.value!.bytes))
-      : pw.Container(),))
-
-
-
+            pw.Center(
+                child: pw.Container(
+              width: innerRadius * 1.6, // Adjust size as needed
+              height: innerRadius * 1.6,
+              child: glb.logoImage.value != null
+                  ? pw.Image(pw.MemoryImage(glb.logoImage.value!.bytes))
+                  : pw.Container(),
+            ))
           ]),
           pw.SizedBox(width: 20),
           // Legend
@@ -232,41 +228,40 @@ pw.Widget buildDonutChartPdf({
                       ),
                   ],
                 ),
-
-
               ],
             ),
           ),
         ],
       ),
-      if (totalBoxes != null || totalWeight != null)pw.Padding(
-        padding: const pw.EdgeInsets.only(top: 32),
-        child: pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
-          children: [
-            if (totalBoxes != null)
-              pw.Text(
-                'Total Boxes: $totalBoxes',
-                style: pw.TextStyle(
-                  font: font,
-                  fontSize: 11,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.grey800,
+      if (totalBoxes != null || totalWeight != null)
+        pw.Padding(
+          padding: const pw.EdgeInsets.only(top: 32),
+          child: pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
+            children: [
+              if (totalBoxes != null)
+                pw.Text(
+                  'Total Boxes: $totalBoxes',
+                  style: pw.TextStyle(
+                    font: font,
+                    fontSize: 11,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey800,
+                  ),
                 ),
-              ),
-            if (totalWeight != null)
-              pw.Text(
-                'Total Weight: ${totalWeight.toStringAsFixed(1)} kg',
-                style: pw.TextStyle(
-                  font: font,
-                  fontSize: 11,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.grey800,
+              if (totalWeight != null)
+                pw.Text(
+                  'Total Weight: ${totalWeight.toStringAsFixed(1)} kg',
+                  style: pw.TextStyle(
+                    font: font,
+                    fontSize: 11,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey800,
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
-      ),
     ],
   );
 }
@@ -278,6 +273,7 @@ Future<void> shareBilty(
   String? packhouseName,
   String? consignmentNo,
   String? aadhatiName,
+      String ? remark
 }) async {
   try {
     print(
@@ -293,6 +289,8 @@ Future<void> shareBilty(
     // Load the image asset
     final logoBytes = await rootBundle.load('assets/images/bilty.png');
     final logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
+    final logo2Bytes = await rootBundle.load('assets/images/fas.png');
+    final logo2Image = pw.MemoryImage(logo2Bytes.buffer.asUint8List());
     final pdf = pw.Document();
     // --- Donut chart data logic (copied from controller) ---
     double totalWeight =
@@ -421,11 +419,9 @@ Future<void> shareBilty(
         (i) => PdfColors.accents[i % PdfColors.accents.length]);
 
     pdf.addPage(
-      pw.Page(
+      pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        build: (pw.Context context) => pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-          children: [
+        build: (pw.Context context) => [
             // Header: logo left, title right
             pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -435,23 +431,37 @@ Future<void> shareBilty(
                   height: 80,
                   child: pw.Image(logoImage),
                 ),
-                pw.SizedBox(width: 16),
-                pw.Expanded(
-                  child: pw.Text(
-                    'HP Marketing Board Approved - Consignment\nDetails Receipt',
+                pw.Expanded(child: pw.SizedBox(width: 16)),
+                pw.Column(children: [
+                  pw.Text(
+                    'FasCorp',
                     style: pw.TextStyle(
                       font: font,
-                      fontSize: 24,
+                      fontSize: 32,
                       fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.blue200,
-                      decoration: pw.TextDecoration.underline,
+                      color: PdfColors.green,
                     ),
                     textAlign: pw.TextAlign.right,
                   ),
-                ),
+                  pw.Text(
+                    "Farmer as Service Initiative",
+                    style: pw.TextStyle(
+                      font: font,
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.green,
+                    ),
+                  )
+                ]),
+                pw.Expanded(child: pw.SizedBox(width: 16)),
+                pw.Container(
+                  height: 80,
+                  width: 120,
+                  child: pw.Center(child: pw.Image(logo2Image)),
+                )
               ],
             ),
-            pw.SizedBox(height: 12),
+            pw.SizedBox(height: 16),
             // Info
             if (growerName != null && growerName.isNotEmpty)
               pw.Text('Grower Name: $growerName',
@@ -465,13 +475,25 @@ Future<void> shareBilty(
             if (aadhatiName != null && aadhatiName.isNotEmpty)
               pw.Text('Aadhati Name: $aadhatiName',
                   style: pw.TextStyle(font: font, fontSize: 14)),
-            pw.SizedBox(height: 12),
+            pw.SizedBox(height: 16),
+           if(remark!.isNotEmpty) pw.Column( children: [
+
+  pw.Padding( padding: pw.EdgeInsets.all(8),child:pw.Text("Remarks", style: pw.TextStyle(font: font, fontSize: 22,fontWeight: pw.FontWeight.bold)))
+  ,pw.Padding( padding: pw.EdgeInsets.all(8),child:
+            pw.Container(
+              width: 600,
+              decoration: pw.BoxDecoration(border: pw.Border.all(color: PdfColors.black),borderRadius: pw.BorderRadius.all(pw.Radius.elliptical(12, 12),)),
+              padding: pw.EdgeInsets.all(8),
+              child: pw.Text("${remark}", style: pw.TextStyle(font: font, fontSize: 14))
+            )),pw.SizedBox(height: 16),]),
             // Table
             pw.Table(
               border: pw.TableBorder.all(),
               children: [
                 pw.TableRow(
-                  decoration: pw.BoxDecoration(color: getPdfHeaderColor()),
+                  decoration: pw.BoxDecoration(
+                    color: getPdfHeaderColor(),
+                  ),
                   children: [
                     _buildHeaderCell('Quality', font,
                         align: pw.TextAlign.center),
@@ -479,7 +501,8 @@ Future<void> shareBilty(
                         align: pw.TextAlign.center),
                     _buildHeaderCell('Variety', font,
                         align: pw.TextAlign.center),
-                    _buildHeaderCell('Avg. Gross Box Weight', font,
+                    _buildHeaderCell('Count', font, align: pw.TextAlign.center),
+                    _buildHeaderCell('Gross Box Weight', font,
                         align: pw.TextAlign.center),
                     _buildHeaderCell('No. of Boxes', font,
                         align: pw.TextAlign.center),
@@ -498,6 +521,8 @@ Future<void> shareBilty(
                             _buildDataCell(category.category, font,
                                 align: pw.TextAlign.center),
                             _buildDataCell(category.variety, font,
+                                align: pw.TextAlign.center),
+                            _buildDataCell(category.piecesPerBox.toString(), font,
                                 align: pw.TextAlign.center),
                             _buildDataCell(
                                 '${category.avgBoxWeight.toStringAsFixed(1)}kg',
@@ -540,7 +565,7 @@ Future<void> shareBilty(
               ),
             ),
           ],
-        ),
+
       ),
     );
     // Add a second page for the charts (2x2 grid)
@@ -552,49 +577,46 @@ Future<void> shareBilty(
             mainAxisAlignment: pw.MainAxisAlignment.center,
             children: [
               pw.Center(
-              child: pw.Text("Bilty Distribution Graphs",style: pw.TextStyle(fontSize: 22) ),),
+                child: pw.Text("Bilty Distribution Graphs",
+                    style: pw.TextStyle(fontSize: 22)),
+              ),
               pw.Divider(color: PdfColors.black),
               pw.SizedBox(height: 20),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.center,
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                 buildDonutChartPdf(
-                      data: qualityShare,
-                      colors: [
-                        PdfColors.red,
-                        PdfColors.yellow,
-                        PdfColors.green
-                      ],
-                      title: 'Overall',
-                      font: font,
-                      size: 80,
-                      arcWidth: 20,
-                      gapDegrees: 4,
-                      drawLegendLines: false,
-                      totalBoxes: qualityBoxCount.values
-                          .fold(0, (sum, v) => (sum ?? 0) + (v ?? 0)),
-                      totalWeight: totalWeight,
-                    ),
+                  buildDonutChartPdf(
+                    data: qualityShare,
+                    colors: [PdfColors.red, PdfColors.yellow, PdfColors.green],
+                    title: 'Overall',
+                    font: font,
+                    size: 80,
+                    arcWidth: 20,
+                    gapDegrees: 4,
+                    drawLegendLines: false,
+                    totalBoxes: qualityBoxCount.values
+                        .fold(0, (sum, v) => (sum ?? 0) + (v ?? 0)),
+                    totalWeight: totalWeight,
+                  ),
                   pw.SizedBox(width: 24),
-                    buildDonutChartPdf(
-                      data: aaaCategoryShare,
-                      colors: [
-                        PdfColors.blue,
-                        PdfColors.orange,
-                        PdfColors.purple,
-                        PdfColors.amber
-                      ],
-                      title: 'AAA',
-                      font: font,
-                      size: 80,
-                      arcWidth: 20,
-                      gapDegrees: 4,
-                      drawLegendLines: false,
-                      totalBoxes: aaaCatBoxCount.values
-                          .fold(0, (sum, v) => (sum ?? 0) + (v ?? 0)),
-                      totalWeight: totalAAAWeight,
-
+                  buildDonutChartPdf(
+                    data: aaaCategoryShare,
+                    colors: [
+                      PdfColors.blue,
+                      PdfColors.orange,
+                      PdfColors.purple,
+                      PdfColors.amber
+                    ],
+                    title: 'AAA',
+                    font: font,
+                    size: 80,
+                    arcWidth: 20,
+                    gapDegrees: 4,
+                    drawLegendLines: false,
+                    totalBoxes: aaaCatBoxCount.values
+                        .fold(0, (sum, v) => (sum ?? 0) + (v ?? 0)),
+                    totalWeight: totalAAAWeight,
                   ),
                 ],
               ),
@@ -662,17 +684,29 @@ Future<void> shareBilty(
   }
 }
 
-// Update _buildHeaderCell and _buildDataCell to always center text
 pw.Widget _buildHeaderCell(String text, pw.Font font,
     {pw.TextAlign align = pw.TextAlign.center}) {
-  return pw.Padding(
+  return pw.Container(
+    alignment: pw.Alignment.center,
     padding: const pw.EdgeInsets.all(4),
-    child: pw.Text(text,
-        textAlign: align,
-        style: pw.TextStyle(
-          fontWeight: pw.FontWeight.bold,
-          font: font,
+    child: pw.Transform.rotate(
+      angle:
+          -270 * math.pi / 180, // Rotate 90° counterclockwise (bottom to top)
+      child: pw.Container(
+        width: 50,
+        height: 50, // You can tweak this depending on your layout
+        child: pw.Center(
+            child: pw.Text(
+          text,
+          textAlign: align,
+          softWrap: true,
+          style: pw.TextStyle(
+            fontWeight: pw.FontWeight.bold,
+            font: font,
+          ),
         )),
+      ),
+    ),
   );
 }
 
@@ -775,8 +809,8 @@ Future<void> downloadFinalBilty(
                   _buildHeaderCell('Variety', font),
                   _buildHeaderCell('Size in MM', font),
                   _buildHeaderCell('No. of Pieces', font),
-                  _buildHeaderCell('Avg. Weight Per Piece', font),
-                  _buildHeaderCell('Avg. Gross Box Weight', font),
+                  _buildHeaderCell('Avg. Wt/Piece', font),
+                  _buildHeaderCell('Box Weight', font),
                   _buildHeaderCell('No. of Boxes', font),
                   _buildHeaderCell('Total Weight', font),
                   _buildHeaderCell('Price Per Kg', font),

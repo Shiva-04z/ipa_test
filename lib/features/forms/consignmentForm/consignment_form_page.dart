@@ -2,14 +2,15 @@ import 'package:apple_grower/features/grower/grower_controller.dart';
 import 'package:apple_grower/models/aadhati.dart';
 import 'package:apple_grower/models/bilty_model.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:video_player/video_player.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:apple_grower/features/forms/consignmentForm/biltydownloadandshare.dart'
     as bd;
 import '../../../models/driving_profile_model.dart';
@@ -25,6 +26,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   final RxBool isEditBoxesMode = false.obs;
   final RxBool isEditTotalWeightMode = false.obs;
   final RxString videoPath = ''.obs;
+  final RxString imgUrl = ''.obs;
 
   Widget driverModeSelection() {
     return Container(
@@ -49,7 +51,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
             RadioListTile(
                 value: "Associated",
                 groupValue: controller.driverMode.value,
-                title: Text("Associated"),
+                title: Text("Associated Drivers"),
                 subtitle: Text("Select One of Associated"),
                 onChanged: (value) {
                   controller.driverMode.value = value!;
@@ -224,7 +226,8 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
               TextFormField(
                 controller: controller.trip2AddressController,
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(), label: Text("Enter Address")),
+                    border: OutlineInputBorder(),
+                    label: Text("Enter Destination Address")),
               )
             ],
           ),
@@ -297,8 +300,51 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      controller.Step2();
-                      controller.addStep();
+                      Get.defaultDialog(
+                          title: "Review",
+                          content: Column(
+                            spacing: 20,
+                            children: [
+                              Row(
+                                children: [
+                                  Text("Video Uploaded"),
+                                  (controller.videoUpload.value)
+                                      ? Icon(
+                                    Icons.check,
+                                    color: Colors.green,
+                                  )
+                                      : Icon(
+                                    Icons.dangerous_sharp,
+                                    color: Colors.red,
+                                  )
+
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text("Images Uploaded"),
+                                  (controller.imageUpload.value)
+                                      ? Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        )
+                                      : Icon(
+                                          Icons.dangerous_sharp,
+                                          color: Colors.red,
+                                        ),
+
+                                ],
+                              ),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    Get.back();
+                                    controller.Step2();
+                                    controller.addStep();
+                                    ;
+                                  },
+                                  child: Text("Procced"))
+                            ],
+                          ));
                     },
                     style: ElevatedButton.styleFrom(
                       shape: BeveledRectangleBorder(),
@@ -586,6 +632,8 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   }
 
   Widget biltyCreate() {
+    RxBool editVariety = false.obs;
+
     if (controller.bilty.value == null) {
       controller.bilty.value = Bilty.createDefault();
       controller.biltyValue.value = true;
@@ -620,27 +668,27 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
             spacing: 10,
             children: [
               Obx(() => TextButton.icon(
-                icon: Icon(
-                  isEditTotalWeightMode.value
-                      ? Icons.check_circle
-                      : Icons.edit,
-                  color: isEditTotalWeightMode.value
-                      ? Colors.green
-                      : Colors.orange,
-                ),
-                label: Text(isEditTotalWeightMode.value
-                    ? 'Save Total Weight'
-                    : 'Edit Total Weight'),
-                onPressed: () {
-                  if (isEditTotalWeightMode.value) {
-                    isEditTotalWeightMode.value = false;
-                    controller.bilty.refresh();
-                  } else {
-                    isEditTotalWeightMode.value = true;
-                    isEditBoxesMode.value = false;
-                  }
-                },
-              )),
+                    icon: Icon(
+                      isEditTotalWeightMode.value
+                          ? Icons.check_circle
+                          : Icons.edit,
+                      color: isEditTotalWeightMode.value
+                          ? Colors.green
+                          : Colors.orange,
+                    ),
+                    label: Text(isEditTotalWeightMode.value
+                        ? 'Save Box Weight'
+                        : 'Edit Box Weight'),
+                    onPressed: () {
+                      if (isEditTotalWeightMode.value) {
+                        isEditTotalWeightMode.value = false;
+                        controller.bilty.refresh();
+                      } else {
+                        isEditTotalWeightMode.value = true;
+                        isEditBoxesMode.value = false;
+                      }
+                    },
+                  )),
               const SizedBox(width: 8),
               Obx(() => TextButton.icon(
                     icon: Icon(
@@ -659,8 +707,37 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                       }
                     },
                   )),
-
-
+              const SizedBox(width: 8),
+              TextButton.icon(
+                    icon: Icon(
+                      Icons.category
+                      ,color:  Colors.red,
+                    ),
+                    label: Text("Change variety"),
+                    onPressed: () {
+                      Get.defaultDialog(
+                          title: "Change Variety",
+                          content: Column(
+                            children: [
+                              Container(
+                                 padding:EdgeInsets.all(8),
+                                child: TextFormField(
+                                  controller: controller.varietyController,
+                                  decoration: InputDecoration(
+                                    hintText: "Enter Varity Name for bilty",
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.elliptical(12, 12)))),
+                                ),
+                              ),
+                              ElevatedButton(onPressed: (){
+                                controller.bilty.value = controller.changeVariety(bilty, controller.varietyController.text);
+                                Get.back();
+                              }, child: Text("SUBMIT"))
+                            ],
+                          ));
+                    },
+                  ),
               const SizedBox(width: 8),
               Obx(() => TextButton.icon(
                     icon: Icon(
@@ -688,8 +765,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                                 final XFile? image = await _picker.pickImage(
                                     source: ImageSource.camera);
                                 if (image != null) {
-                                  imagePaths[i] = image.path;
-                                  await uploadImage(File(image.path), i);
+                                  imgUrl.value =
+                                      await uploadImage(File(image.path), i);
+                                  imagePaths[i] = imgUrl.value;
                                 }
                               }
                             }
@@ -712,20 +790,16 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                             label: Text(videoPath.value.isNotEmpty
                                 ? 'Video Uploaded'
                                 : 'Upload Video'),
-                            onPressed: (isEditBoxesMode.value ||
-                                    isEditTotalWeightMode.value)
-                                ? () async {
-                                    final XFile? video =
-                                        await _picker.pickVideo(
-                                      source: ImageSource.camera,
-                                      maxDuration: const Duration(seconds: 5),
-                                    );
-                                    if (video != null) {
-                                      videoPath.value = video.path;
-                                      await uploadVideo(File(video.path));
-                                    }
-                                  }
-                                : null,
+                            onPressed: () async {
+                              final XFile? video = await _picker.pickVideo(
+                                source: ImageSource.camera,
+                                maxDuration: const Duration(seconds: 5),
+                              );
+                              if (video != null) {
+                                videoPath.value = video.path;
+                                await uploadVideo(File(video.path));
+                              }
+                            },
                           ),
                           const SizedBox(width: 12),
                           const Text('Video limit: 5 seconds',
@@ -753,11 +827,13 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     const DataColumn(label: Text("Category")),
                     if (showDetails.value) ...[
                       const DataColumn(label: Text("Variety")),
-                      const DataColumn(label: Text("Size in MM")),
-                      const DataColumn(label: Text("No. of Pieces")),
-                      const DataColumn(label: Text("Avg. Weight Per Piece")),
-                      const DataColumn(label: Text("Avg. Gross Box Weight")),
+                      const DataColumn(label: Text("Size in MM"))
                     ],
+                    const DataColumn(label: Text("Counts")),
+                    if (showDetails.value) ...[
+                      const DataColumn(label: Text("Avg. Wt/Piece")),
+                    ],
+                    const DataColumn(label: Text("Gross Box Weight")),
                     const DataColumn(label: Text("No. of Boxes")),
                     const DataColumn(label: Text("Total Weight")),
                     const DataColumn(label: Text("Image")),
@@ -769,24 +845,87 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                       color: MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) => bgColor),
                       cells: [
-                        DataCell(Text(category.quality,
-                            style: const TextStyle(color: Colors.white,),textAlign: TextAlign.center,)),
-                        DataCell(Text(category.category,
-                            style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
+                        DataCell(Center(
+                          child: Text(
+                            category.quality,
+                            style: const TextStyle(
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        )),
+                        DataCell(Center(
+                          child: Text(category.category,
+                              style: const TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center),
+                        )),
                         if (showDetails.value) ...[
-                          DataCell(Text(category.variety,
-                              style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
-                          DataCell(Text(category.size,
-                              style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
-                          DataCell(Text("${category.piecesPerBox}",
-                              style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
-                          DataCell(Text(
-                              "${category.avgWeight.toStringAsFixed(1)}g",
-                              style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
-                          DataCell(Text(
-                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                              style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
+                          DataCell(Center(
+                            child: Text(category.variety,
+                                style: const TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center),
+                          )),
+                          DataCell(Center(
+                            child: Text(category.size,
+                                style: const TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center),
+                          )),
                         ],
+                        DataCell(Center(
+                          child: Text("${category.piecesPerBox}",
+                              style: const TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center),
+                        )),
+                        if (showDetails.value) ...[
+                          DataCell(Center(
+                            child: Text(
+                                "${category.avgWeight.toStringAsFixed(1)}g",
+                                style: const TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center),
+                          )),
+                        ],
+                        isEditTotalWeightMode.value
+                            ? DataCell(
+                                SizedBox(
+                                  width: 90,
+                                  child: TextFormField(
+                                    initialValue: category.avgBoxWeight
+                                        .toStringAsFixed(1),
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                            decimal: true),
+                                    style: const TextStyle(color: Colors.white),
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 6),
+                                    ),
+                                    onChanged: (val) {
+                                      double? newTotal = double.tryParse(val);
+                                      if (newTotal != null) {
+                                        controller.bilty.value!
+                                                .categories[index] =
+                                            category.copyWith(
+                                                avgBoxWeight: newTotal,
+                                                totalWeight: newTotal *
+                                                    controller
+                                                        .bilty
+                                                        .value!
+                                                        .categories[index]
+                                                        .boxCount);
+                                        controller.bilty.refresh();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              )
+                            : DataCell(Center(
+                                child: Text(
+                                    "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                                    style: const TextStyle(color: Colors.white),
+                                    textAlign: TextAlign.center),
+                              )),
                         isEditBoxesMode.value
                             ? DataCell(
                                 SizedBox(
@@ -819,43 +958,16 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                                 ),
                               )
                             : DataCell(Center(
-                              child: Text("${category.boxCount}",
-                                  style: const TextStyle(color: Colors.white),textAlign: TextAlign.center),
-                            )),
-                        isEditTotalWeightMode.value
-                            ? DataCell(
-                                SizedBox(
-                                  width: 90,
-                                  child: TextFormField(
-                                    initialValue:
-                                        category.totalWeight.toStringAsFixed(1),
-                                    keyboardType:
-                                        TextInputType.numberWithOptions(
-                                            decimal: true),
+                                child: Text("${category.boxCount}",
                                     style: const TextStyle(color: Colors.white),
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 6),
-                                    ),
-                                    onChanged: (val) {
-                                      double? newTotal = double.tryParse(val);
-                                      if (newTotal != null) {
-                                        controller.bilty.value!
-                                                .categories[index] =
-                                            category.copyWith(
-                                          totalWeight: newTotal,
-                                        );
-                                        controller.bilty.refresh();
-                                      }
-                                    },
-                                  ),
-                                ),
-                              )
-                            : DataCell(Text(
-                                "${category.totalWeight.toStringAsFixed(1)}kg",
-                                style: const TextStyle(color: Colors.white),textAlign: TextAlign.center)),
+                                    textAlign: TextAlign.center),
+                              )),
+                        DataCell(Center(
+                          child: Text(
+                              "${category.totalWeight.toStringAsFixed(1)}kg",
+                              style: const TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center),
+                        )),
                         DataCell(
                           Obx(() {
                             final path = imagePaths[index];
@@ -864,68 +976,65 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                             final category = controller
                                 .bilty.value!.categories[index].category;
                             return path != null
-                                ? (isEditBoxesMode.value ||
-                                        isEditTotalWeightMode.value
-                                    ? const Icon(Icons.check_circle,
-                                        color: Colors.green)
-                                    : GestureDetector(
-                                        onTap: () {
-                                          // Show image in a dialog/card
-                                          showDialog(
-                                            context: Get.context!,
-                                            builder: (context) => AlertDialog(
-                                              title: Text('Uploaded Image'),
-                                              content: Image.file(File(path)),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(),
-                                                  child: const Text('Close'),
-                                                ),
-                                              ],
+                                ? InkWell(
+                                    child: const Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                    ),
+                                    onTap: () {
+                                      // Show image in a dialog/card
+                                      showDialog(
+                                        context: Get.context!,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('Uploaded Image'),
+                                          content: Image.network(path),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: const Text('Close'),
                                             ),
-                                          );
-                                        },
-                                        child: const Icon(Icons.check_circle,
-                                            color: Colors.green),
-                                      ))
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  )
                                 : IconButton(
                                     icon: const Icon(Icons.camera_alt,
                                         color: Colors.white),
-                                    onPressed: (isEditBoxesMode.value ||
-                                            isEditTotalWeightMode.value)
-                                        ? () async {
-                                            bool isMobile = !kIsWeb &&
-                                                (defaultTargetPlatform ==
-                                                        TargetPlatform
-                                                            .android ||
-                                                    defaultTargetPlatform ==
-                                                        TargetPlatform.iOS);
+                                    onPressed: () async {
+                                      print("Yi");
+                                      bool isMobile = !kIsWeb &&
+                                          (defaultTargetPlatform ==
+                                                  TargetPlatform.android ||
+                                              defaultTargetPlatform ==
+                                                  TargetPlatform.iOS);
 
-                                            if (isMobile &&
-                                                ImageSource.camera ==
-                                                    ImageSource.camera) {
-                                              final XFile? image =
-                                                  await _picker.pickImage(
-                                                      source:
-                                                          ImageSource.camera);
-                                              if (image != null) {
-                                                imagePaths[index] = image.path;
-                                                await uploadImage(
-                                                    File(image.path), index);
-                                              }
-                                            } else {
-                                              Get.snackbar(
-                                                "Warning",
-                                                "This functionality is restricted to the mobile app",
-                                                backgroundColor: Colors.yellow,
-                                                colorText: Colors.white,
-                                              );
-                                            }
-                                          }
-                                        : null,
-                                  );
+                                      if (isMobile &&
+                                          ImageSource.camera ==
+                                              ImageSource.camera) {
+                                        print("here");
+                                        final XFile? image =
+                                            await _picker.pickImage(
+                                                source: ImageSource.camera);
+                                        if (image != null) {
+                                          print("Here");
+                                          imgUrl.value = await uploadImage(
+                                              File(image.path), index);
+                                          print(imgUrl.value);
+
+                                          imagePaths[index] = imgUrl.value;
+                                        }
+                                      } else {
+                                        print("Can't Add");
+                                        Get.snackbar(
+                                          "Warning",
+                                          "This functionality is restricted to the mobile app",
+                                          backgroundColor: Colors.yellow,
+                                          colorText: Colors.white,
+                                        );
+                                      }
+                                    });
                           }),
                         ),
                       ],
@@ -969,7 +1078,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Obx(() => DataTable(
-              columnSpacing: 12,
+                  columnSpacing: 12,
                   headingRowColor: MaterialStateProperty.resolveWith(
                       (states) => Colors.orange.shade200),
                   columns: [
@@ -978,9 +1087,11 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     if (showDetails.value) ...[
                       const DataColumn(label: Text("Variety")),
                       const DataColumn(label: Text("Size in MM")),
-                      const DataColumn(label: Text("No. of Pieces")),
-                      const DataColumn(label: Text("Avg. Weight Per Piece")),
-                      const DataColumn(label: Text("Avg. Gross Box Weight")),
+                    ],
+                    const DataColumn(label: Text("Count")),
+                    if (showDetails.value) ...[
+                      const DataColumn(label: Text("Avg. Wt/Piece")),
+                      const DataColumn(label: Text("Gross Box Weight")),
                     ],
                     const DataColumn(label: Text("No. of Boxes")),
                     const DataColumn(label: Text("Total Weight")),
@@ -993,31 +1104,49 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                       color: MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) => bgColor),
                       cells: [
-                        DataCell(Text(category.quality,
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text(category.category,
-                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Center(
+                          child: Text(category.quality,
+                              style: const TextStyle(color: Colors.white)),
+                        )),
+                        DataCell(Center(
+                          child: Text(category.category,
+                              style: const TextStyle(color: Colors.white)),
+                        )),
                         if (showDetails.value) ...[
-                          DataCell(Text(category.variety,
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(category.size,
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.piecesPerBox}",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.avgWeight.toStringAsFixed(1)}g",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Center(
+                            child: Text(category.variety,
+                                style: const TextStyle(color: Colors.white)),
+                          )),
+                          DataCell(Center(
+                            child: Text(category.size,
+                                style: const TextStyle(color: Colors.white)),
+                          )),
+                        ],
+                        DataCell(Center(
+                          child: Text("${category.piecesPerBox}",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
+                        if (showDetails.value) ...[
+                          DataCell(Center(
+                            child: Text(
+                                "${category.avgWeight.toStringAsFixed(1)}g",
+                                style: const TextStyle(color: Colors.white)),
+                          )),
+                          DataCell(Center(
+                            child: Text(
+                                "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                                style: const TextStyle(color: Colors.white)),
+                          )),
                         ],
                         DataCell(Center(
                           child: Text("${category.boxCount}",
                               style: const TextStyle(color: Colors.white)),
                         )),
-                        DataCell(Text(
-                            "${category.totalWeight.toStringAsFixed(1)}kg",
-                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Center(
+                          child: Text(
+                              "${category.totalWeight.toStringAsFixed(1)}kg",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
                         if (isMobile)
                           DataCell(
                             category.imagePath != null &&
@@ -1028,8 +1157,12 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                                         context: Get.context!,
                                         builder: (context) => AlertDialog(
                                           title: Text('Uploaded Image'),
-                                          content: Image.file(
-                                              File(category.imagePath!)),
+                                          content: category.imagePath!
+                                                  .startsWith('http')
+                                              ? Image.network(
+                                                  category.imagePath!)
+                                              : Image.file(
+                                                  File(category.imagePath!)),
                                           actions: [
                                             TextButton(
                                               onPressed: () =>
@@ -1040,11 +1173,15 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                                         ),
                                       );
                                     },
-                                    child: const Icon(Icons.check_circle,
-                                        color: Colors.green),
+                                    child: Center(
+                                      child: const Icon(Icons.check_circle,
+                                          color: Colors.green),
+                                    ),
                                   )
-                                : const Icon(Icons.camera_alt,
-                                    color: Colors.white),
+                                : Center(
+                                    child: const Icon(Icons.camera_alt,
+                                        color: Colors.white),
+                                  ),
                           ),
                       ],
                     );
@@ -1294,7 +1431,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Obx(() => DataTable(
-              columnSpacing: 12,
+                  columnSpacing: 12,
                   headingRowColor: MaterialStateProperty.resolveWith(
                       (states) => Colors.orange.shade200),
                   columns: [
@@ -1303,9 +1440,11 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     if (showDetails.value) ...[
                       const DataColumn(label: Text("Variety")),
                       const DataColumn(label: Text("Size in MM")),
-                      const DataColumn(label: Text("No. of Pieces")),
-                      const DataColumn(label: Text("Avg. Weight Per Piece")),
-                      const DataColumn(label: Text("Avg. Gross Box Weight")),
+                    ],
+                    const DataColumn(label: Text("Count")),
+                    if (showDetails.value) ...[
+                      const DataColumn(label: Text("Avg. Wt/Piece")),
+                      const DataColumn(label: Text("Gross Box Weight")),
                       const DataColumn(label: Text("No. of Boxes")),
                       const DataColumn(label: Text("Total Weight")),
                     ],
@@ -1321,37 +1460,61 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                       color: MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) => bgColor),
                       cells: [
-                        DataCell(Text(category.quality,
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text(category.category,
-                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Center(
+                          child: Text(category.quality,
+                              style: const TextStyle(color: Colors.white)),
+                        )),
+                        DataCell(Center(
+                          child: Text(category.category,
+                              style: const TextStyle(color: Colors.white)),
+                        )),
                         if (showDetails.value) ...[
-                          DataCell(Text(category.variety,
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(category.size,
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text("${category.piecesPerBox}",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.avgWeight.toStringAsFixed(1)}g",
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Center(
+                            child: Text(category.variety,
+                                style: const TextStyle(color: Colors.white)),
+                          )),
+                          DataCell(Center(
+                            child: Text(category.size,
+                                style: const TextStyle(color: Colors.white)),
+                          )),
+                        ],
+                        DataCell(Center(
+                          child: Text("${category.piecesPerBox}",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
+                        if (showDetails.value) ...[
+                          DataCell(Center(
+                            child: Text(
+                                "${category.avgWeight.toStringAsFixed(1)}g",
+                                style: const TextStyle(color: Colors.white)),
+                          )),
+                          DataCell(Center(
+                            child: Text(
+                                "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                                style: const TextStyle(color: Colors.white)),
+                          )),
                           DataCell(Center(
                             child: Text("${category.boxCount}",
                                 style: const TextStyle(color: Colors.white)),
                           )),
-                          DataCell(Text(
-                              "${category.totalWeight.toStringAsFixed(1)}kg",
-                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Center(
+                            child: Text(
+                                "${category.totalWeight.toStringAsFixed(1)}kg",
+                                style: const TextStyle(color: Colors.white)),
+                          )),
                         ],
-                        DataCell(Text("${category.pricePerKg}",
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text("${category.boxValue}",
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text("${category.totalPrice}",
-                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Center(
+                          child: Text("${category.pricePerKg}",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
+                        DataCell(Center(
+                          child: Text("${category.boxValue}",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
+                        DataCell(Center(
+                          child: Text("${category.totalPrice}",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
                         DataCell(
                           category.imagePath != null &&
                                   category.imagePath!.isNotEmpty
@@ -1361,8 +1524,11 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                                       context: Get.context!,
                                       builder: (context) => AlertDialog(
                                         title: Text('Uploaded Image'),
-                                        content: Image.file(
-                                            File(category.imagePath!)),
+                                        content: category.imagePath!
+                                                .startsWith('http')
+                                            ? Image.network(category.imagePath!)
+                                            : Image.file(
+                                                File(category.imagePath!)),
                                         actions: [
                                           TextButton(
                                             onPressed: () =>
@@ -1428,21 +1594,56 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Obx(
-            () => Text("Consignment Form Step ${controller.step.value + 1}")),
+        title: Text("Consignment Form "),
         actions: [
-          Obx(()=> (controller.step.value == 1 || controller.step.value == 3)?
-    IconButton(
-      icon: Icon(Icons.share_outlined),
-      color: Colors.blue,
-      onPressed: () {
-        (controller.step.value == 1)?
-        bd.shareBilty(controller.bilty.value!,growerName: controller.consignment.value!.growerName,packhouseName: (controller.consignment.value!.packHouseMode=="Self")?"Self":controller.packhouse.value!.name,aadhatiName: "",consignmentNo:controller.consignment.value!.searchId ,
-            websiteUrl: "https://bookmyloadindia.com"): bd.downloadFinalBilty(controller.bilty.value!,growerName: controller.consignment.value!.growerName,packhouseName: (controller.consignment.value!.packHouseMode=="Self")?"Self":controller.consignment.value!.packHouseMode,aadhatiName: controller.consignment.value!.aadhatiId,consignmentNo:controller.consignment.value!.searchId ,
-            websiteUrl: "https://bookmyloadindia.com");
-      },
-    ):Text("${controller.step.value}"))
-
+          Obx(() => (controller.step.value == 1 || controller.step.value == 2)
+              ? IconButton(
+                  icon: Icon(Icons.share_outlined),
+                  color: Colors.blue,
+                  onPressed: () {
+                    Get.defaultDialog(
+                        title: "Add Remark",
+                        backgroundColor: Colors.white,
+                        contentPadding: EdgeInsets.all(8),
+                        content: Column(
+                          children: [
+                            Container(
+                              child: TextFormField(
+                                controller: controller.remarkController,
+                                maxLines: 4,
+                                decoration: InputDecoration(
+                                    hintText:
+                                        "Add details like Fruit Variety(Optional)",
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.elliptical(8, 8)))),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            ElevatedButton(
+                                onPressed: () {
+                                  bd.shareBilty(controller.bilty.value!,
+                                      growerName: controller
+                                          .consignment.value!.growerName,
+                                      packhouseName: (controller.consignment
+                                                  .value!.packHouseMode ==
+                                              "Self")
+                                          ? "Self"
+                                          : controller.packhouse.value!.name,
+                                      aadhatiName: "",
+                                      consignmentNo: controller
+                                          .consignment.value!.searchId,
+                                      websiteUrl: "https://bookmyloadindia.com",
+                                      remark: controller.remarkController.text);
+                                },
+                                child: Text("Download Bilty"))
+                          ],
+                        ));
+                  },
+                )
+              : Text(""))
         ],
         backgroundColor: Colors.white,
       ),
@@ -1464,8 +1665,43 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   }
 
   // Placeholder for image upload
-  Future<void> uploadImage(File image, int index) async {
-    // TODO: Implement upload logic here
+  Future<String> uploadImage(File image, int index) async {
+    controller.imageUpload.value = true;
+    print("here");
+    const cloudName = 'dnrqa4zxh'; // replace with your actual cloud name
+    const uploadPreset = 'bml/uploads'; // create this in Cloudinary
+
+    final url =
+        Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+
+    final mimeType = 'image/${extension(image.path).replaceFirst('.', '')}';
+
+    final request = http.MultipartRequest('POST', url)
+      ..fields['upload_preset'] = uploadPreset
+      ..files.add(await http.MultipartFile.fromPath(
+        'file',
+        image.path,
+        contentType: MediaType('image', mimeType),
+      ));
+
+    try {
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonData = json.decode(responseData);
+        final imageUrl = jsonData['secure_url'];
+
+        print('Image uploaded at index $index: $imageUrl');
+        return imageUrl;
+        // Use imageUrl as needed (e.g., store in DB or show in UI)
+      } else {
+        print('Failed to upload image: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
+    return image.path;
   }
 
   // Placeholder for video upload

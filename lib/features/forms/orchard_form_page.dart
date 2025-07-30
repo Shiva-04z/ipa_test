@@ -990,7 +990,7 @@ class OrchardFormPage extends StatelessWidget {
             TextFormField(
               controller: controller.areaController,
               decoration: _getInputDecoration(
-                'Area (in hectares)',
+                'Area (in Bigha)',
                 prefixIcon: Icons.area_chart,
               ),
               keyboardType: TextInputType.number,

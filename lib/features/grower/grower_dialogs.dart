@@ -870,10 +870,39 @@ class GrowerDialogs {
   }
 
   static Widget _buildQualitySelector(
-    String label,
-    QualityMarker marker,
-    Rx<Map<QualityMarker, QualityStatus>> quality,
-  ) {
+      String label,
+      QualityMarker marker,
+      Rx<Map<QualityMarker, QualityStatus>> quality,
+      ) {
+    // Define text mappings for each quality marker
+    final Map<QualityMarker, Map<QualityStatus, String>> textMappings = {
+      QualityMarker.antiHailNet: {
+        QualityStatus.good: 'Full',
+        QualityStatus.average: 'Semi',
+        QualityStatus.poor: 'Open',
+      },
+      QualityMarker.openFarm: {
+        QualityStatus.good: '80-100%',
+        QualityStatus.average: '60-80%',
+        QualityStatus.poor: 'Below 60%',
+      },
+      QualityMarker.hailingMarks: {
+        QualityStatus.good: 'None',
+        QualityStatus.average: 'Mild',
+        QualityStatus.poor: 'High',
+      },
+      QualityMarker.russetting: {
+        QualityStatus.good: 'None',
+        QualityStatus.average: 'Mild',
+        QualityStatus.poor: 'High',
+      },
+      QualityMarker.underSize: {
+        QualityStatus.good: '80%',
+        QualityStatus.average: '60%',
+        QualityStatus.poor: '40%',
+      },
+    };
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -890,50 +919,67 @@ class GrowerDialogs {
           ),
           Expanded(
             child: Obx(
-              () => DropdownButtonFormField<QualityStatus>(
-                value: quality.value[marker],
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white.withOpacity(0.9),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                ),
-                items: QualityStatus.values.map((status) {
-                  Color color;
-                  switch (status) {
-                    case QualityStatus.good:
-                      color = Colors.green;
-                      break;
-                    case QualityStatus.average:
-                      color = Colors.blue;
-                      break;
-                    case QualityStatus.poor:
-                      color = Colors.red;
-                      break;
-                  }
-                  return DropdownMenuItem<QualityStatus>(
-                    value: status,
-                    child: Text(
-                      status.toString().split('.').last,
-                      style: TextStyle(color: color),
+                  () => DropdownButtonHideUnderline(
+                child: DropdownButtonFormField<QualityStatus>(
+                  value: quality.value[marker],
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.9),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    final newQuality =
-                        Map<QualityMarker, QualityStatus>.from(quality.value);
-                    newQuality[marker] = value;
-                    quality.value = newQuality;
-                  }
-                },
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  // 👇 This lets you customize how the selected item appears
+                  selectedItemBuilder: (BuildContext context) {
+                    return QualityStatus.values.map((status) {
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          textMappings[marker]![status]!,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 14),
+                          maxLines: 1,
+                        ),
+                      );
+                    }).toList();
+                  },
+                  items: QualityStatus.values.map((status) {
+                    Color color;
+                    switch (status) {
+                      case QualityStatus.good:
+                        color = Colors.green;
+                        break;
+                      case QualityStatus.average:
+                        color = Colors.blue;
+                        break;
+                      case QualityStatus.poor:
+                        color = Colors.red;
+                        break;
+                    }
+                    return DropdownMenuItem<QualityStatus>(
+                      value: status,
+                      child: Text(
+                        textMappings[marker]![status]!,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: color,fontSize: 16),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      final newQuality =
+                      Map<QualityMarker, QualityStatus>.from(quality.value);
+                      newQuality[marker] = value;
+                      quality.value = newQuality;
+                    }
+                  },
+                ),
               ),
             ),
           ),
+
         ],
       ),
     );
