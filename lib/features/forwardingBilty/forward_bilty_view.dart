@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:apple_grower/features/forwardingBilty/forward_bilty_controller.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-
+import 'package:http/http.dart' as http;
 import '../../core/globals.dart' as glb;
 import '../../navigation/routes_constant.dart';
 import '../forms/consignmentForm/VideoPlayer.dart';
@@ -299,7 +300,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                             ),
                           );
                         },
-                        child: const Icon(Icons.check_circle,
+                        child: const Icon(Icons.remove_red_eye_rounded,
                             color: Colors.green),
                       )
                           : const Icon(Icons.camera_alt,
@@ -387,6 +388,11 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
     );
   }
 
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     final qualityColors = [
@@ -426,6 +432,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
     final Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
     final Rx<TimeOfDay?> selectedStartTime = Rx<TimeOfDay?>(null);
     final List<String> slotOptions = ['10-12', '2-4', '4-6'];
+
 
     return Scaffold(
       appBar: AppBar(
@@ -912,6 +919,21 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   children: [
                     biltyfinalView(),
+                  ],
+                ),SizedBox(height: 30),
+                ExpansionTile(
+                  title: Text('Show Graphs',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  children: [
+                   Obx(()=>SingleChildScrollView(
+                     scrollDirection: Axis.horizontal,
+                     child: Padding(
+                       padding: const EdgeInsets.all(8.0),
+                       child: Container(
+                         width: MediaQuery.of(Get.context!).size.width>800? 1500: 1000,
+                         child: Image.memory(controller.imageBytes.value,fit: BoxFit.fitWidth,),),
+                     ),))
+
                   ],
                 ),
                 // Invite Methods Section

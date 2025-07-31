@@ -403,7 +403,7 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                                     ),
                                   );
                                 },
-                                child: const Icon(Icons.check_circle,
+                                child: const Icon(Icons.remove_red_eye_rounded,
                                     color: Colors.green),
                               )
                             : const Icon(Icons.camera_alt, color: Colors.white),

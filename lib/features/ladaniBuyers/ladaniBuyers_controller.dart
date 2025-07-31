@@ -69,6 +69,8 @@ class LadaniBuyersController extends GetxController {
 
 
       galleryImages.value = (data['gallery'] as List).map((item) => item['url'] as String).where((url) => url.isNotEmpty).toList();
+
+      glb.landingPrice.value = (data['perBoxExpensesAfterBidding'] as num?)?.toDouble() ?? 0.0;
     }}
 
 

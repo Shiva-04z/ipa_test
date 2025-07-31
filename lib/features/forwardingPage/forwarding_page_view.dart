@@ -301,7 +301,7 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                             ),
                           );
                         },
-                        child: const Icon(Icons.check_circle,
+                        child: const Icon(Icons.remove_red_eye_rounded,
                             color: Colors.green),
                       )
                           : const Icon(Icons.camera_alt,
@@ -908,6 +908,24 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                     biltyfinalView(),
                   ],
                 ),
+                SizedBox(height: 30),
+                ExpansionTile(
+                  title: Text('Show Graphs',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  children: [
+                    Obx(()=>SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          width: MediaQuery.of(Get.context!).size.width>800? 1500: 1000,
+                          child: Image.memory(controller.imageBytes.value,fit: BoxFit.fitWidth,),),
+                      ),
+                    ))
+
+                  ],
+                ),
+
 
                 Text("Bidding will start at ${controller.date.value.substring(0,10)} and ${controller.startTime.value}"),
 

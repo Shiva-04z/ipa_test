@@ -48,12 +48,10 @@ PdfColor getPdfHeaderColor() {
   return PdfColor.fromInt(material.Colors.orange.shade200.value);
 }
 
-
-
 Future<Uint8List> loadImage(
-    List<BiltyCategory> categories,
-    String quality, // "AAA", "AA", or "GP"
-    ) async {
+  List<BiltyCategory> categories,
+  String quality, // "AAA", "AA", or "GP"
+) async {
   // 1. Filter the list for the specified quality
   final filteredList = categories.where((c) => c.quality == quality).toList();
 
@@ -62,8 +60,10 @@ Future<Uint8List> loadImage(
   }
 
   // 2. Generate the three data lists
-  final List<String> categoryLabels = filteredList.map((c) => c.category).toList();
-  final List<double> weightData = filteredList.map((c) => c.totalWeight).toList();
+  final List<String> categoryLabels =
+      filteredList.map((c) => c.category).toList();
+  final List<double> weightData =
+      filteredList.map((c) => c.totalWeight).toList();
   final List<int> boxData = filteredList.map((c) => c.boxCount).toList();
 
   // 3. Create the simple JSON body as per your sample request
@@ -92,7 +92,8 @@ Future<Uint8List> loadImage(
       return response.bodyBytes;
     } else {
       // Provide more detailed error info from your server's response
-      throw Exception('Failed to load chart image. Status: ${response.statusCode}, Body: ${response.body}');
+      throw Exception(
+          'Failed to load chart image. Status: ${response.statusCode}, Body: ${response.body}');
     }
   } catch (e) {
     // Catch connection errors, etc.
@@ -588,44 +589,68 @@ Future<void> shareBilty(Bilty bilty,
               )
             ],
           ),
-          pw.SizedBox(height: 16),
-          // Info
-          if (growerName != null && growerName.isNotEmpty)
-            pw.Text('Grower Name: $growerName',
-                style: pw.TextStyle(font: font, fontSize: 14)),
-          if (packhouseName != null && packhouseName.isNotEmpty)
-            pw.Text('Packhouse Name: $packhouseName',
-                style: pw.TextStyle(font: font, fontSize: 14)),
           if (consignmentNo != null && consignmentNo.isNotEmpty)
-            pw.Text('Consignment No.: $consignmentNo',
-                style: pw.TextStyle(font: font, fontSize: 14)),
-          if (aadhatiName != null && aadhatiName.isNotEmpty)
-            pw.Text('Aadhati Name: $aadhatiName',
-                style: pw.TextStyle(font: font, fontSize: 14)),
+            pw.Center(
+              child: pw.Text('Consignment No.: $consignmentNo',
+                  style: pw.TextStyle(
+                      font: font,
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold)),
+            ),
           pw.SizedBox(height: 16),
-          if (remark!.isNotEmpty)
-            pw.Column(children: [
-              pw.Padding(
-                  padding: pw.EdgeInsets.all(8),
-                  child: pw.Text("Remarks",
-                      style: pw.TextStyle(
-                          font: font,
-                          fontSize: 22,
-                          fontWeight: pw.FontWeight.bold))),
+          // Info,
+          pw.Row(children: [
+            pw.Padding(
+                padding: pw.EdgeInsets.all(8),
+                child: pw.Container(
+                    width: 250,
+                    height: 180,
+                    decoration: pw.BoxDecoration(
+                        border: pw.Border.all(color: PdfColors.black),
+                        borderRadius: pw.BorderRadius.all(
+                          pw.Radius.elliptical(12, 12),
+                        )),
+                    child: pw.Column(
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          if (growerName != null && growerName.isNotEmpty)
+                            pw.Text('Grower Name: $growerName',
+                                style: pw.TextStyle(font: font, fontSize: 14)),
+                          if (packhouseName != null && packhouseName.isNotEmpty)
+                            pw.Text('Packhouse Name: $packhouseName',
+                                style: pw.TextStyle(font: font, fontSize: 14)),
+                          if (aadhatiName != null && aadhatiName.isNotEmpty)
+                            pw.Text('Aadhati Name: $aadhatiName',
+                                style: pw.TextStyle(font: font, fontSize: 14)),
+                        ]))),
+            pw.SizedBox(width: 10),
+            if (remark!.isNotEmpty)
               pw.Padding(
                   padding: pw.EdgeInsets.all(8),
                   child: pw.Container(
-                      width: 600,
+                      width: 250,
+                      height: 300,
                       decoration: pw.BoxDecoration(
                           border: pw.Border.all(color: PdfColors.black),
                           borderRadius: pw.BorderRadius.all(
                             pw.Radius.elliptical(12, 12),
                           )),
                       padding: pw.EdgeInsets.all(8),
-                      child: pw.Text("${remark}",
-                          style: pw.TextStyle(font: font, fontSize: 14)))),
-              pw.SizedBox(height: 16),
-            ]),
+                      child: pw.Column(
+                          children: [
+
+                            pw.Center(
+                              child: pw.Text('Remarks',
+                                  style: pw.TextStyle(
+                                      font: font,
+                                      fontSize: 14,
+                                      fontWeight: pw.FontWeight.bold,decoration: pw.TextDecoration.underline,color: PdfColors.yellow )),
+                            ),
+                        pw.Text("${remark}",
+                            style: pw.TextStyle(font: font, fontSize: 10))
+                      ]))),
+            pw.SizedBox(height: 16),
+          ]),
           // Table
           pw.Table(
             border: pw.TableBorder.all(),
@@ -706,6 +731,56 @@ Future<void> shareBilty(Bilty bilty,
       ),
     );
     // Add a second page for the charts (2x2 grid)
+    pdf.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      build: (pw.Context context) => pw.Center(
+        child: pw.Column(
+          mainAxisAlignment: pw.MainAxisAlignment.center,
+          children: [
+            pw.Center(
+              child: pw.Text("Bilty Distribution Graphs",
+                  style: pw.TextStyle(fontSize: 22)),
+            ),
+            pw.Divider(color: PdfColors.black),
+            pw.SizedBox(height: 20),
+            pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Container(
+                    height: 300,
+                    width: 300,
+                    child: pw.Image(aaaImage, fit: pw.BoxFit.contain),
+                  ),
+                ]),
+            pw.SizedBox(height: 20),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Container(
+                  height: 300,
+                  width: 300,
+                  child: pw.Image(aaImage, fit: pw.BoxFit.contain),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 20),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Container(
+                  height: 300,
+                  width: 300,
+                  child: pw.Image(gpImage, fit: pw.BoxFit.contain),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ));
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
@@ -802,59 +877,7 @@ Future<void> shareBilty(Bilty bilty,
         ),
       ),
     );
-    pdf.addPage(pw.Page(
-      pageFormat: PdfPageFormat.a4,
-      build: (pw.Context context) => pw.Center(
-        child: pw.Column(
-          mainAxisAlignment: pw.MainAxisAlignment.center,
-          children: [
-            pw.Center(
-              child: pw.Text("Bilty Distribution Graphs",
-                  style: pw.TextStyle(fontSize: 22)),
-            ),
-            pw.Divider(color: PdfColors.black),
-            pw.SizedBox(height: 20),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
 
-                pw.Container(
-                  height: 300,
-                  width: 300,
-                  child: pw.Image(aaaImage, fit: pw.BoxFit.contain ),
-                ),]),
-            pw.SizedBox(height: 20),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-
-                pw.Container(
-                  height: 300,
-                  width: 300,
-                  child: pw.Image(aaImage,fit: pw.BoxFit.contain),
-                ),
-
-              ],
-            ),pw.SizedBox(height: 20),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-
-                pw.Container(
-                  height: 300,
-                  width: 300,
-                  child: pw.Image(gpImage,fit: pw.BoxFit.contain),
-                ),
-
-              ],
-            ),
-          ],
-        ),
-      ),
-    ));
     final pdfBytes = await pdf.save();
     final fileName = (consignmentNo != null && consignmentNo.isNotEmpty)
         ? '$consignmentNo.pdf'
