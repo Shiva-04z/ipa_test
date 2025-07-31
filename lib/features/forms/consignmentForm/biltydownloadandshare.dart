@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -10,6 +11,7 @@ import 'package:flutter/services.dart' show rootBundle;
 // For font support
 import '../../../models/bilty_model.dart';
 import 'dart:math' as math;
+import 'package:http/http.dart' as http;
 
 // Color mapping functions
 material.Color getRowColor(String quality) {
@@ -44,6 +46,58 @@ PdfColor getPdfRowColor(String quality) {
 
 PdfColor getPdfHeaderColor() {
   return PdfColor.fromInt(material.Colors.orange.shade200.value);
+}
+
+
+
+Future<Uint8List> loadImage(
+    List<BiltyCategory> categories,
+    String quality, // "AAA", "AA", or "GP"
+    ) async {
+  // 1. Filter the list for the specified quality
+  final filteredList = categories.where((c) => c.quality == quality).toList();
+
+  if (filteredList.isEmpty) {
+    throw Exception('No data available for quality: $quality');
+  }
+
+  // 2. Generate the three data lists
+  final List<String> categoryLabels = filteredList.map((c) => c.category).toList();
+  final List<double> weightData = filteredList.map((c) => c.totalWeight).toList();
+  final List<int> boxData = filteredList.map((c) => c.boxCount).toList();
+
+  // 3. Create the simple JSON body as per your sample request
+  final body = json.encode({
+    'quality': quality,
+    'categories': categoryLabels,
+    'weights': weightData,
+    'boxes': boxData,
+  });
+
+  // As requested, the API URL is a placeholder for your local server.
+  // You will need to replace this with your actual server address.
+  final String apiUrl = 'https://bot-1buv.onrender.com/chart';
+  final url = Uri.parse(apiUrl);
+
+  final headers = {
+    'Content-Type': 'application/json',
+  };
+
+  // 4. Make the API call and get the image data
+  try {
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      // Return the image data as a Uint8List
+      return response.bodyBytes;
+    } else {
+      // Provide more detailed error info from your server's response
+      throw Exception('Failed to load chart image. Status: ${response.statusCode}, Body: ${response.body}');
+    }
+  } catch (e) {
+    // Catch connection errors, etc.
+    throw Exception('Error contacting your chart server: $e');
+  }
 }
 
 // Helper to draw a donut chart in PDF with side legend
@@ -266,15 +320,13 @@ pw.Widget buildDonutChartPdf({
   );
 }
 
-Future<void> shareBilty(
-  Bilty bilty, {
-  required String websiteUrl,
-  String? growerName,
-  String? packhouseName,
-  String? consignmentNo,
-  String? aadhatiName,
-      String ? remark
-}) async {
+Future<void> shareBilty(Bilty bilty,
+    {required String websiteUrl,
+    String? growerName,
+    String? packhouseName,
+    String? consignmentNo,
+    String? aadhatiName,
+    String? remark}) async {
   try {
     print(
         'shareBilty: categories count =  [38;5;2m${bilty.categories.length} [0m');
@@ -287,10 +339,17 @@ Future<void> shareBilty(
     }
     final font = await PdfGoogleFonts.tillanaMedium();
     // Load the image asset
+
     final logoBytes = await rootBundle.load('assets/images/bilty.png');
     final logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
     final logo2Bytes = await rootBundle.load('assets/images/fas.png');
     final logo2Image = pw.MemoryImage(logo2Bytes.buffer.asUint8List());
+    final aaaImageBytes = await loadImage(bilty.categories, 'AAA');
+    final aaaImage = pw.MemoryImage(aaaImageBytes);
+    final aaImageBytes = await loadImage(bilty.categories, 'AA');
+    final aaImage = pw.MemoryImage(aaImageBytes);
+    final gpImageBytes = await loadImage(bilty.categories, 'GP');
+    final gpImage = pw.MemoryImage(gpImageBytes);
     final pdf = pw.Document();
     // --- Donut chart data logic (copied from controller) ---
     double totalWeight =
@@ -388,20 +447,88 @@ Future<void> shareBilty(
       PdfColors.purple,
       PdfColors.amber,
     ];
-    final aaCatMap = <String, double>{};
-    final aaCatBoxCount = <String, int>{};
     final aaCategories =
         bilty.categories.where((c) => c.quality == 'AA').toList();
     final totalAAWeight =
         aaCategories.fold(0.0, (sum, e) => sum + e.totalWeight);
-    for (final c in aaCategories) {
-      if (c.totalWeight > 0) {
-        aaCatMap[c.category] = (c.totalWeight / totalAAWeight) * 100;
-        aaCatBoxCount[c.category] = c.boxCount;
+
+    Map<String, double> aaCatMap = {
+      'ELLMS': 0,
+      'ES,EES,240': 0,
+      'Pittu': 0,
+      'Seprator': 0,
+    };
+    Map<String, int> aaCatBoxCount = {
+      'ELLMS': 0,
+      'ES,EES,240': 0,
+      'Pittu': 0,
+      'Seprator': 0,
+    };
+
+    if (totalAAWeight > 0) {
+      // Define the same sub-categories as AAA.
+      final ellmsCategories = [
+        'Extra Large',
+        'Large',
+        'Medium',
+        'Small',
+        'Extra Small'
+      ];
+      final esEes240Categories = ['E Extra Small', '240 Count'];
+      final pittuCategories = ['Pittu'];
+      final separatorCategories = ['Seprator'];
+
+      // Calculate weight share for each AA subcategory
+      aaCatMap['ELLMS'] = aaCategories
+              .where((c) => ellmsCategories.contains(c.category))
+              .fold(0.0, (sum, e) => sum + e.totalWeight) /
+          totalAAWeight *
+          100;
+      aaCatMap['ES,EES,240'] = aaCategories
+              .where((c) => esEes240Categories.contains(c.category))
+              .fold(0.0, (sum, e) => sum + e.totalWeight) /
+          totalAAWeight *
+          100;
+      aaCatMap['Pittu'] = aaCategories
+              .where((c) => pittuCategories.contains(c.category))
+              .fold(0.0, (sum, e) => sum + e.totalWeight) /
+          totalAAWeight *
+          100;
+      aaCatMap['Seprator'] = aaCategories
+              .where((c) => separatorCategories.contains(c.category))
+              .fold(0.0, (sum, e) => sum + e.totalWeight) /
+          totalAAWeight *
+          100;
+
+      // Clamp and normalize percentages
+      aaCatMap.updateAll((k, v) => v.clamp(0, 100));
+      final totalPercent = aaCatMap.values.fold(0.0, (a, b) => a + b);
+      if (totalPercent > 0 && (totalPercent - 100).abs() > 0.01) {
+        aaCatMap.updateAll((k, v) => v / totalPercent * 100);
       }
+
+      // Calculate box count for each AA subcategory
+      aaCatBoxCount['ELLMS'] = aaCategories
+          .where((c) => ellmsCategories.contains(c.category))
+          .fold(0, (sum, e) => sum + e.boxCount);
+      aaCatBoxCount['ES,EES,240'] = aaCategories
+          .where((c) => esEes240Categories.contains(c.category))
+          .fold(0, (sum, e) => sum + e.boxCount);
+      aaCatBoxCount['Pittu'] = aaCategories
+          .where((c) => pittuCategories.contains(c.category))
+          .fold(0, (sum, e) => sum + e.boxCount);
+      aaCatBoxCount['Seprator'] = aaCategories
+          .where((c) => separatorCategories.contains(c.category))
+          .fold(0, (sum, e) => sum + e.boxCount);
     }
-    final aaCatColors = List<PdfColor>.generate(aaCatMap.length,
-        (i) => PdfColors.primaries[i % PdfColors.primaries.length]);
+
+    // Using a fixed set of colors for consistency, similar to AAA.
+    final aaCatColors = [
+      PdfColors.blue,
+      PdfColors.orange,
+      PdfColors.purple,
+      PdfColors.amber,
+    ];
 
     final gpCategories =
         bilty.categories.where((c) => c.quality == 'GP').toList();
@@ -422,150 +549,160 @@ Future<void> shareBilty(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         build: (pw.Context context) => [
-            // Header: logo left, title right
-            pw.Row(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Container(
-                  width: 80,
-                  height: 80,
-                  child: pw.Image(logoImage),
-                ),
-                pw.Expanded(child: pw.SizedBox(width: 16)),
-                pw.Column(children: [
-                  pw.Text(
-                    'FasCorp',
-                    style: pw.TextStyle(
-                      font: font,
-                      fontSize: 32,
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.green,
-                    ),
-                    textAlign: pw.TextAlign.right,
+          // Header: logo left, title right
+          pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Container(
+                width: 80,
+                height: 80,
+                child: pw.Image(logoImage),
+              ),
+              pw.Expanded(child: pw.SizedBox(width: 16)),
+              pw.Column(children: [
+                pw.Text(
+                  'FasCorp',
+                  style: pw.TextStyle(
+                    font: font,
+                    fontSize: 32,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.green,
                   ),
-                  pw.Text(
-                    "Farmer as Service Initiative",
-                    style: pw.TextStyle(
-                      font: font,
-                      fontSize: 16,
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.green,
-                    ),
-                  )
-                ]),
-                pw.Expanded(child: pw.SizedBox(width: 16)),
-                pw.Container(
-                  height: 80,
-                  width: 120,
-                  child: pw.Center(child: pw.Image(logo2Image)),
+                  textAlign: pw.TextAlign.right,
+                ),
+                pw.Text(
+                  "Farmer as Service Initiative",
+                  style: pw.TextStyle(
+                    font: font,
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.green,
+                  ),
                 )
-              ],
-            ),
-            pw.SizedBox(height: 16),
-            // Info
-            if (growerName != null && growerName.isNotEmpty)
-              pw.Text('Grower Name: $growerName',
-                  style: pw.TextStyle(font: font, fontSize: 14)),
-            if (packhouseName != null && packhouseName.isNotEmpty)
-              pw.Text('Packhouse Name: $packhouseName',
-                  style: pw.TextStyle(font: font, fontSize: 14)),
-            if (consignmentNo != null && consignmentNo.isNotEmpty)
-              pw.Text('Consignment No.: $consignmentNo',
-                  style: pw.TextStyle(font: font, fontSize: 14)),
-            if (aadhatiName != null && aadhatiName.isNotEmpty)
-              pw.Text('Aadhati Name: $aadhatiName',
-                  style: pw.TextStyle(font: font, fontSize: 14)),
-            pw.SizedBox(height: 16),
-           if(remark!.isNotEmpty) pw.Column( children: [
-
-  pw.Padding( padding: pw.EdgeInsets.all(8),child:pw.Text("Remarks", style: pw.TextStyle(font: font, fontSize: 22,fontWeight: pw.FontWeight.bold)))
-  ,pw.Padding( padding: pw.EdgeInsets.all(8),child:
-            pw.Container(
-              width: 600,
-              decoration: pw.BoxDecoration(border: pw.Border.all(color: PdfColors.black),borderRadius: pw.BorderRadius.all(pw.Radius.elliptical(12, 12),)),
-              padding: pw.EdgeInsets.all(8),
-              child: pw.Text("${remark}", style: pw.TextStyle(font: font, fontSize: 14))
-            )),pw.SizedBox(height: 16),]),
-            // Table
-            pw.Table(
-              border: pw.TableBorder.all(),
-              children: [
-                pw.TableRow(
-                  decoration: pw.BoxDecoration(
-                    color: getPdfHeaderColor(),
-                  ),
-                  children: [
-                    _buildHeaderCell('Quality', font,
-                        align: pw.TextAlign.center),
-                    _buildHeaderCell('Category', font,
-                        align: pw.TextAlign.center),
-                    _buildHeaderCell('Variety', font,
-                        align: pw.TextAlign.center),
-                    _buildHeaderCell('Count', font, align: pw.TextAlign.center),
-                    _buildHeaderCell('Gross Box Weight', font,
-                        align: pw.TextAlign.center),
-                    _buildHeaderCell('No. of Boxes', font,
-                        align: pw.TextAlign.center),
-                    _buildHeaderCell('Total Weight', font,
-                        align: pw.TextAlign.center),
-                  ],
-                ),
-                ...bilty.categories
-                    .where((category) => category.boxCount > 0)
-                    .map((category) => pw.TableRow(
-                          decoration: pw.BoxDecoration(
-                              color: getPdfRowColor(category.quality)),
-                          children: [
-                            _buildDataCell(category.quality, font,
-                                align: pw.TextAlign.center),
-                            _buildDataCell(category.category, font,
-                                align: pw.TextAlign.center),
-                            _buildDataCell(category.variety, font,
-                                align: pw.TextAlign.center),
-                            _buildDataCell(category.piecesPerBox.toString(), font,
-                                align: pw.TextAlign.center),
-                            _buildDataCell(
-                                '${category.avgBoxWeight.toStringAsFixed(1)}kg',
-                                font,
-                                align: pw.TextAlign.center),
-                            _buildDataCell('${category.boxCount}', font,
-                                align: pw.TextAlign.center),
-                            _buildDataCell(
-                                '${category.totalWeight.toStringAsFixed(1)}kg',
-                                font,
-                                align: pw.TextAlign.center),
-                          ],
-                        )),
-              ],
-            ),
-            pw.SizedBox(height: 18),
-            // App download text
-            pw.Center(
-              child: pw.Row(
-                mainAxisSize: pw.MainAxisSize.min,
-                children: [
-                  pw.Text(
-                    'For viewing Images download the app: ',
-                    style: pw.TextStyle(
-                        font: font, fontSize: 14, color: PdfColors.blueGrey),
-                  ),
-                  pw.UrlLink(
-                    destination: websiteUrl,
-                    child: pw.Text(
-                      websiteUrl,
+              ]),
+              pw.Expanded(child: pw.SizedBox(width: 16)),
+              pw.Container(
+                height: 80,
+                width: 120,
+                child: pw.Center(child: pw.Image(logo2Image)),
+              )
+            ],
+          ),
+          pw.SizedBox(height: 16),
+          // Info
+          if (growerName != null && growerName.isNotEmpty)
+            pw.Text('Grower Name: $growerName',
+                style: pw.TextStyle(font: font, fontSize: 14)),
+          if (packhouseName != null && packhouseName.isNotEmpty)
+            pw.Text('Packhouse Name: $packhouseName',
+                style: pw.TextStyle(font: font, fontSize: 14)),
+          if (consignmentNo != null && consignmentNo.isNotEmpty)
+            pw.Text('Consignment No.: $consignmentNo',
+                style: pw.TextStyle(font: font, fontSize: 14)),
+          if (aadhatiName != null && aadhatiName.isNotEmpty)
+            pw.Text('Aadhati Name: $aadhatiName',
+                style: pw.TextStyle(font: font, fontSize: 14)),
+          pw.SizedBox(height: 16),
+          if (remark!.isNotEmpty)
+            pw.Column(children: [
+              pw.Padding(
+                  padding: pw.EdgeInsets.all(8),
+                  child: pw.Text("Remarks",
                       style: pw.TextStyle(
-                        color: PdfColors.blue,
-                        decoration: pw.TextDecoration.underline,
-                        font: font,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
+                          font: font,
+                          fontSize: 22,
+                          fontWeight: pw.FontWeight.bold))),
+              pw.Padding(
+                  padding: pw.EdgeInsets.all(8),
+                  child: pw.Container(
+                      width: 600,
+                      decoration: pw.BoxDecoration(
+                          border: pw.Border.all(color: PdfColors.black),
+                          borderRadius: pw.BorderRadius.all(
+                            pw.Radius.elliptical(12, 12),
+                          )),
+                      padding: pw.EdgeInsets.all(8),
+                      child: pw.Text("${remark}",
+                          style: pw.TextStyle(font: font, fontSize: 14)))),
+              pw.SizedBox(height: 16),
+            ]),
+          // Table
+          pw.Table(
+            border: pw.TableBorder.all(),
+            children: [
+              pw.TableRow(
+                decoration: pw.BoxDecoration(
+                  color: getPdfHeaderColor(),
+                ),
+                children: [
+                  _buildHeaderCell('Quality', font, align: pw.TextAlign.center),
+                  _buildHeaderCell('Category', font,
+                      align: pw.TextAlign.center),
+                  _buildHeaderCell('Variety', font, align: pw.TextAlign.center),
+                  _buildHeaderCell('Count', font, align: pw.TextAlign.center),
+                  _buildHeaderCell('Gross Box Weight', font,
+                      align: pw.TextAlign.center),
+                  _buildHeaderCell('No. of Boxes', font,
+                      align: pw.TextAlign.center),
+                  _buildHeaderCell('Total Weight', font,
+                      align: pw.TextAlign.center),
                 ],
               ),
+              ...bilty.categories
+                  .where((category) => category.boxCount > 0)
+                  .map((category) => pw.TableRow(
+                        decoration: pw.BoxDecoration(
+                            color: getPdfRowColor(category.quality)),
+                        children: [
+                          _buildDataCell(category.quality, font,
+                              align: pw.TextAlign.center),
+                          _buildDataCell(category.category, font,
+                              align: pw.TextAlign.center),
+                          _buildDataCell(category.variety, font,
+                              align: pw.TextAlign.center),
+                          _buildDataCell(category.piecesPerBox.toString(), font,
+                              align: pw.TextAlign.center),
+                          _buildDataCell(
+                              '${category.avgBoxWeight.toStringAsFixed(1)}kg',
+                              font,
+                              align: pw.TextAlign.center),
+                          _buildDataCell('${category.boxCount}', font,
+                              align: pw.TextAlign.center),
+                          _buildDataCell(
+                              '${category.totalWeight.toStringAsFixed(1)}kg',
+                              font,
+                              align: pw.TextAlign.center),
+                        ],
+                      )),
+            ],
+          ),
+          pw.SizedBox(height: 18),
+          // App download text
+          pw.Center(
+            child: pw.Row(
+              mainAxisSize: pw.MainAxisSize.min,
+              children: [
+                pw.Text(
+                  'For viewing Images download the app: ',
+                  style: pw.TextStyle(
+                      font: font, fontSize: 14, color: PdfColors.blueGrey),
+                ),
+                pw.UrlLink(
+                  destination: websiteUrl,
+                  child: pw.Text(
+                    websiteUrl,
+                    style: pw.TextStyle(
+                      color: PdfColors.blue,
+                      decoration: pw.TextDecoration.underline,
+                      font: font,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-
+          ),
+        ],
       ),
     );
     // Add a second page for the charts (2x2 grid)
@@ -665,6 +802,59 @@ Future<void> shareBilty(
         ),
       ),
     );
+    pdf.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      build: (pw.Context context) => pw.Center(
+        child: pw.Column(
+          mainAxisAlignment: pw.MainAxisAlignment.center,
+          children: [
+            pw.Center(
+              child: pw.Text("Bilty Distribution Graphs",
+                  style: pw.TextStyle(fontSize: 22)),
+            ),
+            pw.Divider(color: PdfColors.black),
+            pw.SizedBox(height: 20),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+
+                pw.Container(
+                  height: 300,
+                  width: 300,
+                  child: pw.Image(aaaImage, fit: pw.BoxFit.contain ),
+                ),]),
+            pw.SizedBox(height: 20),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+
+                pw.Container(
+                  height: 300,
+                  width: 300,
+                  child: pw.Image(aaImage,fit: pw.BoxFit.contain),
+                ),
+
+              ],
+            ),pw.SizedBox(height: 20),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+
+                pw.Container(
+                  height: 300,
+                  width: 300,
+                  child: pw.Image(gpImage,fit: pw.BoxFit.contain),
+                ),
+
+              ],
+            ),
+          ],
+        ),
+      ),
+    ));
     final pdfBytes = await pdf.save();
     final fileName = (consignmentNo != null && consignmentNo.isNotEmpty)
         ? '$consignmentNo.pdf'

@@ -591,7 +591,7 @@ class AadhatiController extends GetxController {
         // Use the correct endpoint and pass the XFile
         final result = await glb.uploadImage(image, uploadEndpoint: '/api/agents/${glb.id.value}/upload',);
         glb.isUploading.value = false;
-
+      print(result);
         if (result != null) {
           galleryImages.add(result); // or parse result if it's a URL
           Get.snackbar('Success', 'Image uploaded successfully!');

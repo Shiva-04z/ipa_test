@@ -207,7 +207,7 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                 if (showDetails.value) ...[
                   const DataColumn(label: Text("Variety")),
                   const DataColumn(label: Text("Size in MM")),],
-                  const DataColumn(label: Text("Count")),if (showDetails.value) ...[
+                const DataColumn(label: Text("Count")),if (showDetails.value) ...[
                   const DataColumn(label: Text("Avg. Wt/Piece")),
                   const DataColumn(label: Text("Gross Box Weight")),
                   const DataColumn(label: Text("No. of Boxes")),
@@ -244,10 +244,10 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                         child: Text(category.size,
                             style: const TextStyle(color: Colors.white)),
                       )),],
-                      DataCell(Center(
-                        child: Text("${category.piecesPerBox}",
-                            style: const TextStyle(color: Colors.white)),
-                      )), if (showDetails.value) ...[
+                    DataCell(Center(
+                      child: Text("${category.piecesPerBox}",
+                          style: const TextStyle(color: Colors.white)),
+                    )), if (showDetails.value) ...[
                       DataCell(Center(
                         child: Text(
                             "${category.avgWeight.toStringAsFixed(1)}g",
@@ -289,8 +289,8 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                             context: Get.context!,
                             builder: (context) => AlertDialog(
                               title: Text('Uploaded Image'),
-                              content: Image.file(
-                                  File(category.imagePath!)),
+                              content: Image.network(
+                                  category.imagePath!),
                               actions: [
                                 TextButton(
                                   onPressed: () =>

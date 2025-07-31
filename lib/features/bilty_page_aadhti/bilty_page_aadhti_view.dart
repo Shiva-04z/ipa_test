@@ -225,9 +225,9 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                   const DataColumn(label: Text("Quality")),
                   const DataColumn(label: Text("Category")),
                   if (showDetails.value) ...[
-                    const DataColumn(label: Text("Size in MM")),
-                    const DataColumn(label: Text("No. of Pieces")),
-                    const DataColumn(label: Text("Avg. Weight Per Piece")),
+                    const DataColumn(label: Text("Size in MM")),],
+                    const DataColumn(label: Text("Count")),  if (showDetails.value) ...[
+                    const DataColumn(label: Text("Avg. Wt/Piece")),
                     const DataColumn(label: Text("Avg. Gross Box Weight")),
                     const DataColumn(label: Text("No. of Boxes")),
                     const DataColumn(label: Text("Total Weight")),
@@ -249,114 +249,139 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                     color: MaterialStateProperty.resolveWith<Color?>(
                         (Set<MaterialState> states) => bgColor),
                     cells: [
-                      DataCell(Text(category.quality,
-                          style: const TextStyle(color: Colors.white))),
-                      DataCell(Text(category.category,
-                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Center(
+                        child: Text(category.quality,
+                            style: const TextStyle(color: Colors.white)),
+                      )),
+                      DataCell(Center(
+                        child: Text(category.category,
+                            style: const TextStyle(color: Colors.white)),
+                      )),
                       if (showDetails.value) ...[
-                        DataCell(Text(category.size,
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text("${category.piecesPerBox}",
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text(
-                            "${category.avgWeight.toStringAsFixed(1)}g",
-                            style: const TextStyle(color: Colors.white))),
-                        DataCell(Text(
-                            "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Center(
+                          child: Text(category.size,
+                              style: const TextStyle(color: Colors.white)),
+                        )),],
+                        DataCell(Center(
+                          child: Text("${category.piecesPerBox}",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
+                      if (showDetails.value) ...[
+                        DataCell(Center(
+                          child: Text(
+                              "${category.avgWeight.toStringAsFixed(1)}g",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
+                        DataCell(Center(
+                          child: Text(
+                              "${category.avgBoxWeight.toStringAsFixed(1)}kg",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
                         DataCell(Center(
                           child: Text("${category.boxCount}",
                               style: const TextStyle(color: Colors.white)),
                         )),
-                        DataCell(Text(
-                            "${category.totalWeight.toStringAsFixed(1)}kg",
-                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Center(
+                          child: Text(
+                              "${category.totalWeight.toStringAsFixed(1)}kg",
+                              style: const TextStyle(color: Colors.white)),
+                        )),
                       ],
                       isEditPriceMode.value
                           ? DataCell(
                               SizedBox(
                                 width: 90,
-                                child: TextFormField(
-                                  initialValue:
-                                      category.pricePerKg.toStringAsFixed(1),
-                                  keyboardType: TextInputType.numberWithOptions(
-                                      decimal: true),
-                                  style: const TextStyle(color: Colors.white),
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 4, horizontal: 6),
+                                child: Center(
+                                  child: TextFormField(
+                                    initialValue:
+                                        category.pricePerKg.toStringAsFixed(1),
+                                    keyboardType: TextInputType.numberWithOptions(
+                                        decimal: true),
+                                    style: const TextStyle(color: Colors.white),
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 6),
+                                    ),
+                                    onChanged: (val) {
+                                      double? newPrice = double.tryParse(val);
+                                      if (newPrice != null) {
+                                        print(category.totalWeight);
+                                        final newTotalPrice =
+                                            newPrice * category.totalWeight;
+                                        final newBoxValue =
+                                            newTotalPrice / category.boxCount;
+                                        controller.bilty.update((bilty) {
+                                          bilty!.categories[index] =
+                                              category.copyWith(
+                                            pricePerKg: newPrice,
+                                            totalPrice: newTotalPrice,
+                                            boxValue: newBoxValue,
+                                          );
+                                        });
+                                        updateBiltyTotals();
+                                      }
+                                    },
                                   ),
-                                  onChanged: (val) {
-                                    double? newPrice = double.tryParse(val);
-                                    if (newPrice != null) {
-                                      print(category.totalWeight);
-                                      final newTotalPrice =
-                                          newPrice * category.totalWeight;
-                                      final newBoxValue =
-                                          newTotalPrice / category.boxCount;
-                                      controller.bilty.update((bilty) {
-                                        bilty!.categories[index] =
-                                            category.copyWith(
-                                          pricePerKg: newPrice,
-                                          totalPrice: newTotalPrice,
-                                          boxValue: newBoxValue,
-                                        );
-                                      });
-                                      updateBiltyTotals();
-                                    }
-                                  },
                                 ),
                               ),
                             )
-                          : DataCell(Text(
-                              "Rs. ${category.pricePerKg.toStringAsFixed(1)}",
-                              style: const TextStyle(color: Colors.white))),
+                          : DataCell(Center(
+                            child: Text(
+                                "Rs. ${category.pricePerKg.toStringAsFixed(1)}",
+                                style: const TextStyle(color: Colors.white)),
+                          )),
                       isEditBoxesValueMode.value
                           ? DataCell(
                               SizedBox(
                                 width: 60,
-                                child: TextFormField(
-                                  initialValue:
-                                      category.boxValue.toStringAsFixed(2),
-                                  keyboardType: TextInputType.numberWithOptions(
-                                      decimal: true),
-                                  style: const TextStyle(color: Colors.white),
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 4, horizontal: 6),
+                                child: Center(
+                                  child: TextFormField(
+                                    initialValue:
+                                        category.boxValue.toStringAsFixed(2),
+                                    keyboardType: TextInputType.numberWithOptions(
+                                        decimal: true),
+                                    style: const TextStyle(color: Colors.white),
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 6),
+                                    ),
+                                    onChanged: (val) {
+                                      double? newValue = double.tryParse(val);
+                                      if (newValue != null) {
+                                        final newTotalPrice =
+                                            category.boxCount * newValue;
+                                        final newPricePerKg =
+                                            newTotalPrice / category.totalWeight;
+                                        print(newTotalPrice);
+                                        controller.bilty.update((bilty) {
+                                          bilty!.categories[index] =
+                                              category.copyWith(
+                                            boxValue: newValue,
+                                            totalPrice: newTotalPrice,
+                                            pricePerKg: newPricePerKg,
+                                          );
+                                        });
+                                        updateBiltyTotals();
+                                      }
+                                    },
                                   ),
-                                  onChanged: (val) {
-                                    double? newValue = double.tryParse(val);
-                                    if (newValue != null) {
-                                      final newTotalPrice =
-                                          category.boxCount * newValue;
-                                      final newPricePerKg =
-                                          newTotalPrice / category.totalWeight;
-                                      print(newTotalPrice);
-                                      controller.bilty.update((bilty) {
-                                        bilty!.categories[index] =
-                                            category.copyWith(
-                                          boxValue: newValue,
-                                          totalPrice: newTotalPrice,
-                                          pricePerKg: newPricePerKg,
-                                        );
-                                      });
-                                      updateBiltyTotals();
-                                    }
-                                  },
                                 ),
                               ),
                             )
-                          : DataCell(Text(
-                              "Rs. ${category.boxValue.toStringAsFixed(2)}",
-                              style: const TextStyle(color: Colors.white))),
-                      DataCell(Text(
-                          "Rs. ${category.totalPrice.toStringAsFixed(2)}",
-                          style: const TextStyle(color: Colors.white))),
+                          : DataCell(Center(
+                            child: Text(
+                                "Rs. ${category.boxValue.toStringAsFixed(2)}",
+                                style: const TextStyle(color: Colors.white)),
+                          )),
+                      DataCell(Center(
+                        child: Text(
+                            "Rs. ${category.totalPrice.toStringAsFixed(2)}",
+                            style: const TextStyle(color: Colors.white)),
+                      )),
                       DataCell(
                         category.imagePath != null &&
                                 category.imagePath!.isNotEmpty
@@ -367,7 +392,7 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                                     builder: (context) => AlertDialog(
                                       title: Text('Uploaded Image'),
                                       content:
-                                          Image.file(File(category.imagePath!)),
+                                          Image.network(category.imagePath!),
                                       actions: [
                                         TextButton(
                                           onPressed: () =>

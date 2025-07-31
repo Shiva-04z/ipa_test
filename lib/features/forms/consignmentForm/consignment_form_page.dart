@@ -4,6 +4,7 @@ import 'package:apple_grower/models/bilty_model.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../../core/globals.dart' as glb;
 import 'package:get/get.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -1622,6 +1623,8 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                             SizedBox(
                               height: 10,
                             ),
+                            Text("It may take upto 60 seconds to genrate PDF so kindly wait"),
+                            SizedBox(height: 10,),
                             ElevatedButton(
                                 onPressed: () {
                                   bd.shareBilty(controller.bilty.value!,
@@ -1665,44 +1668,56 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
   }
 
   // Placeholder for image upload
+
+ // for glb.url.value
+
   Future<String> uploadImage(File image, int index) async {
     controller.imageUpload.value = true;
-    print("here");
-    const cloudName = 'dnrqa4zxh'; // replace with your actual cloud name
-    const uploadPreset = 'bml/uploads'; // create this in Cloudinary
+    print("Uploading image...");
 
-    final url =
-        Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+    final uri = Uri.parse('${glb.url.value}/api/bilty/upload'); // 👈 your backend endpoint
 
-    final mimeType = 'image/${extension(image.path).replaceFirst('.', '')}';
+    final request = http.MultipartRequest('POST', uri);
 
-    final request = http.MultipartRequest('POST', url)
-      ..fields['upload_preset'] = uploadPreset
-      ..files.add(await http.MultipartFile.fromPath(
-        'file',
+    // Attach the image file
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'file', // 👈 must match the field name in multer
         image.path,
-        contentType: MediaType('image', mimeType),
-      ));
+        contentType: MediaType('image', extension(image.path).replaceFirst('.', '')),
+      ),
+    );
 
     try {
-      final response = await request.send();
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        final responseData = await response.stream.bytesToString();
-        final jsonData = json.decode(responseData);
-        final imageUrl = jsonData['secure_url'];
+        final data = json.decode(response.body);
+        final imageUrl = data['url'];
 
         print('Image uploaded at index $index: $imageUrl');
+
+        // Update the imagePath in your category
+        final category = controller.bilty.value!.categories[index];
+        controller.bilty.value!.categories[index] = category.copyWith(
+          imagePath: imageUrl,
+        );
+
+        controller.bilty.refresh();
         return imageUrl;
-        // Use imageUrl as needed (e.g., store in DB or show in UI)
       } else {
         print('Failed to upload image: ${response.statusCode}');
+        print('Response: ${response.body}');
       }
     } catch (e) {
       print('Error uploading image: $e');
     }
-    return image.path;
+
+    controller.imageUpload.value = false;
+    return image.path; // fallback
   }
+
 
   // Placeholder for video upload
   Future<void> uploadVideo(File video) async {

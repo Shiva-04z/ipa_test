@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:path/path.dart'; // for extension()
 import 'package:apple_grower/models/consignment_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../../core/globals.dart' as glb;
 import '../../models/bilty_model.dart';
@@ -12,13 +14,26 @@ class BiltyPageController extends GetxController {
   Rx<Bilty?> bilty = Rx<Bilty?>(null);
   RxBool biltyValue = false.obs;
   Rx<Consignment?> consignment = Rx<Consignment?>(null);
+  RxString imgUrl= "".obs;
+  TextEditingController varietyController =TextEditingController();
 
   @override
   void onInit() {
     // TODO: implement onInit
     glb.loadIDData();
-
     super.onInit();
+  }
+
+
+  Bilty changeVariety(Bilty bilty, String text) {
+    final updatedCategories = bilty.categories.map((category) {
+      return category.copyWith(variety: text);
+    }).toList();
+
+    return bilty.copyWith(
+      categories: updatedCategories,
+      updatedAt: DateTime.now(),
+    );
   }
 
   Future<dynamic> uploadBilty() async {
@@ -44,8 +59,49 @@ class BiltyPageController extends GetxController {
     }
   }
 
-  Future<void> uploadImage(File image, int index) async {
-    // TODO: Implement upload logic here
+  Future<String> uploadImage(File image, int index) async {
+    print("Uploading image...");
+
+    final uri = Uri.parse('${glb.url.value}/api/bilty/upload'); // 👈 your backend endpoint
+
+    final request = http.MultipartRequest('POST', uri);
+
+    // Attach the image file
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'file', // 👈 must match the field name in multer
+        image.path,
+        contentType: MediaType('image', extension(image.path).replaceFirst('.', '')),
+      ),
+    );
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final imageUrl = data['url'];
+
+        print('Image uploaded at index $index: $imageUrl');
+
+        // Update the imagePath in your category
+        final category = bilty.value!.categories[index];
+     bilty.value!.categories[index] = category.copyWith(
+          imagePath: imageUrl,
+        );
+
+    bilty.refresh();
+        return imageUrl;
+      } else {
+        print('Failed to upload image: ${response.statusCode}');
+        print('Response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
+
+    return image.path; // fallback
   }
 
   // Placeholder for video upload

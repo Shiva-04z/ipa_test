@@ -20,15 +20,11 @@ class SplashScreenController extends GetxController
       duration: const Duration(seconds: 2),
     );
     _startAnimations();
-    // _checkLoginStatusAndNavigate();
+    _checkLoginStatusAndNavigate();
 
   }
 
-  @override
-  void onReady()
-  {
-    Get.toNamed(RoutesConstant.forward);
-  }
+
 
   @override
   void onClose() {

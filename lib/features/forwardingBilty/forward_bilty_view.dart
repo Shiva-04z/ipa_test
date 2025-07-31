@@ -287,8 +287,8 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                             context: Get.context!,
                             builder: (context) => AlertDialog(
                               title: Text('Uploaded Image'),
-                              content: Image.file(
-                                  File(category.imagePath!)),
+                              content: Image.network(
+                                 category.imagePath!),
                               actions: [
                                 TextButton(
                                   onPressed: () =>
