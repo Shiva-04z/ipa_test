@@ -1457,6 +1457,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     const DataColumn(label: Text("Total Price")),
                     const DataColumn(label: Text("Image")),
                   ],
+
                   rows: List.generate(bilty.categories.length, (index) {
                     final category = bilty.categories[index];
                     final bgColor = getRowColor(category.quality);

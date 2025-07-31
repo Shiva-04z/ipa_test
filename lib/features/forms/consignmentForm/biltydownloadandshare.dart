@@ -21,7 +21,7 @@ material.Color getRowColor(String quality) {
     case 'GP':
       return material.Colors.green.shade700;
     case 'AA':
-      return material.Colors.yellow.shade700;
+      return material.Colors.yellow.shade900;
     case 'MIX/PEAR':
       return material.Colors.pink.shade300;
     default:
@@ -101,7 +101,7 @@ Future<Uint8List> loadImage(
   }
 }
 
-// Helper to draw a donut chart in PDF with side legend
+
 double _degreesToRadians(double degrees) => degrees * (math.pi / 180.0);
 
 pw.Widget buildDonutChartPdf({
@@ -116,14 +116,14 @@ pw.Widget buildDonutChartPdf({
   int? totalBoxes,
   double? totalWeight,
 }) {
-  // Filter out zero-value segments
+
   final filtered = data.entries.where((e) => e.value > 0).toList();
   if (filtered.isEmpty) return pw.SizedBox();
   final keys = filtered.map((e) => e.key).toList();
   final values = filtered.map((e) => e.value).toList();
   final total = values.fold(0.0, (a, b) => a + b);
 
-  // Calculate arc midpoints outside the painter
+
   final arcMidpoints = <PdfPoint>[];
   double startAngle = -90.0;
   final outerRadius = 35.0;
@@ -143,8 +143,7 @@ pw.Widget buildDonutChartPdf({
     startAngle += 360 * (values[i] / total);
   }
 
-  // Calculate arc label positions for percentages
-  // Removed arcLabelPoints calculation as percentage labels are no longer needed
+
 
   return pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -164,7 +163,7 @@ pw.Widget buildDonutChartPdf({
         mainAxisAlignment: pw.MainAxisAlignment.center,
         crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
-          // Donut chart (fixed outer/inner radius, no arc labels)
+
           pw.Stack(alignment: pw.Alignment.center, children: [
             pw.Container(
               width: size,
@@ -200,7 +199,7 @@ pw.Widget buildDonutChartPdf({
                       }
                     }
                     ctx.strokePath();
-                    // Draw white separator arc (thin line) at the start of each segment
+
                     ctx.setLineWidth((outerRadius - innerRadius) * 0.18);
                     ctx.setStrokeColor(PdfColors.white);
                     ctx.setLineCap(PdfLineCap.round);
@@ -221,7 +220,7 @@ pw.Widget buildDonutChartPdf({
                     ctx.strokePath();
                     startAngle += 360 * (values[i] / total);
                   }
-                  // Inner white circle for donut effect
+
                   ctx.setFillColor(PdfColors.white);
                   ctx.drawEllipse(center.x, center.y, innerRadius, innerRadius);
                   ctx.fillPath();
@@ -572,7 +571,7 @@ Future<void> shareBilty(Bilty bilty,
                   textAlign: pw.TextAlign.right,
                 ),
                 pw.Text(
-                  "Farmer as Service Initiative",
+                  "Farming as a Service Initiative",
                   style: pw.TextStyle(
                     font: font,
                     fontSize: 16,
@@ -595,7 +594,7 @@ Future<void> shareBilty(Bilty bilty,
               child: pw.Text('Consignment No.: $consignmentNo',
                   style: pw.TextStyle(
                       font: font,
-                      fontSize: 24,
+                      fontSize: 14,
                       fontWeight: pw.FontWeight.bold)),
             ),
           pw.SizedBox(height: 8),
@@ -931,12 +930,13 @@ pw.Widget _buildHeaderCell(String text, pw.Font font,
 pw.Widget _buildDataCell(String text, pw.Font font,
     {pw.TextAlign align = pw.TextAlign.center}) {
   return pw.Padding(
-    padding: const pw.EdgeInsets.all(4),
+    padding: const pw.EdgeInsets.all(2),
     child: pw.Text(text,
         textAlign: align,
         style: pw.TextStyle(
           color: PdfColors.white,
           font: font,
+          fontSize: 10
         )),
   );
 }
