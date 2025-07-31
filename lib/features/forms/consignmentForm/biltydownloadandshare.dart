@@ -589,6 +589,7 @@ Future<void> shareBilty(Bilty bilty,
               )
             ],
           ),
+          pw.SizedBox(height: 8),
           if (consignmentNo != null && consignmentNo.isNotEmpty)
             pw.Center(
               child: pw.Text('Consignment No.: $consignmentNo',
@@ -597,39 +598,41 @@ Future<void> shareBilty(Bilty bilty,
                       fontSize: 24,
                       fontWeight: pw.FontWeight.bold)),
             ),
-          pw.SizedBox(height: 16),
+          pw.SizedBox(height: 8),
           // Info,
           pw.Row(children: [
             pw.Padding(
                 padding: pw.EdgeInsets.all(8),
                 child: pw.Container(
-                    width: 250,
-                    height: 180,
+                    width: 220,
+                    height: 95,
+                    padding: pw.EdgeInsets.all(8),
                     decoration: pw.BoxDecoration(
                         border: pw.Border.all(color: PdfColors.black),
                         borderRadius: pw.BorderRadius.all(
                           pw.Radius.elliptical(12, 12),
                         )),
                     child: pw.Column(
-                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           if (growerName != null && growerName.isNotEmpty)
-                            pw.Text('Grower Name: $growerName',
-                                style: pw.TextStyle(font: font, fontSize: 14)),
+                            pw.Text('Grower: ${growerName}',
+                                style: pw.TextStyle(font: font, fontSize: 12)),
                           if (packhouseName != null && packhouseName.isNotEmpty)
-                            pw.Text('Packhouse Name: $packhouseName',
-                                style: pw.TextStyle(font: font, fontSize: 14)),
+                            pw.Text('Packhouse: $packhouseName',
+                                style: pw.TextStyle(font: font, fontSize: 12)),
                           if (aadhatiName != null && aadhatiName.isNotEmpty)
-                            pw.Text('Aadhati Name: $aadhatiName',
-                                style: pw.TextStyle(font: font, fontSize: 14)),
+                            pw.Text('Aadhati: $aadhatiName',
+                                style: pw.TextStyle(font: font, fontSize: 12)),
                         ]))),
             pw.SizedBox(width: 10),
             if (remark!.isNotEmpty)
               pw.Padding(
                   padding: pw.EdgeInsets.all(8),
                   child: pw.Container(
-                      width: 250,
-                      height: 300,
+                      width: 220,
+                      height: 95,
                       decoration: pw.BoxDecoration(
                           border: pw.Border.all(color: PdfColors.black),
                           borderRadius: pw.BorderRadius.all(
@@ -637,15 +640,17 @@ Future<void> shareBilty(Bilty bilty,
                           )),
                       padding: pw.EdgeInsets.all(8),
                       child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
 
                             pw.Center(
                               child: pw.Text('Remarks',
                                   style: pw.TextStyle(
                                       font: font,
-                                      fontSize: 14,
-                                      fontWeight: pw.FontWeight.bold,decoration: pw.TextDecoration.underline,color: PdfColors.yellow )),
+                                      fontSize: 12,
+                                      fontWeight: pw.FontWeight.bold,decoration: pw.TextDecoration.underline,color: PdfColors.red )),
                             ),
+                        pw.SizedBox(height: 2),
                         pw.Text("${remark}",
                             style: pw.TextStyle(font: font, fontSize: 10))
                       ]))),

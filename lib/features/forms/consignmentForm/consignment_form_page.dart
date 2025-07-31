@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:apple_grower/features/grower/grower_controller.dart';
 import 'package:apple_grower/models/aadhati.dart';
 import 'package:apple_grower/models/bilty_model.dart';
 import 'package:apple_grower/models/pack_house_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../core/globals.dart' as glb;
 import 'package:get/get.dart';
 import 'dart:io';
@@ -1601,51 +1604,86 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
               ? IconButton(
                   icon: Icon(Icons.share_outlined),
                   color: Colors.blue,
-                  onPressed: () {
-                    Get.defaultDialog(
-                        title: "Add Remark",
-                        backgroundColor: Colors.white,
-                        contentPadding: EdgeInsets.all(8),
-                        content: Column(
-                          children: [
-                            Container(
-                              child: TextFormField(
-                                controller: controller.remarkController,
-                                maxLines: 4,
-                                decoration: InputDecoration(
-                                    hintText:
-                                        "Add details like Fruit Variety(Optional)",
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.elliptical(8, 8)))),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text("It may take upto 60 seconds to genrate PDF so kindly wait"),
-                            SizedBox(height: 10,),
-                            ElevatedButton(
-                                onPressed: () {
-                                  bd.shareBilty(controller.bilty.value!,
-                                      growerName: controller
-                                          .consignment.value!.growerName,
-                                      packhouseName: (controller.consignment
-                                                  .value!.packHouseMode ==
-                                              "Self")
-                                          ? "Self"
-                                          : controller.packhouse.value!.name,
-                                      aadhatiName: "",
-                                      consignmentNo: controller
-                                          .consignment.value!.searchId,
-                                      websiteUrl: "https://bookmyloadindia.com",
-                                      remark: controller.remarkController.text);
-                                },
-                                child: Text("Download Bilty"))
-                          ],
-                        ));
-                  },
-                )
+            onPressed: () {
+              RxBool isLoading = false.obs;
+              RxInt charCount = 0.obs;
+
+              controller.remarkController.text = controller.remarkController.text.trim();
+
+              Get.defaultDialog(
+                title: "Add Remark",
+                backgroundColor: Colors.white,
+                contentPadding: EdgeInsets.all(8),
+                content: Obx(() => Column(
+                  children: [
+                    TextFormField(
+                      controller: controller.remarkController,
+                      maxLines: 4,
+                      maxLength: 110,
+                      onChanged: (val) {
+                        charCount.value = val.length;
+                      },
+                      decoration: InputDecoration(
+                        hintText: "Add details like Fruit Variety (Optional)",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                        ),
+                        counterText: "${charCount.value}/110 characters",
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "It may take up to 60 seconds to generate PDF. Kindly wait.",
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 10),
+                    Obx(() => Center(
+                      child: ElevatedButton(
+                        onPressed: isLoading.value
+                            ? null
+                            : () async {
+                          isLoading.value = true;
+
+                          // Set a timeout of 30 seconds
+                          Future.delayed(Duration(seconds: 30), () {
+                            if (isLoading.value) {
+                              isLoading.value = false;
+                              Get.snackbar("Timeout", "Process took too long. Please try again.");
+                            }
+                          });
+
+                          await bd.shareBilty(
+                            controller.bilty.value!,
+                            growerName: controller.consignment.value!.growerName,
+                            packhouseName: (controller.consignment.value!.packHouseMode == "Self")
+                                ? "Self"
+                                : controller.packhouse.value!.name,
+                            aadhatiName: "",
+                            consignmentNo: controller.consignment.value!.searchId,
+                            websiteUrl: "https://bookmyloadindia.com",
+                            remark: controller.remarkController.text.replaceAll('\n', ' '),
+                          );
+
+                          isLoading.value = false;
+                          Get.back(); // Close dialog after process
+                        },
+                        child: isLoading.value
+                            ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                            : Text("Download Bilty"),
+                      ),
+                    )),
+                  ],
+                )),
+              );
+            },
+
+
+
+          )
               : Text(""))
         ],
         backgroundColor: Colors.white,
