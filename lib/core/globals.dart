@@ -29,8 +29,9 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/globals.dart' as glb;
 
 RxString roleType = "Grower".obs;
-RxString personName = "Suresh Singh".obs;
-RxString personPhone = "+91 123567890".obs;
+RxString personName = "".obs;
+RxString packHouseName = "".obs;
+RxString personPhone = "".obs;
 RxString personVillage = "Nangal Jarialan".obs;
 RxString personPost = "247001".obs;
 RxString personBank = "XXXX3312".obs;

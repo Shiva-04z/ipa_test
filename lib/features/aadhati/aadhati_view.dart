@@ -203,11 +203,12 @@ class AadhatiView extends GetView<AadhatiController> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              if (!isSmallScreen) ...[
+               ...[
                 const SizedBox(height: 4),
                 Text(
                   detail,
                   style: const TextStyle(fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ],

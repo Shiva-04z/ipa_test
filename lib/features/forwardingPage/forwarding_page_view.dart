@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 
+import '../../core/globals.dart' as glb;
+import '../bidding_view/chart2.dart';
 import '../forms/consignmentForm/VideoPlayer.dart';
 
 
@@ -314,39 +316,34 @@ class ForwardPageView  extends GetView<ForwardPageController> {
           ),
         ),
         const SizedBox(height: 16),
-        // if (isMobile)
-        //   Obx(() => controller.bilty.value.videoPath!.isNotEmpty
-        //       ? Column(children: [
-        //           TextButton.icon(
-        //             icon: Icon(Icons.play_circle_fill, color: Colors.green),
-        //             label: const Text('Play Video'),
-        //             onPressed: () {
-        //               showDialog(
-        //                 context: Get.context!,
-        //                 builder: (context) => AlertDialog(
-        //                   title: const Text('Uploaded Video'),
-        //                   content: AspectRatio(
-        //                     aspectRatio: 16 / 9,
-        //                     child: VideoPlayerWidget(
-        //                         videoPath: controller.bilty.value.videoPath!),
-        //                   ),
-        //                   actions: [
-        //                     TextButton(
-        //                       onPressed: () => Navigator.of(context).pop(),
-        //                       child: const Text('Close'),
-        //                     ),
-        //                   ],
-        //                 ),
-        //               );
-        //             },
-        //           ),
-        //           const SizedBox(height: 8)
-        //         ])
-        //       : TextButton.icon(
-        //           icon: Icon(Icons.play_circle_fill, color: Colors.grey),
-        //           label: const Text('Play Video'),
-        //           onPressed: null,
-        //         )),
+          Obx(() => controller.bilty.value.videoPath!.isNotEmpty
+              ? Column(children: [
+                  TextButton.icon(
+                    icon: Icon(Icons.play_circle_fill, color: Colors.green),
+                    label: const Text('Play Video'),
+                    onPressed: () {
+                      Get.defaultDialog(title:"Video Player",content: Container(
+                        width: 400,
+                        height: 430,
+
+
+                        child: VideoPlayerWidget(
+
+                            videoPath: bilty.videoPath!),
+                      ), actions: [
+                        TextButton(
+                          onPressed: () => Get.back(),
+                          child: const Text('Close'),
+                        ),
+                      ], );
+                    },                  ),
+                  const SizedBox(height: 8)
+                ])
+              : TextButton.icon(
+                  icon: Icon(Icons.play_circle_fill, color: Colors.grey),
+                  label: const Text('Play Video'),
+                  onPressed: null,
+                )),
       ],
     );
   }
@@ -918,8 +915,9 @@ class ForwardPageView  extends GetView<ForwardPageController> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
-                          width: MediaQuery.of(Get.context!).size.width>800? 1500: 1000,
-                          child: Image.memory(controller.imageBytes.value,fit: BoxFit.fitWidth,),),
+                          height: 500,
+                          child: DynamicChart2(labels: controller.productLabels, weights: controller.productWeights, prices: controller.productPrices, landingCostFactor: glb.landingPrice.value),
+                          ),
                       ),
                     ))
 

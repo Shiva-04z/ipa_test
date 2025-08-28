@@ -9,7 +9,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../../core/global_role_loader.dart' as gld;
 import '../../core/globals.dart' as glb;
 import '../../models/hpmc_collection_center_model.dart';
 

@@ -167,22 +167,27 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                             final newCategories = bilty.categories.map((cat) {
                               if (cat.boxCount == 0) return cat;
                               double? newPrice;
-                              if (cat.quality.toUpperCase() == 'AAA') {
+                              if (cat.quality.toUpperCase() == 'AAA' &&(cat.category != "240 Count" && cat.category != "Pittu" && cat.category != "Seprator")) {
                                 newPrice = gaddPrice.value;
-                              } else if (cat.quality.toUpperCase() == 'AA') {
-                                newPrice = gaddPrice.value / 2;
                               } else if (cat.quality.toUpperCase() == 'GP') {
-                                newPrice = (gaddPrice.value / 2) + 10;
+                                newPrice = gaddPrice.value + 10;
+                              } else if (cat.quality == "AAA") {
+                                newPrice = (0.6 * gaddPrice.value) ;
+                              }
+                              else{
+                                newPrice = (0.5 * gaddPrice.value);
                               }
                               if (newPrice != null) {
                                 final newTotalPrice =
                                     newPrice * cat.totalWeight;
                                 final newBoxValue =
                                     newTotalPrice / cat.boxCount;
+                                double roundTo2(double value) => double.parse(value.toStringAsFixed(2));
+
                                 return cat.copyWith(
-                                  pricePerKg: newPrice,
-                                  totalPrice: newTotalPrice,
-                                  boxValue: newBoxValue,
+                                  pricePerKg: roundTo2(newPrice),
+                                  totalPrice: roundTo2(newTotalPrice),
+                                  boxValue: roundTo2(newBoxValue),
                                 );
                               }
                               return cat;
@@ -482,23 +487,20 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                       icon: Icon(Icons.play_circle_fill, color: Colors.green),
                       label: const Text('Play Video'),
                       onPressed: () {
-                        showDialog(
-                          context: Get.context!,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Uploaded Video'),
-                            content: AspectRatio(
-                              aspectRatio: 16 / 9,
-                              child: VideoPlayerWidget(
-                                  videoPath: bilty.videoPath!),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('Close'),
-                              ),
-                            ],
+                        print(bilty.videoPath!);
+                        Get.defaultDialog(title:"Video Player",content: Container(
+                          width: 400,
+                          height: 430,
+                          child: VideoPlayerWidget(
+
+                              videoPath: bilty.videoPath!),
+                        ), actions: [
+                          TextButton(
+                            onPressed: () => Get.back(),
+                            child: const Text('Close'),
                           ),
-                        );
+                        ], );
+
                       },
                     ),
                     const SizedBox(height: 8)
@@ -537,7 +539,7 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create Bilty for Consignment"),
+        title: Text("Fill Prices in Bilty"),
       ),
       body: Column(
         children: [
@@ -573,7 +575,8 @@ class BiltyPageAadhtiView extends GetView<BiltyPageAadhtiController> {
                 ),
               )),
             ],
-          )
+          ),
+          SizedBox(height: 12)
         ],
       ),
     );

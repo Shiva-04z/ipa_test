@@ -6,9 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-
 import '../../core/globals.dart' as glb;
 import '../../models/bilty_model.dart';
+
 
 class BiltyPageController extends GetxController {
   Rx<Bilty?> bilty = Rx<Bilty?>(null);
@@ -36,6 +36,7 @@ class BiltyPageController extends GetxController {
     );
   }
 
+
   Future<dynamic> uploadBilty() async {
     String api = glb.url.value + "/api/bilty";
     Map<String, dynamic> data = bilty.value!.toJson();
@@ -46,7 +47,7 @@ class BiltyPageController extends GetxController {
     String api1 = glb.url.value +
         "/api/consignment/${glb.consignmentID.value}/add-bilty-packhouse";
     Map<String, dynamic> data2 = {
-      "packhouseId": glb.id.value,
+      "packhouseId": glb.packHouseName.value,
       "bilty": data1["_id"],
       "currentStage": "Packing Complete"
     };
@@ -105,9 +106,43 @@ class BiltyPageController extends GetxController {
   }
 
   // Placeholder for video upload
-  Future<void> uploadVideo(File video) async {
-    // TODO: Implement upload logic here
-  }
+
+    Future<String> uploadVideo(File video) async {
+      print("Uploading video...");
+
+      final uri = Uri.parse('${glb.url.value}/api/bilty/upload'); // same backend endpoint
+
+      final request = http.MultipartRequest('POST', uri);
+
+      // Attach the video file
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file', // must match multer field name
+          video.path,
+          contentType: MediaType('video', extension(video.path).replaceFirst('.', '')),
+        ),
+      );
+
+      try {
+        final streamedResponse = await request.send();
+        final response = await http.Response.fromStream(streamedResponse);
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          final videoUrl = data['url'];
+         bilty.value = bilty.value?.copyWith(videoPath:videoUrl );
+       bilty.refresh();
+          return videoUrl;
+        } else {
+          print('Failed to upload video: ${response.statusCode}');
+          print('Response: ${response.body}');
+        }
+      } catch (e) {
+        print('Error uploading video: $e');
+      }
+      return video.path; // fallback
+    }
+
 
   void updateBiltyTotals() {
     if (bilty.value == null) return;

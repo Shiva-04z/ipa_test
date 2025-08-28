@@ -47,11 +47,20 @@ import 'package:apple_grower/features/bidding_view/bidder_session/bidder_session
 import 'package:apple_grower/features/bidding_view/grower_session/grower_session_view.dart';
 import 'package:apple_grower/features/bidding_view/grower_session/grower_session_bindings.dart';
 
+import '../features/load_screen/laod_screen_view.dart';
+import '../features/load_screen/load_screen_bindings.dart';
+
 List<GetPage> getPages = [
   GetPage(
     name: RoutesConstant.splash,
     page: () => SplashScreenView(),
     binding: SplashScreenBindings(),
+    transition: Transition.fadeIn,
+    transitionDuration: Duration(microseconds: 300),
+  ),GetPage(
+    name: RoutesConstant.load,
+    page: () => LoadScreenView(),
+    binding: LoadScreenBindings(),
     transition: Transition.fadeIn,
     transitionDuration: Duration(microseconds: 300),
   ),

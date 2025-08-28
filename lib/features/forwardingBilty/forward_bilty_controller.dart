@@ -15,8 +15,10 @@ class ForwardBiltyController extends GetxController {
   RxString date ="".obs;
   RxString startTime ="".obs;
   RxBool canStart =true.obs;
-  Rx<Uint8List> imageBytes = Uint8List(0).obs;
 
+RxList<String> productLabels = <String>[].obs;
+RxList<double> productWeights = <double>[].obs;
+RxList<double> productPrices = <double>[].obs;
   @override
   void onInit() {
     super.onInit();
@@ -106,33 +108,70 @@ class ForwardBiltyController extends GetxController {
     };
   }
 
-  Future<Uint8List> postGenerateGraph(Bilty bilty, {String serverUrl = 'https://bot-1buv.onrender.com/generate_chart'}) async {
-    try {
-      // Generate the chart data
-      final chartData = await generateChartData(bilty);
 
-      // Make the POST request
-      final response = await http.post(
-        Uri.parse(serverUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(chartData),
-      );
 
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        // Convert List<dynamic> to List<int> then to Uint8List
-        final bytes = List<int>.from(jsonData['image']);
-        return Uint8List.fromList(bytes);
-      } else {
-        throw Exception('Failed to generate chart: ${response.statusCode}');
+
+  _loadData(Bilty bilty) {
+    // Initialize the fixed label groups
+    final Map<String, List<String>> qualityGroups = {
+      'AAA ELLMS': [
+        'Extra Large',
+        'Large',
+        'Medium',
+        'Small',
+        'Extra Small',
+        'E Extra Small'
+      ],
+      'AAA Pittu/Sep/240': ['240 Count', 'Pittu', 'Seprator'],
+      'AA ELLMS': [
+        'Extra Large',
+        'Large',
+        'Medium',
+        'Small',
+        'Extra Small',
+        'E Extra Small'
+      ],
+      'AA Pittu/Sep/240': ['240 Count', 'Pittu', 'Seprator'],
+      'GP': ['Large', 'Medium', 'Small', 'Extra Small'],
+      'Mix/Pear': ['Mix & Pears']
+    };
+
+    // Initialize result lists
+    List<String> qualityLabels = [];
+    List<double> kgList = [];
+    List<double> priceList = [];
+
+    // Process each group
+    qualityGroups.forEach((groupLabel, categories) {
+      double groupWeight = 0;
+      double groupPrice = 0;
+
+
+      // Check each category in the group
+      for (var category in bilty.categories) {
+        if (categories.contains(category.category)) {
+          if (category.quality == groupLabel.split(' ')[0] ||
+              (groupLabel == 'GP' && category.quality == 'GP') ||
+              (groupLabel == 'Mix/Pear' && category.quality == 'Mix/Pear')) {
+            groupWeight += category.totalWeight;
+            if(groupPrice==0.0) {
+              groupPrice = category.pricePerKg;
+            }
+          }
+        }
       }
-    } catch (e) {
-      throw Exception('Error generating chart: $e');
-    }
 
+      // Only add the group if it has data
+
+      qualityLabels.add(groupLabel);
+      kgList.add(groupWeight);
+      priceList.add(groupPrice);
+
+    });
+    productLabels.value = qualityLabels;
+    productWeights.value = kgList;
+    productPrices.value = priceList;
   }
-
-
 
 
   Future<void> loadConsignment() async {
@@ -147,9 +186,12 @@ class ForwardBiltyController extends GetxController {
         date.value=json['date'];
         startTime.value = json['startTime'];
       }
-      imageBytes.value = await postGenerateGraph(bilty.value);
+    _loadData(bilty.value);
     }
   }
+
+ 
+
 
   Map<String, double> get qualityShare {
     final map = <String, double>{};

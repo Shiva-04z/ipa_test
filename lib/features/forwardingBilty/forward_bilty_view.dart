@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:apple_grower/features/forwardingBilty/forward_bilty_controller.dart';
 import 'package:apple_grower/models/bilty_model.dart';
+import 'package:data_table_2/data_table_2.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../../core/globals.dart' as glb;
 import '../../navigation/routes_constant.dart';
+import '../bidding_view/chart.dart';
 import '../forms/consignmentForm/VideoPlayer.dart';
 import 'package:apple_grower/features/aadhati/aadhati_controller.dart';
 
@@ -194,158 +196,151 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
         const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Obx(() => DataTable(
-              columnSpacing: 12,
-              headingRowColor: MaterialStateProperty.resolveWith(
-                      (states) => Colors.orange.shade200),
-              columns: [
-                const DataColumn(label: Text("Quality")),
-                const DataColumn(label: Text("Category")),
-                if (showDetails.value) ...[
-                  const DataColumn(label: Text("Variety")),
-                  const DataColumn(label: Text("Size in MM")),],
-                const DataColumn(label: Text("Count")),if (showDetails.value) ...[
-                  const DataColumn(label: Text("Avg. Wt/Piece")),
-                  const DataColumn(label: Text("Gross Box Weight")),
-                  const DataColumn(label: Text("No. of Boxes")),
-                  const DataColumn(label: Text("Total Weight")),
-                ],
-                const DataColumn(label: Text("Price Per Kg")),
-                const DataColumn(label: Text("Box Value")),
-                const DataColumn(label: Text("Total Price")),
-                const DataColumn(label: Text("Image")),
+          child: Obx(() => DataTable(
+            columnSpacing: 12,
+            headingRowColor: MaterialStateProperty.resolveWith(
+                    (states) => Colors.orange.shade200),
+            columns: [
+              const DataColumn(label: Text("Quality")),
+              const DataColumn(label: Text("Category")),
+              if (showDetails.value) ...[
+                const DataColumn(label: Text("Variety")),
+                const DataColumn(label: Text("Size in MM")),],
+              const DataColumn(label: Text("Count")),if (showDetails.value) ...[
+                const DataColumn(label: Text("Avg. Wt/Piece")),
+                const DataColumn(label: Text("Gross Box Weight")),
+                const DataColumn(label: Text("No. of Boxes")),
+                const DataColumn(label: Text("Total Weight")),
               ],
-              rows: List.generate(bilty.categories.length, (index) {
-                final category = bilty.categories[index];
-                if (category.boxCount == 0)
-                  return null; // Hide rows with boxCount == 0
-                final bgColor = getRowColor(category.quality);
-                return DataRow(
-                  color: MaterialStateProperty.resolveWith<Color?>(
-                          (Set<MaterialState> states) => bgColor),
-                  cells: [
+              const DataColumn(label: Text("Price Per Kg")),
+              const DataColumn(label: Text("Box Value")),
+              const DataColumn(label: Text("Total Price")),
+              const DataColumn(label: Text("Image")),
+            ],
+            rows: List.generate(bilty.categories.length, (index) {
+              final category = bilty.categories[index];
+              if (category.boxCount == 0)
+                return null; // Hide rows with boxCount == 0
+              final bgColor = getRowColor(category.quality);
+              return DataRow(
+                color: MaterialStateProperty.resolveWith<Color?>(
+                        (Set<MaterialState> states) => bgColor),
+                cells: [
+                  DataCell(Center(
+                    child: Text(category.quality,
+                        style: const TextStyle(color: Colors.white)),
+                  )),
+                  DataCell(Center(
+                    child: Text(category.category,
+                        style: const TextStyle(color: Colors.white)),
+                  )),
+                  if (showDetails.value) ...[
                     DataCell(Center(
-                      child: Text(category.quality,
+                      child: Text(category.variety,
                           style: const TextStyle(color: Colors.white)),
                     )),
                     DataCell(Center(
-                      child: Text(category.category,
+                      child: Text(category.size,
                           style: const TextStyle(color: Colors.white)),
-                    )),
-                    if (showDetails.value) ...[
-                      DataCell(Center(
-                        child: Text(category.variety,
-                            style: const TextStyle(color: Colors.white)),
-                      )),
-                      DataCell(Center(
-                        child: Text(category.size,
-                            style: const TextStyle(color: Colors.white)),
-                      )),],
+                    )),],
+                  DataCell(Center(
+                    child: Text("${category.piecesPerBox}",
+                        style: const TextStyle(color: Colors.white)),
+                  )), if (showDetails.value) ...[
                     DataCell(Center(
-                      child: Text("${category.piecesPerBox}",
-                          style: const TextStyle(color: Colors.white)),
-                    )), if (showDetails.value) ...[
-                      DataCell(Center(
-                        child: Text(
-                            "${category.avgWeight.toStringAsFixed(1)}g",
-                            style: const TextStyle(color: Colors.white)),
-                      )),
-                      DataCell(Center(
-                        child: Text(
-                            "${category.avgBoxWeight.toStringAsFixed(1)}kg",
-                            style: const TextStyle(color: Colors.white)),
-                      )),
-                      DataCell(Center(
-                        child: Text("${category.boxCount}",
-                            style: const TextStyle(color: Colors.white)),
-                      )),
-                      DataCell(Center(
-                        child: Text(
-                            "${category.totalWeight.toStringAsFixed(1)}kg",
-                            style: const TextStyle(color: Colors.white)),
-                      )),
-                    ],
-                    DataCell(Center(
-                      child: Text("${category.pricePerKg}",
+                      child: Text(
+                          "${category.avgWeight.toStringAsFixed(1)}g",
                           style: const TextStyle(color: Colors.white)),
                     )),
                     DataCell(Center(
-                      child: Text("${category.boxValue}",
+                      child: Text(
+                          "${category.avgBoxWeight.toStringAsFixed(1)}kg",
                           style: const TextStyle(color: Colors.white)),
                     )),
                     DataCell(Center(
-                      child: Text("${category.totalPrice}",
+                      child: Text("${category.boxCount}",
                           style: const TextStyle(color: Colors.white)),
                     )),
-                    DataCell(
-                      category.imagePath != null &&
-                          category.imagePath!.isNotEmpty
-                          ? GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: Get.context!,
-                            builder: (context) => AlertDialog(
-                              title: Text('Uploaded Image'),
-                              content: Image.network(
-                                 category.imagePath!),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(),
-                                  child: const Text('Close'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        child: const Icon(Icons.remove_red_eye_rounded,
-                            color: Colors.green),
-                      )
-                          : const Icon(Icons.camera_alt,
-                          color: Colors.white),
-                    ),
+                    DataCell(Center(
+                      child: Text(
+                          "${category.totalWeight.toStringAsFixed(1)}kg",
+                          style: const TextStyle(color: Colors.white)),
+                    )),
                   ],
-                );
-              }).whereType<DataRow>().toList(), // Filter out nulls
-            )),
-          ),
+                  DataCell(Center(
+                    child: Text("${category.pricePerKg}",
+                        style: const TextStyle(color: Colors.white)),
+                  )),
+                  DataCell(Center(
+                    child: Text("${category.boxValue}",
+                        style: const TextStyle(color: Colors.white)),
+                  )),
+                  DataCell(Center(
+                    child: Text("${category.totalPrice}",
+                        style: const TextStyle(color: Colors.white)),
+                  )),
+                  DataCell(
+                    category.imagePath != null &&
+                        category.imagePath!.isNotEmpty
+                        ? GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: Get.context!,
+                          builder: (context) => AlertDialog(
+                            title: Text('Uploaded Image'),
+                            content: Image.network(
+                               category.imagePath!),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(),
+                                child: const Text('Close'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: const Icon(Icons.remove_red_eye_rounded,
+                          color: Colors.green),
+                    )
+                        : const Icon(Icons.camera_alt,
+                        color: Colors.white),
+                  ),
+                ],
+              );
+            }).whereType<DataRow>().toList(), // Filter out nulls
+          )),
         ),
         const SizedBox(height: 16),
-        // if (isMobile)
-        //   Obx(() => controller.bilty.value.videoPath!.isNotEmpty
-        //       ? Column(children: [
-        //           TextButton.icon(
-        //             icon: Icon(Icons.play_circle_fill, color: Colors.green),
-        //             label: const Text('Play Video'),
-        //             onPressed: () {
-        //               showDialog(
-        //                 context: Get.context!,
-        //                 builder: (context) => AlertDialog(
-        //                   title: const Text('Uploaded Video'),
-        //                   content: AspectRatio(
-        //                     aspectRatio: 16 / 9,
-        //                     child: VideoPlayerWidget(
-        //                         videoPath: controller.bilty.value.videoPath!),
-        //                   ),
-        //                   actions: [
-        //                     TextButton(
-        //                       onPressed: () => Navigator.of(context).pop(),
-        //                       child: const Text('Close'),
-        //                     ),
-        //                   ],
-        //                 ),
-        //               );
-        //             },
-        //           ),
-        //           const SizedBox(height: 8)
-        //         ])
-        //       : TextButton.icon(
-        //           icon: Icon(Icons.play_circle_fill, color: Colors.grey),
-        //           label: const Text('Play Video'),
-        //           onPressed: null,
-        //         )),
+        Obx(() => controller.bilty.value.videoPath!.isNotEmpty
+              ? Column(children: [
+                  TextButton.icon(
+                    icon: Icon(Icons.play_circle_fill, color: Colors.green),
+                    label: const Text('Play Video'),
+                    onPressed: () {
+                      Get.defaultDialog(title:"Video Player",content: Container(
+                        width: 400,
+                        height: 430,
+
+
+                        child: VideoPlayerWidget(
+
+                            videoPath: bilty.videoPath!),
+                      ), actions: [
+                        TextButton(
+                          onPressed: () => Get.back(),
+                          child: const Text('Close'),
+                        ),
+                      ], );
+                    },
+                  ),
+                  const SizedBox(height: 8)
+                ])
+              : TextButton.icon(
+                  icon: Icon(Icons.play_circle_fill, color: Colors.grey),
+                  label: const Text('Play Video'),
+                  onPressed: null,
+                )),
       ],
     );
   }
@@ -922,7 +917,7 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                   ],
                 ),SizedBox(height: 30),
                 ExpansionTile(
-                  title: Text('Show Graphs',
+                  title: Text('Show Graph',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   children: [
                    Obx(()=>SingleChildScrollView(
@@ -930,8 +925,12 @@ class ForwardBiltyView extends GetView<ForwardBiltyController> {
                      child: Padding(
                        padding: const EdgeInsets.all(8.0),
                        child: Container(
-                         width: MediaQuery.of(Get.context!).size.width>800? 1500: 1000,
-                         child: Image.memory(controller.imageBytes.value,fit: BoxFit.fitWidth,),),
+                         height: 500,
+                         child: DynamicBarLineChart(
+                           labels: controller.productLabels.value,
+                           weights: controller.productWeights.value,
+                           prices: controller.productPrices.value,
+                         ),),
                      ),))
 
                   ],

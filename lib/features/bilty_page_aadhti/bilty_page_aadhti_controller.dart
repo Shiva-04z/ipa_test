@@ -80,7 +80,7 @@ class BiltyPageAadhtiController extends GetxController {
     String api = glb.url.value +
         "/api/consignment/${glb.consignmentID.value}/add-bilty-aadhati";
     Map<String, dynamic> data = {
-      "aadhatiId": glb.id.value,
+      "aadhatiId": glb.personName.value,
       "currentStage": "Bilty Ready"
     };
     final respone = await http.patch(Uri.parse(api),

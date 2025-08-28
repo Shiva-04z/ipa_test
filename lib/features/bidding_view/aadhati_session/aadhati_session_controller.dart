@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart' as pw;
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:apple_grower/models/bilty_model.dart';
 import 'package:http/http.dart' as http;
@@ -15,6 +19,28 @@ class AadhatiSessionController extends GetxController {
   RxMap<String, List<String>> qualityCategories = <String, List<String>>{}.obs;
   RxMap<String, double> qualityTotalWeights = <String, double>{}.obs;
   RxMap<String, double> qualityTotalPrices = <String, double>{}.obs;
+  RxString biddingType1 = "Gadd".obs;
+  RxString biddingType2 = "Per Kg".obs;
+  late StreamSubscription _bidsSubscription;
+  RxDouble baseAmount = 0.0.obs;
+  RxString highestBidder = "Nil".obs;
+  RxDouble highestBid = 00.00.obs;
+  RxDouble gaddPrice = 0.0.obs;
+  RxString packHouseName="".obs;
+
+  RxList<String> productLabels = [
+    'ELLMS',
+    'ES,EES,240',
+    'Pittu',
+    'Sepeartor',
+    'AA EElMS',
+    "AA ES,EES,240",
+    "AA Sepertaor"
+  ].obs;
+  RxList<double> productWeights =
+      [1000.0, 950.0, 630.0, 780.0, 900.0, 800.0, 850.0].obs;
+  RxList<double> productPrices =
+      [120.0, 150.0, 100.0, 170.0, 190.0, 220.0, 230.0].obs;
 
   RxBool sessionActive = false.obs;
   RxString error = ''.obs;
@@ -25,68 +51,110 @@ class AadhatiSessionController extends GetxController {
   RxMap<String, double> highestLandingPerQuality = <String, double>{}.obs;
   Rxn<Consignment> consignment = Rxn<Consignment>();
   RxString highestTotals = "".obs;
+  RxString activeStatus = "inactive".obs;
+
+  Rx<Bilty> bilty = Bilty.createDefault().obs;
+  RxString searchId = ''.obs;
+  RxString growerName = ''.obs;
+  RxString date = "".obs;
+  RxString startTime = "".obs;
+  RxBool canStart = true.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadConsignmentBilty().then((_) async {
+    loadConsignment().then((_) async {
       await ensureSessionExists();
       _listenToGrowerApproval();
     });
-    _listenToRealtimeAnalytics();
     _listenToBids();
   }
 
-  Future<void> loadConsignmentBilty() async {
-    try {
-      final api = glb.url.value + "/api/consignment/${glb.consignmentID.value}";
-      final response = await http.get(Uri.parse(api));
-      if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
-        if (json['bilty'] != null) {
-          final bilty = Bilty.fromJson(json['bilty']);
-          if (json != null) {
-            consignment.value = Consignment.fromJson(json);
+  _loadData(Bilty bilty) {
+    // Initialize the fixed label groups
+    final Map<String, List<String>> qualityGroups = {
+      'AAA ELLMS': [
+        'Extra Large',
+        'Large',
+        'Medium',
+        'Small',
+        'Extra Small',
+        'E Extra Small'
+      ],
+      'AAA Pittu/Sep/240': ['240 Count', 'Pittu', 'Seprator'],
+      'AA ELLMS': [
+        'Extra Large',
+        'Large',
+        'Medium',
+        'Small',
+        'Extra Small',
+        'E Extra Small'
+      ],
+      'AA Pittu/Sep/240': ['240 Count', 'Pittu', 'Seprator'],
+      'GP': ['Large', 'Medium', 'Small', 'Extra Small'],
+      'Mix/Pear': ['Mix & Pears']
+    };
+
+    // Initialize result lists
+    List<String> qualityLabels = [];
+    List<double> kgList = [];
+    List<double> priceList = [];
+
+    // Process each group
+    qualityGroups.forEach((groupLabel, categories) {
+      double groupWeight = 0;
+      double groupPrice = 0;
+
+
+      // Check each category in the group
+      for (var category in bilty.categories) {
+        if (categories.contains(category.category)) {
+          if (category.quality == groupLabel.split(' ')[0] ||
+              (groupLabel == 'GP' && category.quality == 'GP') ||
+              (groupLabel == 'Mix/Pear' && category.quality == 'Mix/Pear')) {
+            groupWeight += category.totalWeight;
+            if(groupPrice==0.0) {
+              groupPrice = category.pricePerKg;
+            }
           }
-          // Initialize data structures for each quality
-          _initializeQualityData(bilty);
-        } else {
-          error.value = 'No bilty data found.';
         }
-      } else {
-        error.value = 'Failed to load consignment: \\${response.statusCode}';
       }
-    } catch (e) {
-      error.value = 'Error: \\${e.toString()}';
-    }
-  }
 
-  void _initializeQualityData(Bilty bilty) {
-    // Clear existing data
-    qualityWeights.clear();
-    qualityPrices.clear();
-    qualityLandingCosts.clear();
-    qualityCategories.clear();
+      // Only add the group if it has data
 
-    // Group categories by quality
-    final qualityGroups = <String, List<BiltyCategory>>{};
-    for (var category in bilty.categories) {
-      qualityGroups.putIfAbsent(category.quality, () => []).add(category);
-    }
+        qualityLabels.add(groupLabel);
+        kgList.add(groupWeight);
+        priceList.add(groupPrice);
 
-    // Populate data for each quality
-    qualityGroups.forEach((quality, categories) {
-      qualityCategories[quality] = categories.map((c) => c.category).toList();
-      qualityWeights[quality] = categories.map((c) => c.totalWeight).toList();
-      qualityPrices[quality] = categories.map((c) => c.pricePerKg).toList();
-      qualityLandingCosts[quality] =
-          List.filled(categories.length, 0.0); // Initial landing cost is 0
     });
-
-    // Push analytics to Firebase after initializing
-    pushAnalyticsToFirebase();
+    productLabels.value = qualityLabels;
+    productWeights.value = kgList;
+    productPrices.value = priceList;
   }
 
+  Future<void> loadConsignment() async {
+    _loadImage();
+    String api = glb.url.value + "/api/consignment/${glb.consignmentID.value}";
+    final response = await http.get(Uri.parse(api));
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      searchId.value = json['searchId'] ?? '';
+      growerName.value = json['growerName'] ?? '';
+      packHouseName.value=json['packhouseId']?? "Self";
+      if (json['bilty'] != null) {
+        bilty.value = Bilty.fromJson(json['bilty']);
+        print(bilty.value);
+        _loadData(bilty.value);
+      }
+    }
+  }
+  Future<void> _loadImage() async {
+    final imageBytes =
+    (await rootBundle.load('assets/images/apple.png')).buffer.asUint8List();
+    // 3. Assign the loaded image to the reactive variable.
+    // The UI will automatically update.
+    glb.logoImage.value = pw.MemoryImage(imageBytes);
+  }
   void _listenToGrowerApproval() {
     final consignmentId = glb.consignmentID.value;
     final approvalRef =
@@ -97,143 +165,102 @@ class AadhatiSessionController extends GetxController {
     });
   }
 
-  Future<void> setGrowerApproval(bool value) async {
-    final consignmentId = glb.consignmentID.value;
-    final sessionRef = FirebaseDatabase.instance.ref('sessions/$consignmentId');
-    await sessionRef.update({'growerApproval': value});
-    growerApproval.value = value;
-  }
 
-  Future<void> startSession(String sessionId) async {
-    sessionActive.value = true;
+
+  Future<void> startSession() async {
+    activeStatus.value = "active";
     final consignmentId = glb.consignmentID.value;
     _sessionRef = FirebaseDatabase.instance.ref('sessions/$consignmentId');
     await _sessionRef!.update({
       'status': 'active',
-      'startedAt': DateTime.now().toIso8601String(),
-      'growerApproval': false,
-      'bids': {}
+      'biddingTypes': [biddingType1.value, biddingType2.value],
     });
-    _listenToRealtimeAnalytics();
   }
 
   Future<void> endSession() async {
-    sessionActive.value = false;
+    activeStatus.value = "completed";
     final consignmentId = glb.consignmentID.value;
     if (_sessionRef == null) {
       _sessionRef = FirebaseDatabase.instance.ref('sessions/$consignmentId');
     }
     await _sessionRef!.update({
-      'status': 'ended',
+      'status': 'completed',
       'endedAt': DateTime.now().toIso8601String(),
-    });
+    }); // S// et prices by category
+    gaddPrice.value = highestBid.value;
+      final bilty2 = bilty.value;
+      final newCategories = bilty2.categories.map((cat) {
+        if (cat.boxCount == 0) return cat;
+        double? newPrice;
+        if (cat.quality.toUpperCase() == 'AAA' &&(cat.category != "240 Count" && cat.category != "Pittu" && cat.category != "Seprator")) {
+          newPrice = gaddPrice.value;
+        } else if (cat.quality.toUpperCase() == 'GP') {
+          newPrice = gaddPrice.value + 10;
+        } else if (cat.quality == "AAA") {
+          newPrice = (0.6 * gaddPrice.value) ;
+        }
+        else{
+          newPrice = (0.5 * gaddPrice.value);
+        }
+        if (newPrice != null) {
+          final newTotalPrice =
+              newPrice * cat.totalWeight;
+          final newBoxValue =
+              newTotalPrice / cat.boxCount;
+          double roundTo2(double value) => double.parse(value.toStringAsFixed(2));
+
+          return cat.copyWith(
+            pricePerKg: roundTo2(newPrice),
+            totalPrice: roundTo2(newTotalPrice),
+            boxValue: roundTo2(newBoxValue),
+          );
+        }
+        return cat;
+      }).toList();
+     bilty.value =
+          bilty2.copyWith(categories: newCategories);
+
+     uploadBilty();
   }
 
-  void _listenToRealtimeAnalytics() {
-    final consignmentId = glb.consignmentID.value;
-    final analyticsRef =
-        FirebaseDatabase.instance.ref('sessions/$consignmentId/analytics');
-    _analyticsStream = analyticsRef.onValue;
-    _analyticsStream!.listen((event) {
-      final data = event.snapshot.value;
-      if (data is Map) {
-        // Update each quality's data separately
-        data.forEach((quality, analytics) {
-          if (analytics is List) {
-            _updateQualityDataFromAnalytics(quality.toString(), analytics);
-          }
-        });
-      }
-    });
+
+
+
+  updateBilty() async {
+
+    print("here it is ${bilty.value.categories.first.totalPrice}");
+    print(bilty.value);
+    String api = "${glb.url.value}/api/bilty/${bilty.value.id}";
+    Map<String, dynamic> data = bilty.value.toJson();
+    print(data);
+    final respone = await http.put(Uri.parse(api),
+        body: jsonEncode(data), headers: {"Content-Type": "application/json"});
   }
 
-  // Update the _updateQualityDataFromAnalytics method
-  void _updateQualityDataFromAnalytics(
-      String quality, List<dynamic> analytics) {
-    final categories =
-        analytics.map((e) => e['category'].toString()).toList().cast<String>();
-    final weights = analytics
-        .map((e) => (e['weight'] ?? 0).toDouble())
-        .toList()
-        .cast<double>();
-    final prices = analytics
-        .map((e) => (e['price'] ?? 0).toDouble())
-        .toList()
-        .cast<double>();
-    final landingCosts = analytics
-        .map((e) => (e['landingCost'] ?? 0).toDouble())
-        .toList()
-        .cast<double>();
 
-    qualityCategories[quality] = categories;
-    qualityWeights[quality] = weights;
-    qualityPrices[quality] = prices;
-    qualityLandingCosts[quality] = landingCosts;
-
-    // Calculate totals
-    qualityTotalWeights[quality] =
-        weights.fold(0, (sum, weight) => sum + weight);
-    qualityTotalPrices[quality] = prices.fold(0, (sum, price) => sum + price);
-
-    // Remove quality if all weights are zero
-    if (qualityTotalWeights[quality] == 0) {
-      qualityCategories.remove(quality);
-      qualityWeights.remove(quality);
-      qualityPrices.remove(quality);
-      qualityLandingCosts.remove(quality);
-      qualityTotalWeights.remove(quality);
-      qualityTotalPrices.remove(quality);
-    }
-  }
-
-  // Push analytics data for all qualities to Firebase RTDB
-  Future<void> pushAnalyticsToFirebase() async {
-    final consignmentId = glb.consignmentID.value;
-    final analyticsRef =
-        FirebaseDatabase.instance.ref('sessions/$consignmentId/analytics');
-    final Map<String, List<Map<String, dynamic>>> analyticsData = {};
-
-    qualityCategories.forEach((quality, categories) {
-      analyticsData[sanitizeKey(quality)] = List.generate(
-          categories.length,
-          (i) => {
-                'category': categories[i],
-                'weight': qualityWeights[quality]?[i] ?? 0,
-                'price': qualityPrices[quality]?[i] ?? 0,
-                'landingCost': qualityLandingCosts[quality]?[i] ?? 0,
-              });
-    });
-
-    await analyticsRef.set(analyticsData);
-  }
 
   Future<void> ensureSessionExists() async {
     final consignmentId = glb.consignmentID.value;
     final sessionRef = FirebaseDatabase.instance.ref('sessions/$consignmentId');
     final snapshot = await sessionRef.get();
-    print("here");
     if (!snapshot.exists) {
-      print("Creating");
       // Build analytics data
-      final Map<String, List<Map<String, dynamic>>> analyticsData = {};
-      qualityCategories.forEach((quality, categories) {
-        analyticsData[sanitizeKey(quality)] = List.generate(
-            categories.length,
-            (i) => {
-                  'category': categories[i],
-                  'weight': qualityWeights[quality]?[i] ?? 0,
-                  'price': qualityPrices[quality]?[i] ?? 0,
-                  'landingCost': qualityLandingCosts[quality]?[i] ?? 0,
-                });
-      });
+      highestBid.value = productPrices.first;
       await sessionRef.set({
         'status': 'inactive',
         'startedAt': DateTime.now().toIso8601String(),
-        'analytics': analyticsData,
+        'bidders': {},
         'growerApproval': false,
-        'bids': {}
+        'HighestBidder': {"Name": "Unknown", "Amount": productPrices.first}
       });
     }
+    else
+      {
+        final data = snapshot.value as Map<dynamic, dynamic>;
+
+        // Assuming activeStatus is an RxString or similar
+        activeStatus.value = data['status'] ?? 'inactive';
+      }
   }
 
   // Helper to sanitize Firebase keys
@@ -241,126 +268,66 @@ class AadhatiSessionController extends GetxController {
     return key.replaceAll(RegExp(r'[.#\$\[\]/]'), '_');
   }
 
-  // Push a bid for a bidder and quality
-  Future<void> pushBid(
-      String bidderName, String quality, double landingCost) async {
+  Future<void> _listenToBids() async {
     final consignmentId = glb.consignmentID.value;
-    final bidsRef = FirebaseDatabase.instance
-        .ref('sessions/$consignmentId/bids/$bidderName');
-    await bidsRef.update({sanitizeKey(quality): landingCost});
-  }
-
-  // Listen to bids and compute highest per quality
-  void _listenToBids() {
-    final consignmentId = glb.consignmentID.value;
-    final bidsRef =
-        FirebaseDatabase.instance.ref('sessions/$consignmentId/bids');
-    final analyticsRef =
-        FirebaseDatabase.instance.ref('sessions/$consignmentId/analytics');
-
-    bidsRef.onValue.listen((event) async {
-      final data = event.snapshot.value;
-      Map<String, double> bidderTotals = {};
-      String? highestBidderId;
-      String? highestBidderName;
-      double highestTotal = 0.0;
-      Map<String, double> highestBidderPrices = {};
-
-      if (data is Map) {
-        data.forEach((bidderId, bidderData) {
-          if (bidderData is Map) {
-            final name = bidderData['name'] as String? ?? bidderId;
-            final bids = bidderData['bids'];
-
-            if (bids is Map) {
-              double total = 0.0;
-              Map<String, double> pricePerQuality = {};
-
-              bids.forEach((quality, qualityData) {
-                if (qualityData is Map) {
-                  // Add totalAmount if exists
-                  final totalAmount = qualityData['totalAmount'];
-                  if (totalAmount is int || totalAmount is double) {
-                    total += (totalAmount as num).toDouble();
-                  }
-
-                  // Find first valid bidPerKg
-                  for (var item in qualityData.values) {
-                    if (item is Map && item.containsKey('bidPerKg')) {
-                      final bid = item['bidPerKg'];
-                      double bidPerKg = (bid is int)
-                          ? bid.toDouble()
-                          : (bid as double? ?? 0.0);
-                      pricePerQuality[quality] = bidPerKg;
-                      break; // break inside .forEach doesn't work, so use for-in instead
-                    }
-                  }
-                }
-              });
-
-              bidderTotals[bidderId] = total;
-
-              if (total > highestTotal) {
-                highestTotal = total;
-                highestBidderId = bidderId;
-                highestBidderName = name;
-                highestBidderPrices = pricePerQuality;
-              }
-            }
+    final sessionRef =
+        FirebaseDatabase.instance.ref('sessions/$consignmentId/HighestBidder');
+    DatabaseReference bidsRef =
+        FirebaseDatabase.instance.ref('sessions/$consignmentId/bidding');
+    _bidsSubscription = bidsRef.onValue.listen((DatabaseEvent event) {
+      if (event.snapshot.exists && event.snapshot.value != null) {
+        final allBids = Map<String, dynamic>.from(event.snapshot.value as Map);
+        allBids.forEach((bidderId, bidData) async {
+          final bidInfo = Map<String, dynamic>.from(bidData as Map);
+          final double amount = (bidInfo['amount'] ?? 0) * 1.0;
+          if (amount > highestBid.value) {
+            highestBid.value = amount;
+            _updateGraph();
+            highestBidder.value =
+                (bidInfo['name'] ?? 'Unknown Bidder') as String;
+            await sessionRef.update(
+                {"Name": highestBidder.value, "Amount": highestBid.value});
           }
-        });
-
-        // 🔁 Update analytics with highest bidder info
-        if (highestBidderId != null && highestBidderPrices.isNotEmpty) {
-          final analyticsSnapshot = await analyticsRef.get();
-          if (analyticsSnapshot.exists) {
-            final Map<dynamic, dynamic> analyticsData =
-                analyticsSnapshot.value as Map<dynamic, dynamic>;
-
-            final Map<String, dynamic> updatedAnalytics = {};
-
-            analyticsData.forEach((quality, categories) {
-              if (categories is List &&
-                  highestBidderPrices.containsKey(quality)) {
-                final updatedCategories = categories.map((category) {
-                  final updatedCategory =
-                      Map<String, dynamic>.from(category as Map);
-                  updatedCategory['landingCost'] =
-                      highestBidderPrices[quality]!;
-                  return updatedCategory;
-                }).toList();
-
-                updatedAnalytics[quality] = updatedCategories;
-              } else {
-                updatedAnalytics[quality] = categories;
-              }
-            });
-
-            updatedAnalytics['grandTotal'] = highestTotal;
-            updatedAnalytics['highestBidder'] = {
-              'id': highestBidderId,
-              'name': highestBidderName,
-              'total': highestTotal,
-            };
-
-            await analyticsRef.update(updatedAnalytics);
-          }
-        }
-
-        highestTotals.value =highestTotal.toStringAsFixed(2);
-        // 🧠 Update local state
-        highestBidderPerQuality.value = {
-          'global': highestBidderName ?? 'Unknown'
-        };
-        highestLandingPerQuality.value = highestBidderPrices;
-
-        // 🖨️ Print for debug
-        print('🔥 New Highest Bidder: $highestBidderName');
-        print('💸 Total: ₹${highestTotal.toStringAsFixed(2)}');
-        highestBidderPrices.forEach((q, p) {
-          print('➡ $q: ₹${p.toStringAsFixed(2)}/kg');
         });
       }
     });
+
+
   }
+
+
+
+  Future<dynamic> uploadBilty() async {
+    await updateBilty();
+    String api = glb.url.value +
+        "/api/consignment/${glb.consignmentID.value}/add-bilty-aadhati";
+    Map<String, dynamic> data = {
+      "currentStage": "Completed"
+    };
+    final respone = await http.patch(Uri.parse(api),
+        body: jsonEncode(data), headers: {"Content-Type": "application/json"});
+  }
+
+  void completeSession()
+  {
+
+  }
+
+  _updateGraph()
+  {
+    print("yes");
+
+    if(biddingType2 =="Per Kg"){
+      print("HighestBid");
+      productPrices.value=[highestBid.value,highestBid.value*0.6,highestBid.value*0.5,highestBid.value*0.5,highestBid.value+10,highestBid.value*0.5];
+
+    }
+    else
+    {
+      double x = highestBid.value/20.0 ;
+      productPrices.value=[x,x*0.6,x*0.5,x*0.5,x+10,x*0.5];
+
+    }
+  }
+
 }

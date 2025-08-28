@@ -54,12 +54,10 @@ final Map<String, Map<String, String>> translationCache = {
     "Adhaar Number Hint": "1111 2222 3333",
     "'s Login": "'s Login",
     "My Packing Houses": "My Packing Houses",
-    "Associated Growers": "Associated Growers",
     "Associated Commission Agents": "Associated Commission Agents",
     "Associated Ladanis": "Associated Ladanis",
     "Associated Packers": "Associated Packers",
-    "Active Consignments": "Active Consignments",
-    "Consignments": "Consignments",
+
     "Gallery": "Gallery",
     "UPLOAD NEW": "UPLOAD NEW",
     "Grower Details": "Grower Details",

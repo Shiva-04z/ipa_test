@@ -17,117 +17,73 @@ class ForwardPageController extends GetxController {
   RxString date ="".obs;
   RxString startTime ="".obs;
   RxBool canStart =true.obs;
-  Rx<Uint8List> imageBytes = Uint8List(0).obs;
+  RxList<String> productLabels = <String>[].obs;
+  RxList<double> productWeights = <double>[].obs;
+  RxList<double> productPrices = <double>[].obs;
 
 
-  Future<Map<String, dynamic>> generateChartData(Bilty bilty) async {
-    // Define the chart categories
-    final chartCategories = [
-      'ELLMS Wt.\n%',      // AAA: Extra Large, Large, Medium
-      'ES,EES,240\nWt.%',  // AAA: Small, Extra Small, E Extra Small, 240 Count
-      'Pittu Wt.%',        // AAA: Pittu
-      'Seprator\nWt.%',    // AAA: Seprator
-      'AA ELLMS\nWt. %',   // AA: Extra Large, Large, Medium
-      'AA ES to\n240 Wt. %', // AA: Small, Extra Small, E Extra Small, 240 Count
-      'AA- Pittu %',       // AA: Pittu
-      'AA-\nSeprator %',   // AA: Seprator
-      'Mix'                // Mix/Pear
-    ];
 
-    // Initialize data lists
-    final weights = List<double>.filled(chartCategories.length, 0.0);
-    final perKgPrices = List<double>.filled(chartCategories.length, 0.0);
-    final landingCosts = List<double>.filled(chartCategories.length, 0.0);
-
-    // Process each category
-    for (final category in bilty.categories) {
-      final quality = category.quality;
-      final cat = category.category;
-      final weight = category.totalWeight;
-      final price = category.pricePerKg;
-
-      if (quality == 'AAA') {
-        if (cat.contains('Extra Large') || cat.contains('Large') || cat.contains('Medium')) {
-          weights[0] += weight;
-          perKgPrices[0] = price;
-        } else if (cat.contains('Small') ||
-            cat.contains('Extra Small') ||
-            cat.contains('E Extra Small') ||
-            cat.contains('240 Count')) {
-          weights[1] += weight;
-          perKgPrices[1] = price;
-        } else if (cat.contains('Pittu')) {
-          weights[2] += weight;
-          perKgPrices[2] = price;
-        } else if (cat.contains('Seprator')) {
-          weights[3] += weight;
-          perKgPrices[3] = price;
-        }
-      } else if (quality == 'AA') {
-        if (cat.contains('Extra Large') || cat.contains('Large') || cat.contains('Medium')) {
-          weights[4] += weight;
-          perKgPrices[4] = price;
-        } else if (cat.contains('Small') ||
-            cat.contains('Extra Small') ||
-            cat.contains('E Extra Small') ||
-            cat.contains('240 Count')) {
-          weights[5] += weight;
-          perKgPrices[5] = price;
-        } else if (cat.contains('Pittu')) {
-          weights[6] += weight;
-          perKgPrices[6] = price;
-        } else if (cat.contains('Seprator')) {
-          weights[7] += weight;
-          perKgPrices[7] = price;
-        }
-      } else if (quality == 'Mix/Pear') {
-        weights[8] += weight;
-        perKgPrices[8] = price;
-      }
-    }
-
-    // Calculate landing costs (10% more than price per kg)
-    for (int i = 0; i < landingCosts.length; i++) {
-      landingCosts[i] = perKgPrices[i] + glb.landingPrice.value;
-    }
-
-    // Prepare the request payload
-    return {
-      'categories': chartCategories,
-      'weights': weights,
-      'per_kg_prices': perKgPrices,
-      'landing_costs': landingCosts,
-      'quality': bilty.categories.isNotEmpty ? bilty.categories.first.quality : 'GP'
+  _loadData(Bilty bilty) {
+    // Initialize the fixed label groups
+    final Map<String, List<String>> qualityGroups = {
+      'AAA ELLMS': [
+        'Extra Large',
+        'Large',
+        'Medium',
+        'Small',
+        'Extra Small',
+        'E Extra Small'
+      ],
+      'AAA Pittu/Sep/240': ['240 Count', 'Pittu', 'Seprator'],
+      'AA ELLMS': [
+        'Extra Large',
+        'Large',
+        'Medium',
+        'Small',
+        'Extra Small',
+        'E Extra Small'
+      ],
+      'AA Pittu/Sep/240': ['240 Count', 'Pittu', 'Seprator'],
+      'GP': ['Large', 'Medium', 'Small', 'Extra Small'],
+      'Mix/Pear': ['Mix & Pears']
     };
-  }
 
-  Future<Uint8List> postGenerateGraph(Bilty bilty, {String serverUrl = 'https://bot-1buv.onrender.com/generate_chart'}) async {
-    try {
-      // Generate the chart data
-      final chartData = await generateChartData(bilty);
+    // Initialize result lists
+    List<String> qualityLabels = [];
+    List<double> kgList = [];
+    List<double> priceList = [];
 
-      // Make the POST request
-      final response = await http.post(
-        Uri.parse(serverUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(chartData),
-      );
+    // Process each group
+    qualityGroups.forEach((groupLabel, categories) {
+      double groupWeight = 0;
+      double groupPrice = 0;
 
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        // Convert List<dynamic> to List<int> then to Uint8List
-        final bytes = List<int>.from(jsonData['image']);
-        return Uint8List.fromList(bytes);
-      } else {
-        throw Exception('Failed to generate chart: ${response.statusCode}');
+
+      // Check each category in the group
+      for (var category in bilty.categories) {
+        if (categories.contains(category.category)) {
+          if (category.quality == groupLabel.split(' ')[0] ||
+              (groupLabel == 'GP' && category.quality == 'GP') ||
+              (groupLabel == 'Mix/Pear' && category.quality == 'Mix/Pear')) {
+            groupWeight += category.totalWeight;
+            if(groupPrice==0.0) {
+              groupPrice = category.pricePerKg;
+            }
+          }
+        }
       }
-    } catch (e) {
-      throw Exception('Error generating chart: $e');
-    }
 
+      // Only add the group if it has data
+
+      qualityLabels.add(groupLabel);
+      kgList.add(groupWeight);
+      priceList.add(groupPrice);
+
+    });
+    productLabels.value = qualityLabels;
+    productWeights.value = kgList;
+    productPrices.value = priceList;
   }
-
-
 
 
   @override
@@ -149,7 +105,7 @@ class ForwardPageController extends GetxController {
       if (json['bilty'] != null) {
         bilty.value = Bilty.fromJson(json['bilty']);
       }
-      imageBytes.value = await postGenerateGraph(bilty.value);
+      _loadData(bilty.value);
     }
   }
 

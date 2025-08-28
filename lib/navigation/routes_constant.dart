@@ -1,5 +1,6 @@
 class RoutesConstant {
   static String splash = "/splashPage";
+  static String load = "/loadPage";
   static String signUp = "/signupPage";
   static String register = "/registerPage";
   static String grower = "/growerPage";

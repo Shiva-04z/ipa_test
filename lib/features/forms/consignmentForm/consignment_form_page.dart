@@ -398,9 +398,9 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
 
         // Step 3: Accept/Decline buttons
         if (step == 3) {
-          bool canProceed = (controller.driverMode.value == "Self" ||
-                  controller.consignment.value!.trip2Driverid != null) &&
-              (controller.consignment.value!.aadhatiId != null);
+          bool canProceed = ((controller.driverMode.value == "Self" ||
+                  controller.consignment.value!.trip2Driverid != null) )&&
+              (controller.consignment.value!.aadhatiId != null && controller.consignment.value!.currentStage=="Bilty Ready");
           return (canProceed)
               ? Row(
                   spacing: 10,
@@ -627,7 +627,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
       case 'GP':
         return Colors.green.shade700;
       case 'AA':
-        return Colors.yellow.shade700;
+        return Colors.yellow.shade800;
       case 'MIX/PEAR':
         return Colors.pink.shade300;
       default:
@@ -1327,7 +1327,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                           color: Colors.amber,
                         ),
                       ),
-                      Text("Aadhati is creating Bilty",
+                      Text("Aadhati is filling price in Bilty",
                           style: TextStyle(
                               fontSize: 22, fontWeight: FontWeight.bold),
                           textAlign: TextAlign.center),
@@ -1634,7 +1634,7 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      "It may take up to 60 seconds to generate PDF. Kindly wait.",
+                      "By downloading you take the full responsiblity of bilty.\nIt may take up to 60 seconds to generate PDF. Kindly wait",
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 10),
@@ -1653,17 +1653,21 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
                             }
                           });
 
-                          await bd.shareBilty(
-                            controller.bilty.value!,
-                            growerName: controller.consignment.value!.growerName,
-                            packhouseName: (controller.consignment.value!.packHouseMode == "Self")
-                                ? "Self"
-                                : controller.packhouse.value!.name,
-                            aadhatiName: "",
-                            consignmentNo: controller.consignment.value!.searchId,
-                            websiteUrl: "https://bookmyloadindia.com",
-                            remark: controller.remarkController.text.replaceAll('\n', ' '),
-                          );
+                          if (controller.bilty.value != null && controller.consignment.value != null) {
+                            await bd.shareBilty(
+                              controller.bilty.value!,
+                              growerName: glb.personName.value,
+                              packhouseName: (controller.consignment.value?.packHouseMode == "Self")
+                                  ? "Self"
+                                  : (controller.packhouse.value?.name ?? "Unknown"),
+                              aadhatiName: "",
+                              consignmentNo: controller.consignment.value?.searchId?? "Unknown",
+                              websiteUrl: "https://bookmyloadindia.com",
+                              remark: controller.remarkController.text.replaceAll('\n', ' '),
+                            );
+                          } else {
+                            Get.snackbar("Error", "Some required data is missing");
+                          }
 
                           isLoading.value = false;
                           Get.back(); // Close dialog after process
@@ -1759,7 +1763,42 @@ class ConsignmentFormPage extends GetView<ConsignmentFormController> {
 
 
   // Placeholder for video upload
-  Future<void> uploadVideo(File video) async {
-    // TODO: Implement upload logic here
+  Future<String> uploadVideo(File video) async {
+    controller.videoUpload.value = true;
+    print("Uploading video...");
+
+    final uri = Uri.parse('${glb.url.value}/api/bilty/uploadVideo'); // same backend endpoint
+
+    final request = http.MultipartRequest('POST', uri);
+
+    // Attach the video file
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'file', // must match multer field name
+        video.path,
+        contentType: MediaType('video', extension(video.path).replaceFirst('.', '')),
+      ),
+    );
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final videoUrl = data['url'];
+        controller.bilty.value = controller.bilty.value?.copyWith(videoPath:videoUrl );
+        controller.bilty.refresh();
+        return videoUrl;
+      } else {
+        print('Failed to upload video: ${response.statusCode}');
+        print('Response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error uploading video: $e');
+    }
+    controller.videoUpload.value = false;
+    return video.path; // fallback
   }
+
 }

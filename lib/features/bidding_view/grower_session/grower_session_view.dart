@@ -1,434 +1,437 @@
-import 'package:apple_grower/navigation/routes_constant.dart';
+import 'package:apple_grower/features/bidding_view/donut.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../forms/consignmentForm/biltydownloadandshare.dart' as btds;
+import '../chart.dart';
+import 'package:intl/intl.dart';
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:animations/animations.dart';
+
 import 'grower_session_controller.dart';
 
 class GrowerSessionView extends GetView<GrowerSessionController> {
-  final TextEditingController nameController = TextEditingController();
-  final Map<String, TextEditingController> bidControllers = {};
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Grower Bidding Session'),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
+        appBar: AppBar(
+          title: const Text(
+            'Growers Bidding Session',
+            style: TextStyle(color: Colors.white),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.green.shade900,
+        ),
+        body: Obx(() => (controller.activeStatus.value == 'completed')
+            ? _buildCompletedMessage()
+            : (controller.activeStatus.value == 'active')
+            ? _buildActiveDisplay()
+            : _buildInactiveMessage()));
+  }
+
+
+
+
+
+
+
+
+
+
+
+  Widget _buildCompletedMessage() {
+    return Center(
+      child: Card(
+        color: Colors.white,
+        elevation: 40,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-             if(controller.date.value.isNotEmpty) Obx(()=> Text("Bidding will start at ${controller.date.value.substring(0,10)} and ${controller.startTime.value}",style: TextStyle(fontSize: MediaQuery.of(Get.context!).size.width>400 ?22:16))),
-              const Text('Overall Highest Bidder:',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16)),
-              Row(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 600, minWidth: 350,maxHeight: 350),
+            color: Colors.green.shade700,
+            padding: EdgeInsets.all(16),
+            child: Container(
+              color: Colors.white,
+              constraints: BoxConstraints(maxWidth: 580, minWidth: 330),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 0),
-                      color: Colors.orange[50],
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Obx(
-                            ()=> Text(
-                                  'Name: '
-                                      '${controller.highestBidderPerQuality['global'] ?? '-'}',
-                                  style: const TextStyle(
-                                      color: Colors.deepPurple,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16)),
-                            ),
-                            const SizedBox(height: 4),
-                            Obx(
-                              ()=> Text(
-                                  'Total Amount: ₹'
-                                      '${controller.highestTotals.value?? '-'}',
-                                  style: const TextStyle(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16)),
-                            ),
-                          ],
-                        ),
-                      ),
+                  Text(
+                    "Session Ended",
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green.shade700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: Text(
+                      "Congratulations to the Winner",
+                      style: TextStyle(fontSize: 18),
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                ],
-              ),
-            
-              const SizedBox(height: 16),
-              Obx(() {
-                if (controller.error.isNotEmpty) {
-                  return Center(
-                    child: Text(
-                      controller.error.value,
-                      style: const TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.bold),
+                  Card(
+                    margin: EdgeInsets.all(8),
+                    elevation: 30,
+                    color: Colors.white,
+                    shape: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(16)),
                     ),
-                  );
-                }
-
-                // Filter out qualities with zero weight
-                final activeQualities = controller.qualityCategories.keys
-                    .where((quality) =>
-                (controller.qualityTotalWeights[quality] ?? 0) > 0)
-                    .toList();
-
-                if (activeQualities.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No data available',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                  );
-                }
-
-                // Calculate total value and total landing value
-                double totalValue = 0;
-                double totalLandingValue = 0;
-                controller.qualityCategories.forEach((quality, categories) {
-                  final weights = controller.qualityWeights[quality] ?? [];
-                  final prices = controller.qualityPrices[quality] ?? [];
-                  final landingCosts =
-                      controller.qualityLandingCosts[quality] ?? [];
-                  for (int i = 0;
-                  i < weights.length &&
-                      i < prices.length &&
-                      i < landingCosts.length;
-                  i++) {
-                    totalValue += weights[i] * prices[i];
-                    totalLandingValue += weights[i] * landingCosts[i];
-                  }
-                });
-
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      // Real-time total value and landing value
-                      // Tab View
-                      SizedBox(
-                        width: double.infinity,
-                        child: DefaultTabController(
-                          length: activeQualities.length,
-                          child: Column(
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: TabBar(
-                                  tabs: activeQualities
-                                      .map((quality) => Tab(
-                                    child: Text(
-                                      '$quality\n${controller.qualityTotalWeights[quality]?.toStringAsFixed(1) ?? '0'} kg',
-                                      textAlign: TextAlign.center,
-                                      style:
-                                      const TextStyle(fontSize: 12),
-                                    ),
-                                  ))
-                                      .toList(),
-                                  isScrollable: true,
-                                  labelColor: Colors.blue,
-                                  unselectedLabelColor: Colors.grey[600],
-                                  indicator: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: Colors.blue[100],
+                                width: 150, // fixed width for header
+                                child: Text(
+                                  "Winner Name:",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green.shade700,
                                   ),
-                                  padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                                  labelPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 8),
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              Container(
-                                height: 500,
-                                child: TabBarView(
-                                  children: activeQualities
-                                      .map((quality) =>
-                                      _buildQualityChart(quality))
-                                      .toList(),
+                              Expanded(
+                                child: Text(
+                                  "${controller.highestBidder}",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                  softWrap: true,
                                 ),
                               ),
                             ],
                           ),
+                          SizedBox(height: 6),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 150, // fixed width for header
+                                child: Text(
+                                  "Winner Amount:",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green.shade700,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  " Rs. ${controller.highestBid} ${controller.biddingType2.value}",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                  softWrap: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Card(
+                    color: Colors.white,
+                    margin: EdgeInsets.all(8),
+                    elevation: 20,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        constraints: BoxConstraints(maxWidth: 600),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  await controller.loadConsignment();
+                                  await btds.downloadBiltyGrower( remark: "", packhouseName: controller.packHouseName.value,consignmentNo: controller.searchId.value ,controller.bilty.value,growerName: controller.growerName.value,aadhatiName: controller.aadhatiName.value, websiteUrl: "https://bookmyloadindia.com");
+
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green.shade700,
+                                  shape: ContinuousRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(16),
+                                    ),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Download Final Bilty",
+                                  style: TextStyle(color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                  softWrap: true,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                );
-              }),
-              SizedBox(height: 10,),
-              Obx(()=> (controller.growerApproval.value)?Text("Approved"): ElevatedButton(onPressed: ()=>controller.approve(), child: Text("Give Approval"))),
-              SizedBox(height: 10,),
-              Obx(() => Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: controller.sessionActive.value
-                      ? Colors.green[50]
-                      : Colors.red[50],
-                  borderRadius: BorderRadius.circular(8),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActiveDisplay() {
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text("Consignment No.: ${controller.searchId.value}",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          ),
+          SizedBox(height: 12,),
+          Card(
+            elevation: 20,
+            color: Colors.white,
+            margin: EdgeInsets.symmetric(horizontal: 8),
+            child: Container(
+              padding: EdgeInsets.all(8),
+              child: Row(children: [
+                Text(
+                  "Grower's Approval :",
+                  style: TextStyle(fontSize: 18),
                 ),
+                Expanded(child: SizedBox()),
+                Obx(() => (controller.growerApproval.value)
+                    ? Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.green,
+                  size: 32,
+                )
+                    : Icon(
+                  Icons.dangerous_rounded,
+                  color: Colors.red,
+                  size: 32,
+                ))
+              ]),
+            ),
+          ),
+          SizedBox(
+            height: 12,
+          ),
+          buildHighestBidWidgets(),
+          SizedBox(height: 12,),
+          Card(
+            color: Colors.white,
+            margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            elevation: 20,
+            child: Container(
+
+              constraints: BoxConstraints(maxWidth: 1200),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(height: 10,),
+                    Text("LIVE Procurement Graph",style: TextStyle(fontSize: 18,fontWeight:FontWeight.bold ),),
+                    SizedBox(height: 15,),
+                    SizedBox(height: 400,child: // --- Using the new reusable chart widget ---
+                    Obx(
+                          ()=> DynamicBarLineChart(
+                        labels: controller.productLabels.value,
+                        weights: controller.productWeights.value,
+                        prices: controller.productPrices.value,
+                      ),
+                    ),
+                    ),
+      
+                    ExpansionTile(title: Text("Show Graphs"),children: [
+                      BiltyQualityDonutCharts(categoryData: controller.bilty.value.categories)]),
+                    // Text("Weight Distribution"),
+                    // SingleChildScrollView(
+                    //   scrollDirection: Axis.horizontal,
+                    //   child: Container(
+                    //     child: Row(children: [],),
+                    //
+                    //   ),
+                    // )
+                    Card(
+                      color: Colors.white,
+                      margin:EdgeInsets.all(8) ,
+                      elevation: 20,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          constraints: BoxConstraints(maxWidth: 600),
+                          child: Row(
+                            children: [Expanded(child: ElevatedButton(onPressed: (){controller.giveApproval();}, child: Text("Give Approval",style: TextStyle(color: Colors.white),),style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade700,shape: ContinuousRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),))],
+                          ),
+                        ),
+                      ),
+                    )
+      
+                  ],
+                ),
+              ),
+            ),
+          ),
+      
+      
+        ],
+      ),
+    );
+  }
+
+
+
+  Widget _buildInactiveMessage() {
+    return Center(
+      child: Card(
+        color: Colors.white,
+        child: Container(
+          height: 200,
+          width: 300,
+          padding: EdgeInsets.all(8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Center(
+                child: Icon(
+                  Icons.warning,
+                  color: Colors.orange,
+                  size: 64,
+                ),
+              ),
+              Center(
                 child: Text(
-                  controller.sessionActive.value
-                      ? 'SESSION ACTIVE'
-                      : 'SESSION INACTIVE',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: controller.sessionActive.value
-                        ? Colors.green
-                        : Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    letterSpacing: 1.2,
-                  ),
+                  "Aadhati has not Started Bidding yet",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-              )),
+              )
             ],
           ),
         ),
       ),
     );
   }
-  
-  
 
-  Widget _buildQualityChart(String quality) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Header with totals
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(12),
-              ),
+
+
+  Widget buildHighestBidWidgets() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+
+          // Highest Bidder Card
+          Card(
+            margin: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            elevation: 10,
+            color: Colors.white,
+            child: Container(
+              constraints: BoxConstraints(minHeight: 80),
+              padding: EdgeInsets.all(12),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '$quality Quality',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  Icon(Icons.person, color: Colors.blue),
+                  SizedBox(width: 8),
+                  Obx(() => Column(
                     children: [
                       Text(
-                        'Total Weight: ${controller.qualityTotalWeights[quality]?.toStringAsFixed(2) ?? '0'} kg',
-                        style: const TextStyle(fontSize: 12),
+                        "Highest Bidder:",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
+                      Container(
+                        child: Text(
+                          controller.highestBidder.value,
+                          style: TextStyle(
+                            fontSize: controller.highestBidder.value.length>18?18:12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+                ],
+              ),
+            ),
+          ),
 
+          // Highest Bid Card with Flip Animation
+          Card(
+            margin: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            elevation: 10,
+            color: Colors.white,
+            child: Container(
+              padding: EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Icon(Icons.currency_rupee_sharp, color: Colors.green),
+                  SizedBox(width: 8),
+                  Column(
+                    children: [
+                      Text(
+                        "Highest Bid : ",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Obx(
+                            () => PageTransitionSwitcher(
+                          duration: Duration(milliseconds: 600),
+                          transitionBuilder:
+                              (child, animation, secondaryAnimation) =>
+                              SharedAxisTransition(
+                                animation: animation,
+                                secondaryAnimation: secondaryAnimation,
+                                transitionType: SharedAxisTransitionType.vertical,
+                                child: child,
+                              ),
+                          child: Text(
+                            "${controller.highestBid.value}",
+                            key: ValueKey(controller.highestBid.value),
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-
-            // Chart
-            Expanded(
-              child: Container(
-                height: 500,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: LineChart(
-                    LineChartData(
-                      minY: 0,
-                      gridData: FlGridData(
-                        show: true,
-                        drawVerticalLine: true,
-                        horizontalInterval: _calculateInterval(
-                            controller.qualityWeights[quality] ?? []),
-                        verticalInterval: 1,
-                        getDrawingHorizontalLine: (value) => FlLine(
-                          color: Colors.grey[300],
-                          strokeWidth: 1,
-                        ),
-                      ),
-                      borderData: FlBorderData(
-                        show: true,
-                        border: Border.all(color: Colors.grey, width: 1),
-                      ),
-                      titlesData: FlTitlesData(
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 40,
-                            interval: _calculateInterval(
-                                controller.qualityWeights[quality] ?? []),
-                            getTitlesWidget: (value, meta) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 4),
-                                child: Text(
-                                  value.toInt().toString(),
-                                  style: const TextStyle(fontSize: 10),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            interval: 1,
-                            getTitlesWidget: (value, meta) {
-                              int idx = value.toInt();
-                              final categories =
-                                  controller.qualityCategories[quality] ?? [];
-                              if (idx < 0 || idx >= categories.length) {
-                                return const SizedBox.shrink();
-                              }
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  categories[idx],
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              );
-                            },
-                            reservedSize: 60,
-                          ),
-                        ),
-                        topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      ),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: List.generate(
-                            controller.qualityWeights[quality]?.length ?? 0,
-                                (i) => FlSpot(i.toDouble(),
-                                controller.qualityWeights[quality]?[i] ?? 0),
-                          ),
-                          isCurved: true,
-                          color: Colors.blue,
-                          barWidth: 3,
-                          dotData: FlDotData(show: true),
-                          belowBarData: BarAreaData(
-                            show: true,
-                            color: Colors.blue.withOpacity(0.1),
-                          ),
-                        ),
-                        LineChartBarData(
-                          spots: List.generate(
-                            controller.qualityPrices[quality]?.length ?? 0,
-                                (i) => FlSpot(i.toDouble(),
-                                controller.qualityPrices[quality]?[i] ?? 0),
-                          ),
-                          isCurved: true,
-                          color: Colors.red,
-                          barWidth: 3,
-                          dotData: FlDotData(show: true),
-                        ),
-                        LineChartBarData(
-                          spots: List.generate(
-                            controller.qualityLandingCosts[quality]?.length ?? 0,
-                                (i) => FlSpot(i.toDouble(),
-                                controller.qualityLandingCosts[quality]?[i] ?? 0),
-                          ),
-                          isCurved: true,
-                          color: Colors.green,
-                          barWidth: 3,
-                          dotData: FlDotData(show: true),
-                        ),
-                      ],
-                      lineTouchData: LineTouchData(
-                        enabled: true,
-                        touchTooltipData: LineTouchTooltipData(
-                          tooltipBgColor: Colors.black87,
-                          getTooltipItems: (touchedSpots) {
-                            return touchedSpots.map((spot) {
-                              String label;
-                              if (spot.barIndex == 0) {
-                                label = 'Weight: ${spot.y.toStringAsFixed(2)} kg';
-                              } else if (spot.barIndex == 1) {
-                                label = 'Price: ₹${spot.y.toStringAsFixed(2)}';
-                              } else {
-                                label = 'Landing: ₹${spot.y.toStringAsFixed(2)}';
-                              }
-                              return LineTooltipItem(
-                                label,
-                                const TextStyle(color: Colors.white),
-                              );
-                            }).toList();
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Legend
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 16,
-              runSpacing: 8,
-              children: [
-                _buildLegendDot(Colors.blue, 'Weight (Kg)'),
-                _buildLegendDot(Colors.red, 'Per Kg Price'),
-                _buildLegendDot(Colors.green, 'Landing Cost'),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildLegendDot(Color color, String label) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12),
-        ),
-      ],
-    );
-  }
 
-  double _calculateInterval(List<double> values) {
-    if (values.isEmpty) return 100;
-    final maxValue = values.reduce((a, b) => a > b ? a : b);
-    if (maxValue <= 100) return 20;
-    if (maxValue <= 500) return 50;
-    if (maxValue <= 1000) return 100;
-    return 200;
-  }
 }
+
+
+
+
+

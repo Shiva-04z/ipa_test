@@ -12,7 +12,16 @@ PreferredSizeWidget buildAppbar() {
       height: 50,
     ),
     centerTitle: true,
-    actions: [IconButton(onPressed: (){Get.toNamed(RoutesConstant.chatBot);}, icon: Icon(Icons.live_help_rounded,color: Colors.white,))],
+    actions: [
+      IconButton(
+          onPressed: () {
+            Get.toNamed(RoutesConstant.chatBot);
+          },
+          icon: Icon(
+            Icons.chat,
+            color: Colors.white,
+          )),
+    ],
     flexibleSpace: Container(
       decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -63,22 +72,25 @@ Widget buildInfo() {
                   "Settings",
                   style: TextStyle(color: Colors.orange),
                 )),
-            IconButton(onPressed: () async{
-              await glb.logout();
-            }, icon: Icon(Icons.logout_rounded, color: Colors.white,))
+            IconButton(
+                onPressed: () async {
+                  await glb.logout();
+                },
+                icon: Icon(
+                  Icons.logout_rounded,
+                  color: Colors.white,
+                ))
           ],
         ),
         const Divider(
           color: Colors.white,
         ),
-        const SizedBox(
-          height: 15,
-        ),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Obx(
-            () =>Text(
+              () => Text(
                 glb.personName.value,
                 style: const TextStyle(
                   color: Colors.white,
@@ -87,8 +99,9 @@ Widget buildInfo() {
                 ),
               ),
             ),
+            Expanded(child: SizedBox()),
             Obx(
-            ()=>Text(
+              () => Text(
                 glb.personPhone.value,
                 style: const TextStyle(
                   color: Colors.white,
@@ -96,11 +109,18 @@ Widget buildInfo() {
                 ),
               ),
             ),
+            IconButton(
+                onPressed: () {
+                  Get.offAllNamed(RoutesConstant.load);
+                },
+                icon: Icon(
+                  size: 20,
+                  Icons.restart_alt,
+                  color: Colors.white,
+                )),
           ],
         ),
-        const SizedBox(
-          height: 15,
-        ),
+       
         // Row(
         //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
         //   children: [
@@ -154,6 +174,10 @@ Widget buildInfo() {
     ),
   );
 }
+
+
+
+
 
 Widget buildGridCard(String name) {
   return Card(

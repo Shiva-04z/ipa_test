@@ -1020,7 +1020,7 @@ class GrowerDialogs {
                             Expanded(
                                 child: Text("Grower Name",
                                     style: TextStyle(
-                                        color: Colors.green, fontSize: 18))),
+                                        color: Colors.green, fontSize: 16))),
                             Expanded(child: Text(consignment.growerName!)),
                           ],
                         ),
@@ -1030,10 +1030,12 @@ class GrowerDialogs {
                             Expanded(
                                 child: Text("Consignment",
                                     style: TextStyle(
-                                        color: Colors.green, fontSize: 18))),
-                            Expanded(child: Text(consignment.searchId!)),
+                                        color: Colors.green, fontSize: 16))),
+                            Expanded(child: Text(consignment.searchId!,style: TextStyle(fontSize: 12),)),
+
                           ],
-                        )
+
+                        ),
                       ],
                     ),
                   ),
@@ -1076,7 +1078,7 @@ class GrowerDialogs {
                                       RoutesConstant.biltyCreationAadhati);
                                 },
                                 icon: Icon(Icons.movie_creation, size: 18),
-                                label: Text('Fill Bilty'),
+                                label: Text('Set Bidding Price'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green[700],
                                   padding: EdgeInsets.symmetric(
@@ -1108,7 +1110,7 @@ class GrowerDialogs {
                                   ),
                                 ),
                               ),
-                            ]): Row(),
+                            ]): Row( mainAxisAlignment: MainAxisAlignment.center,children: [Center(child: Text("Grower's Approval Pending"))],),
                 if(glb.roleType.value=="Ladani/Buyers"||glb.roleType.value=="Freight Forwarder")
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1122,7 +1124,7 @@ class GrowerDialogs {
                                 RoutesConstant.forwardingBilty);
                           },
                           icon: Icon(Icons.movie_creation, size: 18),
-                          label: Text('To Bidding'),
+                          label: Text('Join Bidding'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green[700],
                             padding: EdgeInsets.symmetric(

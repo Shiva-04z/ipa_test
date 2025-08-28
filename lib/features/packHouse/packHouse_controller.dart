@@ -71,6 +71,7 @@ class PackHouseController extends GetxController {
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       glb.personName.value = data['name'];
+      glb.packHouseName = data ['name'];
       glb.personPhone.value = "+91" + data['phoneNumber'];
       print(data.toString());
 

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../navigation/routes_constant.dart';
 import '../../core/globals.dart' as glb;
 
-class SplashScreenController extends GetxController
+class LoadScreenController extends GetxController
     with GetSingleTickerProviderStateMixin {
   // Animation variables
   var logoOpacity = 0.02.obs;
@@ -17,7 +17,7 @@ class SplashScreenController extends GetxController
 
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 0),
     );
     _startAnimations();
     _checkLoginStatusAndNavigate();
@@ -117,7 +117,7 @@ class SplashScreenController extends GetxController
 
   // Legacy method - keeping for backward compatibility
   void _navigateToHome() {
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 0), () {
       Get.offNamed(RoutesConstant.signUp);
     });
   }
