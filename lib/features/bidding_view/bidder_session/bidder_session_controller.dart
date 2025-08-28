@@ -172,6 +172,7 @@ class BidderSessionController extends GetxController {
       growerName.value = json['growerName'] ?? '';
       aadhatiName.value =json['aadhatiId']??'';
       packHouseName.value=json['packhouseId']?? "Self";
+      print("Here goes ${aadhatiName.value}");
       if (json['bilty'] != null) {
         bilty.value = Bilty.fromJson(json['bilty']);
         print(bilty.value);

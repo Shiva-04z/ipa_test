@@ -178,6 +178,7 @@ class BidderSessionView extends GetView<BidderSessionController> {
                               child: ElevatedButton(
                                 onPressed: () async {
                                   await controller.loadConsignment();
+                                  print("Aadhati name is ${controller.aadhatiName.value}");
                                   await btds.downloadBiltyLadani( remark: "", packhouseName: controller.packHouseName.value,consignmentNo: controller.searchId.value ,controller.bilty.value,growerName: controller.growerName.value,aadhatiName: controller.aadhatiName.value, websiteUrl: "https://bookmyloadindia.com");
 
                                 },

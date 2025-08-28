@@ -1184,7 +1184,7 @@ Future<void> shareBilty(Bilty bilty,
 
 pw.Widget _buildEnhancedHeaderCell(String text, pw.Font font) {
   return pw.Container(
-    padding: const pw.EdgeInsets.all(12),
+    padding: const pw.EdgeInsets.all(2),
     decoration: const pw.BoxDecoration(
       border: pw.Border(
         right: pw.BorderSide(color: PdfColors.black, width: 1.0),
@@ -1207,7 +1207,7 @@ pw.Widget _buildEnhancedHeaderCell(String text, pw.Font font) {
 
 pw.Widget _buildEnhancedDataCell(String text, pw.Font font) {
   return pw.Container(
-    padding: const pw.EdgeInsets.all(12),
+    padding: const pw.EdgeInsets.all(2),
     decoration: const pw.BoxDecoration(
       border: pw.Border(
         right: pw.BorderSide(color: PdfColors.black, width: 1.0),
@@ -1226,8 +1226,6 @@ pw.Widget _buildEnhancedDataCell(String text, pw.Font font) {
     ),
   );
 }
-
-
 
 pw.Widget _buildHeaderCell(String text, pw.Font font,
     {pw.TextAlign align = pw.TextAlign.center}) {
@@ -1258,10 +1256,10 @@ pw.Widget _buildHeaderCell(String text, pw.Font font,
 pw.Widget _buildDataCell(String text, pw.Font font,
     {pw.TextAlign align = pw.TextAlign.center}) {
   return pw.Padding(
-    padding: const pw.EdgeInsets.all(2),
+    padding: const pw.EdgeInsets.all(1),
     child: pw.Text(text,
         textAlign: align,
-        style: pw.TextStyle(color: PdfColors.white, font: font, fontSize: 10)),
+        style: pw.TextStyle(color: PdfColors.white, font: font, fontSize: 9)),
   );
 }
 
@@ -1289,7 +1287,8 @@ Future<void> downloadBiltyGrower(Bilty bilty,
 
       // Content with better spacing and text alignment
       content: const Column(
-        mainAxisSize: MainAxisSize.min, // Ensures the dialog is not unnecessarily tall
+        mainAxisSize:
+            MainAxisSize.min, // Ensures the dialog is not unnecessarily tall
         children: [
           CircularProgressIndicator(
             color: Colors.blueAccent,
@@ -1304,8 +1303,7 @@ Future<void> downloadBiltyGrower(Bilty bilty,
         ],
       ),
     );
-    print(
-        'shareBilty: categories count =  [38;5;2m${bilty.categories.length} [0m');
+
     for (var i = 0; i < bilty.categories.length; i++) {
       print('shareBilty: category[ [38;5;2m$i [0m] = ${bilty.categories[i]}');
     }
@@ -1521,15 +1519,15 @@ Future<void> downloadBiltyGrower(Bilty bilty,
         (i) => PdfColors.accents[i % PdfColors.accents.length]);
 
     final int totalBoxes =
-    bilty.categories.fold(0, (sum, item) => sum + item.boxCount);
+        bilty.categories.fold(0, (sum, item) => sum + item.boxCount);
     final double grandTotalWeight =
-    bilty.categories.fold(0.0, (sum, item) => sum + item.totalWeight);
+        bilty.categories.fold(0.0, (sum, item) => sum + item.totalWeight);
     final double grandTotalPrice =
-    bilty.categories.fold(0.0, (sum, item) => sum + item.totalPrice);
+        bilty.categories.fold(0.0, (sum, item) => sum + item.totalPrice);
 
     // Find the 'AAA' 'Extra Large' category to get the bidding price.
     final aaaELCategory = bilty.categories.firstWhere(
-          (c) => c.quality == 'AAA' && c.category == 'Extra Large',
+      (c) => c.quality == 'AAA' && c.category == 'Extra Large',
     );
     final double biddingPrice = aaaELCategory.pricePerKg;
 
@@ -1583,7 +1581,7 @@ Future<void> downloadBiltyGrower(Bilty bilty,
                   )
                 ],
               ),
-              pw.SizedBox(height: 4),
+              pw.SizedBox(height: 2),
               pw.Divider(color: PdfColors.black, height: 1),
               pw.SizedBox(height: 2),
               pw.Row(children: [
@@ -1627,12 +1625,11 @@ Future<void> downloadBiltyGrower(Bilty bilty,
                                   packhouseName.isNotEmpty)
                                 pw.Text('Packhouse: $packhouseName',
                                     style:
-                                    pw.TextStyle(font: font, fontSize: 12)),
-                              if (aadhatiName != null &&
-                                  aadhatiName.isNotEmpty)
+                                        pw.TextStyle(font: font, fontSize: 12)),
+                              if (aadhatiName != null && aadhatiName.isNotEmpty)
                                 pw.Text('Aadhati: $aadhatiName',
                                     style:
-                                    pw.TextStyle(font: font, fontSize: 12)),
+                                        pw.TextStyle(font: font, fontSize: 12)),
                             ]))),
                 pw.SizedBox(height: 16),
               ]),
@@ -1700,13 +1697,12 @@ Future<void> downloadBiltyGrower(Bilty bilty,
                           )),
                 ],
               ),
-              pw.SizedBox(height: 18),
+              pw.SizedBox(height: 4),
               // Space between tables
               // Adjust width as needed
 
               pw.Table(
-                border: pw.TableBorder.all(
-                ),
+                border: pw.TableBorder.all(),
                 columnWidths: {
                   0: const pw.FlexColumnWidth(1.5),
                   1: const pw.FlexColumnWidth(1.2),
@@ -1724,7 +1720,7 @@ Future<void> downloadBiltyGrower(Bilty bilty,
                       ),
                     ),
                     children: [
-                      _buildEnhancedHeaderCell('Bidding Price', font),
+                      _buildEnhancedHeaderCell('Bid Price', font),
                       _buildEnhancedHeaderCell('No of Boxes', font),
                       _buildEnhancedHeaderCell('Grand Total Weight', font),
                       _buildEnhancedHeaderCell('Grand Total Price', font),
@@ -1741,17 +1737,21 @@ Future<void> downloadBiltyGrower(Bilty bilty,
                     ),
                     children: [
                       _buildEnhancedDataCell(
-                        biddingPrice > 0 ? 'Rs. ${biddingPrice.toStringAsFixed(1)}' : 'N/A',
+                        biddingPrice > 0
+                            ? 'Rs. ${biddingPrice.toStringAsFixed(1)}'
+                            : 'N/A',
                         font,
                       ),
                       _buildEnhancedDataCell('$totalBoxes', font),
-                      _buildEnhancedDataCell('${grandTotalWeight.toStringAsFixed(1)} kg', font),
-                      _buildEnhancedDataCell('Rs. ${grandTotalPrice.toStringAsFixed(1)}', font),
+                      _buildEnhancedDataCell(
+                          '${grandTotalWeight.toStringAsFixed(1)} kg', font),
+                      _buildEnhancedDataCell(
+                          'Rs. ${grandTotalPrice.toStringAsFixed(1)}', font),
                     ],
                   ),
                 ],
               ),
-              pw.SizedBox(height: 18),
+              pw.SizedBox(height: 4),
               // App download text
               pw.Center(
                 child: pw.Row(
@@ -2011,14 +2011,15 @@ Future<void> downloadBiltyGrower(Bilty bilty,
   }
 }
 
-Future<void> downloadBiltyAadhati(Bilty bilty,
+Future<void> downloadBiltyLadani(Bilty bilty,
     {required String websiteUrl,
     String? growerName,
     String? packhouseName,
     String? consignmentNo,
-    String? ladaniName,
+    String? aadhatiName,
     String? remark}) async {
   try {
+    print("Value : ${(aadhatiName != null && aadhatiName.isNotEmpty)}");
     Get.defaultDialog(
       // Prevent the user from closing the dialog accidentally
       barrierDismissible: false,
@@ -2035,7 +2036,8 @@ Future<void> downloadBiltyAadhati(Bilty bilty,
 
       // Content with better spacing and text alignment
       content: const Column(
-        mainAxisSize: MainAxisSize.min, // Ensures the dialog is not unnecessarily tall
+        mainAxisSize:
+            MainAxisSize.min, // Ensures the dialog is not unnecessarily tall
         children: [
           CircularProgressIndicator(
             color: Colors.blueAccent,
@@ -2064,7 +2066,7 @@ Future<void> downloadBiltyAadhati(Bilty bilty,
     final logoImage = pw.MemoryImage(logoBytes.buffer.asUint8List());
     final logo2Bytes = await rootBundle.load('assets/images/fas.png');
     final logo2Image = pw.MemoryImage(logo2Bytes.buffer.asUint8List());
-    final aaaImageBytes = await loadGrowerImage(bilty.categories);
+    final aaaImageBytes = await loadLadaniImage(bilty.categories);
     final aaaImage = pw.MemoryImage(aaaImageBytes);
     final pdf = pw.Document();
     // --- Donut chart data logic (copied from controller) ---
@@ -2263,16 +2265,17 @@ Future<void> downloadBiltyAadhati(Bilty bilty,
     }
     final gpCatColors = List<PdfColor>.generate(gpCatMap.length,
         (i) => PdfColors.accents[i % PdfColors.accents.length]);
+
     final int totalBoxes =
-    bilty.categories.fold(0, (sum, item) => sum + item.boxCount);
+        bilty.categories.fold(0, (sum, item) => sum + item.boxCount);
     final double grandTotalWeight =
-    bilty.categories.fold(0.0, (sum, item) => sum + item.totalWeight);
+        bilty.categories.fold(0.0, (sum, item) => sum + item.totalWeight);
     final double grandTotalPrice =
-    bilty.categories.fold(0.0, (sum, item) => sum + item.totalPrice);
+        bilty.categories.fold(0.0, (sum, item) => sum + item.totalPrice);
 
     // Find the 'AAA' 'Extra Large' category to get the bidding price.
     final aaaELCategory = bilty.categories.firstWhere(
-          (c) => c.quality == 'AAA' && c.category == 'Extra Large',
+      (c) => c.quality == 'AAA' && c.category == 'Extra Large',
     );
     final double biddingPrice = aaaELCategory.pricePerKg;
 
@@ -2334,7 +2337,7 @@ Future<void> downloadBiltyAadhati(Bilty bilty,
                     padding: pw.EdgeInsets.symmetric(vertical: 4),
                     child: pw.Container(
                         width: 220,
-                        height: 80,
+                        height: 60,
                         padding: pw.EdgeInsets.all(4),
                         child: pw.Column(
                             mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
@@ -2360,27 +2363,25 @@ Future<void> downloadBiltyAadhati(Bilty bilty,
                     padding: pw.EdgeInsets.symmetric(vertical: 4),
                     child: pw.Container(
                         width: 220,
-                        height: 80,
+                        height: 60,
                         padding: pw.EdgeInsets.all(4),
                         child: pw.Column(
                             mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
                             crossAxisAlignment: pw.CrossAxisAlignment.start,
                             children: [
-                              if (consignmentNo != null &&
-                                  consignmentNo.isNotEmpty)
-                                if (packhouseName != null &&
-                                    packhouseName.isNotEmpty)
-                                  pw.Text('Packhouse: $packhouseName',
-                                      style: pw.TextStyle(
-                                          font: font, fontSize: 12)),
-                              if (ladaniName != null && ladaniName.isNotEmpty)
-                                pw.Text('ladani: $ladaniName',
+                              if (packhouseName != null &&
+                                  packhouseName.isNotEmpty)
+                                pw.Text('Packhouse: $packhouseName',
                                     style:
-                                        pw.TextStyle(font: font, fontSize: 12)),
+                                        pw.TextStyle(font: font, fontSize: 10)),
+                              if (aadhatiName != null && aadhatiName.isNotEmpty)
+                                pw.Text('Aadhati: $aadhatiName',
+                                    style:
+                                        pw.TextStyle(font: font, fontSize: 10)),
                             ]))),
-                pw.SizedBox(height: 16),
+
               ]),
-              // Table
+
               pw.Table(
                 border: pw.TableBorder.all(),
                 children: [
@@ -2446,19 +2447,12 @@ Future<void> downloadBiltyAadhati(Bilty bilty,
                           )),
                 ],
               ),
-              pw.SizedBox(height: 18),
+              pw.SizedBox(height: 4),
               // Space between tables
               // Adjust width as needed
 
               pw.Table(
-                border: pw.TableBorder.all(
-                ),
-                columnWidths: {
-                  0: const pw.FlexColumnWidth(1.5),
-                  1: const pw.FlexColumnWidth(1.2),
-                  2: const pw.FlexColumnWidth(1.8),
-                  3: const pw.FlexColumnWidth(1.5),
-                },
+                border: pw.TableBorder.all(),
                 children: [
                   // Header Row
                   pw.TableRow(
@@ -2470,7 +2464,7 @@ Future<void> downloadBiltyAadhati(Bilty bilty,
                       ),
                     ),
                     children: [
-                      _buildEnhancedHeaderCell('Bidding Price', font),
+                      _buildEnhancedHeaderCell('Bid Price', font),
                       _buildEnhancedHeaderCell('No of Boxes', font),
                       _buildEnhancedHeaderCell('Grand Total Weight', font),
                       _buildEnhancedHeaderCell('Grand Total Price', font),
@@ -2487,18 +2481,22 @@ Future<void> downloadBiltyAadhati(Bilty bilty,
                     ),
                     children: [
                       _buildEnhancedDataCell(
-                        biddingPrice > 0 ? 'Rs. ${biddingPrice.toStringAsFixed(1)}' : 'N/A',
+                        biddingPrice > 0
+                            ? 'Rs. ${biddingPrice.toStringAsFixed(1)}'
+                            : 'N/A',
                         font,
                       ),
                       _buildEnhancedDataCell('$totalBoxes', font),
-                      _buildEnhancedDataCell('${grandTotalWeight.toStringAsFixed(1)} kg', font),
-                      _buildEnhancedDataCell('Rs. ${grandTotalPrice.toStringAsFixed(1)}', font),
+                      _buildEnhancedDataCell(
+                          '${grandTotalWeight.toStringAsFixed(1)} kg', font),
+                      _buildEnhancedDataCell(
+                          'Rs. ${grandTotalPrice.toStringAsFixed(1)}', font),
                     ],
                   ),
                 ],
               ),
-              pw.SizedBox(height: 18),
-              // App download text
+              pw.SizedBox(height: 4),
+
               pw.Center(
                 child: pw.Row(
                   mainAxisSize: pw.MainAxisSize.min,
@@ -2755,12 +2753,12 @@ Future<void> downloadBiltyAadhati(Bilty bilty,
   }
 }
 
-Future<void> downloadBiltyLadani(Bilty bilty,
+Future<void> downloadBiltyAadhati(Bilty bilty,
     {required String websiteUrl,
     String? growerName,
     String? packhouseName,
     String? consignmentNo,
-    String? aadhatiName,
+    String? ladaniName,
     String? remark}) async {
   try {
     Get.defaultDialog(
@@ -2779,7 +2777,8 @@ Future<void> downloadBiltyLadani(Bilty bilty,
 
       // Content with better spacing and text alignment
       content: const Column(
-        mainAxisSize: MainAxisSize.min, // Ensures the dialog is not unnecessarily tall
+        mainAxisSize:
+            MainAxisSize.min, // Ensures the dialog is not unnecessarily tall
         children: [
           CircularProgressIndicator(
             color: Colors.blueAccent,
@@ -3010,17 +3009,16 @@ Future<void> downloadBiltyLadani(Bilty bilty,
     final gpCatColors = List<PdfColor>.generate(gpCatMap.length,
         (i) => PdfColors.accents[i % PdfColors.accents.length]);
 
-
     final int totalBoxes =
-    bilty.categories.fold(0, (sum, item) => sum + item.boxCount);
+        bilty.categories.fold(0, (sum, item) => sum + item.boxCount);
     final double grandTotalWeight =
-    bilty.categories.fold(0.0, (sum, item) => sum + item.totalWeight);
+        bilty.categories.fold(0.0, (sum, item) => sum + item.totalWeight);
     final double grandTotalPrice =
-    bilty.categories.fold(0.0, (sum, item) => sum + item.totalPrice);
+        bilty.categories.fold(0.0, (sum, item) => sum + item.totalPrice);
 
     // Find the 'AAA' 'Extra Large' category to get the bidding price.
     final aaaELCategory = bilty.categories.firstWhere(
-          (c) => c.quality == 'AAA' && c.category == 'Extra Large',
+      (c) => c.quality == 'AAA' && c.category == 'Extra Large',
     );
     final double biddingPrice = aaaELCategory.pricePerKg;
 
@@ -3082,7 +3080,7 @@ Future<void> downloadBiltyLadani(Bilty bilty,
                     padding: pw.EdgeInsets.symmetric(vertical: 4),
                     child: pw.Container(
                         width: 220,
-                        height: 80,
+                        height: 60,
                         padding: pw.EdgeInsets.all(4),
                         child: pw.Column(
                             mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
@@ -3102,14 +3100,13 @@ Future<void> downloadBiltyLadani(Bilty bilty,
                                 pw.Text('Grower: ${growerName}',
                                     style:
                                         pw.TextStyle(font: font, fontSize: 12)),
-
                             ]))),
                 pw.SizedBox(width: 15),
                 pw.Padding(
                     padding: pw.EdgeInsets.symmetric(vertical: 4),
                     child: pw.Container(
                         width: 220,
-                        height: 80,
+                        height: 60,
                         padding: pw.EdgeInsets.all(4),
                         child: pw.Column(
                             mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
@@ -3119,11 +3116,11 @@ Future<void> downloadBiltyLadani(Bilty bilty,
                                   packhouseName.isNotEmpty)
                                 pw.Text('Packhouse: $packhouseName',
                                     style:
-                                    pw.TextStyle(font: font, fontSize: 12)),
-                              if (aadhatiName != null && aadhatiName.isNotEmpty)
-                                pw.Text('Aadhati: $aadhatiName',
+                                        pw.TextStyle(font: font, fontSize: 12)),
+                              if (ladaniName != null && ladaniName.isNotEmpty)
+                                pw.Text('Ladnai: $ladaniName',
                                     style:
-                                    pw.TextStyle(font: font, fontSize: 12)),
+                                        pw.TextStyle(font: font, fontSize: 12)),
                             ]))),
                 pw.SizedBox(height: 16),
               ]),
@@ -3193,19 +3190,12 @@ Future<void> downloadBiltyLadani(Bilty bilty,
                           )),
                 ],
               ),
-              pw.SizedBox(height: 18),
-               // Space between tables
-      // Adjust width as needed
+              pw.SizedBox(height: 4),
+              // Space between tables
+              // Adjust width as needed
 
               pw.Table(
-                border: pw.TableBorder.all(
-                ),
-                columnWidths: {
-                  0: const pw.FlexColumnWidth(1.5),
-                  1: const pw.FlexColumnWidth(1.2),
-                  2: const pw.FlexColumnWidth(1.8),
-                  3: const pw.FlexColumnWidth(1.5),
-                },
+                border: pw.TableBorder.all(),
                 children: [
                   // Header Row
                   pw.TableRow(
@@ -3234,17 +3224,21 @@ Future<void> downloadBiltyLadani(Bilty bilty,
                     ),
                     children: [
                       _buildEnhancedDataCell(
-                        biddingPrice > 0 ? 'Rs. ${biddingPrice.toStringAsFixed(1)}' : 'N/A',
+                        biddingPrice > 0
+                            ? 'Rs. ${biddingPrice.toStringAsFixed(1)}'
+                            : 'N/A',
                         font,
                       ),
                       _buildEnhancedDataCell('$totalBoxes', font),
-                      _buildEnhancedDataCell('${grandTotalWeight.toStringAsFixed(1)} kg', font),
-                      _buildEnhancedDataCell('Rs. ${grandTotalPrice.toStringAsFixed(1)}', font),
+                      _buildEnhancedDataCell(
+                          '${grandTotalWeight.toStringAsFixed(1)} kg', font),
+                      _buildEnhancedDataCell(
+                          'Rs. ${grandTotalPrice.toStringAsFixed(1)}', font),
                     ],
                   ),
                 ],
               ),
-              pw.SizedBox(height: 18),
+              pw.SizedBox(height: 4),
               // App download text
               pw.Center(
                 child: pw.Row(
@@ -3501,7 +3495,3 @@ Future<void> downloadBiltyLadani(Bilty bilty,
     rethrow;
   }
 }
-
-
-
-

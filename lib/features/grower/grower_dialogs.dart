@@ -1110,9 +1110,51 @@ class GrowerDialogs {
                                   ),
                                 ),
                               ),
-                            ]): Row( mainAxisAlignment: MainAxisAlignment.center,children: [Center(child: Text("Grower's Approval Pending"))],),
+                            ]):(consignment.currentStage =="Completed")?Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              print(consignment.id);
+                              glb.consignmentID.value = consignment.id!;
+                              print(glb.consignmentID.value);
+                              Get.toNamed(
+                                  RoutesConstant.aadhatiSession);
+                            },
+                            icon: Icon(Icons.movie_creation, size: 18),
+                            label: Text('Download'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green[700],
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ]): Row( mainAxisAlignment: MainAxisAlignment.center,children: [Center(child: Text("Grower's Approval Pending"))],),
                 if(glb.roleType.value=="Ladani/Buyers"||glb.roleType.value=="Freight Forwarder")
-                  Row(
+                  (consignment.currentStage =="Completed")?Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            print(consignment.id);
+                            glb.consignmentID.value = consignment.id!;
+                            print(glb.consignmentID.value);
+                            Get.toNamed(
+                                RoutesConstant.aadhatiSession);
+                          },
+                          icon: Icon(Icons.movie_creation, size: 18),
+                          label: Text('Download'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green[700],
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                      ]):Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton.icon(

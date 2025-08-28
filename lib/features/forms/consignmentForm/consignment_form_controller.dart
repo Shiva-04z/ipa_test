@@ -120,7 +120,7 @@ class ConsignmentFormController extends GetxController {
           step.value = 3;
         } else if (consignment.value?.currentStage == "Release for Bid" ||
             consignment.value?.currentStage == "Bidding Invite" ||
-            consignment.value?.currentStage == "Bidding Start") {
+            consignment.value?.currentStage == "Bidding Start"|| consignment.value?.currentStage == "Completed" ) {
           Get.offNamed(RoutesConstant.growerSession);
         }
 
